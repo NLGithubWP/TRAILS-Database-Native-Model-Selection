@@ -1,2 +1,5 @@
-thrid_party/*
+#third_party/HpBandSter
+#third_party/SMAC3
+#third_party/NASI-Dev
 .idea/*
+.DS_Store
