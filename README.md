@@ -15,6 +15,8 @@ When run in server, add path to env
 # export PATH=”$PATH:/home/xingnaili/Fast-AutoNAS/src”
 # export PYTHONPATH=$PYTHONPATH:/home/xingnaili/Fast-AutoNAS/src
 
+export PYTHONPATH=$PYTHONPATH:/Users/kevin/project_python/Fast-AutoNAS/src
+
 
 
 
