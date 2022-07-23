@@ -1,9 +1,8 @@
-
+import time
 
 import numpy as np
 from search_algorithm.core.evaluator import Evaluator
 from search_algorithm.utils.autograd_hacks import *
-from search_space import Architecture
 
 
 class NTKTraceEvaluator(Evaluator):
@@ -11,7 +10,7 @@ class NTKTraceEvaluator(Evaluator):
     def __init__(self):
         super().__init__()
 
-    def evaluate(self, arch: Architecture, pre_defined, batch_data: torch.tensor, batch_labels: torch.tensor) -> float:
+    def evaluate(self, arch: nn.Module, pre_defined, batch_data: torch.tensor, batch_labels: torch.tensor) -> float:
         """
         This is implementation of paper
         "NASI: Label- and Data-agnostic Neural Architecture Search at Initialization"
@@ -23,7 +22,8 @@ class NTKTraceEvaluator(Evaluator):
             4. calculate NTK = grads * grads_t
             5. calculate M_trace = traceNorm(NTK), score = np.sqrt(trace_norm / batch_size)
         """
-        arch.zero_grad()
+        device = pre_defined.device
+
         batch_size = batch_data.shape[0]
         add_hooks(arch)
 
@@ -40,18 +40,39 @@ class NTKTraceEvaluator(Evaluator):
         compute_grad1(arch, loss_type='sum')
 
         grads = [param.grad1.flatten(start_dim=1) for param in arch.parameters() if hasattr(param, 'grad1')]
-        grads = torch.cat(grads, axis=1)
+
+        # remove those in GPU
+        del arch
+        torch.cuda.empty_cache()
+
+        print("gradient calculated done, delete arch, begin to compute NTK")
 
         # 4. ntk = ∇0 f(X) * Transpose( ∇0 f(X) ) [ batch_size * batch_size ]
-        ntk = torch.matmul(grads, grads.t())
+        begin = time.time()
+        grads_final = torch.zeros(batch_size, batch_size).to(device)
+        for ele in grads:
+            grads_final += torch.matmul(ele, ele.t())
+        end = time.time()
+
+        ntk = grads_final.detach()
+        del grads
+        del grads_final
+        torch.cuda.empty_cache()
 
         # 5. calculate M_trace = sqrt ( |ntk|_tr * 1/m )
 
         # For a Hermitian matrix, like a density matrix,
         # the absolute value of the eigenvalues are exactly the singular values,
         # so the trace norm is the sum of the absolute value of the eigenvalues of the density matrix.
-        eigenvalues, _ = torch.symeig(ntk)  # ascending
+        # eigenvalues, _ = torch.symeig(ntk)  # ascending
+        eigenvalues, _ = torch.linalg.eigh(ntk)
+
         trace_norm = eigenvalues.cpu().numpy().sum()
-        return np.sqrt(trace_norm / batch_size)
+        score = np.sqrt(trace_norm / batch_size)
+
+        del eigenvalues
+        del ntk
+        torch.cuda.empty_cache()
+        return score
 
 

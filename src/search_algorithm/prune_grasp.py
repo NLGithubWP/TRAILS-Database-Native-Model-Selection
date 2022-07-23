@@ -3,7 +3,6 @@ from torch import autograd
 from search_algorithm.core.evaluator import Evaluator
 from search_algorithm.utils.autograd_hacks import *
 from search_algorithm.utils.p_utils import get_layer_metric_array
-from search_space import Architecture
 
 
 class GraspEvaluator(Evaluator):
@@ -11,7 +10,7 @@ class GraspEvaluator(Evaluator):
     def __init__(self):
         super().__init__()
 
-    def evaluate(self, arch: Architecture, pre_defined, batch_data: torch.tensor, batch_labels: torch.tensor) -> float:
+    def evaluate(self, arch: nn.Module, pre_defined, batch_data: torch.tensor, batch_labels: torch.tensor) -> float:
         """
         This is implementation of paper
         "PICKING WINNING TICKETS BEFORE TRAINING BY PRESERVING GRADIENT FLOW"
@@ -40,7 +39,7 @@ class GraspEvaluator(Evaluator):
 
         # NOTE original code had some input/target splitting into 2
         # I am guessing this was because of GPU mem limit
-        arch.zero_grad()
+        # arch.zero_grad()
         N = batch_data.shape[0]
         for sp in range(split_data):
             st = sp * N // split_data

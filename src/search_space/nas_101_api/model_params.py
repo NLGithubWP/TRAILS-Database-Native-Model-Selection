@@ -7,8 +7,10 @@ class NasBench101Cfg(ModelCfgs):
                  stem_out_channels,
                  num_stacks,
                  num_modules_per_stack,
-                 num_labels):
+                 num_labels,
+                 bn):
         self.stem_out_channels = stem_out_channels
         self.num_stacks = num_stacks
         self.num_modules_per_stack = num_modules_per_stack
         self.num_labels = num_labels
+        self.bn = bn

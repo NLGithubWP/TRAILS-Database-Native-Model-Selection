@@ -1,8 +1,11 @@
+
 import numpy as np
 
+import logger
 from search_algorithm.core.evaluator import Evaluator
 from search_algorithm.utils.autograd_hacks import *
-from search_space import Architecture
+from torch import nn
+from logger import logger
 
 
 class JacobConvEvaluator(Evaluator):
@@ -10,7 +13,7 @@ class JacobConvEvaluator(Evaluator):
     def __init__(self):
         super().__init__()
 
-    def evaluate(self, arch: Architecture, pre_defined, batch_data: torch.tensor, batch_labels: torch.tensor) -> float:
+    def evaluate(self, arch: nn.Module, pre_defined, batch_data: torch.tensor, batch_labels: torch.tensor) -> float:
         """
         This is another implementation of paper "Neural Architecture Search without Training"
         This is from implementation of paper "ZERO-COST PROXIES FOR LIGHTWEIGHT NAS"
@@ -22,15 +25,13 @@ class JacobConvEvaluator(Evaluator):
         split_data = 1
 
         # Compute gradients (but don't apply them)
-        arch.zero_grad()
-
         jacobs = self.get_batch_jacobian(arch, batch_data, split_data=split_data)
         jacobs = jacobs.reshape(jacobs.size(0), -1).cpu().numpy()
 
         try:
             jc = self.eval_score(jacobs)
         except Exception as e:
-            print(e)
+            logger.error("JacobConvEvaluator error: " + str(e))
             jc = np.nan
 
         return jc

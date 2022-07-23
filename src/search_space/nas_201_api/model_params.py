@@ -7,8 +7,10 @@ class NasBench201Cfg(ModelCfgs):
                  dataset_name,
                  init_b_type,
                  init_w_type,
-                 num_labels):
+                 num_labels,
+                 bn):
         self.dataset_name = dataset_name
         self.init_b_type = init_b_type
         self.init_w_type = init_w_type
         self.num_labels = num_labels
+        self.bn = bn

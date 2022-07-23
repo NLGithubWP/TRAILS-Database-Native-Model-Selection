@@ -1,4 +1,5 @@
 
+import torch
 from torch import tensor
 from torch.utils.data import DataLoader
 from torchvision.datasets import MNIST, CIFAR10, CIFAR100, SVHN

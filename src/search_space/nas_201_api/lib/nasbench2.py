@@ -31,9 +31,9 @@ def gen_searchcell_mask_from_arch_str(arch_str):
     return keep_mask
 
 
-def get_model_from_arch_str(arch_str, num_classes, use_bn=True, init_channels=16):
+def get_model_from_arch_str(arch_str, num_classes, bn=True, init_channels=16):
     keep_mask = gen_searchcell_mask_from_arch_str(arch_str)
-    net = NAS201Model(arch_str=arch_str, num_classes=num_classes, use_bn=use_bn, keep_mask=keep_mask, stem_ch=init_channels)
+    net = NAS201Model(arch_str=arch_str, num_classes=num_classes, use_bn=bn, keep_mask=keep_mask, stem_ch=init_channels)
     return net
 
 

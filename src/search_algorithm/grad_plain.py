@@ -3,7 +3,7 @@
 from search_algorithm.core.evaluator import Evaluator
 from search_algorithm.utils.autograd_hacks import *
 from search_algorithm.utils.p_utils import get_layer_metric_array
-from search_space import Architecture
+from torch import nn
 
 
 class GradPlainEvaluator(Evaluator):
@@ -11,7 +11,7 @@ class GradPlainEvaluator(Evaluator):
     def __init__(self):
         super().__init__()
 
-    def evaluate(self, arch: Architecture, pre_defined, batch_data: torch.tensor, batch_labels: torch.tensor) -> float:
+    def evaluate(self, arch: nn.Module, pre_defined, batch_data: torch.tensor, batch_labels: torch.tensor) -> float:
         """
         The score takes 3 steps:
             1. Run a forward & backward pass to calculate gradient of loss on weight, grad_w = d_loss/d_w
@@ -22,7 +22,6 @@ class GradPlainEvaluator(Evaluator):
         split_data = 1
         loss_fn = F.cross_entropy
 
-        arch.zero_grad()
         N = batch_data.shape[0]
         for sp in range(split_data):
             st = sp * N // split_data

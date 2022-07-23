@@ -3,9 +3,9 @@
 class CommonVars:
 
     # SAMPLER
+    TEST_SAMPLER = "test"
     RANDOM_SAMPLER = "random"
     BOHB_SAMPLER = "bohb"
-
 
     # EVALUATOR
     GRAD_NORM = "grad_norm"
@@ -25,6 +25,8 @@ class CommonVars:
 
     WEIGHT_NORM = "weight_norm"
 
+    ALL_EVALUATOR = "all_matrix"
+
     # SEARCH SPACE
     NASBENCH101 = "nas-bench-101"
     NASBENCH201 = "nas-bench-201"
@@ -34,4 +36,5 @@ class CommonVars:
     Spearman = "Spearman"
     Pearson = "Pearson"
     AvgCorrelation = "average_correlation"
+    AllCorrelation = "all_correlation"
 

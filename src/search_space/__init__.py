@@ -1,4 +1,5 @@
 
+import os
 from .core.space import SpaceWrapper
 from .nas_101_api.model_params import NasBench101Cfg
 from .nas_101_api.space import NasBench101Space
@@ -7,25 +8,34 @@ from .nas_201_api.space import NasBench201Space
 
 
 def init_search_space(args) -> SpaceWrapper:
-    if args.nasspace == 'nasbench101':
+
+    bn = True
+    if args.bn == 1:
+        bn = True
+    else:
+        bn = False
+
+    if args.search_space == 'nasbench101':
 
         model_cfg = NasBench101Cfg(
             args.stem_out_channels,
             args.num_stacks,
             args.num_modules_per_stack,
-            args.num_labels)
+            args.num_labels,
+            bn)
 
-        return NasBench101Space(args.api_loc, model_cfg)
+        return NasBench101Space(os.path.join(args.base_dir, args.api_loc), model_cfg)
 
-    elif args.nasspace == 'nasbench201':
+    elif args.search_space == 'nasbench201':
 
         model_cfg = NasBench201Cfg(
             args.dataset,
             args.init_b_type,
             args.init_w_type,
-            args.num_labels)
+            args.num_labels,
+            bn)
 
-        return NasBench201Space(args.api_loc, model_cfg)
+        return NasBench201Space(os.path.join(args.base_dir, args.api_loc), model_cfg)
 
     # elif args.nasspace == 'nds_resnet':
     #     return NDS('ResNet')

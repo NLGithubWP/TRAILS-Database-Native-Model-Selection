@@ -15,26 +15,27 @@ from search_algorithm.weight_norm import WeightNormEvaluator
 # evaluator mapper to register many existing evaluation algorithms
 evaluator_register = {
 
-    # sum on gradient
+    # # sum on gradient
     CommonVars.GRAD_NORM: GradNormEvaluator(),
     CommonVars.GRAD_PLAIN: GradPlainEvaluator(),
-
-    # training free matrix
+    #
+    # # training free matrix
     CommonVars.JACOB_CONV: JacobConvEvaluator(),
     CommonVars.NAS_WOT: NWTEvaluator(),
 
     # this is ntk based
     CommonVars.NTK_CONDNUM: NTKCondNumEvaluator(),
     CommonVars.NTK_TRACE: NTKTraceEvaluator(),
+
     CommonVars.NTK_TRACE_APPROX: NTKTraceApproxEvaluator(),
 
-    # prune based
+    # # prune based
     CommonVars.PRUNE_FISHER: FisherEvaluator(),
     CommonVars.PRUNE_GRASP: GraspEvaluator(),
     CommonVars.PRUNE_SNIP: SnipEvaluator(),
     CommonVars.PRUNE_SYNFLOW: SynFlowEvaluator(),
 
-    # sum of weight
+    # # sum of weight
     CommonVars.WEIGHT_NORM: WeightNormEvaluator(),
 
 }

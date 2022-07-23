@@ -1,0 +1,58 @@
+
+
+res = {
+    'fisher': {'KendallTau': -0.16578625263985847,
+            'Pearson': -0.06347246037021828,
+            'Spearman': -0.2552212540553334,
+            'average_correlation': -0.16149332235513672},
+ 'grad_norm': {'KendallTau': -0.12165945249954,
+               'Pearson': -0.15873496499503406,
+               'Spearman': -0.1880765251105066,
+               'average_correlation': -0.1561569808683602},
+ 'grad_plain': {'KendallTau': -0.2512430838975175,
+                'Pearson': -0.023617213024745554,
+                'Spearman': -0.3786722938815079,
+                'average_correlation': -0.2178441969345903},
+ 'grasp': {'KendallTau': 0.18256686677772604,
+           'Pearson': 0.04145159259566815,
+           'Spearman': 0.2776757345276534,
+           'average_correlation': 0.16723139796701583},
+ 'jacob_conv': {'KendallTau': -0.027501562059282992,
+                'Pearson': -0.07485803761885669,
+                'Spearman': -0.044597093160302095,
+                'average_correlation': -0.04898556427948059},
+ 'nas_wot': {'KendallTau': 0.2900870981055443,
+             'Pearson': 0.16259014106767022,
+             'Spearman': 0.404391260511961,
+             'average_correlation': 0.2856894998950585},
+ 'ntk_cond_num': {'KendallTau': -0.2540398529204954,
+                  'Pearson': -0.586358491786145,
+                  'Spearman': -0.3699116443032922,
+                  'average_correlation': -0.4034366630033109},
+ 'ntk_trace': {'KendallTau': -0.17977009775474811,
+               'Pearson': -0.28948741375262765,
+               'Spearman': -0.27728286212400705,
+               'average_correlation': -0.24884679121046094},
+ 'ntk_trace_approx': {'KendallTau': -0.2754817487633262,
+                      'Pearson': -0.1857026440973723,
+                      'Spearman': -0.4163434920909322,
+                      'average_correlation': -0.29250929498387696},
+ 'snip': {'KendallTau': -0.06603482415364559,
+          'Pearson': -0.0767502994075511,
+          'Spearman': -0.108821605579057,
+          'average_correlation': -0.08386890971341791},
+ 'synflow': {'KendallTau': 0.24269585455446574,
+             'Pearson': 0.12128616328335412,
+             'Spearman': 0.36714160012966607,
+             'average_correlation': 0.2437078726558287},
+ 'weight_norm': {'KendallTau': 0.3829224771757923,
+                 'Pearson': 0.21050427893491672,
+                 'Spearman': 0.5209939548685115,
+                 'average_correlation': 0.3714735703264069}}
+
+list = ["grad_norm", "grad_plain", "jacob_conv", "nas_wot", "ntk_cond_num", "ntk_trace", "ntk_trace_approx",
+        "fisher", "grasp", "snip", "synflow", "weight_norm"]
+for key in list:
+    if key in res:
+        print(key, res[key]["Pearson"], res[key]["KendallTau"], res[key]["Spearman"] )
+        print(key, '%.2f, %.2f, %.2f' % (res[key]["Pearson"], res[key]["KendallTau"], res[key]["Spearman"]))

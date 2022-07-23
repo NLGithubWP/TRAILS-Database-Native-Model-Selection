@@ -3,7 +3,7 @@
 from search_algorithm.core.evaluator import Evaluator
 from search_algorithm.utils.autograd_hacks import *
 from search_algorithm.utils.p_utils import get_layer_metric_array, reshape_elements
-from search_space import Architecture
+ 
 import types
 
 
@@ -12,7 +12,7 @@ class FisherEvaluator(Evaluator):
     def __init__(self):
         super().__init__()
 
-    def evaluate(self, arch: Architecture, pre_defined, batch_data: torch.tensor, batch_labels: torch.tensor) -> float:
+    def evaluate(self, arch: nn.Module, pre_defined, batch_data: torch.tensor, batch_labels: torch.tensor) -> float:
         """
         This is implementation of paper
         "Faster gaze prediction with dense archworks and fisher pruning"
@@ -32,8 +32,6 @@ class FisherEvaluator(Evaluator):
         # update model's forward and backward function
         self._update_module_compute(arch)
 
-        arch.train()
-        arch.zero_grad()
         N = batch_data.shape[0]
 
         for sp in range(split_data):
@@ -67,7 +65,7 @@ class FisherEvaluator(Evaluator):
             score += grads_abs[i].detach().cpu().numpy().sum()
         return score
 
-    def _update_module_compute(self, arch: Architecture):
+    def _update_module_compute(self, arch):
         """
         override the computation, where self is the layer,
         :param arch: architecture

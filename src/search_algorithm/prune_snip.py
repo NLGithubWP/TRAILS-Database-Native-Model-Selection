@@ -3,7 +3,7 @@
 from search_algorithm.core.evaluator import Evaluator
 from search_algorithm.utils.autograd_hacks import *
 from search_algorithm.utils.p_utils import get_layer_metric_array
-from search_space import Architecture
+ 
 import types
 
 
@@ -12,7 +12,7 @@ class SnipEvaluator(Evaluator):
     def __init__(self):
         super().__init__()
 
-    def evaluate(self, arch: Architecture, pre_defined, batch_data: torch.tensor, batch_labels: torch.tensor) -> float:
+    def evaluate(self, arch: nn.Module, pre_defined, batch_data: torch.tensor, batch_labels: torch.tensor) -> float:
         """
         This is implementation of paper
         "SNIP: SINGLE -SHOT NETWORK PRUNING BASED ON CONNECTION SENSITIVITY"
@@ -25,7 +25,6 @@ class SnipEvaluator(Evaluator):
         self._update_module_compute(arch)
 
         # Compute gradients (but don't apply them)
-        arch.zero_grad()
 
         # run a forward + backward on mini-batch， spit data if it cannot fit into one GPU
         for sp in range(split_data):
@@ -51,7 +50,7 @@ class SnipEvaluator(Evaluator):
             score += grads_abs[i].detach().cpu().numpy().sum()
         return score
 
-    def _update_module_compute(self, arch: Architecture):
+    def _update_module_compute(self, arch):
         # override the computation, where self is the layer,
         # assign a master vector to the weight,
         def snip_forward_conv2d(self, x):

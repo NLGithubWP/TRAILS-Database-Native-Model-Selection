@@ -2,7 +2,8 @@
 from search_algorithm.core.evaluator import Evaluator
 from search_algorithm.utils.autograd_hacks import *
 from search_algorithm.utils.p_utils import get_layer_metric_array
-from search_space import Architecture
+from logger import logger
+from torch import nn
 
 
 class GradNormEvaluator(Evaluator):
@@ -10,7 +11,7 @@ class GradNormEvaluator(Evaluator):
     def __init__(self):
         super().__init__()
 
-    def evaluate(self, arch: Architecture, pre_defined, batch_data: torch.tensor, batch_labels: torch.tensor) -> float:
+    def evaluate(self, arch: nn.Module, pre_defined, batch_data: torch.tensor, batch_labels: torch.tensor) -> float:
         """
         This is implementation of paper
         "Keep the Gradients Flowing: Using Gradient Flow to Study Sparse Network Optimization"
@@ -23,7 +24,7 @@ class GradNormEvaluator(Evaluator):
         split_data = 1
         loss_fn = F.cross_entropy
 
-        arch.zero_grad()
+        # arch.zero_grad()
         N = batch_data.shape[0]
 
         grad_norm_arr = []
@@ -32,6 +33,7 @@ class GradNormEvaluator(Evaluator):
             en = (sp + 1) * N // split_data
 
             # 1. forward on mini-batch
+            # logger.info("min-batch is in cuda2 = " + str(batch_data.is_cuda))
             outputs = arch.forward(batch_data[st:en])
             loss = loss_fn(outputs, batch_labels[st:en])
             loss.backward()

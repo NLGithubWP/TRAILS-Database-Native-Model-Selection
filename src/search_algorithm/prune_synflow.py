@@ -1,17 +1,17 @@
 
 
 import torch
+from torch import nn
 from search_algorithm.core.evaluator import Evaluator
 from search_algorithm.utils.p_utils import get_layer_metric_array
-from search_space import Architecture
-
+ 
 
 class SynFlowEvaluator(Evaluator):
 
     def __init__(self):
         super().__init__()
 
-    def evaluate(self, arch: Architecture, pre_defined, batch_data: torch.tensor, batch_labels: torch.tensor) -> float:
+    def evaluate(self, arch: nn.Module, pre_defined, batch_data: torch.tensor, batch_labels: torch.tensor) -> float:
         """
         This is implementation of paper
         "Pruning neural networks without any data by iteratively conserving synaptic flow"
@@ -47,12 +47,11 @@ class SynFlowEvaluator(Evaluator):
         signs = linearize(arch)
 
         # 2. Compute gradients with input of one dummy example ( 1-vector with dimension [1, c, h, w] )
-        arch.zero_grad()
         arch.double()
 
         # add one dimension to feature dim, [1] + [3, 32, 32] = [1, 3, 32, 32]
         feature_dim = list(batch_data[0, :].shape)
-        batch_data = torch.ones([1] + feature_dim).double()
+        batch_data = torch.ones([1] + feature_dim).double().to(pre_defined.device)
 
         output = arch.forward(batch_data)
 

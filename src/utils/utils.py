@@ -299,11 +299,13 @@ def load_ckpt(ckpt_path):
         print(f"=> fail loading {ckpt_path}..."); exit()
     return checkpoint
 
+
 def save_ckpt(ckpt, file_dir, file_name='model.ckpt', is_best=False):
     if not os.path.exists(file_dir): os.makedirs(file_dir)
     ckpt_path = os.path.join(file_dir, file_name)
     torch.save(ckpt, ckpt_path)
     if is_best: shutil.copyfile(ckpt_path, os.path.join(file_dir, f'best_{file_name}'))
+
 
 def drop_path(x, drop_prob, dims=(0, )):
     var_size = [1 for _ in range(x.dim())]
@@ -367,6 +369,7 @@ def logger(log_dir, need_time=True, need_stdout=False):
             ch.setFormatter(formatter)
     log.addHandler(fh)
     return log
+
 
 class CrossEntropyLabelSmooth(nn.Module):
 

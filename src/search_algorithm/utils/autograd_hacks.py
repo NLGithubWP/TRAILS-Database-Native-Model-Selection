@@ -27,10 +27,11 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from search_algorithm.utils.gpu_util import showUtilization
 
 _supported_layers = ['Linear', 'Conv2d']  # Supported layer class types
-_hooks_disabled: bool = False           # work-around for https://github.com/pytorch/pytorch/issues/25723
-_enforce_fresh_backprop: bool = False   # global switch to catch double backprop errors on Hessian computation
+_hooks_disabled: bool = False  # work-around for https://github.com/pytorch/pytorch/issues/25723
+_enforce_fresh_backprop: bool = False  # global switch to catch double backprop errors on Hessian computation
 
 
 def add_hooks(model: nn.Module) -> None:
@@ -54,7 +55,7 @@ def add_hooks(model: nn.Module) -> None:
     for layer in model.modules():
         if _layer_type(layer) in _supported_layers:
             handles.append(layer.register_forward_hook(_capture_activations))
-            handles.append(layer.register_backward_hook(_capture_backprops))
+            handles.append(layer.register_full_backward_hook(_capture_backprops))
 
     model.__dict__.setdefault('autograd_hacks_hooks', []).extend(handles)
 
@@ -152,15 +153,15 @@ def compute_grad1(model: nn.Module, loss_type: str = 'mean') -> None:
         #     continue
         # assert hasattr(layer, 'activations'), "No activations detected, run forward after add_hooks(model)"
         # assert hasattr(layer, 'backprops_list'), "No backprops detected, run backward after add_hooks(model)"
-        
+
         if (layer_type not in _supported_layers) or \
                 (not hasattr(layer, 'activations')) or \
                 (not hasattr(layer, 'backprops_list')):
             continue
-        
+
         assert len(layer.backprops_list) == 1, "Multiple back props detected, make sure to call clear_back props(model)"
         A = layer.activations
-        n = A.shape[0] # batch size
+        n = A.shape[0]  # batch size
         if loss_type == 'mean':
             B = layer.backprops_list[0] * n
         else:
@@ -186,16 +187,22 @@ def compute_grad1(model: nn.Module, loss_type: str = 'mean') -> None:
             # grad1 = torch.einsum('ijk,ilk->ijl', B, A)
 
             # reshape A and B into 4 dimension, one for group Number [batch_size, groups, shape, others]
-            grad1 = torch.einsum('icjk,iclk->icjl',
-                                 B.reshape(n, layer.groups, B.shape[1] // layer.groups, -1),
-                                 A.reshape(n, layer.groups, A.shape[1] // layer.groups, -1))
-            shape = [n] + list(layer.weight.shape) # concat batch size to weight
+            grad1 = torch.einsum(
+                'icjk,iclk->icjl',
+                B.reshape(n, layer.groups, B.shape[1] // layer.groups, -1),
+                A.reshape(n, layer.groups, A.shape[1] // layer.groups, -1))
+            shape = [n] + list(layer.weight.shape)  # concat batch size to weight
             setattr(layer.weight, 'grad1', grad1.reshape(shape))
             if layer.bias is not None:
                 setattr(layer.bias, 'grad1', torch.sum(B, dim=2))
 
+        # print("=== before prune layer "+layer_type, showUtilization()[0])
+        del layer
+        torch.cuda.empty_cache()
+        # print("=== after prune layer "+ layer_type, showUtilization()[0])
 
-def compute_hess(model: nn.Module,) -> None:
+
+def compute_hess(model: nn.Module, ) -> None:
     """Save Hessian under param.hess for each param in the model"""
 
     for layer in model.modules():
@@ -213,28 +220,28 @@ def compute_hess(model: nn.Module,) -> None:
             o = B.shape[0]
 
             A = torch.stack([A] * o)
-            Jb = torch.einsum("oni,onj->onij", B, A).reshape(n*o,  -1)
+            Jb = torch.einsum("oni,onj->onij", B, A).reshape(n * o, -1)
             H = torch.einsum('ni,nj->ij', Jb, Jb) / n
 
             setattr(layer.weight, 'hess', H)
 
             if layer.bias is not None:
-                setattr(layer.bias, 'hess', torch.einsum('oni,onj->ij', B, B)/n)
+                setattr(layer.bias, 'hess', torch.einsum('oni,onj->ij', B, B) / n)
 
         elif layer_type == 'Conv2d':
             Kh, Kw = layer.kernel_size
             di, do = layer.in_channels, layer.out_channels
 
             A = layer.activations.detach()
-            A = torch.nn.functional.unfold(A, (Kh, Kw))       # n, di * Kh * Kw, Oh * Ow
+            A = torch.nn.functional.unfold(A, (Kh, Kw))  # n, di * Kh * Kw, Oh * Ow
             n = A.shape[0]
             B = torch.stack([Bt.reshape(n, do, -1) for Bt in layer.backprops_list])  # o, n, do, Oh*Ow
             o = B.shape[0]
 
-            A = torch.stack([A] * o)                          # o, n, di * Kh * Kw, Oh*Ow
-            Jb = torch.einsum('onij,onkj->onik', B, A)        # o, n, do, di * Kh * Kw
+            A = torch.stack([A] * o)  # o, n, di * Kh * Kw, Oh*Ow
+            Jb = torch.einsum('onij,onkj->onik', B, A)  # o, n, do, di * Kh * Kw
 
-            Hi = torch.einsum('onij,onkl->nijkl', Jb, Jb)     # n, do, di*Kh*Kw, do, di*Kh*Kw
+            Hi = torch.einsum('onij,onkl->nijkl', Jb, Jb)  # n, do, di*Kh*Kw, do, di*Kh*Kw
             Jb_bias = torch.einsum('onij->oni', B)
             Hi_bias = torch.einsum('oni,onj->nij', Jb_bias, Jb_bias)
 

@@ -2,7 +2,7 @@
 
 from search_algorithm.core.evaluator import Evaluator
 from search_algorithm.utils.autograd_hacks import *
-from search_space import Architecture
+ 
 from torch.autograd import grad
 
 
@@ -11,7 +11,7 @@ class NTKTraceApproxEvaluator(Evaluator):
     def __init__(self):
         super().__init__()
 
-    def evaluate(self, arch: Architecture, pre_defined, batch_data: torch.tensor, batch_labels: torch.tensor) -> float:
+    def evaluate(self, arch: nn.Module, pre_defined, batch_data: torch.tensor, batch_labels: torch.tensor) -> float:
         """
         This is implementation of paper
         "NASI: Label- and Data-agnostic Neural Architecture Search at Initialization"
@@ -28,10 +28,6 @@ class NTKTraceApproxEvaluator(Evaluator):
         gap = 0
 
         # run in train mode
-        arch.train()
-
-        arch.zero_grad()
-
         # get all weights from architecture
         model_params = [p for n, p in arch.named_parameters() if p is not None]
 
@@ -47,7 +43,7 @@ class NTKTraceApproxEvaluator(Evaluator):
         score, avg_eigen = self.trace_loss(grads, gap, mu)
         return score
 
-    def trace_loss(self, grads, reg_weight, gap ) -> (float, float):
+    def trace_loss(self, grads, reg_weight, gap) -> (float, float):
         """
         Evaluate score of a given architecture with only one batch
         :param grads: y grads on weights
@@ -66,7 +62,7 @@ class NTKTraceApproxEvaluator(Evaluator):
 
         # avg_eigen = sum([ (g ** 2).sum() for g in grads])
         score = avg_eigen - reg_weight * F.relu(avg_eigen - gap)
-        return score, avg_eigen
+        return score.item(), avg_eigen
 
 
 

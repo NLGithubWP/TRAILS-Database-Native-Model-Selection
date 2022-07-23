@@ -31,7 +31,7 @@ class Cell(nn.Module):
     determined via equally splitting the channel count whenever there is a
     concatenation of Tensors.
     """
-    def __init__(self, spec_matrix, ops_matrix, in_channels, out_channels):
+    def __init__(self, spec_matrix, ops_matrix, in_channels, out_channels, bn=True):
         super(Cell, self).__init__()
 
         self.matrix = spec_matrix
@@ -44,7 +44,7 @@ class Cell(nn.Module):
         # append operations of each node
         self.vertex_op = nn.ModuleList([None])
         for t in range(1, self.num_vertices - 1):
-            op = OP_MAP[self.ops[t]](self.vertex_channels[t], self.vertex_channels[t])
+            op = OP_MAP[self.ops[t]](self.vertex_channels[t], self.vertex_channels[t], bn=bn)
             self.vertex_op.append(op)
 
         # project inout of each node count from 1
@@ -52,7 +52,7 @@ class Cell(nn.Module):
         for t in range(1, self.num_vertices):
             # if this node is connected, then 1 × 1 projections are used to scale channel counts
             if self.matrix[0, t]:
-                self.input_projection.append(projection(in_channels, self.vertex_channels[t]))
+                self.input_projection.append(projection(in_channels, self.vertex_channels[t], bn=bn))
             else:
                 self.input_projection.append(None) # add operation at node_index t if it is not connected to the input.
 
@@ -117,9 +117,10 @@ class NasBench101Network(nn.Module):
         num_stacks = model_cfg.num_stacks
         num_modules_per_stack = model_cfg.num_modules_per_stack
         num_labels = model_cfg.num_labels
+        bn = model_cfg.bn
 
         # stem consisting of one 3 × 3 convolution with 128 output channels
-        stem_conv = ConvBnRelu(in_channels, out_channels, 3, 1, 1)
+        stem_conv = ConvBnRelu(in_channels, out_channels, 3, 1, 1, bn=bn)
         self.layers.append(stem_conv)
 
         in_channels = out_channels
@@ -133,7 +134,7 @@ class NasBench101Network(nn.Module):
                 out_channels *= 2
 
             for module_num in range(num_modules_per_stack):
-                cell = Cell(spec.matrix, spec.ops, in_channels, out_channels)
+                cell = Cell(spec.matrix, spec.ops, in_channels, out_channels, bn=bn)
                 self.layers.append(cell)
                 in_channels = out_channels
 
@@ -156,6 +157,7 @@ class NasBench101Network(nn.Module):
         return logits
 
     def _initialize_weights(self):
+        torch.manual_seed(52)
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
@@ -184,9 +186,9 @@ class NasBench101Network(nn.Module):
 
 
 # copy from nasbench101
-def projection(in_channels, out_channels):
+def projection(in_channels, out_channels, bn=True):
     """1x1 projection (as in ResNet) followed by batch normalization and ReLU."""
-    return ProjConvBnRelu(in_channels, out_channels, 1)
+    return ConvBnRelu(in_channels, out_channels, 1, bn=bn)
 
 
 # copy from nasbench101
