@@ -3,7 +3,7 @@ import json
 
 from statistic_lib import get_rank_after_sort, sort_update
 
-with open('./Logs/201_15k_c10_128_noBN.json', 'r') as readfile:
+with open('./Logs/cifar10/201_15k_c10_128_ntk.json', 'r') as readfile:
     data = json.load(readfile)
 
 
@@ -27,18 +27,18 @@ ntk_cond_num = []
 for arch_id, info in data.items():
     ori_test_accuracy.append(info["validation_accuracy"])
 
-    fisher.append(info["scores"]["fisher"]["score"])
-    grad_norm.append(info["scores"]["grad_norm"]["score"])
-    grad_plain.append(info["scores"]["grad_plain"]["score"])
-    grasp.append(info["scores"]["grasp"]["score"])
-    jacob_conv.append(info["scores"]["jacob_conv"]["score"])
-    nas_wot.append(info["scores"]["nas_wot"]["score"])
-    ntk_trace_approx.append(info["scores"]["ntk_trace_approx"]["score"])
-    snip.append(info["scores"]["snip"]["score"])
-    synflow.append(info["scores"]["synflow"]["score"])
-    weight_norm.append(info["scores"]["weight_norm"]["score"])
-    # ntk_cond_num.append(info["scores"]["ntk_cond_num"]["score"])
-    # ntk_trace.append(info["scores"]["ntk_trace"]["score"])
+    # fisher.append(info["scores"]["fisher"]["score"])
+    # grad_norm.append(info["scores"]["grad_norm"]["score"])
+    # grad_plain.append(info["scores"]["grad_plain"]["score"])
+    # grasp.append(info["scores"]["grasp"]["score"])
+    # jacob_conv.append(info["scores"]["jacob_conv"]["score"])
+    # nas_wot.append(info["scores"]["nas_wot"]["score"])
+    # ntk_trace_approx.append(info["scores"]["ntk_trace_approx"]["score"])
+    # snip.append(info["scores"]["snip"]["score"])
+    # synflow.append(info["scores"]["synflow"]["score"])
+    # weight_norm.append(info["scores"]["weight_norm"]["score"])
+    ntk_cond_num.append(info["scores"]["ntk_cond_num"]["score"])
+    ntk_trace.append(info["scores"]["ntk_trace"]["score"])
 
 # draw with rank
 fisher = get_rank_after_sort(fisher)
@@ -52,8 +52,8 @@ snip = get_rank_after_sort(snip)
 synflow = get_rank_after_sort(synflow)
 weight_norm = get_rank_after_sort(weight_norm)
 
-ntk_cond_num = get_rank_after_sort(ntk_cond_num)
-ntk_trace = get_rank_after_sort(ntk_trace)
+# ntk_cond_num = get_rank_after_sort(ntk_cond_num)
+# ntk_trace = get_rank_after_sort(ntk_trace)
 
 # batch by b samples
 fisher, test_accuracy1 = sort_update(fisher, ori_test_accuracy)
@@ -84,10 +84,10 @@ f = plt.figure()
 # plt.scatter(nas_wot, test_accuracy6, color = 'k', marker='o', label='nas_wot')
 # plt.scatter(ntk_trace_approx, test_accuracy7, color = 'k', marker='o', label='ntk_trace_approx')
 # plt.scatter(snip, test_accuracy8, color = 'lime', marker='o', label='snip')
-plt.scatter(synflow, test_accuracy9, color = 'orange', marker='o', label='synflow')
+# plt.scatter(synflow, test_accuracy9, color = 'orange', marker='o', label='synflow')
 # plt.scatter(weight_norm, test_accuracy10, color = 'indigo', marker='o', label='weight_norm')
 # plt.scatter(ntk_cond_num, test_accuracy11, color = 'indigo', marker='o', label='ntk_cond_num')
-# plt.scatter(ntk_trace, test_accuracy12, color = 'indigo', marker='o', label='ntk_trace')
+plt.scatter(ntk_trace, test_accuracy12, color = 'indigo', marker='o', label='ntk_trace')
 
 
 # plt.xlim(-3000, 3000)

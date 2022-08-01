@@ -1,7 +1,9 @@
 
 
 import json
+import random
 import traceback
+import numpy as np
 from common.constant import CommonVars
 from logger import logger
 from search_algorithm.utils.gpu_util import showUtilization
@@ -20,15 +22,15 @@ def parse_arguments():
     parser.add_argument('--log_name', type=str, default="result.json", help="log_name")
 
     # job config
-    parser.add_argument('--num_arch', type=int, default=10, help="how many architecture to evaluate")
+    parser.add_argument('--num_arch', type=int, default=2, help="how many architecture to evaluate")
 
     # define base dir, where it stores apis, datasets, logs, etc,
     parser.add_argument('--base_dir', type=str, default="/Users/kevin/project_python/Fast-AutoNAS/data",
                         help='path of data folder')
 
     # dataLoader setting,
-    parser.add_argument('--batch_size', default=32, type=int)
-    parser.add_argument('--dataset', type=str, default='cifar10',
+    parser.add_argument('--batch_size', default=128, type=int)
+    parser.add_argument('--dataset', type=str, default='cifar100',
                         help='in one of [cifar10, cifar100, ImageNet16-120]')
     parser.add_argument('--num_data_workers', type=int, default=1,
                         help='number of workers for dataLoader')
@@ -36,13 +38,13 @@ def parse_arguments():
                         help='sample a mini batch, [random, grasp]')
 
     # define search space,
-    parser.add_argument('--search_space', type=str, default="nasbench201",
+    parser.add_argument('--search_space', type=str, default="nasbench101",
                         help='which search space to use, [nasbench101, nasbench201, ... ]')
 
-    parser.add_argument('--api_loc', type=str, default="NAS-Bench-201-v1_0-e61699.pth",
+    parser.add_argument('--api_loc', type=str, default="nasbench_only108.pkl",
                         help='which search space to use, ['
                              'nasbench101: nasbench_only108.pkl '
-                             'nasbench201: NAS-Bench-201-v1_0-e61699.pth '
+                             'nasbench201: NAS-Bench-201-v1_0-e61699.pth'
                              ' ... ]')
 
     # define architecture sampler,
@@ -50,7 +52,7 @@ def parse_arguments():
                         help='which architecture sampler to use, [test, random, BOHB, ...]')
 
     # define evaluation method
-    parser.add_argument('--evaluation', type=str, default="synflow",
+    parser.add_argument('--evaluation', type=str, default="all_matrix",
                         help='which evaluation algorithm to use, support following options'
                              '{'
                              'grad_norm: '
@@ -93,7 +95,17 @@ def parse_arguments():
 
 if __name__ == '__main__':
 
+    random.seed(20)
+    np.random.seed(20)
+    torch.manual_seed(20)
+
     args = parse_arguments()
+
+    if args.bn == 1:
+        bn = True
+    else:
+        bn = False
+
     logger.info("running with params: :" + json.dumps(args.__dict__, indent=2))
 
     logger.info("cuda available = " + str(torch.cuda.is_available()))
@@ -106,6 +118,10 @@ if __name__ == '__main__':
         num_workers=args.num_data_workers,
         datadir=args.base_dir)
     args.num_labels = class_num
+
+    if args.batch_size // class_num == 0:
+        logger.info("batch_size is smaller than class_num", args.batch_size,class_num )
+        exit(0)
 
     # sample a batch with random or GRASP
     mini_batch, mini_batch_targets = dataset.get_mini_batch(
@@ -137,51 +153,81 @@ if __name__ == '__main__':
     i = 1
     try:
         for arch_id, architecture in arch_generator:
+            if i > args.num_arch:
+                logger.info("Finish Job")
+                break
+
+            logger.info("--------------" + "Evaluate architecture with id = " + str(i) + " --------------")
             logger.info("arch id = :" + str(arch_id))
-            try:
-                if i > args.num_arch:
-                    logger.info("Finish Job")
-                    break
-                logger.info("--------------" + "Evaluate architecture with id = " + str(i) + " --------------")
-                result[arch_id] = dict()
-                result[arch_id]["scores"] = dict()
-                # torch.autograd.set_detect_anomaly(True):
-                for evaluator_name, evaluator in evaluator_dict.items():
-                    # clone the architecture
-                    new_arch = used_search_space.copy_architecture(arch_id, architecture)
+
+            result[arch_id] = dict()
+            result[arch_id]["scores"] = dict()
+
+            # torch.autograd.set_detect_anomaly(True):
+            for evaluator_name, evaluator in evaluator_dict.items():
+
+                # clone the architecture, if synflow, then create a new arch without bn
+                # if evaluator_name == CommonVars.PRUNE_SYNFLOW:
+                #     used_search_space.update_bn_flag(False)
+                #     new_arch = used_search_space.new_architecture(arch_id)
+                # else:
+                #     used_search_space.update_bn_flag(bn)
+                #     new_arch = used_search_space.copy_architecture(arch_id, architecture)
+                #
+                new_arch = used_search_space.copy_architecture(arch_id, architecture)
+                try:
                     new_arch = new_arch.to(args.device)
 
-                    score, time_usage, gpu_usage = evaluator.evaluate_wrapper(
+                    score, time_usage = evaluator.evaluate_wrapper(
                         arch=new_arch,
-                        pre_defined=args,
+                        device=args.device,
                         batch_data=mini_batch,
                         batch_labels=mini_batch_targets)
-                    logger.info(evaluator_name + ":" +  str(score))
-                    # records result,
-                    result[arch_id]["scores"].update(
-                        {evaluator_name: {"score": score,
-                                          "time_usage": time_usage,
-                                          "gpu_usage": gpu_usage}
-                         }
-                    )
 
+                    result[arch_id]["scores"].update({evaluator_name: {"score": score,
+                                                                       "time_usage": time_usage}})
+
+                    logger.info(evaluator_name + ":" + str(score))
+
+                except Exception as e:
+                    if "out of memory" in str(e):
+                        logger.info("======================================================")
+                        logger.error("architecture " + str(arch_id) + " will be evaluate in CPU, message = " + str(e))
+                        logger.info("======================================================")
+
+                        mini_batch_cpu = mini_batch.cpu()
+                        mini_batch_targets_cpu = mini_batch_targets.cpu()
+
+                        new_arch_cpu = used_search_space.copy_architecture(arch_id, new_arch.cpu()).cpu()
+
+                        score, cpu_time_usage = evaluator.evaluate_wrapper(
+                            arch=new_arch_cpu,
+                            device="cpu",
+                            batch_data=mini_batch_cpu,
+                            batch_labels=mini_batch_targets_cpu)
+
+                        result[arch_id]["scores"].update({evaluator_name: {"score": score,
+                                                                           "time_usage_cpu": cpu_time_usage}})
+
+                        logger.info(evaluator_name + " on cpu:" + str(score))
+                        del new_arch_cpu
+
+                    else:
+                        if arch_id in result:
+                            del result[arch_id]
+                        logger.info("======================================================")
+                        logger.error(traceback.format_exc())
+                        logger.error("error when evaluate architecture " + str(arch_id) + ", message = " + str(e))
+                        logger.info("======================================================")
+
+                finally:
                     # clean old graph
                     del new_arch
                     torch.cuda.empty_cache()
 
-                # 3. Query to query the real performance
-                result[arch_id].update(used_search_space.query_performance(arch_id))
-                i = i + 1
-            except Exception as e:
-                logger.info("======================================================")
-                logger.error(traceback.format_exc())
-                logger.error("error when evaluate architecture " + str(arch_id) + ", message = "+str(e))
-                logger.info("======================================================")
-                del new_arch
-                torch.cuda.empty_cache()
-                del result[arch_id]
-                import gc
-                gc.collect()
+            # 3. Query to query the real performance
+            result[arch_id].update(used_search_space.query_performance(arch_id, args.dataset))
+            i = i + 1
 
     except Exception as e:
         logger.info("================================================================================================")
@@ -189,7 +235,7 @@ if __name__ == '__main__':
         logger.error("error: " + str(e))
         logger.info("================================================================================================")
 
-    logger.info(json.dumps(result, indent=2))
+    # logger.info(json.dumps(result, indent=2))
 
     with open('./Logs/'+args.log_name, 'w') as outfile:
         outfile.write(json.dumps(result))

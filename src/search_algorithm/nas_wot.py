@@ -10,7 +10,7 @@ class NWTEvaluator(Evaluator):
     def __init__(self):
         super().__init__()
 
-    def evaluate(self, arch: nn.Module, pre_defined, batch_data: torch.tensor, batch_labels: torch.tensor) -> float:
+    def evaluate(self, arch: nn.Module, device, batch_data: torch.tensor, batch_labels: torch.tensor) -> float:
         """
         This is implementation of paper "Neural Architecture Search without Training"
         The score takes 5 steps:
@@ -18,7 +18,6 @@ class NWTEvaluator(Evaluator):
             2. calculate K = [Na - hamming_distance (ci, cj) for each ci, cj]
         """
 
-        device = pre_defined.device
         # add new attribute K
         arch.K = np.zeros((batch_data.shape[0], batch_data.shape[0]))
 

@@ -11,7 +11,7 @@ class SynFlowEvaluator(Evaluator):
     def __init__(self):
         super().__init__()
 
-    def evaluate(self, arch: nn.Module, pre_defined, batch_data: torch.tensor, batch_labels: torch.tensor) -> float:
+    def evaluate(self, arch: nn.Module, device, batch_data: torch.tensor, batch_labels: torch.tensor) -> float:
         """
         This is implementation of paper
         "Pruning neural networks without any data by iteratively conserving synaptic flow"
@@ -51,7 +51,7 @@ class SynFlowEvaluator(Evaluator):
 
         # add one dimension to feature dim, [1] + [3, 32, 32] = [1, 3, 32, 32]
         feature_dim = list(batch_data[0, :].shape)
-        batch_data = torch.ones([1] + feature_dim).double().to(pre_defined.device)
+        batch_data = torch.ones([1] + feature_dim).double().to(device)
 
         output = arch.forward(batch_data)
 

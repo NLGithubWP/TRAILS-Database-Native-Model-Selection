@@ -29,28 +29,21 @@ class SpaceWrapper:
         raise NotImplementedError
 
     @abstractmethod
-    def query_performance(self, arch_id: int) -> dict:
+    def query_performance(self, arch_id: int, dataset_name: str) -> dict:
         """
         Query from nas-bench dataset.
         :param arch_id: arch id
+        :param dataset_name: dataset name
         :return: {accuracy, training_time, final_test_accuracy}
         """
         raise NotImplementedError
 
-    def query_performance_hash(self, arch_hash: str) -> dict:
+    def query_performance_hash(self, arch_hash: str, dataset_name: str) -> dict:
         """
         Query from nas-bench dataset.
         :param arch_hash: arch id
+        :param dataset_name: dataset name
         :return: {accuracy, training_time, final_test_accuracy}
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    def __getitem__(self, arch_index):
-        """
-        Return an architecture using index
-        :param arch_index:
-        :return:
         """
         raise NotImplementedError
 
@@ -77,9 +70,8 @@ class SpaceWrapper:
         :param architecture:
         :return:
         """
-        new_architecture = self[arch_id]
+        new_architecture = self.new_architecture(arch_id)
         new_architecture.load_state_dict(architecture.state_dict(), strict=False)
-        new_architecture.train()
         return new_architecture
 
     def copy_architecture_hash(self, arch_hash: str, architecture: nn.Module) -> nn.Module:
@@ -91,5 +83,7 @@ class SpaceWrapper:
         """
         new_architecture = self.new_architecture_hash(arch_hash)
         new_architecture.load_state_dict(architecture.state_dict(), strict=False)
-        new_architecture.train()
         return new_architecture
+
+    def update_bn_flag(self, bn: bool):
+        self.model_cfg.bn = bn

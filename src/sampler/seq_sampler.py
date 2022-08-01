@@ -23,7 +23,7 @@ class SequenceSampler(Sampler):
         arch_id_list = [6157, 6157, 6157, 6157]
 
         for arch_id in arch_id_list:
-            architecture = space[arch_id]
+            architecture = space.new_architecture(arch_id)
             if space.get_size(architecture) > required_size:
                 yield arch_id, architecture
             else:

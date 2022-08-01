@@ -1,42 +1,95 @@
 
-from tqdm import tqdm
 
-
-def vote_between_two_arch(arch1_info: dict, arch2_info: dict, metric: list):
-
-    gt_differ = arch1_info["accuracy"] - arch2_info["accuracy"]
-
-    metrics_differ = []
+def vote_between_two_arch(arch1_info: dict, arch2_info: dict, metric: list, space: str):
+    """
+    Return which architecture is better,
+    :param arch1_info:
+    :param arch2_info:
+    :param metric:
+    :param space:
+    :return:
+    """
+    left_vote = 0
+    right_vote = 0
     for m_name in metric:
-        metrics_differ.append(arch1_info[m_name] - arch1_info[m_name])
+        # if this metrics vote to left
+        if vote_to_left[space](m_name,
+                               float(arch1_info["scores"][m_name]["score"]),
+                               float(arch2_info["scores"][m_name]["score"])):
+            left_vote += 1
+        else:
+            right_vote += 1
 
-    vote_res = sum([1 for ele in metrics_differ if ele > 0])
-
-    if vote_res >= len(metrics_differ)/2:
-        return 1
+    if left_vote > right_vote:
+        return arch1_info["architecture_id"]
     else:
-        return 0
+        return arch2_info["architecture_id"]
 
 
+def compare_score_201(m_name: str, s1: float, s2: float) -> bool:
+    """
+    Return if s1 is better than s2,
+    :param m_name:
+    :param s1:
+    :param s2:
+    :return: if s1 is better than s2
+    """
+    if m_name == "grad_norm":
+        return s1 > s2
+    if m_name == "grad_plain":
+        return s1 < s2
+    if m_name == "ntk_cond_num":
+        return s1 < s2
+    if m_name == "ntk_trace":
+        return s1 > s2
+    if m_name == "ntk_trace_approx":
+        return s1 > s2
+    if m_name == "fisher":
+        return s1 > s2
+    if m_name == "grasp":
+        return s1 > s2
+    if m_name == "snip":
+        return s1 > s2
+    if m_name == "synflow":
+        return s1 > s2
+    if m_name == "weight_norm":
+        return s1 > s2
+    if m_name == "nas_wot":
+        return s1 > s2
 
 
+def compare_score_101(m_name: str, s1: float, s2: float) -> bool:
+    """
+    Return if s1 is better than s2,
+    :param m_name:
+    :param s1:
+    :param s2:
+    :return: if s1 is better than s2
+    """
+    if m_name == "grad_norm":
+        return s1 < s2
+    if m_name == "grad_plain":
+        return s1 < s2
+    if m_name == "ntk_cond_num":
+        return s1 < s2
+    if m_name == "ntk_trace":
+        return s1 < s2
+    if m_name == "ntk_trace_approx":
+        return s1 < s2
+    if m_name == "fisher":
+        return s1 < s2
+    if m_name == "grasp":
+        return s1 > s2
+    if m_name == "snip":
+        return s1 < s2
+    if m_name == "synflow":
+        return s1 > s2
+    if m_name == "weight_norm":
+        return s1 > s2
+    if m_name == "nas_wot":
+        return s1 > s2
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+vote_to_left = {}
+vote_to_left["101"] = compare_score_101
+vote_to_left["201"] = compare_score_201
 

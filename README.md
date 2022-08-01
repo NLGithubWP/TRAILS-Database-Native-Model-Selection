@@ -19,10 +19,13 @@ xingnailincrs
 When run in server, add path to env
 export PATH=”$PATH:/home/xingnaili/Fast-AutoNAS/src”
 export PYTHONPATH=$PYTHONPATH:/home/xingnaili/Fast-AutoNAS/src
-export PYTHONPATH=$PYTHONPATH:/Users/kevin/project_python/Fast-AutoNAS/src
+
 
 export PATH=”$PATH:/home/naili/Fast-AutoNAS/src”
 export PYTHONPATH=$PYTHONPATH:/home/naili/Fast-AutoNAS/src
+
+export PYTHONPATH=$PYTHONPATH:/Users/kevin/project_python/Fast-AutoNAS/src
+export PATH="$PATH:/Users/kevin/project_python/Fast-AutoNAS/src"
 
 # Pip install
 conda env export --no-builds > env.yml
@@ -45,7 +48,7 @@ scp -r src naili@pandax2.d2.comp.nus.edu.sg:/home/naili/Fast-AutoNAS/
 scp -r main naili@pandax2.d2.comp.nus.edu.sg:/home/naili/Fast-AutoNAS/
 scp -r data naili@pandax2.d2.comp.nus.edu.sg:/home/naili/Fast-AutoNAS/
 
-scp naili@pandax2.d2.comp.nus.edu.sg:/home/naili/Fast-AutoNAS/Logs/fast_auto_nas_log.log .
+scp naili@pandax2.d2.comp.nus.edu.sg:/home/naili/Fast-AutoNAS/Logs/201_15k_c10_128.json ./Logs/cifar10_15000
 
 export PATH=”$PATH:/Users/kevin/project_python/Fast-AutoNAS/src”
 export PYTHONPATH=$PYTHONPATH:/Users/kevin/project_python/Fast-AutoNAS/src

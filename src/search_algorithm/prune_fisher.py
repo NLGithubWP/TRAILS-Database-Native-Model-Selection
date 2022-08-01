@@ -12,7 +12,7 @@ class FisherEvaluator(Evaluator):
     def __init__(self):
         super().__init__()
 
-    def evaluate(self, arch: nn.Module, pre_defined, batch_data: torch.tensor, batch_labels: torch.tensor) -> float:
+    def evaluate(self, arch: nn.Module, device, batch_data: torch.tensor, batch_labels: torch.tensor) -> float:
         """
         This is implementation of paper
         "Faster gaze prediction with dense archworks and fisher pruning"
@@ -27,7 +27,6 @@ class FisherEvaluator(Evaluator):
         loss_fn = F.cross_entropy
         # 'Fisher pruning does not support parameter pruning.'
         mode = "channel"
-        device = pre_defined.device
 
         # update model's forward and backward function
         self._update_module_compute(arch)

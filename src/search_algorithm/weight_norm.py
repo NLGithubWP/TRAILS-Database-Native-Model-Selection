@@ -9,11 +9,11 @@ class WeightNormEvaluator(Evaluator):
     def __init__(self):
         super().__init__()
 
-    def evaluate(self, arch: nn.Module, pre_defined, batch_data: torch.tensor, batch_labels: torch.tensor) -> float:
+    def evaluate(self, arch: nn.Module, device, batch_data: torch.tensor, batch_labels: torch.tensor) -> float:
         """
         This is simply sum over all weigth's norm to calculate models performance
         :param arch:
-        :param pre_defined:
+        :param device: CPU or GPU
         :param batch_data:
         :param batch_labels:
         :return:

@@ -9,7 +9,6 @@ from .nas_201_api.space import NasBench201Space
 
 def init_search_space(args) -> SpaceWrapper:
 
-    bn = True
     if args.bn == 1:
         bn = True
     else:
@@ -29,7 +28,6 @@ def init_search_space(args) -> SpaceWrapper:
     elif args.search_space == 'nasbench201':
 
         model_cfg = NasBench201Cfg(
-            args.dataset,
             args.init_b_type,
             args.init_w_type,
             args.num_labels,

@@ -18,10 +18,13 @@ class RandomSampler(Sampler):
         :param required_size: how many edges the model's cell should greater than
         :return: arch_id, architecture
         """
-        arch_id_list = random.sample(range(13000), 10000)
+        random.seed(20)
+
+        total_num_arch = len(space)
+        arch_id_list = random.sample(range(total_num_arch), total_num_arch)
 
         for arch_id in arch_id_list:
-            architecture = space[arch_id]
+            architecture = space.new_architecture(arch_id)
             if space.get_size(architecture) > required_size:
                 yield arch_id, architecture
             else:

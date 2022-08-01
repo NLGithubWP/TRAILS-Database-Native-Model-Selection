@@ -144,20 +144,20 @@ class NasBench101Network(nn.Module):
         self._initialize_weights()
 
     def forward(self, x):
-        ints = []
+        # ints = []
         for _, layer in enumerate(self.layers):
             x = layer(x)
-            ints.append(x)
+            # ints.append(x)
 
         # global_pooling
         out = torch.mean(x, (2, 3))
-        ints.append(out)
+        # ints.append(out)
         # logits = self.classifier(out.view(out.size(0), -1))
         logits = self.classifier(out)
         return logits
 
     def _initialize_weights(self):
-        torch.manual_seed(52)
+
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
