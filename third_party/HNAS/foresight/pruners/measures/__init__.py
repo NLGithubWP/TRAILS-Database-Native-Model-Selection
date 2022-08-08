@@ -56,8 +56,8 @@ def load_all():
     from . import plain
     from . import synflow
     from . import naswot
-    from . import naswot_sim
-    from . import ntk
+    # from . import naswot_sim
+    # from . import ntk
     from . import condnum
 
 
