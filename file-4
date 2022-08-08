@@ -1,504 +1,503 @@
-[]string{14584,2262,7820,12046,13987,7606,12539,15008,9858,3960,2526,6549,13020,4407,9551,7277,2626,7180,2288,876,7209,13353,235,1620,6674,1953,12559,13015,97,1113,11125,10306,9188,6411,2789,922,5313,1671,158,6856,4166,13401,5329,3890,8699,4360,5389,6212,7229,4741,5452,1589,8786,5820,2403,13771,13626,2399,5370,1341,11106,14094,5783,12264,10419,1120,13322,7307,1128,13154,8201,11044,10427,2638,5938,14474,11138,11193,9388,1014,8772,8922,8446,8704,13435,3076,938,1824,6102,13940,12343,1827,4703,5563,7446,3661,4310,15176,19,9725,14991,12265,12443,12797,538,10445,4002,8840,734,15543,134,11864,12813,11215,8030,3492,37,9511,6691,11281,3427,4292,9199,6198,3172,14523,4623,12415,2811,7655,15430,15270,2310,10471,9447,1927,10675,15346,5550,13451,7670,1725,4586,15180,8061,8956,12195,15310,15333,11951,5893,4996,10179,6792,13826,7726,14073,10525,4252,1147,1504,1212,6809,7567,5422,5316,911,13328,13260,1440,4313,14740,7267,14276,10428,6384,7799,5484,5025,3913,1710,9,2870,30,7632,2621,8932,9967,7204,7539,9020,12895,251,13511,3980,8851,6370,2739,8271,14363,11983,113,7787,3011,2607,10281,2652,316,7559,14272,9089,4898,15133,10374,11060,2178,12955,8000,6014,9925,5660,1455,14424,6368,2675,7192,12701,8437,3397,13410,3152,12691,12212,3695,6180,6267,15234,10409,9454,7953,10869,11998,4539,11610,13557,1479,5767,133,9113,4087,9362,12161,9192,15448,6447,1968,6562,670,10098,10243,11937,1239,15279,5994,1193,14084,12720,5619,7622,11198,3628,7756,6782,10580,3606,13690,11341,13207,10009,13022,12508,14708,4975,15505,6431,2792,328,11489,3089,11666,9584,13830,3681,15157,8470,7455,9279,1619,14375,3794,6193,6642,3955,5632,6190,9319,1174,12592,2058,12480,8753,11868,2383,12651,2441,290,12910,2082,175,4290,15508,10085,15427,13323,7500,13458,11939,7806,411,7116,3900,1906,14001,10589,13273,13968,8384,1062,4628,3481,4938,10254,3456,13685,4987,12497,867,3833,915,741,3139,14146,5496,15393,14056,9236,4246,7633,12846,6337,14809,2521,8411,5253,15520,3500,11981,14359,6270,11057,5508,14985,11165,9348,8371,9219,7047,4024,2632,7766,1383,929,7401,1115,12466,12867,15403,14728,10896,3898,11606,6873,10112,1753,12276,1452,7811,5314,6062,3617,10851,4323,6346,3767,11679,3970,496,4328,9135,8485,1156,9916,6344,11501,11517,5277,12350,14593,8855,11956,10647,13895,6421,7084,14246,13848,4187,8155,2691,9122,5696,5575,4487,5371,6261,6947,9494,4544,7583,2582,7855,12587,9288,4647,7520,6332,2850,10649,9688,2637,2790,5757,14727,4797,3711,4345,12293,294,1110,5092,8574,14412,7230,4796,2486,5904,1634,46,9838,8427,9510,2016,6868,7323,5934,8716,2590,2887,10169,1683,2308,7555,14980,4917,8570,12078,3971,13103,7681,6430,11398,2042,11722,10044,8590,9333,4304,2735,5887,1789,2497,11095,6042,6545,10749,4893,9915,12312,12940,10820,1428,9459,6665,12300,12186,5931,1247,6433,9053,14116,2317,603,4372,6269,2365,4357,15280,849,5326,6172,14929,7801,3619,7161,3775,15536,11527,7064,10901,11365,6493,7393,12237,4982,3287,940,7250,11837,835,995,10310,101,14514,6120,10049,4043,5310,10884,3589,12903,1492,7550,8066,1884,4572,13436,12392,8977,11015,3238,15530,10484,13280,3093,14200,13048,8496,9371,13288,13888,8393,15538,8106,2406,14148,13082,13402,3727,422,12418,3538,7142,6097,381,3207,7618,15239,14712,10588,2856,13413,13417,14850,10047,4602,13586,14300,11303,10187,2979,5568,10091,2805,5334,5263,14012,13119,2694,11560,5018,13992,7613,4912,1388,11392,3232,7050,11911,4482,206,6168,9065,7146,4750,2467,613,12014,10257,14368,132,10766,8838,12240,11509,13714,2374,11917,453,1552,9707,8027,8891,9805,13746,1347,9260,13420,5945,10053,4298,15523,2155,14489,10140,14485,12305,4909,4383,11825,7272,14899,15366,15129,14703,6662,2904,13473,12319,115,9025,8736,3797,11739,5315,12227,11751,11918,5360,298,6145,13165,11649,3896,2236,7915,10183,173,3693,6041,10300,14526,58,9548,12766,10347,7233,2845,1556,12483,6231,12674,8499,4039,11843,11396,14411,7742,15390,13755,11151,8928,12879,13031,3975,7158,15419,8328,12142,9864,9580,4670,2197,8434,8773,1778,7788,4451,7685,13339,9944,14096,5528,7879,10355,2763,9579,15453,468,4446,12967,13901,15024,297,5671,1700,1427,11652,11893,6739,7400,10354,3959,777,4654,1997,11234,7141,12917,7825,6456,8120,2622,5443,2255,490,10100,6338,7464,6653,15044,4541,11498,4995,5761,9396,15240,11565,4415,5527,7509,8091,10406,40,9438,711,1505,5701,8670,14699,12597,7917,13490,15410,14568,3950,14193,6980,11344,2554,2708,5015,13588,7712,2135,2605,9416,1136,6139,170,3984,12252,10522,8401,5867,157,7884,11074,14225,10165,11336,14381,3432,14310,3320,6628,5268,9797,1131,2242,4708,3577,14917,13327,13791,7324,9074,11158,3457,3088,5420,6608,10736,94,9040,13754,1799,7325,3961,5827,13837,14331,3642,9389,14343,13618,12599,565,13164,11966,13109,1281,15355,5108,8501,4199,10918,4858,1012,12139,2032,9251,15214,8377,1093,3828,4823,3715,6786,15528,6054,2025,1367,3777,14296,10543,12474,10266,2433,5367,4944,3447,14799,8807,3405,14983,10378,12835,5350,10534,2186,4946,3823,5279,13795,7097,6414,5101,7317,1046,9078,6687,14047,3039,4584,12092,14358,4185,9885,14023,7763,3064,7285,631,8062,14493,8357,6952,12681,2319,5519,5426,6222,650,5020,11129,11671,5760,12282,12612,5056,13975,2527,1261,2581,36,6074,12986,10699,6734,8731,7170,14561,8287,10596,13242,12889,10275,9523,3941,4758,15470,15294,669,12353,858,12076,11024,6020,3142,1209,11019,10036,1202,10316,4920,7531,4978,1031,10128,12642,6331,15347,8668,6907,9900,3156,1277,1437,2812,13391,5164,3166,8072,5838,12708,15568,10956,12468,8354,4865,3603,13378,11084,216,7844,8936,198,331,7862,4473,5491,10148,10672,2980,2362,641,5113,12635,3745,1079,2087,13960,4748,655,654,2625,6904,15560,5266,12345,7932,2179,13562,12926,13338,14020,4936,7471,8313,3292,5717,10646,8796,6722,3804,10800,5709,14544,5175,13510,1701,10727,12144,949,11357,15337,9482,125,10066,9831,8026,1596,14540,13350,12721,6943,9045,1003,11617,14479,4098,2931,12868,9987,14360,10256,5812,3103,15396,3486,11930,8096,12284,1549,13544,10493,13100,7705,7875,4829,13911,12475,11453,14077,4728,4449,8166,3123,14557,6530,10360,6355,6988,8498,12239,10382,9562,6301,13301,5439,14960,3400,6223,13411,6954,14853,5143,11425,12778,14453,9352,9966,14395,5150,10584,13111,15208,2680,10563,9852,7268,3770,12269,8291,11221,15292,6929,4079,7761,15322,5746,13507,13449,398,2113,5341,250,3421,5789,15318,7421,6268,9989,4551,7295,10640,9950,4740,9243,8284,6510,1053,13612,10250,3717,4168,917,10475,10335,9418,3670,10695,13108,15297,13318,5620,15460,512,3773,12210,5582,4177,7898,8219,7052,10166,4419,14256,13138,5424,11004,13935,3490,5124,8123,12775,11725,13221,3159,3411,6460,2341,12382,7160,10967,4116,4677,5312,8114,14379,14347,9032,6503,10577,1142,3388,9425,12650,13913,9721,10147,12302,2822,3813,6155,6979,1879,2195,5328,10109,1273,9954,7679,469,9986,1006,10358,6284,9280,11022,14531,14803,10492,5185,2707,4782,13547,10271,1042,1705,12826,6869,15055,4802,6931,12260,3671,10175,6352,10396,2395,4366,2023,14216,9692,15191,9679,9501,502,10467,1986,5210,3694,2348,1522,12111,8436,15477,4801,9903,7889,13184,8280,5954,1119,4765,9266,15158,7257,5539,5261,9971,12580,3080,10261,5856,2201,13169,13346,8005,10715,14614,818,14117,12557,10444,3333,14349,14964,621,3219,8882,13256,7581,13217,1365,7748,2544,3508,8500,15399,11199,9588,9622,14772,12601,14846,11602,11879,749,2055,5792,8831,13764,2015,4299,1730,73,8652,11543,7017,7545,12574,2512,6327,10595,6505,10606,6713,11558,7830,5989,96,8170,10670,2065,10981,183,6614,7059,171,2456,8538,845,8314,11217,6271,4197,1337,4553,618,10701,5868,2485,10412,339,6446,15562,12027,10876,4081,12990,456,8303,15607,1908,5843,11381,8224,6025,6280,2593,11753,1542,558,7468,11577,13728,1970,4169,9326,8149,2930,7145,15573,7128,10891,2175,10462,9638,4376,15256,10748,3791,2126,8780,4146,2385,11426,12552,27,5375,9809,12106,14061,1267,8331,13373,9978,13990,11092,13376,8541,3370,14758,12692,770,11275,10667,3171,7165,7043,2090,12583,4939,13291,7384,13661,14559,10212,3233,6704,6288,6770,1642,8632,9554,4136,14717,15364,2387,5755,9248,10299,13366,2570,10930,7610,5929,4192,11059,1935,13153,3336,5173,9184,14421,9751,15581,1520,11035,10574,7543,9977,10894,6501,14131,9762,14847,8489,2243,8038,4431,1165,11535,7480,10830,3499,967,13214,1975,15082,7962,15600,9664,2169,8257,3122,9051,4437,2031,6865,14111,7840,11832,13191,15077,7999,11869,11159,9408,11651,4503,5086,118,4234,4096,2088,9400,4420,3866,3911,4667,5970,6205,14204,7338,13596,5122,15605,6854,3473,14348,7124,14914,10455,4301,6118,6131,4442,5302,700,5004,14885,9717,13803,12918,333,1703,6887,12938,3547,6888,494,3185,3623,6649,5690,12328,10410,9191,11438,5319,4400,9340,8482,6220,14684,14143,1354,10106,2976,713,9813,504,11224,7235,257,9677,6860,15002,6407,4655,12283,13654,8279,4312,3418,2258,7908,13289,529,4746,5356,2472,501,3885,10590,3869,681,9794,11,5497,6978,8794,11025,3897,8462,6725,3656,12217,9698,1548,13007,9884,12427,1916,1859,4479,9680,11340,7308,5863,5072,4598,9840,1464,9353,10002,1185,6772,4275,746,11854,7394,2867,14971,1480,10397,13707,14794,13493,7669,8147,13425,6965,5662,4174,8641,3317,13683,10614,14033,12094,2963,9571,9854,13220,116,14100,13827,11102,13304,3375,4140,5324,13572,3404,7114,9086,1235,5382,6227,14255,7895,13052,4576,5289,9877,1627,13845,7548,3650,10636,11296,7432,7167,9242,8793,508,6100,10408,13025,9825,3785,13231,11995,2442,2261,3359,2324,14118,11698,10001,2937,14823,1526,9975,13476,6700,4610,11503,8954,4620,4463,10377,2,8554,3742,12963,8013,2440,6701,1145,15499,4706,7521,11254,4907,3072,3403,15084,11744,14165,2543,13679,4813,4884,10899,8320,9370,4770,1895,9994,2530,7173,13094,14021,15021,6036,11272,2966,6476,7736,11767,6970,4142,9017,5966,5529,165,13158,9819,1332,10546,5769,4814,15302,14383,9039,1374,7979,14904,5217,8749,10430,10719,7310,3382,}
-201union_best total_pair = 24261397 
-[grad_norm,nas_wot,ntk_trace,ntk_trace_approx,fisher], 15695530 / 24261397
-[grad_norm,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,grasp], 16663941 / 24261397
-[grad_norm,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,snip], 16844213 / 24261397
-[grad_norm,snip,synflow], 17274421 / 24261397
-[grad_norm,grad_plain,ntk_trace_approx,fisher,synflow], 15793310 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,snip], 16824567 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_trace,fisher,snip,synflow], 18267910 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,grasp,synflow], 16824220 / 24261397
-[grad_plain,ntk_trace_approx,fisher], 15170755 / 24261397
-[grad_plain,nas_wot,ntk_cond_num,ntk_trace,fisher], 15594340 / 24261397
-[grad_norm,ntk_trace,ntk_trace_approx,grasp,synflow], 17686137 / 24261397
-[grad_norm,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,synflow], 16992660 / 24261397
-[grad_norm,grad_plain,ntk_cond_num,ntk_trace,fisher,grasp,synflow], 16616650 / 24261397
-[grad_plain,nas_wot,ntk_trace,ntk_trace_approx,fisher,grasp,synflow], 15928429 / 24261397
-[grad_plain,nas_wot,ntk_cond_num,ntk_trace,snip], 16897223 / 24261397
-[nas_wot,ntk_trace,ntk_trace_approx,grasp,snip], 17700457 / 24261397
-[grad_plain,nas_wot,ntk_trace_approx,snip,synflow], 18286323 / 24261397
-[grad_plain,nas_wot,ntk_trace,fisher,snip], 15631401 / 24261397
-[ntk_cond_num,ntk_trace,ntk_trace_approx,grasp,synflow], 17032404 / 24261397
-[grad_norm,grad_plain,nas_wot,fisher,grasp,snip,synflow], 17967692 / 24261397
-[nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,synflow], 17814287 / 24261397
-[ntk_cond_num,ntk_trace,grasp,snip,synflow], 18172599 / 24261397
-[grad_norm,nas_wot,ntk_trace_approx,fisher,grasp,snip,synflow], 18072889 / 24261397
-[grad_plain,nas_wot,ntk_cond_num,fisher,snip], 16847799 / 24261397
-[ntk_cond_num,fisher,grasp], 16520741 / 24261397
-[grad_plain,ntk_trace,ntk_trace_approx,fisher,grasp], 15222413 / 24261397
-[grad_norm,ntk_trace,fisher,snip,synflow], 18174517 / 24261397
-[grad_plain,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,grasp,snip], 15517312 / 24261397
-[grad_plain,ntk_trace,fisher], 15192261 / 24261397
-[grad_norm,ntk_trace,synflow], 18187202 / 24261397
-[grad_norm,fisher,synflow], 18129222 / 24261397
-[fisher,snip,synflow], 18194218 / 24261397
-[grad_plain,nas_wot,ntk_trace_approx,grasp,snip], 17568484 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_cond_num,fisher,grasp,snip], 17684536 / 24261397
-[nas_wot,ntk_trace,snip], 18297223 / 24261397
-[grad_norm,nas_wot,ntk_cond_num,ntk_trace,snip], 18151332 / 24261397
-[grad_plain,nas_wot,grasp], 17870342 / 24261397
-[grad_plain,ntk_cond_num,ntk_trace,ntk_trace_approx,snip], 15547714 / 24261397
-[grad_norm,ntk_trace,ntk_trace_approx,fisher,synflow], 15709374 / 24261397
-[grad_norm,grad_plain,ntk_trace_approx,fisher,snip], 15578324 / 24261397
-[grad_plain,ntk_trace,snip], 15298218 / 24261397
-[grad_plain,nas_wot,ntk_trace,fisher,grasp,snip,synflow], 17857221 / 24261397
-[grad_norm,nas_wot,ntk_cond_num,grasp,snip], 17802485 / 24261397
-[grad_norm,nas_wot,ntk_trace_approx,grasp,synflow], 18406267 / 24261397
-[grad_norm,grad_plain,ntk_cond_num,ntk_trace_approx,fisher,snip,synflow], 16819125 / 24261397
-[grad_norm,nas_wot,ntk_trace,ntk_trace_approx,grasp,snip,synflow], 18084256 / 24261397
-[grad_plain,ntk_trace_approx,snip], 15539710 / 24261397
-[grad_plain,grasp,snip], 16989508 / 24261397
-[nas_wot,ntk_cond_num,ntk_trace,fisher,snip], 16774144 / 24261397
-[grad_norm,ntk_cond_num,ntk_trace_approx,fisher,grasp,snip,synflow], 17761206 / 24261397
-[grad_plain,ntk_cond_num,ntk_trace_approx,grasp,synflow], 16990364 / 24261397
-[grad_norm,ntk_trace_approx,fisher,snip,synflow], 18054692 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_trace,ntk_trace_approx,fisher,snip], 15805725 / 24261397
-[grad_norm,ntk_cond_num,snip], 17331463 / 24261397
-[ntk_cond_num,snip,synflow], 19012245 / 24261397
-[grad_norm,nas_wot,ntk_trace_approx], 18111449 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_trace_approx,grasp], 17570541 / 24261397
-[grad_norm,grad_plain,ntk_cond_num,ntk_trace,synflow], 16885598 / 24261397
-[grad_norm,grad_plain,nas_wot,grasp,synflow], 18325209 / 24261397
-[grad_norm,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,grasp,snip], 17800753 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,synflow], 17091620 / 24261397
-[grad_plain,nas_wot,ntk_trace,snip,synflow], 18416308 / 24261397
-[grad_plain,nas_wot,ntk_cond_num,ntk_trace,fisher,snip,synflow], 17001316 / 24261397
-[grad_norm,nas_wot,ntk_cond_num,ntk_trace_approx,grasp,snip,synflow], 18257535 / 24261397
-[grad_norm,nas_wot,fisher,snip,synflow], 18084284 / 24261397
-[grad_norm,nas_wot,ntk_cond_num,ntk_trace,fisher,grasp,synflow], 18333801 / 24261397
-[grad_norm,grad_plain,ntk_cond_num,ntk_trace_approx,grasp,snip,synflow], 17676169 / 24261397
-[grad_norm,nas_wot,snip], 17333865 / 24261397
-[ntk_cond_num,ntk_trace_approx,snip], 16633689 / 24261397
-[grad_plain,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx], 15793501 / 24261397
-[nas_wot,ntk_cond_num,fisher,grasp,snip], 18125878 / 24261397
-[grad_norm,nas_wot,ntk_trace_approx,snip,synflow], 18025382 / 24261397
-[grad_norm,nas_wot,ntk_cond_num,fisher,grasp,snip,synflow], 18318474 / 24261397
-[ntk_cond_num,ntk_trace_approx,fisher,grasp,snip], 16434231 / 24261397
-[nas_wot,ntk_cond_num,fisher,grasp,synflow], 19004546 / 24261397
-[grad_norm,grad_plain,ntk_trace,ntk_trace_approx,fisher], 15238333 / 24261397
-[ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,snip], 15509498 / 24261397
-[grad_plain,nas_wot,ntk_trace,grasp,snip], 17571756 / 24261397
-[grad_norm,ntk_cond_num,ntk_trace,fisher,grasp,snip,synflow], 17832177 / 24261397
-[grad_norm,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher], 15510229 / 24261397
-[grad_norm,grad_plain,nas_wot,fisher,synflow], 18331063 / 24261397
-[grad_plain,ntk_cond_num,ntk_trace,grasp,synflow], 16969048 / 24261397
-[grad_norm,nas_wot,fisher], 18203928 / 24261397
-[grad_norm,grad_plain,ntk_cond_num,ntk_trace,grasp], 16311863 / 24261397
-[grad_norm,ntk_trace,fisher,grasp,snip], 17046267 / 24261397
-[nas_wot,ntk_cond_num,ntk_trace_approx,grasp,synflow], 18980499 / 24261397
-[nas_wot,fisher,grasp], 18060660 / 24261397
-[grad_norm,grad_plain,ntk_trace_approx,grasp,snip], 17052459 / 24261397
-[grad_norm,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,grasp,snip], 16435657 / 24261397
-[grad_norm,ntk_cond_num,ntk_trace,ntk_trace_approx,synflow], 16941675 / 24261397
-[nas_wot,ntk_cond_num,ntk_trace,snip,synflow], 19180540 / 24261397
-[ntk_cond_num,grasp,snip], 17420299 / 24261397
-[nas_wot,ntk_trace_approx,synflow], 19419782 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_trace,grasp], 17573114 / 24261397
-[grad_norm,grad_plain,ntk_trace,ntk_trace_approx,grasp], 15569516 / 24261397
-[nas_wot,ntk_trace,ntk_trace_approx,fisher,grasp], 15657373 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_trace,synflow], 18386789 / 24261397
-[grad_norm,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,grasp,snip,synflow], 18025218 / 24261397
-[grad_norm,grasp,snip], 17292842 / 24261397
-[grad_norm,ntk_cond_num,ntk_trace,ntk_trace_approx,grasp], 16457386 / 24261397
-[grad_plain,nas_wot,ntk_trace_approx,fisher,grasp], 15756813 / 24261397
-[grad_norm,ntk_cond_num,ntk_trace,grasp,synflow], 18160246 / 24261397
-[grad_norm,ntk_cond_num,grasp,snip,synflow], 17800918 / 24261397
-[grad_norm,nas_wot,ntk_cond_num,ntk_trace,fisher,grasp,snip], 17863104 / 24261397
-[grad_plain,nas_wot,ntk_cond_num,ntk_trace,synflow], 17804940 / 24261397
-[grad_norm,grad_plain,ntk_trace,fisher,grasp,snip,synflow], 17524823 / 24261397
-[grad_plain,snip,synflow], 17997921 / 24261397
-[nas_wot,ntk_trace_approx,fisher,grasp,snip], 17677096 / 24261397
-[grad_norm,grad_plain,ntk_trace_approx,snip,synflow], 17904573 / 24261397
-[grad_norm,ntk_trace,ntk_trace_approx], 15550031 / 24261397
-[grad_plain,nas_wot,fisher], 15649250 / 24261397
-[grad_norm,grad_plain,ntk_trace,snip,synflow], 17908042 / 24261397
-[grad_norm,nas_wot,ntk_cond_num,ntk_trace_approx,fisher,grasp,snip], 17788012 / 24261397
-[ntk_cond_num,ntk_trace,fisher,grasp,snip], 16367326 / 24261397
-[grad_plain,nas_wot,ntk_cond_num,snip,synflow], 19090966 / 24261397
-[nas_wot,ntk_cond_num,fisher,snip,synflow], 19157950 / 24261397
-[grad_plain,ntk_trace,ntk_trace_approx,fisher,grasp,snip,synflow], 15761687 / 24261397
-[nas_wot,ntk_trace,ntk_trace_approx,fisher,snip], 15694851 / 24261397
-[grad_plain,ntk_cond_num,ntk_trace_approx,grasp,snip], 16419702 / 24261397
-[grad_plain,ntk_trace,ntk_trace_approx,grasp,synflow], 15809158 / 24261397
-[nas_wot,ntk_cond_num,ntk_trace_approx,snip,synflow], 19121082 / 24261397
-[grad_norm,grad_plain,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,synflow], 15712989 / 24261397
-[nas_wot,ntk_trace,ntk_trace_approx,grasp,synflow], 18277564 / 24261397
-[ntk_cond_num,ntk_trace,fisher], 15291828 / 24261397
-[ntk_trace_approx,fisher,snip], 15508454 / 24261397
-[grad_plain,nas_wot,ntk_trace_approx,fisher,snip], 15785624 / 24261397
-[grad_norm,ntk_cond_num,grasp], 17411230 / 24261397
-[grad_plain,ntk_cond_num,synflow], 17763411 / 24261397
-[grad_plain,nas_wot,ntk_trace,ntk_trace_approx,fisher,grasp,snip], 15759452 / 24261397
-[grad_plain,nas_wot,ntk_cond_num,fisher,grasp], 16876583 / 24261397
-[ntk_cond_num,fisher,grasp,snip,synflow], 18131664 / 24261397
-[nas_wot,ntk_cond_num,ntk_trace_approx], 17701396 / 24261397
-[ntk_trace_approx,fisher,synflow], 15705300 / 24261397
-[ntk_trace,grasp,synflow], 18127861 / 24261397
-[grad_plain,nas_wot,ntk_cond_num,grasp,snip], 17972337 / 24261397
-[grad_plain,nas_wot,ntk_cond_num,ntk_trace_approx,fisher,snip,synflow], 17058338 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_cond_num,grasp,snip,synflow], 18183905 / 24261397
-[grad_plain,ntk_trace,grasp], 15289741 / 24261397
-[grad_norm,ntk_cond_num,synflow], 18973909 / 24261397
-[grad_norm,nas_wot,ntk_trace_approx,fisher,snip], 18088310 / 24261397
-[ntk_cond_num,ntk_trace_approx,fisher,grasp,synflow], 16981202 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace_approx,fisher,grasp], 16658192 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace_approx,fisher,grasp,snip,synflow], 17923462 / 24261397
-[grad_plain,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,grasp,snip,synflow], 16824966 / 24261397
-[ntk_cond_num,ntk_trace_approx,fisher], 15481690 / 24261397
-[grad_plain,nas_wot,ntk_trace,fisher,grasp], 15611919 / 24261397
-[grad_norm,ntk_cond_num,fisher,snip,synflow], 18036378 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace,fisher,snip], 16785032 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace,snip,synflow], 18301055 / 24261397
-[grad_norm,grad_plain,ntk_cond_num,ntk_trace,grasp,snip,synflow], 17685385 / 24261397
-[grad_norm,grad_plain,ntk_trace,ntk_trace_approx,snip], 15602259 / 24261397
-[grad_norm,grad_plain,ntk_cond_num,grasp,snip], 17247057 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace,grasp,synflow], 18303934 / 24261397
-[grad_norm,grad_plain,ntk_cond_num,ntk_trace,fisher], 15435239 / 24261397
-[ntk_trace,ntk_trace_approx,fisher,grasp,snip], 15510973 / 24261397
-[ntk_cond_num,ntk_trace,ntk_trace_approx,snip,synflow], 16964218 / 24261397
-[grad_norm,grad_plain,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,grasp,snip,synflow], 16638212 / 24261397
-[ntk_trace_approx,fisher,grasp], 15467881 / 24261397
-[grad_norm,nas_wot,synflow], 19158119 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_trace,ntk_trace_approx,fisher,grasp], 15760526 / 24261397
-[nas_wot,ntk_cond_num,grasp], 18688970 / 24261397
-[grad_norm,nas_wot,ntk_cond_num,ntk_trace_approx,snip], 18027510 / 24261397
-[grad_norm,grad_plain,ntk_trace,fisher,snip], 15326463 / 24261397
-[grad_plain,ntk_cond_num,ntk_trace_approx,snip,synflow], 16913203 / 24261397
-[grad_plain,nas_wot,grasp,snip,synflow], 18348367 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_trace,ntk_trace_approx,grasp,synflow], 17822926 / 24261397
-[ntk_cond_num,fisher,synflow], 17732064 / 24261397
-[grad_norm,grad_plain,nas_wot,fisher,grasp], 17550205 / 24261397
-[nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,grasp,snip], 16664760 / 24261397
-[grad_plain,nas_wot,ntk_trace_approx,fisher,grasp,snip,synflow], 17799276 / 24261397
-[grad_norm,ntk_trace,ntk_trace_approx,fisher,grasp], 15511358 / 24261397
-[grad_plain,ntk_trace_approx,fisher,grasp,synflow], 15769091 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_trace,grasp,snip,synflow], 17979115 / 24261397
-[nas_wot,ntk_cond_num,ntk_trace,fisher,grasp,snip,synflow], 18346148 / 24261397
-[grad_norm,nas_wot,ntk_trace], 18265273 / 24261397
-[grad_norm,nas_wot,ntk_trace,ntk_trace_approx,synflow], 18380678 / 24261397
-[grad_norm,ntk_cond_num,ntk_trace_approx,fisher,synflow], 16889449 / 24261397
-[grad_norm,grad_plain,ntk_cond_num,snip,synflow], 17881801 / 24261397
-[nas_wot,ntk_trace,ntk_trace_approx], 15766621 / 24261397
-[ntk_trace,ntk_trace_approx,grasp], 15507206 / 24261397
-[grad_plain,ntk_trace,fisher,grasp,snip], 15319420 / 24261397
-[grad_norm,nas_wot,ntk_cond_num,ntk_trace,synflow], 19157861 / 24261397
-[nas_wot,ntk_trace,fisher,grasp,synflow], 18254707 / 24261397
-[grad_plain,ntk_cond_num,grasp,snip,synflow], 17995309 / 24261397
-[grad_plain,ntk_trace,ntk_trace_approx], 15190105 / 24261397
-[grad_plain,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher], 15304533 / 24261397
-[grad_plain,ntk_trace_approx,fisher,snip,synflow], 15791928 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_trace_approx,fisher,snip,synflow], 18175947 / 24261397
-[grad_norm,ntk_cond_num,fisher], 16541267 / 24261397
-[nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,snip,synflow], 17007760 / 24261397
-[grad_norm,nas_wot,ntk_trace,grasp,snip], 17568250 / 24261397
-[grad_norm,nas_wot,ntk_cond_num], 18937840 / 24261397
-[grad_norm,grad_plain,ntk_trace_approx], 15545947 / 24261397
-[grad_plain,fisher,snip], 15272601 / 24261397
-[grad_plain,nas_wot,ntk_cond_num,ntk_trace_approx,fisher], 15726975 / 24261397
-[grad_plain,ntk_cond_num,ntk_trace,fisher,grasp], 15429171 / 24261397
-[grad_norm,grad_plain,grasp,snip,synflow], 17507574 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_cond_num,fisher], 16834504 / 24261397
-[grad_norm,ntk_trace_approx,fisher,grasp,snip], 17069536 / 24261397
-[grad_norm,grad_plain,ntk_trace_approx,grasp,synflow], 17573186 / 24261397
-[grad_plain,ntk_trace,fisher,grasp,synflow], 15614434 / 24261397
-[grad_plain,ntk_cond_num,snip], 16470623 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_trace_approx,grasp,snip,synflow], 17966132 / 24261397
-[grad_norm,ntk_cond_num,ntk_trace,ntk_trace_approx,grasp,snip,synflow], 17772907 / 24261397
-[ntk_trace,fisher,snip], 15263458 / 24261397
-[grad_norm,grad_plain,ntk_cond_num,ntk_trace_approx,grasp], 16423567 / 24261397
-[grad_norm,ntk_cond_num,ntk_trace_approx,fisher,grasp], 16436516 / 24261397
-[grad_norm,ntk_cond_num,ntk_trace,fisher,synflow], 16785788 / 24261397
-[nas_wot,ntk_trace,ntk_trace_approx,fisher,synflow], 15818569 / 24261397
-[grad_norm,grad_plain,ntk_trace,ntk_trace_approx,fisher,snip,synflow], 15805660 / 24261397
-[nas_wot,ntk_cond_num,snip], 18956876 / 24261397
-[nas_wot,ntk_cond_num,synflow], 19582646 / 24261397
-[grad_plain,nas_wot,ntk_trace,grasp,synflow], 18281083 / 24261397
-[ntk_cond_num,ntk_trace_approx,fisher,snip,synflow], 16911780 / 24261397
-[grad_plain,nas_wot,ntk_cond_num,ntk_trace_approx,grasp,snip,synflow], 18222943 / 24261397
-[grad_plain,nas_wot,ntk_cond_num,fisher,grasp,snip,synflow], 18275051 / 24261397
-[grad_norm,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx], 16916028 / 24261397
-[grad_plain,nas_wot,ntk_cond_num,ntk_trace,grasp], 16926134 / 24261397
-[grad_norm,nas_wot,ntk_trace,ntk_trace_approx,grasp], 17700289 / 24261397
-[grad_norm,nas_wot,ntk_trace_approx,fisher,synflow], 18329815 / 24261397
-[grad_norm,nas_wot,ntk_trace,fisher,grasp,snip,synflow], 18155306 / 24261397
-[grad_norm,ntk_trace,grasp], 17044226 / 24261397
-[nas_wot,fisher,snip], 18234636 / 24261397
-[grad_norm,grad_plain,fisher,snip,synflow], 17907531 / 24261397
-[ntk_trace,ntk_trace_approx,grasp,snip,synflow], 17678807 / 24261397
-[grad_norm,grad_plain,fisher,grasp,snip], 17027578 / 24261397
-[nas_wot,ntk_trace,fisher,grasp,snip], 17743847 / 24261397
-[grad_plain,nas_wot,ntk_cond_num,ntk_trace,grasp,snip,synflow], 18315259 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_trace,ntk_trace_approx,fisher,grasp,snip,synflow], 17759567 / 24261397
-[ntk_trace,snip,synflow], 18253248 / 24261397
-[grad_norm,grad_plain,ntk_cond_num,ntk_trace_approx,snip], 16556765 / 24261397
-[grad_norm,ntk_trace,ntk_trace_approx,grasp,snip], 17080689 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_trace_approx,synflow], 18256528 / 24261397
-[grad_norm,grad_plain,ntk_cond_num,ntk_trace,fisher,grasp,snip], 16288295 / 24261397
-[grad_norm,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,grasp,synflow], 16686528 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_trace,ntk_trace_approx], 15824979 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace,grasp,snip], 17696201 / 24261397
-[grad_plain,ntk_cond_num,grasp], 16429672 / 24261397
-[grad_norm,ntk_cond_num,ntk_trace,ntk_trace_approx,snip], 16609590 / 24261397
-[ntk_trace_approx,fisher,grasp,snip,synflow], 17657146 / 24261397
-[ntk_trace,grasp,snip], 17028825 / 24261397
-[grad_norm,ntk_trace,ntk_trace_approx,fisher,snip], 15545588 / 24261397
-[grad_norm,ntk_cond_num,ntk_trace_approx,grasp,snip], 17267013 / 24261397
-[nas_wot,ntk_cond_num,ntk_trace_approx,fisher,grasp,snip,synflow], 18296528 / 24261397
-[nas_wot,ntk_trace,synflow], 19501930 / 24261397
-[grad_plain,ntk_trace_approx,synflow], 15856763 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace_approx,fisher,snip], 16811207 / 24261397
-[grad_norm,nas_wot,ntk_cond_num,ntk_trace,grasp,snip,synflow], 18354730 / 24261397
-[grad_norm,nas_wot,ntk_cond_num,fisher,synflow], 19135529 / 24261397
-[ntk_cond_num,ntk_trace,fisher,grasp,synflow], 16868336 / 24261397
-[grad_plain,nas_wot,ntk_cond_num], 17630350 / 24261397
-[grad_norm,grad_plain,fisher], 15277418 / 24261397
-[grad_norm,grad_plain,snip], 17317004 / 24261397
-[ntk_trace_approx,grasp,synflow], 18020018 / 24261397
-[grad_plain,ntk_cond_num,ntk_trace,ntk_trace_approx,grasp], 15535822 / 24261397
-[nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,grasp], 16966460 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_trace,ntk_trace_approx,grasp,snip], 17544466 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,grasp,snip,synflow], 17937364 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_cond_num,fisher,snip,synflow], 18258984 / 24261397
-[grad_norm,ntk_trace_approx,grasp,snip,synflow], 17527181 / 24261397
-[grad_plain,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,snip], 15699148 / 24261397
-[grad_norm,grad_plain,ntk_cond_num,ntk_trace_approx,fisher,grasp,snip], 16399779 / 24261397
-[grad_plain,nas_wot,ntk_cond_num,ntk_trace_approx,fisher,grasp,snip], 16658654 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_cond_num,fisher,grasp,synflow], 18264087 / 24261397
-[grad_norm,grad_plain,ntk_cond_num,ntk_trace,ntk_trace_approx,snip,synflow], 16831328 / 24261397
-[grad_norm,nas_wot,ntk_cond_num,ntk_trace,fisher], 16758774 / 24261397
-[ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,synflow], 15620666 / 24261397
-[ntk_trace,ntk_trace_approx,fisher,snip,synflow], 15708208 / 24261397
-[grad_norm,ntk_trace,grasp,snip,synflow], 17538449 / 24261397
-[grad_plain,fisher,grasp], 15260924 / 24261397
-[grad_norm,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,snip,synflow], 18331608 / 24261397
-[grad_norm,ntk_cond_num,ntk_trace], 16586907 / 24261397
-[ntk_cond_num,grasp,synflow], 18734686 / 24261397
-[grasp,snip,synflow], 17894636 / 24261397
-[grad_norm,grad_plain,ntk_trace_approx,fisher,grasp], 15543900 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace,fisher,grasp], 16613263 / 24261397
-[nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,grasp,synflow], 17041316 / 24261397
-[grad_norm,grad_plain,ntk_trace_approx,fisher,grasp,snip,synflow], 17529582 / 24261397
-[grad_plain,ntk_cond_num,ntk_trace], 15485288 / 24261397
-[nas_wot,ntk_cond_num,ntk_trace], 17580342 / 24261397
-[grad_norm,nas_wot,ntk_cond_num,ntk_trace_approx,synflow], 19097934 / 24261397
-[grad_norm,grad_plain,ntk_trace,ntk_trace_approx,fisher,grasp,synflow], 15762812 / 24261397
-[grad_norm,fisher,grasp], 17023854 / 24261397
-[grad_plain,ntk_cond_num,ntk_trace,ntk_trace_approx,synflow], 15818971 / 24261397
-[nas_wot,ntk_trace,fisher,snip,synflow], 18424939 / 24261397
-[grad_norm,fisher,grasp,snip,synflow], 17526447 / 24261397
-[grad_plain,nas_wot,ntk_cond_num,ntk_trace,fisher,grasp,snip], 16613897 / 24261397
-[grad_plain,ntk_cond_num,ntk_trace_approx], 15522292 / 24261397
-[ntk_cond_num,ntk_trace,grasp], 16567495 / 24261397
-[nas_wot,ntk_trace_approx,grasp], 18005176 / 24261397
-[fisher,grasp,synflow], 18070823 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_trace,snip], 17931655 / 24261397
-[grad_plain,nas_wot,fisher,snip,synflow], 18359517 / 24261397
-[ntk_trace,ntk_trace_approx,snip], 15549289 / 24261397
-[ntk_cond_num,ntk_trace_approx,synflow], 17876380 / 24261397
-[grad_norm,nas_wot,ntk_trace,fisher,synflow], 18395389 / 24261397
-[ntk_trace,ntk_trace_approx,fisher,grasp,synflow], 15673615 / 24261397
-[grad_plain,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,grasp], 15680245 / 24261397
-[grad_norm,grad_plain,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,snip], 15546667 / 24261397
-[fisher,grasp,snip], 17008073 / 24261397
-[grad_norm,nas_wot,ntk_cond_num,snip,synflow], 18793880 / 24261397
-[grad_plain,ntk_cond_num,ntk_trace,grasp,snip], 16308740 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher], 15699925 / 24261397
-[grad_norm,grad_plain,ntk_cond_num,ntk_trace,ntk_trace_approx,grasp,synflow], 16691926 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace_approx,snip,synflow], 18195787 / 24261397
-[nas_wot,ntk_trace,ntk_trace_approx,fisher,grasp,snip,synflow], 17883268 / 24261397
-[ntk_cond_num,fisher,snip], 16559785 / 24261397
-[grad_plain,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,grasp,synflow], 15695722 / 24261397
-[grad_norm,grad_plain,ntk_trace,ntk_trace_approx,grasp,snip,synflow], 17539306 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,snip,synflow], 16984355 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_trace,fisher], 15631787 / 24261397
-[grad_norm,nas_wot,ntk_trace,fisher,grasp], 17744159 / 24261397
-[grad_plain,ntk_trace,ntk_trace_approx,fisher,synflow], 15389045 / 24261397
-[grad_norm,nas_wot,fisher,grasp,synflow], 18478849 / 24261397
-[ntk_cond_num,ntk_trace,snip], 16605485 / 24261397
-[grad_norm,nas_wot,ntk_cond_num,ntk_trace_approx,fisher], 16862081 / 24261397
-[grad_plain,nas_wot,ntk_trace,ntk_trace_approx,fisher], 15377030 / 24261397
-[grad_plain,ntk_cond_num,ntk_trace_approx,fisher,synflow], 15751760 / 24261397
-[grad_norm,grasp,synflow], 17826219 / 24261397
-[grad_plain,grasp,synflow], 17895077 / 24261397
-[grad_norm,nas_wot,fisher,grasp,snip], 17556142 / 24261397
-[grad_norm,nas_wot,ntk_trace,ntk_trace_approx,fisher,grasp,synflow], 17883917 / 24261397
-[grad_norm,grad_plain,ntk_cond_num,ntk_trace_approx,fisher], 15520707 / 24261397
-[grad_plain,nas_wot,ntk_trace,ntk_trace_approx,snip], 15823282 / 24261397
-[nas_wot,ntk_cond_num,ntk_trace,fisher,synflow], 17646251 / 24261397
-[grad_norm,ntk_cond_num,ntk_trace,snip,synflow], 18080646 / 24261397
-[grad_plain,nas_wot,ntk_trace,ntk_trace_approx,grasp], 15795538 / 24261397
-[grad_plain,nas_wot,ntk_trace,fisher,synflow], 15805926 / 24261397
-[grad_plain,ntk_trace,fisher,snip,synflow], 15628231 / 24261397
-[grad_norm,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,snip,synflow], 16871681 / 24261397
-[grad_norm,ntk_trace_approx,snip], 17323855 / 24261397
-[grad_plain,ntk_cond_num,ntk_trace,snip,synflow], 16905232 / 24261397
-[grad_plain,ntk_cond_num,fisher,snip,synflow], 16857465 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,grasp,snip], 16633288 / 24261397
-[nas_wot,grasp,snip], 17877397 / 24261397
-[grad_norm,grad_plain,ntk_trace,fisher,grasp], 15321545 / 24261397
-[nas_wot,ntk_cond_num,ntk_trace,grasp,snip], 18169197 / 24261397
-[nas_wot,ntk_trace_approx,fisher], 15680183 / 24261397
-[grad_plain,nas_wot,ntk_trace_approx,grasp,synflow], 18171053 / 24261397
-[grad_norm,nas_wot,ntk_trace,snip,synflow], 18133588 / 24261397
-[nas_wot,ntk_trace_approx,grasp,snip,synflow], 18431820 / 24261397
-[ntk_cond_num,ntk_trace_approx,grasp,snip,synflow], 18074337 / 24261397
-[grad_norm,grad_plain,ntk_cond_num,ntk_trace,fisher,snip,synflow], 16784791 / 24261397
-[nas_wot,snip,synflow], 19197619 / 24261397
-[grad_norm,ntk_cond_num,fisher,grasp,snip], 17255375 / 24261397
-[nas_wot,ntk_cond_num,fisher], 17564501 / 24261397
-[nas_wot,fisher,synflow], 19481431 / 24261397
-[grad_plain,ntk_cond_num,fisher,grasp,snip], 16292019 / 24261397
-[grad_plain,nas_wot,ntk_cond_num,fisher,synflow], 17780509 / 24261397
-[grad_norm,ntk_trace_approx,fisher,grasp,synflow], 17665056 / 24261397
-[nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,grasp,snip,synflow], 18335680 / 24261397
-[grad_plain,nas_wot,ntk_cond_num,ntk_trace_approx,fisher,grasp,synflow], 17098866 / 24261397
-[grad_norm,grad_plain,ntk_cond_num], 16456312 / 24261397
-[nas_wot,ntk_trace,fisher], 15339349 / 24261397
-[ntk_trace,ntk_trace_approx,fisher], 15231249 / 24261397
-[ntk_trace,fisher,grasp], 15254502 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace], 16883583 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_trace,ntk_trace_approx,fisher,synflow], 15959116 / 24261397
-[nas_wot,ntk_cond_num,ntk_trace,grasp,synflow], 19025242 / 24261397
-[ntk_trace,fisher,grasp,snip,synflow], 17717259 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_trace,fisher,grasp,synflow], 17858185 / 24261397
-[grad_norm,grad_plain,ntk_cond_num,ntk_trace,ntk_trace_approx], 15549557 / 24261397
-[grad_norm,nas_wot,ntk_cond_num,ntk_trace_approx,grasp], 18053269 / 24261397
-[grad_norm,ntk_cond_num,ntk_trace_approx,snip,synflow], 17960129 / 24261397
-[nas_wot,ntk_trace,ntk_trace_approx,snip,synflow], 18411684 / 24261397
-[grad_plain,ntk_cond_num,ntk_trace,ntk_trace_approx,grasp,snip,synflow], 16691628 / 24261397
-[grad_plain,ntk_cond_num,ntk_trace_approx,fisher,grasp,snip,synflow], 16669136 / 24261397
-[grad_plain,ntk_cond_num,fisher], 15415599 / 24261397
-[nas_wot,ntk_trace,grasp], 18120569 / 24261397
-[ntk_cond_num,ntk_trace,ntk_trace_approx,grasp,snip], 16455549 / 24261397
-[grad_norm,grad_plain,ntk_trace,grasp,synflow], 17575596 / 24261397
-[grad_norm,nas_wot,ntk_cond_num,ntk_trace,grasp], 18158518 / 24261397
-[grad_norm,ntk_cond_num,ntk_trace,fisher,grasp], 16370098 / 24261397
-[nas_wot,ntk_cond_num,ntk_trace,fisher,grasp], 16801837 / 24261397
-[grad_norm,grad_plain,nas_wot,snip,synflow], 17910447 / 24261397
-[grad_norm,grad_plain,ntk_cond_num,fisher,grasp,snip,synflow], 17674519 / 24261397
-[nas_wot,grasp,synflow], 19253534 / 24261397
-[grad_plain,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,grasp,snip], 16681932 / 24261397
-[grad_norm,nas_wot,ntk_trace,ntk_trace_approx,fisher,snip,synflow], 18304768 / 24261397
-[grad_norm,nas_wot,ntk_trace_approx,fisher,grasp], 17677442 / 24261397
-[grad_plain,ntk_trace,ntk_trace_approx,fisher,snip], 15238117 / 24261397
-[grad_norm,grad_plain,ntk_trace,grasp,snip], 17036945 / 24261397
-[grad_plain,ntk_cond_num,ntk_trace,fisher,grasp,snip,synflow], 16615928 / 24261397
-[grad_plain,nas_wot,ntk_trace_approx], 15833164 / 24261397
-[grad_plain,ntk_cond_num,ntk_trace_approx,fisher,grasp], 15504256 / 24261397
-[grad_norm,nas_wot,ntk_trace,ntk_trace_approx,snip], 18097912 / 24261397
-[nas_wot,ntk_cond_num,ntk_trace_approx,grasp,snip], 18063913 / 24261397
-[grad_norm,grad_plain,ntk_trace,ntk_trace_approx,fisher,grasp,snip], 15578410 / 24261397
-[grad_norm,nas_wot,ntk_trace,ntk_trace_approx,fisher,grasp,snip], 17665764 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace,fisher,grasp,snip,synflow], 17986048 / 24261397
-[grad_norm,nas_wot,grasp], 17860986 / 24261397
-[grad_norm,fisher,snip], 17323277 / 24261397
-[grad_norm,grad_plain,synflow], 17939732 / 24261397
-[grad_norm,ntk_trace,fisher,grasp,synflow], 17726298 / 24261397
-[grad_norm,nas_wot,ntk_cond_num,ntk_trace_approx,fisher,grasp,synflow], 18284030 / 24261397
-[nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher], 15604151 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_cond_num,snip], 17922359 / 24261397
-[grad_norm,ntk_cond_num,ntk_trace_approx,grasp,synflow], 18061207 / 24261397
-[grad_norm,grad_plain,fisher,grasp,synflow], 17553819 / 24261397
-[grad_plain,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,snip,synflow], 15712359 / 24261397
-[ntk_trace_approx,grasp,snip], 17044318 / 24261397
-[grad_plain,ntk_trace,synflow], 15752901 / 24261397
-[grad_plain,ntk_trace,ntk_trace_approx,grasp,snip], 15566510 / 24261397
-[grad_plain,nas_wot,fisher,grasp,snip], 17548503 / 24261397
-[grad_plain,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,synflow], 15850104 / 24261397
-[grad_norm,grad_plain,ntk_trace], 15304091 / 24261397
-[grad_plain,nas_wot,snip], 18014567 / 24261397
-[grad_norm,ntk_trace_approx,synflow], 18045530 / 24261397
-[grad_plain,ntk_trace,ntk_trace_approx,snip,synflow], 15831046 / 24261397
-[grad_norm,grad_plain,ntk_cond_num,ntk_trace,snip], 16441540 / 24261397
-[grad_plain,ntk_trace_approx,fisher,grasp,snip], 15541127 / 24261397
-[nas_wot,ntk_trace,grasp,snip,synflow], 18548951 / 24261397
-[grad_plain,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,grasp,synflow], 17146022 / 24261397
-[grad_norm,grad_plain,ntk_cond_num,ntk_trace_approx,fisher,grasp,synflow], 16669796 / 24261397
-[grad_norm,grad_plain,ntk_trace,fisher,synflow], 15628527 / 24261397
-[nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,snip], 16931573 / 24261397
-[grad_norm,nas_wot,ntk_cond_num,fisher,snip], 18105425 / 24261397
-[nas_wot,ntk_cond_num,grasp,snip,synflow], 19014227 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_trace_approx,fisher,grasp,synflow], 17800017 / 24261397
-[ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,grasp,snip,synflow], 16686168 / 24261397
-[grad_plain,nas_wot,synflow], 19424487 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_trace_approx,fisher], 15787188 / 24261397
-[grad_norm,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,grasp,synflow], 18322907 / 24261397
-[ntk_trace,fisher,synflow], 15353472 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace_approx], 16880850 / 24261397
-[grad_plain,ntk_cond_num,ntk_trace_approx,fisher,snip], 15519105 / 24261397
-[grad_norm,ntk_cond_num,ntk_trace,grasp,snip], 17265914 / 24261397
-[grad_plain,nas_wot,ntk_trace,ntk_trace_approx,synflow], 16084248 / 24261397
-[nas_wot,ntk_trace_approx,fisher,grasp,synflow], 18223708 / 24261397
-[grad_norm,grad_plain,nas_wot], 17989982 / 24261397
-[grad_norm,grad_plain,ntk_cond_num,fisher,grasp], 16295273 / 24261397
-[grad_norm,ntk_trace,ntk_trace_approx,snip,synflow], 18058911 / 24261397
-[nas_wot,fisher,grasp,snip,synflow], 18504507 / 24261397
-[grad_plain,ntk_trace_approx,grasp,snip,synflow], 17563340 / 24261397
-[grad_norm,grad_plain,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,grasp], 15518353 / 24261397
-[grad_norm,ntk_trace_approx,grasp], 17060577 / 24261397
-[grad_plain,fisher,synflow], 15664478 / 24261397
-[nas_wot,ntk_cond_num,ntk_trace_approx,fisher,grasp], 16914046 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_trace_approx,snip], 17924622 / 24261397
-[grad_norm,grad_plain,ntk_cond_num,ntk_trace_approx,synflow], 16893249 / 24261397
-[grad_norm,grad_plain,ntk_cond_num,fisher,synflow], 16838143 / 24261397
-[grad_plain,nas_wot,ntk_trace_approx,fisher,synflow], 16008565 / 24261397
-[grad_plain,nas_wot,ntk_cond_num,grasp,synflow], 18953395 / 24261397
-[grad_plain,ntk_cond_num,ntk_trace,fisher,synflow], 15620753 / 24261397
-[grad_plain,fisher,grasp,snip,synflow], 17543894 / 24261397
-[grad_norm,ntk_cond_num,ntk_trace,fisher,snip], 16557426 / 24261397
-[nas_wot,ntk_cond_num,ntk_trace_approx,fisher,snip], 16877261 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_cond_num,synflow], 19070625 / 24261397
-[grad_plain,ntk_trace,grasp,snip,synflow], 17566087 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,grasp], 16681099 / 24261397
-[grad_norm,grad_plain,nas_wot,grasp,snip], 17532438 / 24261397
-[nas_wot,ntk_cond_num,ntk_trace_approx,fisher,synflow], 17785158 / 24261397
-[grad_norm,nas_wot,ntk_trace,grasp,synflow], 18522850 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace_approx,fisher,synflow], 17043730 / 24261397
-[grad_plain,nas_wot,ntk_cond_num,ntk_trace,fisher,grasp,synflow], 17030152 / 24261397
-[ntk_cond_num,ntk_trace,ntk_trace_approx], 15554313 / 24261397
-[nas_wot,ntk_trace_approx,snip], 18142245 / 24261397
-[ntk_cond_num,ntk_trace,synflow], 17747290 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace_approx,grasp,snip], 17688127 / 24261397
-[grad_plain,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,snip,synflow], 17106432 / 24261397
-[grad_plain,ntk_trace_approx,grasp], 15517662 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_trace_approx,fisher,grasp,snip], 17533385 / 24261397
-[grad_plain,nas_wot,ntk_trace,ntk_trace_approx,grasp,snip,synflow], 17822632 / 24261397
-[grad_norm,grad_plain,grasp], 17006802 / 24261397
-[ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,grasp], 15483479 / 24261397
-[grad_norm,ntk_cond_num,ntk_trace_approx,fisher,snip], 16601182 / 24261397
-[grad_norm,ntk_cond_num,fisher,grasp,synflow], 18119445 / 24261397
-[grad_norm,nas_wot,grasp,snip,synflow], 17854283 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace_approx,grasp,synflow], 18211170 / 24261397
-[grad_norm,ntk_cond_num,ntk_trace_approx], 16614877 / 24261397
-[grad_norm,nas_wot,ntk_cond_num,fisher,grasp], 18115474 / 24261397
-[grad_norm,nas_wot,ntk_trace,fisher,snip], 18210498 / 24261397
-[grad_plain,nas_wot,ntk_cond_num,ntk_trace_approx,synflow], 17870510 / 24261397
-[grad_norm,grad_plain,ntk_cond_num,ntk_trace,ntk_trace_approx,grasp,snip], 16409759 / 24261397
-[grad_norm,nas_wot,ntk_trace_approx,grasp,snip], 17555273 / 24261397
-[grad_plain,ntk_cond_num,fisher,grasp,synflow], 16920663 / 24261397
-[grad_plain,nas_wot,ntk_trace], 15735464 / 24261397
-[ntk_cond_num,ntk_trace_approx,grasp], 16606816 / 24261397
-[grad_norm,ntk_trace,snip], 17325691 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_cond_num,grasp], 17963747 / 24261397
-[grad_norm,grad_plain,ntk_cond_num,fisher,snip], 16439065 / 24261397
-[grad_norm,ntk_trace,fisher], 15264068 / 24261397
-[grad_norm,nas_wot,ntk_cond_num,ntk_trace,fisher,snip,synflow], 18356488 / 24261397
-[nas_wot,ntk_trace_approx,fisher,snip,synflow], 18360009 / 24261397
-[grad_plain,nas_wot,ntk_trace,ntk_trace_approx,fisher,snip,synflow], 15957827 / 24261397
-[grad_norm,ntk_trace_approx,fisher], 15509402 / 24261397
-[ntk_trace_approx,snip,synflow], 18112068 / 24261397
-[grad_plain,nas_wot,ntk_cond_num,ntk_trace_approx,grasp], 16937075 / 24261397
-[grad_norm,ntk_trace,ntk_trace_approx,fisher,grasp,snip,synflow], 17649092 / 24261397
-[grad_plain,nas_wot,fisher,grasp,synflow], 18224343 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_trace,ntk_trace_approx,snip,synflow], 18188183 / 24261397
-[grad_plain,nas_wot,ntk_cond_num,ntk_trace_approx,snip], 16894487 / 24261397
-[grad_norm,grad_plain,nas_wot,fisher,snip], 17928408 / 24261397
-[grad_plain,ntk_cond_num,ntk_trace,fisher,snip], 15434117 / 24261397
-[grad_norm,grad_plain,ntk_trace,ntk_trace_approx,synflow], 15832615 / 24261397
-[grad_norm,nas_wot,ntk_cond_num,grasp,synflow], 18996822 / 24261397
-[ntk_trace,ntk_trace_approx,synflow], 15799757 / 24261397
-[ntk_cond_num,ntk_trace,fisher,snip,synflow], 16808415 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_trace,fisher,grasp,snip], 17527720 / 24261397
-[grad_norm,nas_wot,ntk_cond_num,ntk_trace_approx,fisher,snip,synflow], 18291126 / 24261397
-[grad_norm,grad_plain,ntk_cond_num,grasp,synflow], 17984943 / 24261397
-[grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace,fisher,synflow], 16986764 / 24261397
+201union_best total_pair = 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_trace,ntk_trace_approx], 8450949 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,grasp,synflow], 9771988 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_trace,ntk_trace_approx,fisher,snip,synflow], 8439352 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_cond_num,ntk_trace,snip], 8789349 / 12944268 
+201union_best, [grad_norm,ntk_cond_num,ntk_trace,fisher,grasp], 8739703 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_cond_num,fisher,synflow], 9529898 / 12944268 
+201union_best, [ntk_trace,ntk_trace_approx,fisher,grasp,synflow], 8362087 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_cond_num,ntk_trace,fisher,grasp,snip], 8875422 / 12944268 
+201union_best, [nas_wot,ntk_cond_num,ntk_trace,fisher,grasp,snip,synflow], 9808018 / 12944268 
+201union_best, [grad_plain,ntk_trace_approx,snip], 8299021 / 12944268 
+201union_best, [ntk_cond_num,fisher,synflow], 9493909 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,snip], 8378349 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_trace_approx], 8301640 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_trace_approx,fisher,grasp], 8403891 / 12944268 
+201union_best, [grad_norm,nas_wot,fisher,grasp,synflow], 9859258 / 12944268 
+201union_best, [nas_wot,ntk_trace,fisher], 8180705 / 12944268 
+201union_best, [grad_norm,ntk_cond_num,ntk_trace,grasp,snip], 9197547 / 12944268 
+201union_best, [grad_plain,ntk_cond_num,ntk_trace,ntk_trace_approx,grasp,snip,synflow], 8919609 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_cond_num,ntk_trace,grasp], 8707400 / 12944268 
+201union_best, [grad_plain,ntk_cond_num,ntk_trace_approx,fisher,synflow], 8406227 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_cond_num,grasp,synflow], 10133240 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_cond_num,snip,synflow], 10058575 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_cond_num,ntk_trace,grasp,snip,synflow], 9792339 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_cond_num,ntk_trace_approx,grasp], 8772846 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_trace,fisher,snip], 9733724 / 12944268 
+201union_best, [grad_norm,ntk_trace,ntk_trace_approx,grasp,snip], 9091472 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,grasp], 8275815 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_trace,fisher,grasp,synflow], 9538933 / 12944268 
+201union_best, [grad_norm,ntk_cond_num,ntk_trace,snip,synflow], 9655565 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_cond_num,ntk_trace,ntk_trace_approx,grasp,snip], 8768457 / 12944268 
+201union_best, [grad_plain,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,snip,synflow], 8385792 / 12944268 
+201union_best, [nas_wot,grasp,synflow], 10269637 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_trace_approx,fisher,snip], 8317264 / 12944268 
+201union_best, [nas_wot,ntk_trace_approx,fisher,snip,synflow], 9815660 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,grasp], 8917200 / 12944268 
+201union_best, [grad_norm,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,snip,synflow], 9028797 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_cond_num,fisher,grasp], 8697747 / 12944268 
+201union_best, [nas_wot,ntk_trace,ntk_trace_approx,grasp,snip], 9451218 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_cond_num,ntk_trace,fisher,grasp,snip], 9546562 / 12944268 
+201union_best, [nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,grasp,snip,synflow], 9803675 / 12944268 
+201union_best, [ntk_cond_num,ntk_trace,fisher,snip,synflow], 8987467 / 12944268 
+201union_best, [grad_plain,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,grasp,snip], 8275277 / 12944268 
+201union_best, [grad_norm,ntk_trace_approx,fisher,grasp,synflow], 9424818 / 12944268 
+201union_best, [grad_plain,ntk_trace_approx,grasp,snip,synflow], 9369944 / 12944268 
+201union_best, [ntk_cond_num,fisher,grasp,snip,synflow], 9672030 / 12944268 
+201union_best, [nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,grasp,synflow], 9112328 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_trace,ntk_trace_approx,snip], 9671863 / 12944268 
+201union_best, [ntk_cond_num,ntk_trace,ntk_trace_approx,snip,synflow], 9078035 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_cond_num,fisher,grasp,snip,synflow], 9770686 / 12944268 
+201union_best, [grad_plain,fisher,grasp], 8128474 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_trace_approx,fisher,snip], 9667084 / 12944268 
+201union_best, [grad_plain,ntk_cond_num,ntk_trace_approx,fisher,grasp,snip,synflow], 8907188 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_cond_num,ntk_trace_approx,fisher,grasp,snip], 8905080 / 12944268 
+201union_best, [nas_wot,ntk_trace_approx,fisher], 8370705 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_cond_num,ntk_trace,grasp], 9701867 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_trace,fisher,grasp], 9473836 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_trace_approx,fisher,grasp], 8290218 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_cond_num,ntk_trace_approx,fisher,grasp,synflow], 9141933 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_cond_num,ntk_trace,fisher,snip,synflow], 9094714 / 12944268 
+201union_best, [grad_norm,snip,synflow], 9209286 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_cond_num,ntk_trace_approx,snip], 9044171 / 12944268 
+201union_best, [nas_wot,ntk_cond_num,ntk_trace_approx,grasp,snip], 9653131 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_trace,grasp,synflow], 9883311 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_cond_num,ntk_trace_approx,fisher,grasp,snip], 9504874 / 12944268 
+201union_best, [nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,snip,synflow], 9105156 / 12944268 
+201union_best, [ntk_trace_approx,fisher,synflow], 8384018 / 12944268 
+201union_best, [nas_wot,ntk_cond_num,ntk_trace,fisher,snip], 8971151 / 12944268 
+201union_best, [grad_norm,ntk_trace,ntk_trace_approx,grasp,synflow], 9436721 / 12944268 
+201union_best, [grad_norm,ntk_cond_num,ntk_trace_approx], 8887924 / 12944268 
+201union_best, [ntk_cond_num,grasp,synflow], 9978059 / 12944268 
+201union_best, [grad_plain,ntk_cond_num,fisher,grasp,synflow], 9026282 / 12944268 
+201union_best, [ntk_cond_num,ntk_trace,grasp,snip,synflow], 9694231 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace,grasp,snip], 9455165 / 12944268 
+201union_best, [ntk_trace,ntk_trace_approx,grasp], 8270142 / 12944268 
+201union_best, [nas_wot,ntk_cond_num,ntk_trace,fisher,grasp], 8972787 / 12944268 
+201union_best, [nas_wot,ntk_trace,ntk_trace_approx,fisher,grasp], 8353701 / 12944268 
+201union_best, [grad_norm,ntk_cond_num,ntk_trace,ntk_trace_approx,snip], 8886700 / 12944268 
+201union_best, [ntk_cond_num,ntk_trace,ntk_trace_approx,grasp,synflow], 9094801 / 12944268 
+201union_best, [grad_norm,nas_wot,fisher,snip,synflow], 9660937 / 12944268 
+201union_best, [ntk_cond_num,ntk_trace_approx,synflow], 9578622 / 12944268 
+201union_best, [grad_norm,fisher,synflow], 9688277 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,grasp,snip], 9341652 / 12944268 
+201union_best, [nas_wot,ntk_trace,ntk_trace_approx,grasp,synflow], 9754319 / 12944268 
+201union_best, [nas_wot,ntk_trace,fisher,grasp,synflow], 9737619 / 12944268 
+201union_best, [grad_norm,ntk_cond_num,ntk_trace_approx,fisher,grasp,snip,synflow], 9483970 / 12944268 
+201union_best, [ntk_trace_approx,fisher,grasp], 8248918 / 12944268 
+201union_best, [grad_plain,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher], 8160784 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_cond_num,grasp], 9596507 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_cond_num,grasp,snip], 9481126 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_cond_num,fisher,synflow], 9002853 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,snip,synflow], 9796196 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot], 9616994 / 12944268 
+201union_best, [fisher,grasp,snip], 9048701 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_trace,ntk_trace_approx,synflow], 8589779 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace,fisher,snip], 8978283 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_trace,ntk_trace_approx,fisher,grasp,snip], 9433262 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace_approx,grasp,snip], 9451747 / 12944268 
+201union_best, [ntk_trace,snip,synflow], 9750856 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_cond_num,ntk_trace_approx,fisher], 8394075 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_trace,ntk_trace_approx,grasp], 8425577 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_cond_num,fisher,grasp], 9014425 / 12944268 
+201union_best, [grad_plain,ntk_cond_num,ntk_trace_approx,fisher,grasp], 8265526 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_cond_num,ntk_trace_approx,synflow], 9584768 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,grasp,synflow], 9167861 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace_approx,snip,synflow], 9723992 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_trace_approx], 9680372 / 12944268 
+201union_best, [nas_wot,ntk_cond_num,ntk_trace_approx,fisher,synflow], 9542648 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace_approx,fisher,synflow], 9123319 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace,fisher,grasp,snip,synflow], 9616580 / 12944268 
+201union_best, [grad_norm,ntk_cond_num,fisher,grasp,synflow], 9664870 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,snip,synflow], 9568029 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_trace,fisher,snip], 8177195 / 12944268 
+201union_best, [ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,grasp,snip,synflow], 8918610 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,grasp,snip,synflow], 8893215 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_trace_approx,snip], 9580468 / 12944268 
+201union_best, [nas_wot,ntk_trace,fisher,grasp,snip], 9474375 / 12944268 
+201union_best, [grad_norm,ntk_trace_approx,fisher,grasp,snip], 9085784 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_trace_approx,synflow], 9757531 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,grasp], 8362182 / 12944268 
+201union_best, [ntk_trace,ntk_trace_approx,fisher], 8123020 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_trace,ntk_trace_approx,grasp], 9450594 / 12944268 
+201union_best, [nas_wot,ntk_trace_approx,fisher,grasp,snip], 9438152 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_trace_approx,snip,synflow], 9565669 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_cond_num,ntk_trace,fisher,snip,synflow], 9810512 / 12944268 
+201union_best, [grad_plain,ntk_trace,fisher], 8101516 / 12944268 
+201union_best, [grad_norm,ntk_cond_num,grasp], 9255214 / 12944268 
+201union_best, [ntk_cond_num,ntk_trace,grasp], 8827275 / 12944268 
+201union_best, [grad_plain,ntk_cond_num,ntk_trace,fisher,grasp], 8226278 / 12944268 
+201union_best, [ntk_trace,ntk_trace_approx,fisher,snip,synflow], 8385390 / 12944268 
+201union_best, [grad_norm,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,grasp,snip], 8783091 / 12944268 
+201union_best, [nas_wot,ntk_cond_num,ntk_trace], 9428423 / 12944268 
+201union_best, [nas_wot,fisher,synflow], 10436560 / 12944268 
+201union_best, [grad_plain,ntk_trace,ntk_trace_approx,fisher,synflow], 8208000 / 12944268 
+201union_best, [grad_plain,ntk_trace,ntk_trace_approx,grasp,synflow], 8430198 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_cond_num,ntk_trace_approx,fisher,snip,synflow], 9131252 / 12944268 
+201union_best, [nas_wot,ntk_cond_num,ntk_trace_approx,fisher,grasp], 9042985 / 12944268 
+201union_best, [grad_norm,nas_wot,fisher,grasp,snip], 9352874 / 12944268 
+201union_best, [grad_norm,grad_plain,fisher,snip,synflow], 9568045 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,synflow], 8385858 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_cond_num,ntk_trace_approx,grasp,snip,synflow], 9742095 / 12944268 
+201union_best, [grad_norm,grad_plain,grasp], 9048149 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_trace,ntk_trace_approx,fisher], 8126153 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_cond_num,ntk_trace_approx,grasp,snip,synflow], 9745144 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_trace_approx,fisher,grasp,snip,synflow], 9507697 / 12944268 
+201union_best, [grad_plain,grasp,synflow], 9502513 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_cond_num,fisher,snip], 9012923 / 12944268 
+201union_best, [grad_norm,ntk_cond_num,ntk_trace_approx,fisher,synflow], 9037753 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_cond_num,ntk_trace_approx,fisher,snip,synflow], 9774944 / 12944268 
+201union_best, [grad_norm,ntk_trace,ntk_trace_approx], 8299588 / 12944268 
+201union_best, [nas_wot,grasp,snip], 9509062 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_trace,ntk_trace_approx,fisher], 8201919 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_trace,fisher,synflow], 8434845 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace_approx,fisher,snip], 8998334 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_cond_num,ntk_trace_approx,fisher], 9026466 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_trace,grasp,snip], 9358583 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_cond_num,synflow], 10210928 / 12944268 
+201union_best, [grad_norm,ntk_cond_num,ntk_trace,grasp,synflow], 9686982 / 12944268 
+201union_best, [nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,grasp,snip], 8908764 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,grasp,snip,synflow], 9589076 / 12944268 
+201union_best, [grad_norm,grad_plain,fisher], 8150546 / 12944268 
+201union_best, [ntk_cond_num,snip,synflow], 10166235 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_cond_num,fisher,grasp], 9679346 / 12944268 
+201union_best, [grad_norm,grad_plain,fisher,grasp,synflow], 9363653 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_trace,ntk_trace_approx,fisher,grasp,snip], 8407627 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,fisher,grasp,snip,synflow], 9592394 / 12944268 
+201union_best, [grad_norm,ntk_trace_approx,synflow], 9641285 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_trace_approx,grasp,synflow], 9375840 / 12944268 
+201union_best, [nas_wot,ntk_trace_approx,fisher,grasp,synflow], 9725055 / 12944268 
+201union_best, [ntk_trace_approx,fisher,grasp,snip,synflow], 9419422 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace_approx,grasp,synflow], 9734946 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_trace_approx,grasp,snip,synflow], 9590381 / 12944268 
+201union_best, [ntk_trace,fisher,grasp,snip,synflow], 9451924 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_trace,ntk_trace_approx,fisher,synflow], 8523335 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_cond_num,ntk_trace_approx,grasp], 9054075 / 12944268 
+201union_best, [grad_norm,ntk_cond_num,ntk_trace_approx,fisher,grasp], 8782336 / 12944268 
+201union_best, [grad_plain,ntk_cond_num,ntk_trace_approx,fisher,snip], 8282497 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_trace,ntk_trace_approx,synflow], 8453904 / 12944268 
+201union_best, [grad_plain,ntk_trace_approx,fisher,grasp,synflow], 8408203 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_cond_num,snip,synflow], 10222974 / 12944268 
+201union_best, [grad_plain,fisher,synflow], 8356863 / 12944268 
+201union_best, [grad_plain,ntk_trace_approx,fisher,grasp,snip], 8288861 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,snip], 9016527 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_cond_num,ntk_trace,fisher,grasp,synflow], 8873731 / 12944268 
+201union_best, [grad_norm,fisher,snip], 9235028 / 12944268 
+201union_best, [ntk_cond_num,grasp,snip], 9260346 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_cond_num,ntk_trace_approx,snip], 9630601 / 12944268 
+201union_best, [ntk_cond_num,ntk_trace_approx,fisher,grasp,synflow], 9066885 / 12944268 
+201union_best, [grad_plain,ntk_trace,grasp], 8144108 / 12944268 
+201union_best, [grad_norm,ntk_trace,snip], 9236127 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_cond_num,ntk_trace,fisher], 8962893 / 12944268 
+201union_best, [grad_plain,ntk_trace,fisher,grasp,snip], 8166188 / 12944268 
+201union_best, [grad_plain,ntk_trace,fisher,snip,synflow], 8339239 / 12944268 
+201union_best, [grad_norm,ntk_trace,ntk_trace_approx,fisher,grasp,snip,synflow], 9417860 / 12944268 
+201union_best, [nas_wot,ntk_cond_num,fisher], 9418887 / 12944268 
+201union_best, [grad_plain,nas_wot,synflow], 10405276 / 12944268 
+201union_best, [grad_plain,ntk_trace,ntk_trace_approx,fisher,grasp], 8116276 / 12944268 
+201union_best, [grad_plain,nas_wot,grasp,snip,synflow], 9782758 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_cond_num,grasp,snip,synflow], 9703263 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_trace,fisher,grasp,snip,synflow], 9539220 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,synflow], 8460318 / 12944268 
+201union_best, [ntk_trace,fisher,snip], 8138477 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,fisher,grasp], 9370008 / 12944268 
+201union_best, [grad_plain,ntk_cond_num,ntk_trace,grasp,synflow], 9054255 / 12944268 
+201union_best, [grad_plain,ntk_trace_approx,fisher,snip,synflow], 8432029 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,snip], 8297007 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,synflow], 9148650 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_trace_approx], 8456790 / 12944268 
+201union_best, [grad_plain,nas_wot,grasp], 9525218 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_cond_num,grasp,synflow], 9591865 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_cond_num], 8795808 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,grasp,snip], 8917675 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_trace,fisher,grasp,snip], 9359669 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_trace], 8399872 / 12944268 
+201union_best, [ntk_trace,grasp,synflow], 9626778 / 12944268 
+201union_best, [ntk_cond_num,ntk_trace_approx,fisher,snip,synflow], 9050570 / 12944268 
+201union_best, [nas_wot,ntk_cond_num,ntk_trace_approx,fisher,grasp,snip,synflow], 9782641 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,grasp,synflow], 8994686 / 12944268 
+201union_best, [grad_norm,ntk_trace,ntk_trace_approx,fisher,grasp], 8274147 / 12944268 
+201union_best, [nas_wot,ntk_trace,ntk_trace_approx,fisher,snip], 8378614 / 12944268 
+201union_best, [grad_norm,ntk_cond_num,ntk_trace,ntk_trace_approx,synflow], 9065160 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_trace,ntk_trace_approx,fisher,grasp], 8408199 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_cond_num,fisher,grasp,snip], 9449762 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_trace_approx,fisher,grasp,synflow], 9507307 / 12944268 
+201union_best, [grad_plain,ntk_trace,snip], 8164139 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_trace_approx,grasp], 9382505 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_cond_num,fisher,synflow], 10247860 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_cond_num,fisher,snip,synflow], 9759522 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_cond_num,fisher,grasp,snip,synflow], 9779138 / 12944268 
+201union_best, [nas_wot,ntk_trace,ntk_trace_approx], 8417912 / 12944268 
+201union_best, [grad_norm,grad_plain,synflow], 9586072 / 12944268 
+201union_best, [ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,snip], 8269885 / 12944268 
+201union_best, [grad_norm,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,grasp,synflow], 8918999 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_trace,ntk_trace_approx,fisher,snip,synflow], 9785055 / 12944268 
+201union_best, [grad_norm,ntk_cond_num,ntk_trace,ntk_trace_approx,grasp], 8793837 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_trace,snip], 9584198 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_trace_approx,snip,synflow], 9773761 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_trace,fisher,grasp,snip,synflow], 9696746 / 12944268 
+201union_best, [grad_norm,ntk_trace_approx,grasp,snip,synflow], 9335838 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_cond_num,ntk_trace,fisher,grasp,synflow], 9097830 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_trace,ntk_trace_approx,fisher,grasp,synflow], 9551848 / 12944268 
+201union_best, [ntk_cond_num,ntk_trace,snip], 8877965 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_trace,ntk_trace_approx,fisher,grasp,snip], 8308968 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_trace,fisher,synflow], 9834738 / 12944268 
+201union_best, [ntk_cond_num,ntk_trace,fisher,grasp,synflow], 8997068 / 12944268 
+201union_best, [grad_norm,ntk_trace,fisher], 8138872 / 12944268 
+201union_best, [grad_plain,grasp,snip], 9038421 / 12944268 
+201union_best, [grasp,snip,synflow], 9489666 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_cond_num,ntk_trace,fisher], 8236156 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_trace,fisher,grasp], 8324307 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_trace_approx,grasp,snip], 9350179 / 12944268 
+201union_best, [grad_plain,ntk_trace,ntk_trace_approx,snip,synflow], 8453606 / 12944268 
+201union_best, [grad_plain,ntk_trace_approx,fisher], 8091804 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_trace,snip,synflow], 9845035 / 12944268 
+201union_best, [grad_plain,ntk_trace,ntk_trace_approx,fisher,grasp,snip,synflow], 8408333 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_trace,ntk_trace_approx,fisher,grasp,snip,synflow], 9488096 / 12944268 
+201union_best, [ntk_trace_approx,fisher,snip], 8275961 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace], 9032437 / 12944268 
+201union_best, [grad_norm,ntk_cond_num,fisher,grasp,snip], 9192688 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace_approx,fisher,grasp], 8904693 / 12944268 
+201union_best, [grad_norm,ntk_cond_num,ntk_trace,fisher,grasp,snip,synflow], 9523334 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,grasp,snip,synflow], 9636360 / 12944268 
+201union_best, [grad_norm,fisher,grasp], 9057831 / 12944268 
+201union_best, [grad_norm,ntk_cond_num,synflow], 10149535 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_cond_num,fisher,snip], 9674495 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_trace_approx,fisher,snip], 8428989 / 12944268 
+201union_best, [grad_plain,ntk_trace,ntk_trace_approx,fisher,snip], 8125835 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_trace,ntk_trace_approx,grasp,snip,synflow], 9361804 / 12944268 
+201union_best, [ntk_trace,ntk_trace_approx,snip], 8298966 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_trace_approx,grasp,synflow], 9819396 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_trace,ntk_trace_approx,grasp,synflow], 9520271 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher], 8378651 / 12944268 
+201union_best, [grad_norm,ntk_cond_num,ntk_trace,ntk_trace_approx,grasp,snip,synflow], 9490159 / 12944268 
+201union_best, [grad_plain,ntk_trace,ntk_trace_approx], 8102852 / 12944268 
+201union_best, [ntk_trace_approx,grasp,snip], 9068598 / 12944268 
+201union_best, [ntk_cond_num,ntk_trace,synflow], 9503324 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_trace,ntk_trace_approx,grasp], 8304153 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_cond_num,ntk_trace_approx,synflow], 9037682 / 12944268 
+201union_best, [grad_plain,nas_wot,fisher,grasp,synflow], 9723305 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,fisher,snip], 9583221 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_cond_num,ntk_trace,synflow], 9028829 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace,fisher,synflow], 9086796 / 12944268 
+201union_best, [grad_norm,ntk_trace,synflow], 9718607 / 12944268 
+201union_best, [ntk_trace_approx,snip,synflow], 9673448 / 12944268 
+201union_best, [nas_wot,ntk_cond_num,ntk_trace,grasp,snip], 9708665 / 12944268 
+201union_best, [grad_norm,ntk_cond_num,grasp,snip,synflow], 9470716 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_cond_num,ntk_trace,fisher,snip,synflow], 8975395 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_trace], 9763430 / 12944268 
+201union_best, [grad_plain,ntk_cond_num,fisher], 8225389 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_trace_approx,grasp,snip], 9082166 / 12944268 
+201union_best, [grad_plain,ntk_cond_num,fisher,snip,synflow], 9014180 / 12944268 
+201union_best, [grad_norm,nas_wot,snip], 9241093 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_cond_num,grasp,snip], 9602261 / 12944268 
+201union_best, [ntk_cond_num,ntk_trace_approx,fisher,grasp,snip], 8780973 / 12944268 
+201union_best, [grad_norm,fisher,grasp,snip,synflow], 9337540 / 12944268 
+201union_best, [grad_norm,ntk_cond_num,ntk_trace_approx,grasp,snip], 9198376 / 12944268 
+201union_best, [grad_norm,ntk_trace,fisher,grasp,snip], 9070883 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_trace_approx,fisher,grasp,snip,synflow], 9649038 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace_approx], 9036574 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_trace,fisher,grasp], 8167167 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_cond_num,snip], 9575775 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_trace,ntk_trace_approx,snip], 8331224 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_trace_approx,grasp,snip], 9382440 / 12944268 
+201union_best, [grad_plain,ntk_cond_num,grasp], 8749909 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_trace,ntk_trace_approx,fisher], 8379019 / 12944268 
+201union_best, [ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,synflow], 8330892 / 12944268 
+201union_best, [grad_plain,ntk_cond_num,synflow], 9510173 / 12944268 
+201union_best, [grad_norm,ntk_cond_num,ntk_trace_approx,snip,synflow], 9589822 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace,snip,synflow], 9781742 / 12944268 
+201union_best, [grad_norm,ntk_trace_approx,fisher], 8276628 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_trace,fisher,synflow], 8338913 / 12944268 
+201union_best, [nas_wot,fisher,grasp,snip,synflow], 9871408 / 12944268 
+201union_best, [grad_norm,ntk_trace_approx,snip], 9234891 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_trace,ntk_trace_approx,synflow], 9825860 / 12944268 
+201union_best, [nas_wot,ntk_cond_num,ntk_trace,fisher,synflow], 9459787 / 12944268 
+201union_best, [grad_plain,ntk_cond_num,ntk_trace,snip,synflow], 9040183 / 12944268 
+201union_best, [grad_norm,ntk_cond_num,fisher,snip,synflow], 9632273 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_trace,ntk_trace_approx,fisher,grasp,synflow], 8408891 / 12944268 
+201union_best, [grad_norm,ntk_cond_num,snip], 9237988 / 12944268 
+201union_best, [ntk_trace,grasp,snip], 9058122 / 12944268 
+201union_best, [grad_norm,grasp,synflow], 9454898 / 12944268 
+201union_best, [grad_norm,ntk_trace,ntk_trace_approx,fisher,snip], 8295849 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_trace,ntk_trace_approx,snip,synflow], 9721461 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_cond_num], 10143073 / 12944268 
+201union_best, [grad_norm,ntk_cond_num,ntk_trace], 8867138 / 12944268 
+201union_best, [fisher,snip,synflow], 9719987 / 12944268 
+201union_best, [grad_plain,ntk_cond_num,ntk_trace,grasp,snip], 8705768 / 12944268 
+201union_best, [grad_plain,ntk_cond_num,ntk_trace_approx,grasp,snip], 8770936 / 12944268 
+201union_best, [ntk_cond_num,ntk_trace,ntk_trace_approx,grasp,snip], 8792588 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_cond_num], 9455085 / 12944268 
+201union_best, [ntk_trace,fisher,grasp], 8131222 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_cond_num,ntk_trace,ntk_trace_approx], 8299256 / 12944268 
+201union_best, [grad_plain,ntk_cond_num,ntk_trace,ntk_trace_approx,grasp], 8283182 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_trace,grasp,snip], 9071971 / 12944268 
+201union_best, [nas_wot,ntk_trace,grasp,snip,synflow], 9895732 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_cond_num,ntk_trace,fisher,grasp,snip], 8696654 / 12944268 
+201union_best, [grad_norm,grad_plain,snip], 9231944 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_trace,fisher,snip,synflow], 9765404 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_trace_approx,fisher,grasp,snip,synflow], 9356669 / 12944268 
+201union_best, [grad_plain,nas_wot,snip], 9630935 / 12944268 
+201union_best, [nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,snip], 9063169 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_cond_num,ntk_trace,synflow], 9543282 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_cond_num,ntk_trace_approx,synflow], 10226917 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_cond_num,fisher,grasp,synflow], 9763857 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_cond_num,ntk_trace,grasp,snip,synflow], 9441662 / 12944268 
+201union_best, [nas_wot,ntk_trace_approx,synflow], 10403863 / 12944268 
+201union_best, [grad_norm,grad_plain,grasp,snip,synflow], 9326866 / 12944268 
+201union_best, [grad_norm,ntk_cond_num,ntk_trace,fisher,synflow], 8974618 / 12944268 
+201union_best, [grad_norm,ntk_trace,ntk_trace_approx,fisher,synflow], 8385992 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_cond_num,snip,synflow], 9548988 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_trace_approx,fisher,synflow], 9799060 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_trace,grasp,synflow], 9374899 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace_approx,fisher,grasp,snip,synflow], 9581774 / 12944268 
+201union_best, [ntk_trace_approx,grasp,synflow], 9571706 / 12944268 
+201union_best, [grad_plain,ntk_cond_num,fisher,grasp,snip], 8696152 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_trace_approx,fisher,synflow], 8432250 / 12944268 
+201union_best, [nas_wot,ntk_trace,ntk_trace_approx,fisher,synflow], 8445168 / 12944268 
+201union_best, [grad_norm,nas_wot,grasp,snip,synflow], 9500361 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_cond_num,fisher,grasp,snip,synflow], 9436802 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_trace], 8166836 / 12944268 
+201union_best, [ntk_cond_num,fisher,grasp], 8801048 / 12944268 
+201union_best, [grad_norm,nas_wot,synflow], 10256938 / 12944268 
+201union_best, [ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,grasp], 8252522 / 12944268 
+201union_best, [grad_plain,ntk_cond_num,ntk_trace,ntk_trace_approx,synflow], 8442726 / 12944268 
+201union_best, [grad_norm,ntk_trace,ntk_trace_approx,snip,synflow], 9646314 / 12944268 
+201union_best, [nas_wot,snip,synflow], 10274559 / 12944268 
+201union_best, [grad_norm,ntk_cond_num,ntk_trace_approx,grasp,synflow], 9634029 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_cond_num,ntk_trace,ntk_trace_approx,grasp,synflow], 8919900 / 12944268 
+201union_best, [nas_wot,ntk_trace_approx,grasp,snip,synflow], 9831237 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_cond_num,ntk_trace,grasp,snip,synflow], 9798821 / 12944268 
+201union_best, [grad_norm,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher], 8270408 / 12944268 
+201union_best, [nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,grasp], 9070479 / 12944268 
+201union_best, [nas_wot,ntk_cond_num,fisher,snip,synflow], 10261007 / 12944268 
+201union_best, [grad_norm,ntk_trace_approx,grasp], 9078145 / 12944268 
+201union_best, [grad_plain,ntk_cond_num,snip], 8804370 / 12944268 
+201union_best, [grad_norm,grad_plain,fisher,grasp,snip], 9067067 / 12944268 
+201union_best, [nas_wot,ntk_cond_num,fisher,grasp,synflow], 10160007 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_cond_num,ntk_trace,snip], 9039946 / 12944268 
+201union_best, [grad_plain,ntk_cond_num,ntk_trace,fisher,snip], 8235772 / 12944268 
+201union_best, [ntk_trace,ntk_trace_approx,fisher,grasp,snip], 8273970 / 12944268 
+201union_best, [grad_plain,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,grasp,synflow], 8369380 / 12944268 
+201union_best, [nas_wot,ntk_trace,ntk_trace_approx,fisher,grasp,snip,synflow], 9552076 / 12944268 
+201union_best, [ntk_cond_num,fisher,snip], 8852409 / 12944268 
+201union_best, [grad_norm,ntk_cond_num,ntk_trace_approx,fisher,snip], 8881654 / 12944268 
+201union_best, [grad_plain,ntk_trace,ntk_trace_approx,grasp,snip], 8302619 / 12944268 
+201union_best, [nas_wot,ntk_trace,fisher,snip,synflow], 9850983 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,grasp,synflow], 9795955 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_trace,ntk_trace_approx,grasp,snip,synflow], 9520843 / 12944268 
+201union_best, [nas_wot,ntk_cond_num,snip], 10154796 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_cond_num,ntk_trace,snip], 9698690 / 12944268 
+201union_best, [grad_plain,ntk_cond_num,ntk_trace_approx,snip,synflow], 9049198 / 12944268 
+201union_best, [grad_norm,ntk_trace,grasp,snip,synflow], 9342635 / 12944268 
+201union_best, [nas_wot,ntk_trace_approx,grasp], 9604068 / 12944268 
+201union_best, [grad_norm,ntk_cond_num,ntk_trace,fisher,snip], 8850871 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_trace,ntk_trace_approx,fisher,snip], 8440074 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_trace,grasp], 9381710 / 12944268 
+201union_best, [grad_plain,ntk_cond_num,ntk_trace,ntk_trace_approx,snip], 8298489 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_trace,grasp,synflow], 9754918 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace,fisher,grasp], 8875031 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_cond_num,ntk_trace_approx,fisher,grasp,synflow], 8907606 / 12944268 
+201union_best, [nas_wot,ntk_trace_approx,snip], 9697478 / 12944268 
+201union_best, [grad_plain,fisher,snip], 8148408 / 12944268 
+201union_best, [fisher,grasp,synflow], 9595776 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,fisher,synflow], 9799434 / 12944268 
+201union_best, [grad_plain,nas_wot,fisher,snip,synflow], 9815182 / 12944268 
+201union_best, [grad_plain,ntk_cond_num,grasp,snip,synflow], 9597977 / 12944268 
+201union_best, [ntk_trace,ntk_trace_approx,synflow], 8434564 / 12944268 
+201union_best, [grad_plain,ntk_cond_num,ntk_trace,fisher,synflow], 8335950 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_trace_approx,fisher,grasp,snip], 9365055 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,snip,synflow], 9156775 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_cond_num,ntk_trace_approx,grasp,snip,synflow], 9437596 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_cond_num,fisher], 9005569 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_trace,fisher], 8341359 / 12944268 
+201union_best, [grad_norm,ntk_trace_approx,fisher,snip,synflow], 9643838 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_cond_num,ntk_trace_approx,fisher,grasp,snip], 8763043 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_cond_num,ntk_trace_approx,fisher,snip,synflow], 8999742 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_trace,fisher,snip], 8341350 / 12944268 
+201union_best, [nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,synflow], 9557562 / 12944268 
+201union_best, [grad_plain,ntk_trace,synflow], 8406661 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx], 8430698 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_cond_num,ntk_trace_approx,fisher], 8283100 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_trace,ntk_trace_approx,snip], 8450358 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_cond_num,ntk_trace_approx,fisher,grasp,synflow], 9775043 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx], 9054660 / 12944268 
+201union_best, [grad_plain,ntk_cond_num,ntk_trace,fisher,grasp,snip,synflow], 8873287 / 12944268 
+201union_best, [ntk_cond_num,ntk_trace_approx,fisher], 8255069 / 12944268 
+201union_best, [nas_wot,ntk_cond_num,grasp], 9983288 / 12944268 
+201union_best, [nas_wot,ntk_cond_num,ntk_trace_approx,grasp,synflow], 10148205 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_trace,ntk_trace_approx,fisher,snip,synflow], 8523052 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_cond_num,ntk_trace,fisher], 8322105 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_cond_num,ntk_trace_approx,snip], 8856058 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_cond_num,fisher,snip], 8787544 / 12944268 
+201union_best, [grad_plain,fisher,grasp,snip,synflow], 9357830 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_trace,ntk_trace_approx,grasp,snip], 9370810 / 12944268 
+201union_best, [ntk_cond_num,ntk_trace,ntk_trace_approx], 8294916 / 12944268 
+201union_best, [grad_plain,nas_wot,fisher], 8351187 / 12944268 
+201union_best, [grad_plain,ntk_trace_approx,synflow], 8466029 / 12944268 
+201union_best, [ntk_cond_num,ntk_trace,fisher,grasp,snip], 8738134 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_trace,snip,synflow], 9567736 / 12944268 
+201union_best, [nas_wot,ntk_cond_num,ntk_trace_approx,snip,synflow], 10240383 / 12944268 
+201union_best, [nas_wot,ntk_cond_num,synflow], 10480364 / 12944268 
+201union_best, [nas_wot,ntk_cond_num,ntk_trace_approx,fisher,snip], 9034801 / 12944268 
+201union_best, [grad_plain,nas_wot,fisher,grasp,snip], 9370184 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_trace_approx,snip,synflow], 9627476 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,grasp,snip], 9511943 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,grasp,snip,synflow], 8995152 / 12944268 
+201union_best, [nas_wot,ntk_cond_num,ntk_trace_approx], 9501671 / 12944268 
+201union_best, [grad_norm,nas_wot,fisher], 9731291 / 12944268 
+201union_best, [nas_wot,ntk_cond_num,ntk_trace,grasp,synflow], 10170363 / 12944268 
+201union_best, [grad_norm,ntk_trace,grasp], 9067269 / 12944268 
+201union_best, [nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher], 8321628 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_trace,grasp,snip], 9381845 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_trace,synflow], 9828748 / 12944268 
+201union_best, [ntk_cond_num,ntk_trace_approx,grasp], 8855799 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_cond_num,ntk_trace,synflow], 10258866 / 12944268 
+201union_best, [nas_wot,ntk_cond_num,grasp,snip,synflow], 10151483 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,synflow], 9096985 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_trace,ntk_trace_approx,fisher,grasp,synflow], 8498148 / 12944268 
+201union_best, [nas_wot,ntk_trace,synflow], 10447041 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,snip,synflow], 9090983 / 12944268 
+201union_best, [grad_plain,ntk_trace_approx,grasp], 8269840 / 12944268 
+201union_best, [nas_wot,fisher,snip], 9748442 / 12944268 
+201union_best, [ntk_trace,fisher,synflow], 8187518 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_cond_num,ntk_trace,grasp], 9042312 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_trace_approx,fisher,grasp], 9437749 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,grasp,snip], 8892338 / 12944268 
+201union_best, [grad_plain,snip,synflow], 9613658 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,fisher,grasp], 8908493 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_cond_num,ntk_trace,fisher,grasp,synflow], 9800505 / 12944268 
+201union_best, [grad_norm,grasp,snip], 9216228 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_cond_num,grasp,snip], 9189310 / 12944268 
+201union_best, [grad_norm,nas_wot,grasp], 9501885 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_trace_approx,fisher,synflow], 8548837 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_cond_num,grasp,synflow], 10142854 / 12944268 
+201union_best, [grad_plain,ntk_cond_num,ntk_trace_approx,grasp,synflow], 9070641 / 12944268 
+201union_best, [grad_norm,ntk_cond_num,fisher], 8841509 / 12944268 
+201union_best, [nas_wot,ntk_cond_num,fisher,grasp,snip], 9686050 / 12944268 
+201union_best, [grad_plain,nas_wot,ntk_trace_approx,grasp,synflow], 9696929 / 12944268 
+201union_best, [ntk_trace,ntk_trace_approx,grasp,snip,synflow], 9431631 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace,grasp,synflow], 9785309 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_trace,grasp,snip,synflow], 9597403 / 12944268 
+201union_best, [nas_wot,ntk_trace,snip], 9781116 / 12944268 
+201union_best, [ntk_cond_num,ntk_trace_approx,snip], 8898867 / 12944268 
+201union_best, [grad_plain,ntk_trace,fisher,grasp,synflow], 8322999 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_cond_num,ntk_trace_approx,grasp], 9646360 / 12944268 
+201union_best, [ntk_cond_num,ntk_trace_approx,grasp,snip,synflow], 9641493 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_trace,fisher,grasp,snip,synflow], 9351999 / 12944268 
+201union_best, [grad_plain,ntk_cond_num,ntk_trace_approx], 8285890 / 12944268 
+201union_best, [ntk_cond_num,ntk_trace,fisher], 8155747 / 12944268 
+201union_best, [nas_wot,fisher,grasp], 9629635 / 12944268 
+201union_best, [grad_norm,ntk_trace,fisher,snip,synflow], 9710033 / 12944268 
+201union_best, [grad_norm,grad_plain,ntk_cond_num,ntk_trace,ntk_trace_approx,snip,synflow], 9006333 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_trace_approx,fisher,snip,synflow], 9715011 / 12944268 
+201union_best, [nas_wot,ntk_trace,grasp], 9660946 / 12944268 
+201union_best, [nas_wot,ntk_cond_num,ntk_trace,snip,synflow], 10272189 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_cond_num,ntk_trace,ntk_trace_approx,snip], 9005363 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_trace,ntk_trace_approx,grasp,snip,synflow], 9655271 / 12944268 
+201union_best, [grad_plain,ntk_cond_num,ntk_trace], 8264950 / 12944268 
+201union_best, [grad_norm,grad_plain,nas_wot,ntk_trace_approx,fisher], 8429541 / 12944268 
+201union_best, [grad_norm,ntk_trace,fisher,grasp,synflow], 9457660 / 12944268 
+201union_best, [grad_norm,nas_wot,ntk_trace,snip,synflow], 9686974 / 12944268 
+201union_best, [nas_wot,ntk_trace,ntk_trace_approx,snip,synflow], 9842817 / 12944268 
+201union_best, [grad_plain,ntk_trace,grasp,snip,synflow], 9369204 / 12944268 
