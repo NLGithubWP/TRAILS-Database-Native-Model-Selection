@@ -96,7 +96,8 @@ class NASBenchMetaAPI(metaclass=abc.ABCMeta):
         Otherwise, it will return an int in [0, the-number-of-candidates-in-the-search-space).
     """
     if self.verbose:
-      print('Call query_index_by_arch with arch={:}'.format(arch))
+      pass
+      # print('Call query_index_by_arch with arch={:}'.format(arch))
     if isinstance(arch, int):
       if 0 <= arch < len(self):
         return arch

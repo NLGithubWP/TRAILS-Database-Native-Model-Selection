@@ -2,18 +2,17 @@
 
 import logging
 import os
-import calendar
-import time
 
 if not os.path.exists("./Logs"):
     os.makedirs("./Logs")
 
 logger = logging.getLogger(__name__)
 
-gmt = time.gmtime()
-ts = calendar.timegm(gmt)
+if os.environ.get("log_file_name") == None:
+    log_name = "./Logs/test.log"
+else:
+    log_name = "./Logs/" + os.environ.get("log_file_name")
 
-log_name = "./Logs/fast_auto_nas_log_"+str(ts)+".log"
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)-8s %(message)s',

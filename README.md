@@ -8,57 +8,56 @@ torchvision        0.12.0
 TensorFlow 1.15
 python 3.60
 
-connect to ciidaa first:
+# CIDDA
 ssh shaofeng@ciidaa.d2.comp.nus.edu.sg
 pwd: shaofengtmp
 
-then connect to ncrs:
 ssh xingnaili@10.0.0.125
 xingnailincrs
 
-When run in server, add path to env
-export PATH=”$PATH:/home/xingnaili/Fast-AutoNAS/src”
-export PYTHONPATH=$PYTHONPATH:/home/xingnaili/Fast-AutoNAS/src
+# XAI
+ssh shaofeng@xai.d2.comp.nus.edu.sg
+3U3Ge}5~.CpGo]U]-hi)
 
-
-export PATH=”$PATH:/home/naili/Fast-AutoNAS/src”
-export PYTHONPATH=$PYTHONPATH:/home/naili/Fast-AutoNAS/src
-
-export PYTHONPATH=$PYTHONPATH:/Users/kevin/project_python/Fast-AutoNAS/src
-export PATH="$PATH:/Users/kevin/project_python/Fast-AutoNAS/src"
+ssh shaofeng@172.28.176.234
+3U3Ge}5~.CpGo]U]-hi)
 
 # Pip install
 conda env export --no-builds > env.yml
 conda env create -f env.yml
 
-# env
-scp env.yml shaofeng@ciidaa.d2.comp.nus.edu.sg:/users/shaofeng/nl/Fast-AutoNAS/
-scp env.yml xingnaili@10.0.0.125:/home/xingnaili/Fast-AutoNAS
+# envs, When run in server, add path to env
+    export PATH="$PATH:/home/shaofeng/naili/Fast-AutoNAS/src"
+    export PYTHONPATH=$PYTHONPATH:/home/shaofeng/naili/Fast-AutoNAS/src
+    export PYTHONPATH=$PYTHONPATH:/home/shaofeng/naili/Fast-AutoNAS/main/
+    export PATH="$PATH:/home/shaofeng/naili/Fast-AutoNAS/main/"
+    export PYTHONPATH=$PYTHONPATH:/home/shaofeng/naili/Fast-AutoNAS/main/0_local_api/
+    export PATH="$PATH:/home/shaofeng/naili/Fast-AutoNAS/main/0_local_api/"
+    export PYTHONPATH=$PYTHONPATH:/home/shaofeng/naili/Fast-AutoNAS/main/2_verify_sampler/
+    export PATH="$PATH:/home/shaofeng/naili/Fast-AutoNAS/main/2_verify_sampler/"
+    export PYTHONPATH=$PYTHONPATH:/home/shaofeng/naili/Fast-AutoNAS/main/3_benchmark_sampler/
+    export PATH="$PATH:/home/shaofeng/naili/Fast-AutoNAS/main/3_benchmark_sampler/"
+    export PYTHONPATH=$PYTHONPATH:/home/shaofeng/naili/Fast-AutoNAS/main/statistic_lib/
+    export PATH="$PATH:/home/shaofeng/naili/Fast-AutoNAS/main/statistic_lib/"
 
-scp main/benchmark.py shaofeng@ciidaa.d2.comp.nus.edu.sg:/users/shaofeng/nl/Fast-AutoNAS/main/
-scp main/benchmark.py xingnaili@10.0.0.125:/home/xingnaili/Fast-AutoNAS/main/
-
-scp -r src shaofeng@ciidaa.d2.comp.nus.edu.sg:/users/shaofeng/nl/Fast-AutoNAS/
-scp -r src xingnaili@10.0.0.125:/home/xingnaili/Fast-AutoNAS/
-
-scp -r xingnaili@10.0.0.125:/home/xingnaili/Fast-AutoNAS/Logs .
-scp -r shaofeng@ciidaa.d2.comp.nus.edu.sg:/users/shaofeng/nl/Fast-AutoNAS/Logs .
-
-scp -r src naili@pandax2.d2.comp.nus.edu.sg:/home/naili/Fast-AutoNAS/
-scp -r main naili@pandax2.d2.comp.nus.edu.sg:/home/naili/Fast-AutoNAS/
-scp -r data naili@pandax2.d2.comp.nus.edu.sg:/home/naili/Fast-AutoNAS/
-
-scp naili@pandax2.d2.comp.nus.edu.sg:/home/naili/Fast-AutoNAS/Logs/201_15k_c10_128.json ./Logs/cifar10_15000
-
-export PATH=”$PATH:/Users/kevin/project_python/Fast-AutoNAS/src”
-export PYTHONPATH=$PYTHONPATH:/Users/kevin/project_python/Fast-AutoNAS/src
-export PYTHONPATH=$PYTHONPATH://Users/kevin/project_python/Fast-AutoNAS/src
+# local env
+    export PYTHONPATH=$PYTHONPATH:/Users/kevin/project_python/Fast-AutoNAS/src
+    export PATH="$PATH:/Users/kevin/project_python/Fast-AutoNAS/src"
+    export PYTHONPATH=$PYTHONPATH:/Users/kevin/project_python/Fast-AutoNAS/main/
+    export PATH="$PATH:/Users/kevin/project_python/Fast-AutoNAS/main/"
+    export PYTHONPATH=$PYTHONPATH:/Users/kevin/project_python/Fast-AutoNAS/main/0_local_api/
+    export PATH="$PATH:/Users/kevin/project_python/Fast-AutoNAS/main/0_local_api/"
+    export PYTHONPATH=$PYTHONPATH:/Users/kevin/project_python/Fast-AutoNAS/main/2_verify_sampler/
+    export PATH="$PATH:/Users/kevin/project_python/Fast-AutoNAS/main/2_verify_sampler/"
+    export PYTHONPATH=$PYTHONPATH:/Users/kevin/project_python/Fast-AutoNAS/main/3_benchmark_sampler/
+    export PATH="$PATH:/Users/kevin/project_python/Fast-AutoNAS/main/3_benchmark_sampler/"
+    export PYTHONPATH=$PYTHONPATH:/Users/kevin/project_python/Fast-AutoNAS/main/statistic_lib/
+    export PATH="$PATH:/Users/kevin/project_python/Fast-AutoNAS/main/statistic_lib/"
 
 # Sampling Algorithms
-
     1. https://github.com/automl/SMAC3
-    1. https://github.com/microsoft/FLAML
-3. https://github.com/automl/HpBandSter, https://automl.github.io/HpBandSter/build/html/auto_examples/example_5_mnist.html
+    2. https://github.com/microsoft/FLAML
+    3. https://github.com/automl/HpBandSter, https://automl.github.io/HpBandSter/build/html/auto_examples/example_5_mnist.html
 
 [Sampling summary](https://github.com/huawei-noah/vega/blob/master/docs/cn/algorithms/hpo.md)
 
@@ -66,9 +65,8 @@ export PYTHONPATH=$PYTHONPATH://Users/kevin/project_python/Fast-AutoNAS/src
 
 # Problems
 
-1. 多分类，求∇0 f(xi), 是不是只考虑这个样本的true label 的那以个维度的输出 f ?
+    1. 多分类，求∇0 f(xi), 是不是只考虑这个样本的true label 的那以个维度的输出 f ?
+    2. NASI 什么时候算一个epoch， 怎么判断是否满足了一个epoch， 怎么定义T 从而看出满足了一个epoch?
 
-1. NASI 什么时候算一个epoch， 怎么判断是否满足了一个epoch， 怎么定义T 从而看出满足了一个epoch?
-
-   ![image-20220528205050861](documents/image-20220528205049492.png)
+       ![image-20220528205050861](documents/image-20220528205049492.png)
 

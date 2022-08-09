@@ -17,7 +17,7 @@ def init_search_space(args) -> SpaceWrapper:
     if args.search_space == 'nasbench101':
 
         model_cfg = NasBench101Cfg(
-            args.stem_out_channels,
+            args.init_channels,
             args.num_stacks,
             args.num_modules_per_stack,
             args.num_labels,
@@ -28,6 +28,7 @@ def init_search_space(args) -> SpaceWrapper:
     elif args.search_space == 'nasbench201':
 
         model_cfg = NasBench201Cfg(
+            args.init_channels,
             args.init_b_type,
             args.init_w_type,
             args.num_labels,

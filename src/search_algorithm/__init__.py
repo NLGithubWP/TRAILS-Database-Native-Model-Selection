@@ -20,7 +20,7 @@ evaluator_register = {
     CommonVars.GRAD_PLAIN: GradPlainEvaluator(),
     #
     # # training free matrix
-    CommonVars.JACOB_CONV: JacobConvEvaluator(),
+    # CommonVars.JACOB_CONV: JacobConvEvaluator(),
     CommonVars.NAS_WOT: NWTEvaluator(),
 
     # this is ntk based

@@ -3,8 +3,10 @@
 class CommonVars:
 
     # SAMPLER
-    TEST_SAMPLER = "test"
+    TEST_SAMPLER = "sequence"
     RANDOM_SAMPLER = "random"
+    RL_SAMPLER = "rl"
+    EA_SAMPLER = "ea"
     BOHB_SAMPLER = "bohb"
 
     # EVALUATOR

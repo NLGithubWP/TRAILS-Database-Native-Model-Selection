@@ -16,7 +16,7 @@ class GraspEvaluator(Evaluator):
         "PICKING WINNING TICKETS BEFORE TRAINING BY PRESERVING GRADIENT FLOW"
         The score takes 5 steps:
             1. Run a forward & backward pass to calculate gradient of loss on weight, grad_w = d_loss/d_w
-            2. Run  forward & backward again, this is to calculate  H*g, it use hessian vector product to calculate it.
+            2. Run  forward & backward again, this is to calculate  H*g, it uses hessian vector product to calculate it.
                 eg, (d_loss / d_w)^2 * g = d_( (d_loss / d_w) * g) / d_w
                 the code first calculate z = (d_loss / d_w) * g, and then calculate gradient on z with z.gradient()
             3. Then calculate Hg.0

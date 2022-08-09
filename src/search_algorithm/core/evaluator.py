@@ -40,7 +40,17 @@ class Evaluator:
         start = time.time()
         score = self.evaluate(arch, device, batch_data, batch_labels)
         if math.isnan(score):
-            score = -1e8
+            if score > 0:
+                score = 1e8
+            else:
+                score = -1e8
+        if math.isinf(score):
+            if score > 0:
+                score = 1e8
+            else:
+                score = -1e8
+
+        score = round(score, 2)
         end = time.time()
         # gpu_util_end = showUtilization()
 

@@ -113,7 +113,7 @@ class NasBench101Network(nn.Module):
         self.spec = spec
         in_channels = 3
 
-        out_channels = model_cfg.stem_out_channels
+        out_channels = model_cfg.init_channels
         num_stacks = model_cfg.num_stacks
         num_modules_per_stack = model_cfg.num_modules_per_stack
         num_labels = model_cfg.num_labels
