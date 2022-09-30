@@ -6,7 +6,7 @@ import time
 import numpy as np
 import matplotlib.pyplot as plt
 import local_api
-from sampler import sampler_register
+from controller import sampler_register
 import search_space
 import torch
 import argparse

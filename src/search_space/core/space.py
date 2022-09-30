@@ -6,8 +6,9 @@ from search_space.core.model_params import ModelCfgs
 
 class SpaceWrapper:
 
-    def __init__(self, cfg: ModelCfgs):
+    def __init__(self, cfg: ModelCfgs, name: str):
         self.model_cfg = cfg
+        self.name = name
 
     @abstractmethod
     def new_architecture(self, arch_id: int):

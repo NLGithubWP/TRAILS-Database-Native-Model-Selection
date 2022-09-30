@@ -40,3 +40,13 @@ class CommonVars:
     AvgCorrelation = "average_correlation"
     AllCorrelation = "all_correlation"
 
+
+class Config:
+
+    NB101 = "nasbench101"
+    NB201 = "nasbench201"
+
+    c10_valid = "cifar10-valid"
+    c10 = "cifar10"
+    c100 = "cifar100"
+    imgNet = "ImageNet16-120"

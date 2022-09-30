@@ -120,6 +120,7 @@ def compare_union_one(singleList, input_file_list, loapi, plim):
     plt.savefig("compare.jpg", bbox_inches='tight')
     plt.show()
 
+
 if __name__ == "__main__":
 
     # input_file_list = ['./main/3_benchmark_sampler/201_cifar10_sampling_res/bohb_single',
@@ -158,6 +159,8 @@ if __name__ == "__main__":
         './main/3_benchmark_sampler/101_cifar10_sampling_res/random_single_cifar10',
         './main/3_benchmark_sampler/101_cifar10_sampling_res/rl_single_cifar10',
         './main/3_benchmark_sampler/101_cifar10_sampling_res/ea_single_cifar10',
+        './main/3_benchmark_sampler/101_cifar10_sampling_res/bohb_vote_cifar10',
+        './main/3_benchmark_sampler/101_cifar10_sampling_res/bohb_single_cifar10',
         ]
 
     union_all_201_c10 = [
@@ -182,8 +185,8 @@ if __name__ == "__main__":
         './main/3_benchmark_sampler/201_imgNet_sampling_res/rl_single_ImageNet16-120',
     ]
 
-    space_name = "201"
-    # space_name = "101"
+    # space_name = "201"
+    space_name = "101"
     dataset = "c10"
     # dataset = "imgNet"
 

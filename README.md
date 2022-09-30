@@ -40,6 +40,25 @@ conda env create -f env.yml
     export PYTHONPATH=$PYTHONPATH:/home/shaofeng/naili/Fast-AutoNAS/main/statistic_lib/
     export PATH="$PATH:/home/shaofeng/naili/Fast-AutoNAS/main/statistic_lib/"
 
+
+
+# Env in pandax2
+
+    export PYTHONPATH=$PYTHONPATH:/home/naili/Fast-AutoNAS/src
+    export PATH="$PATH:/home/naili/Fast-AutoNAS/src"
+    export PYTHONPATH=$PYTHONPATH:/home/naili/Fast-AutoNAS/main/
+    export PATH="$PATH:/home/naili/Fast-AutoNAS/main/"
+    export PYTHONPATH=$PYTHONPATH:/home/naili/Fast-AutoNAS/main/0_local_api/
+    export PATH="$PATH:/home/naili/Fast-AutoNAS/main/0_local_api/"
+    export PYTHONPATH=$PYTHONPATH:/home/naili/Fast-AutoNAS/main/2_verify_sampler/
+    export PATH="$PATH:/home/naili/Fast-AutoNAS/main/2_verify_sampler/"
+    export PYTHONPATH=$PYTHONPATH:/home/naili/Fast-AutoNAS/main/3_benchmark_sampler/
+    export PATH="$PATH:/home/naili/Fast-AutoNAS/main/3_benchmark_sampler/"
+    export PYTHONPATH=$PYTHONPATH:/home/naili/Fast-AutoNAS/main/statistic_lib/
+    export PATH="$PATH:/home/naili/Fast-AutoNAS/main/statistic_lib/"
+    export PYTHONPATH=$PYTHONPATH:/home/naili/Fast-AutoNAS/main/apiserver/
+    export PATH="$PATH:/home/naili/Fast-AutoNAS/main/apiserver/"
+
 # local env
     export PYTHONPATH=$PYTHONPATH:/Users/kevin/project_python/Fast-AutoNAS/src
     export PATH="$PATH:/Users/kevin/project_python/Fast-AutoNAS/src"
@@ -53,6 +72,8 @@ conda env create -f env.yml
     export PATH="$PATH:/Users/kevin/project_python/Fast-AutoNAS/main/3_benchmark_sampler/"
     export PYTHONPATH=$PYTHONPATH:/Users/kevin/project_python/Fast-AutoNAS/main/statistic_lib/
     export PATH="$PATH:/Users/kevin/project_python/Fast-AutoNAS/main/statistic_lib/"
+    export PYTHONPATH=$PYTHONPATH:/Users/kevin/project_python/Fast-AutoNAS/main/apiserver/
+    export PATH="$PATH:/Users/kevin/project_python/Fast-AutoNAS/main/apiserver/"
 
 # Sampling Algorithms
     1. https://github.com/automl/SMAC3

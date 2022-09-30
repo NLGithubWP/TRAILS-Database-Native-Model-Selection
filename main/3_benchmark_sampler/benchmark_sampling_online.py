@@ -7,13 +7,13 @@ import traceback
 
 import numpy as np
 import local_api
+from controller import sampler_register
+from eva_engine import evaluator_register
 from logger import logger
-from sampler import sampler_register
 import search_space
 import torch
 import argparse
 
-from search_algorithm import evaluator_register
 from storage import dataset
 
 
@@ -40,7 +40,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description='FastAutoNAS')
 
     # define architecture sampler, [test, random, rl, ea, bohb]
-    parser.add_argument('--arch_sampler', type=str, default="random",
+    parser.add_argument('--arch_sampler', type=str, default="ea",
                         help='which sampler to use, [test, random, rl, ea, bohb ]')
     parser.add_argument('--is_vote', type=int, default=0)
     parser.add_argument('--out_folder', type=str,
@@ -237,7 +237,9 @@ if __name__ == '__main__':
 
                 _num_arch_each_run = 0
                 while _num_arch_each_run < args.num_arch_each_run:
+                    arch_generate_time = time.time()
                     arch_id, _ = arch_generator.__next__()
+                    print("architecture generating time = ", time.time() - arch_generate_time)
                     _num_arch_each_run += 1
 
                     rank_score = 0.0

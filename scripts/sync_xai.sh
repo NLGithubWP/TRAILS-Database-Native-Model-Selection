@@ -22,6 +22,6 @@ scp -r scripts shaofeng@xai.d2.comp.nus.edu.sg:/home/shaofeng/naili/Fast-AutoNAS
 
 # 3U3Ge}5~.CpGo]U]-hi)
 
-#scp shaofeng@xai.d2.comp.nus.edu.sg:/home/shaofeng/naili/Fast-AutoNAS/101_result  ./
+scp -r shaofeng@xai.d2.comp.nus.edu.sg:/home/shaofeng/naili/Fast-AutoNAS/result_append/CIFAR10_15625/union/101_15k_c10_bs32_ic16_unionBest.json  ./aaatmp/
 
-#scp shaofeng@xai.d2.comp.nus.edu.sg:/home/shaofeng/naili/Fast-AutoNAS/result_append/CIFAR10_15625/union/101_15k_c10_bs32_ic16_unionBest.json  ./
+scp shaofeng@xai.d2.comp.nus.edu.sg:/home/shaofeng/naili/Fast-AutoNAS/bohb_vote_cifar10  ./

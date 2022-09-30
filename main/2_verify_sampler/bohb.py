@@ -6,9 +6,9 @@ import time
 
 import numpy as np
 import local_api
-from benchmark_sampling import gather_all_run_result_vote, draw_graph_vote, draw_graph_single, gather_all_run_result
+from draw import gather_all_run_result_vote, draw_graph_vote, gather_all_run_result
+from controller import sampler_register
 from logger import logger
-from sampler import sampler_register
 import search_space
 import torch
 import argparse

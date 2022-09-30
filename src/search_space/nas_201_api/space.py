@@ -1,5 +1,6 @@
-from copy import deepcopy
 
+from copy import deepcopy
+from common.constant import Config
 from search_space.nas_201_api.rl_policy import RLPolicy201Topology
 from third_party.models import get_search_spaces, CellStructure
 from search_space.core.space import SpaceWrapper
@@ -14,7 +15,7 @@ import ConfigSpace
 class NasBench201Space(SpaceWrapper):
 
     def __init__(self, api_loc: str, modelCfg: NasBench201Cfg):
-        super().__init__(modelCfg)
+        super().__init__(modelCfg, Config.NB201)
         self.api = NASBench201API(api_loc)
 
     def new_architecture(self, arch_id: int):
@@ -54,6 +55,10 @@ class NasBench201Space(SpaceWrapper):
         return res
 
     def simulate_train_eval(self, arch_id: int, dataset, iepoch=None, hp="12"):
+        return NasBench201Space.simulate_tran_eval_log(self.api, arch_id, dataset, iepoch, hp)
+
+    @staticmethod
+    def simulate_tran_eval_log(api, arch_id: int, dataset, iepoch=None, hp="12"):
         """This function is used to simulate training and evaluating an arch."""
         index = arch_id
         all_names = ("cifar10", "cifar100", "ImageNet16-120")
@@ -62,11 +67,11 @@ class NasBench201Space(SpaceWrapper):
                 "Invalid dataset name : {:} vs {:}".format(dataset, all_names)
             )
         if dataset == "cifar10":
-            info = self.api.get_more_info(
+            info = api.get_more_info(
                 index, "cifar10-valid", iepoch=iepoch, hp=hp, is_random=True
             )
         else:
-            info = self.api.get_more_info(
+            info = api.get_more_info(
                 index, dataset, iepoch=iepoch, hp=hp, is_random=True
             )
         # get cost
@@ -77,11 +82,11 @@ class NasBench201Space(SpaceWrapper):
             )
         else:
             valid_acc = info["valtest-accuracy"]
-            temp_info = self.api.get_more_info(
+            temp_info = api.get_more_info(
                 index, dataset, iepoch=None, hp=hp, is_random=True
             )
             time_cost = info["train-all-time"] + temp_info["valid-per-time"]
-        latency = self.api.get_latency(index, dataset)
+        # latency = self.api.get_latency(index, dataset)
         test_acc = info['test-accuracy']
         return test_acc, time_cost
 
@@ -90,6 +95,9 @@ class NasBench201Space(SpaceWrapper):
 
     def __len__(self):
         return len(self.api)
+
+    def archid_to_hash(self, arch_id):
+        return self.api[int(arch_id)]
 
     def get_arch_size(self, architecture) -> int:
         arch_str = get_arch_str_from_model(architecture)

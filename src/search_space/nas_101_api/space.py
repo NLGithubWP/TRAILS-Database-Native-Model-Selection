@@ -1,10 +1,12 @@
 import copy
 import itertools
+import json
 import random
 
 import ConfigSpace
 import numpy as np
 
+from common.constant import Config
 from logger import logger
 from search_space.core.space import SpaceWrapper
 from search_space.nas_101_api.lib import nb101_api
@@ -31,8 +33,18 @@ ALLOWED_EDGES = [0, 1]   # Binary adjacency matrix
 class NasBench101Space(SpaceWrapper):
 
     def __init__(self, api_loc: str, modelCfg: NasBench101Cfg):
-        super().__init__(modelCfg)
+        super().__init__(modelCfg, Config.NB101)
         self.api = nb101_api.NASBench(api_loc)
+
+    @classmethod
+    def serialize_model_encoding(cls, matrix: list, operations: str) -> str:
+        data = {"matrix": matrix, "operations": operations}
+        return json.dumps(data)
+
+    @classmethod
+    def deserialize_model_encoding(cls, data_str) -> (list, str):
+        data = json.loads(data_str)
+        return data["matrix"], data["operations"]
 
     def new_architecture(self, arch_id: int):
         arch_hash = next(itertools.islice(self.api.hash_iterator(), arch_id, None))
@@ -57,6 +69,12 @@ class NasBench101Space(SpaceWrapper):
         if dataset_name != "cifar10":
             logger.info("NasBench101 only be evaluated at CIFAR10")
 
+        test_accuracy, training_time = self.query_api(arch_hash)
+        final_res = {"test_accuracy": test_accuracy,
+                     "time_usage": training_time}
+        return final_res
+
+    def query_api(self, arch_hash):
         res = self.api.query(self._get_spec(arch_hash))
         static = {
             "architecture_id": arch_hash,
@@ -67,10 +85,7 @@ class NasBench101Space(SpaceWrapper):
             "test_accuracy": res["test_accuracy"],
         }
 
-        # this result repeated three times.
-        # spec = self._get_spec(arch_id)
-        # _, stats2 = self.api.get_metrics_from_spec(spec)
-        return static
+        return res["test_accuracy"], res["training_time"]
 
     def __len__(self):
         return len(self.api.hash_iterator())

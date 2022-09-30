@@ -9,7 +9,7 @@ from .imagenet16 import *
 
 
 def get_dataloader(train_batch_size: int, test_batch_size: int, dataset: int,
-                  num_workers: int, datadir: str, resize=None) -> (DataLoader, DataLoader, str):
+                  num_workers: int, datadir: str, resize=None) -> (DataLoader, DataLoader, int):
     """
     Load CIFAR or imagenet datasets
     :param train_batch_size:

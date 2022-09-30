@@ -115,12 +115,12 @@ def draw_graph_vote(simulate_system_performance, acc_all_run, img_name, plim=[])
 
 if __name__ == '__main__':
 
-    input_file = './main/3_benchmark_sampler/101_cifar10_sampling_res/bohb_single_cifar10'
+    input_file = './main/3_benchmark_sampler/101_cifar10_sampling_res/bohb_vote_cifar10'
     pre_scored_data = "./result_append/CIFAR10_15625/union/101_15k_c10_bs32_ic16_unionBest.json"
     gt_file = "./101_result"
     train_num_list = [1, 5, 10, 20]
     train_num_one = 10
-    plim = [0.90, 0.94]
+    plim = [0.90, 0.95]
     img_name = input_file + ".jpg"
 
     with open(input_file, 'r') as readfile:

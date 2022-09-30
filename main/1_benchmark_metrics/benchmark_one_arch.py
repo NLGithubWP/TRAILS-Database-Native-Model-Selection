@@ -94,10 +94,10 @@ if __name__ == '__main__':
 
     from logger import logger
     from common.constant import CommonVars
-    from search_algorithm.utils.gpu_util import showUtilization
+    from eva_engine.utils.gpu_util import showUtilization
     from storage import dataset
-    from sampler import sampler_register
-    from search_algorithm import evaluator_register
+    from controller import sampler_register
+    from eva_engine import evaluator_register
     import search_space
 
     random.seed(20)
