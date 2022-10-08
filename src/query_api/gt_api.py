@@ -98,7 +98,7 @@ class Gt101:
 if __name__ == "__main__":
     gt201 = Gt201()
     begin_time201 = time.time()
-    test_accuracy, time_usage = gt201.query_200_epoch(arch_id=str(123), dataset=Config.c10)
+    test_accuracy, time_usage = gt201.query_200_epoch(arch_id=str(123), dataset=Config.imgNet, epoch_num=1)
     end_time = time.time()
     print(test_accuracy, time_usage, end_time-begin_time201)
 

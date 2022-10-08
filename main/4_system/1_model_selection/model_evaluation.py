@@ -204,7 +204,7 @@ if __name__ == '__main__':
                 x_axis_time.append(current_x_time)
 
                 # record arch_id with higher score
-                top_arch_ids = sampler.get_current_top_10_models()
+                top_arch_ids = sampler.get_current_top_k_models()
                 y_axis_top10_models.append(top_arch_ids)
 
             all_run_info[run_id] = {}

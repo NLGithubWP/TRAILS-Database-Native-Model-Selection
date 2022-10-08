@@ -1,7 +1,8 @@
+
 import os.path
 from random import randint
 from matplotlib import pyplot as plt
-from api_local.parse_pre_res import FetchGroundTruth
+from query_api.parse_pre_res import FetchGroundTruth
 from common.constant import Config
 from eva_engine.phase2.p2evaluator import P2Evaluator
 from eva_engine.phase2.sh import SH

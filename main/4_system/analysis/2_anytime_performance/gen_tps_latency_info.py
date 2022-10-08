@@ -1,12 +1,11 @@
 import os
 
-from api_local.parse_pre_res import ParseLatencyAll, FetchGroundTruth, gen_list_run_infos
+from query_api.parse_pre_res import ParseLatencyAll, FetchGroundTruth, gen_list_run_infos
 from common.constant import Config
 
 
 def generate_draw_dict(all_r, target):
-
-    mapper_dic = {0: 1, 1:2, 2:4, 3:8}
+    mapper_dic = {0: 1, 1: 2, 2: 4, 3: 8}
     all_low = []
     all_high = []
     all_guesses_correct = []
@@ -33,7 +32,7 @@ def generate_draw_dict(all_r, target):
         'guesses_correct': all_guesses_correct,
         'hdi_low': all_low,
         'hdi_high': all_high
-     }
+    }
 
     return res
 
@@ -46,7 +45,6 @@ if __name__ == "__main__":
 
     time_file_list = [
         os.path.join(base_dir, "result_base/result_system/prod/time_usage/4wk_time_usage_id2.res"),
-
     ]
 
     # measure_time_usage(time_file_list)
@@ -77,24 +75,22 @@ if __name__ == "__main__":
     print(r2_points)
     print(r4_points)
     print(r8_points)
-
-    result_all_w12 = ParseLatencyAll(
-        os.path.join(base_dir, "result_base/result_system/prod/throughput_seed/12wk_TPS_1run_NB201_c10_all"),
-        target, fgt, gen_list_run_infos)
-    result_all_w14 = ParseLatencyAll(
-        os.path.join(base_dir, "result_base/result_system/prod/throughput_seed/14wk_TPS_1run_NB201_c10_all"),
-        target, fgt, gen_list_run_infos)
-    result_all_w16 = ParseLatencyAll(
-        os.path.join(base_dir, "result_base/result_system/prod/throughput_seed/16wk_TPS_1run_NB201_c10_all"),
-        target, fgt, gen_list_run_infos)
-
-    print(score_data_w1.get_throughput())
-    print(result_all_w2.get_throughput())
-    print(result_all_w4.get_throughput())
-    print(result_all_w8.get_throughput())
-
-    print(result_all_w12.get_throughput())
-    print(result_all_w14.get_throughput())
-    print(result_all_w16.get_throughput())
-
-
+    #
+    # result_all_w12 = ParseLatencyAll(
+    #     os.path.join(base_dir, "result_base/result_system/prod/throughput_seed/12wk_TPS_1run_NB201_c10_all"),
+    #     target, fgt, gen_list_run_infos)
+    # result_all_w14 = ParseLatencyAll(
+    #     os.path.join(base_dir, "result_base/result_system/prod/throughput_seed/14wk_TPS_1run_NB201_c10_all"),
+    #     target, fgt, gen_list_run_infos)
+    # result_all_w16 = ParseLatencyAll(
+    #     os.path.join(base_dir, "result_base/result_system/prod/throughput_seed/16wk_TPS_1run_NB201_c10_all"),
+    #     target, fgt, gen_list_run_infos)
+    #
+    # print(score_data_w1.get_throughput())
+    # print(result_all_w2.get_throughput())
+    # print(result_all_w4.get_throughput())
+    # print(result_all_w8.get_throughput())
+    #
+    # print(result_all_w12.get_throughput())
+    # print(result_all_w14.get_throughput())
+    # print(result_all_w16.get_throughput())

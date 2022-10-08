@@ -93,7 +93,7 @@ class Controller(object):
         final_vote_score = (vote_index + 1) / len(self.vote_history)
 
         model_score_index = binary_insert_get_rank(self.vote_score, ModelScore(model_id, final_vote_score))
-        self.vote_model_id.insert(model_score_index, model_id)
+        self.vote_model_id.insert(model_score_index, int(model_id))
         return final_vote_score
 
     def get_current_top_k_models(self, k=10):

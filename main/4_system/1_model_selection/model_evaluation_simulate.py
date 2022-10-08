@@ -10,7 +10,6 @@ import calendar
 from query_api.gt_api import Gt201, Gt101
 from controller.controler import Controller
 from query_api.score_api import LocalApi
-from utilslibs.tools import write_json
 
 base_dir = os.getcwd()
 
@@ -22,15 +21,15 @@ def parse_arguments():
     parser.add_argument('--metrics_result',
                         type=str,
                         default=os.path.join(base_dir,
-                                             "result_base/result_system/simulate/TFMEM_201_200run_3km_ea.json"),
+                                             "result_base/result_system/simulate/TFMEM_201_imgNet_200run_3km_ea_DB"),
                         help="output folder")
 
     # job config
-    parser.add_argument('--num_run', type=int, default=500, help="num of run")
-    parser.add_argument('--num_arch', type=int, default=15624, help="how many architecture to evaluate")
+    parser.add_argument('--num_run', type=int, default=100, help="num of run")
+    parser.add_argument('--num_arch', type=int, default=15625, help="how many architecture to evaluate")
 
     # dataLoader setting,
-    parser.add_argument('--dataset', type=str, default='cifar10', help='[cifar10, cifar100, ImageNet16-120]')
+    parser.add_argument('--dataset', type=str, default='ImageNet16-120', help='[cifar10, cifar100, ImageNet16-120]')
 
     # define search space,
     parser.add_argument('--search_space', type=str, default="nasbench201", help='nasbench101, nasbench201')
@@ -97,8 +96,21 @@ if __name__ == '__main__':
     logger.info("running with params: :" + json.dumps(args.__dict__, indent=2))
     logger.info("cuda available = " + str(torch.cuda.is_available()))
     used_search_space = search_space.init_search_space(args)
-    loapi = LocalApi()
+    loapi = LocalApi(used_search_space.name, args.dataset)
 
+    # we store the simulation data into sqlLite for quickly reading.
+    import sqlite3
+
+    tfmem_smt_file = args.metrics_result
+
+    con = sqlite3.connect(tfmem_smt_file)
+    try:
+        con.execute("CREATE TABLE simulateExp(run_num, model_explored, cur_arch_id, top200_model_list, current_x_time)")
+        con.execute("CREATE INDEX index_name on simulateExp (run_num, model_explored);")
+    except:
+        pass
+
+    print("Begin all run ")
     all_run_info = {}
     for run_id in range(args.num_run):
         run_begin_time = time.time()
@@ -126,14 +138,17 @@ if __name__ == '__main__':
                 # new arch
                 begin_ge_model = time.time()
                 arch_id, _ = arch_generator.__next__()
-                arch_id_list.append(arch_id)
 
                 # worker start from here
                 # phase 1
-                begin_get_score = time.time()
-                naswot_score = loapi.api_get_score(str(arch_id), CommonVars.NAS_WOT)
-                synflow_score = loapi.api_get_score(str(arch_id), CommonVars.PRUNE_SYNFLOW)
-                total_compute_time += time.time() - begin_get_score
+                try:
+                    begin_get_score = time.time()
+                    naswot_score = loapi.api_get_score(str(arch_id), CommonVars.NAS_WOT)
+                    synflow_score = loapi.api_get_score(str(arch_id), CommonVars.PRUNE_SYNFLOW)
+                    total_compute_time += time.time() - begin_get_score
+                    arch_id_list.append(arch_id)
+                except:
+                    continue
 
                 # fit sampler
                 begin_fit = time.time()
@@ -142,13 +157,21 @@ if __name__ == '__main__':
                 sampler.fit_sampler(arch_id, alg_score)
                 total_fit_time += time.time() - begin_fit
 
-                i = i + 1
                 begin_record = time.time()
                 current_x_time += guess_eval_time(args.search_space)
                 x_axis_time.append(current_x_time)
                 # record arch_id with higher score
-                y_axis_top10_models.append(sampler.get_current_top_k_models(200))
+                top_200_modle = json.dumps(sampler.get_current_top_k_models(400))
+                y_axis_top10_models.append(top_200_modle)
+
+                insert_str = """
+                    INSERT INTO simulateExp VALUES
+                        ({}, {}, {}, "{}", {}) 
+                """.format(run_id, i, arch_id, top_200_modle, round(current_x_time, 4))
+
+                con.execute(insert_str)
                 total_record_time += time.time() - begin_record
+                i = i + 1
 
             # record x and y information
             all_run_info[run_id] = {
@@ -165,8 +188,9 @@ if __name__ == '__main__':
             exit(1)
 
         print("run {} finished using {}".format(run_id, time.time() - run_begin_time))
-        # print(f"total_fit_time = {total_fit_time}, total_compute_time = "
-        #       f"{total_compute_time}, total_record_time = {total_record_time}")
+        print(f"total_fit_time = {total_fit_time}, total_compute_time = "
+              f"{total_compute_time}, total_record_time = {total_record_time}")
         logger.info("run {} finished using {}".format(run_id, time.time() - run_begin_time))
 
-    write_json(args.metrics_result, all_run_info)
+    con.commit()
+    # write_json(args.metrics_result, all_run_info)

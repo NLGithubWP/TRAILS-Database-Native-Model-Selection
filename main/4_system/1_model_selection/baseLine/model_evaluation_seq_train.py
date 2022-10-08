@@ -9,8 +9,8 @@ import os
 import torch
 import argparse
 import calendar
-
-from api_local.gt_api import Gt201, Gt101
+from query_api.gt_api import Gt201, Gt101
+from common.constant import Config
 from controller.controler import Controller
 from utilslibs.tools import write_json
 
@@ -23,12 +23,12 @@ def parse_arguments():
     # job config
     parser.add_argument(
         '--metrics_result', type=str,
-        default=os.path.join(base_dir, "result_base/result_system/simulate/train_based_201_200run_3km_ea.json"),
+        default=os.path.join(base_dir, "result_base/result_system/simulate/train_based_201_imgNet_100run_3km_ea.json"),
         help="metrics_result")
 
     # job config
-    parser.add_argument('--num_run', type=int, default=200, help="num of run")
-    parser.add_argument('--num_arch', type=int, default=15624, help="how many architecture to evaluate")
+    parser.add_argument('--num_run', type=int, default=100, help="num of run")
+    parser.add_argument('--num_arch', type=int, default=15625, help="how many architecture to evaluate")
 
     # define base dir, where it stores apis, datasets, logs, etc,
     parser.add_argument('--base_dir', type=str, default=os.path.join(base_dir, "data"), help='path of data folder')
@@ -44,7 +44,7 @@ def parse_arguments():
                              'nasbench201: NAS-Bench-201-v1_1-096897.pth'
                              ' ... ]')
 
-    parser.add_argument('--dataset', type=str, default="cifar10")
+    parser.add_argument('--dataset', type=str, default='ImageNet16-120', help='[cifar10, cifar100, ImageNet16-120]')
 
     # define device
     parser.add_argument('--init_channels', default=16, type=int, help='output channels of stem convolution')
@@ -122,10 +122,10 @@ if __name__ == '__main__':
                 # simulate training
                 test_accuracy = 0
                 time_usage = 0
-                if args.search_space == "nasbench201":
+                if args.search_space == Config.NB201:
                     data201 = Gt201()
                     test_accuracy, time_usage = data201.query_200_epoch(arch_id=str(arch_id), dataset=args.dataset)
-                elif args.search_space == "nasbench101":
+                elif args.search_space == Config.NB101:
                     data101 = Gt101()
                     test_accuracy, time_usage = data101.get_c10_test_info(arch_id=arch_id)
                 else:

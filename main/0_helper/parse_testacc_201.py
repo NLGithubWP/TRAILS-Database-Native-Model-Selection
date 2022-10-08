@@ -64,6 +64,8 @@ if __name__ == "__main__":
     pre_file = os.path.join(base_dir, "result_base/ground_truth/201_allEpoch_info")
     api = NASBench201API(api_loc)
 
+    simulate_train_eval(9099, "cifar10", iepoch=None, hp=str(200))
+
     save_acc_time()
 
 

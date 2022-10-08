@@ -19,8 +19,6 @@ class VoteEvaluator(Evaluator):
 
         pass
 
-
-
 def vote_between_two_arch(arch1_info: dict, arch2_info: dict, metric: list, space: str):
     """
     Return which architecture is better,

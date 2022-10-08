@@ -71,7 +71,7 @@ class RunStatus:
         # update current finish time.
         self.last_finish_time = time.time()
 
-        self.y_axis_top10_models.append(self.sampler.get_current_top_10_models())
+        self.y_axis_top10_models.append(self.sampler.get_current_top_k_models())
         if len(self.x_axis_time) % 50 == 0:
             print(f"run {self.run_id} evaluated models num {len(self.model_is_ls)}")
             logger.info(f"run {self.run_id} evaluated models num {len(self.model_is_ls)}")
@@ -271,7 +271,7 @@ if __name__ == "__main__":
 
     from common.constant import Config
     from common.structure import ModelAcquireData, ModelEvaData
-    from api_local.gt_api import Gt201, Gt101
+    from query_api.gt_api import Gt201, Gt101
     from controller.controler import Controller
     import search_space
     from search_space import NasBench101Space

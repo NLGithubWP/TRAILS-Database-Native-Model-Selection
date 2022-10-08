@@ -16,6 +16,19 @@ def gen_list_run_infos( data):
     return result
 
 
+def get_current_best_acc(acc_list):
+    res = []
+    for ele in acc_list:
+        if len(res) == 0:
+            res.append(ele)
+            continue
+        if ele > res[-1]:
+            res.append(ele)
+        else:
+            res.append(res[-1])
+    return res
+
+
 # query ground truth
 class FetchGroundTruth:
 

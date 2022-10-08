@@ -3,6 +3,7 @@ import os
 import random
 import time
 import traceback
+
 global args
 import calendar
 from common.structure import ModelEvaData, ModelAcquireData
@@ -197,4 +198,3 @@ if __name__ == "__main__":
 
     search_strategy_url = args.controller_url + "/get_model"
     mode_evaluation()
-
