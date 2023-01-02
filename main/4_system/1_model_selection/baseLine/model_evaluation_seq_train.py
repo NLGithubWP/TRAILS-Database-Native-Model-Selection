@@ -12,6 +12,7 @@ import calendar
 from query_api.gt_api import Gt201, Gt101
 from common.constant import Config
 from controller.controler import Controller
+from query_api.score_api import LocalApi
 from utilslibs.tools import write_json
 
 base_dir = os.getcwd()
@@ -23,28 +24,28 @@ def parse_arguments():
     # job config
     parser.add_argument(
         '--metrics_result', type=str,
-        default=os.path.join(base_dir, "result_base/result_system/simulate/train_based_201_imgNet_100run_3km_ea.json"),
+        default=os.path.join(base_dir, "result_base/result_system/simulate/train_based_101_c10_100run_24k_models.json"),
         help="metrics_result")
 
     # job config
     parser.add_argument('--num_run', type=int, default=100, help="num of run")
-    parser.add_argument('--num_arch', type=int, default=15625, help="how many architecture to evaluate")
+    parser.add_argument('--num_arch', type=int, default=2400, help="how many architecture to evaluate")
 
     # define base dir, where it stores apis, datasets, logs, etc,
     parser.add_argument('--base_dir', type=str, default=os.path.join(base_dir, "data"), help='path of data folder')
 
     # define search space,
-    parser.add_argument('--search_space', type=str, default="nasbench201",
+    parser.add_argument('--search_space', type=str, default="nasbench101",
                         help='search space to use, [nasbench101, nasbench201, ... ]')
 
-    parser.add_argument('--api_loc', type=str, default="NAS-Bench-201-v1_1-096897.pth",
+    parser.add_argument('--api_loc', type=str, default="nasbench_only108.pkl",
                         help='which search space to use, ['
                              'nasbench101: nasbench_only108.pkl'
                              'nasbench201: NAS-Bench-201-v1_0-e61699.pth'
                              'nasbench201: NAS-Bench-201-v1_1-096897.pth'
                              ' ... ]')
 
-    parser.add_argument('--dataset', type=str, default='ImageNet16-120', help='[cifar10, cifar100, ImageNet16-120]')
+    parser.add_argument('--dataset', type=str, default='cifar10', help='[cifar10, cifar100, ImageNet16-120]')
 
     # define device
     parser.add_argument('--init_channels', default=16, type=int, help='output channels of stem convolution')
@@ -89,7 +90,8 @@ if __name__ == '__main__':
     logger.info("running with params: :" + json.dumps(args.__dict__, indent=2))
     logger.info("cuda available = " + str(torch.cuda.is_available()))
 
-    used_search_space = search_space.init_search_space(args)
+    loapi = LocalApi(args.search_space, args.dataset)
+    used_search_space = search_space.init_search_space(args, loapi)
 
     all_run_info = {}
     for run_id in range(args.num_run):
@@ -153,6 +155,7 @@ if __name__ == '__main__':
             all_run_info[run_id]["x_axis_time"] = x_axis_time
 
         except Exception as e:
+            print(traceback.format_exc())
             logger.info("========================================================================")
             logger.error(traceback.format_exc())
             logger.error("error: " + str(e))

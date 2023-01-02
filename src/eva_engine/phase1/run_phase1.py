@@ -6,7 +6,6 @@ from controller.controler import Controller
 from query_api.db_ops import fetch_from_db
 from query_api.gt_api import Gt201, Gt101
 from search_space import NasBench101Space
-import search_space
 
 
 def read_from_queue():
@@ -17,15 +16,20 @@ def send_to_queue(data_str):
     pass
 
 
+def run_phase1_simulate(space_name, dataset, run_id, N, K) -> (list, float):
+    arch_id, candidates, current_time = fetch_from_db(space_name, dataset, run_id, N)
+    return candidates[-K:], current_time
+
+
 class RunPhase1:
-    def __init__(self, args, K: int, N: int):
+    def __init__(self, args, K: int, N: int, used_search_space):
 
         if args.search_space == Config.NB201:
             self.gt_api = Gt201()
         elif args.search_space == Config.NB101:
             self.gt_api = Gt101()
 
-        self.used_search_space = search_space.init_search_space(args)
+        self.used_search_space = used_search_space
         self.sampler = Controller(self.used_search_space, args)
         self.arch_generator = self.sampler.sample_next_arch(args.arch_size)
 
@@ -74,10 +78,5 @@ class RunPhase1:
                 break
 
         return self.sampler.get_current_top_k_models(self.K)
-
-    def run_phase1_simulate(self, run_id) -> list:
-        arch_id, candidates, current_time = fetch_from_db(run_id, self.N)
-        return candidates[-self.K:]
-
 
 

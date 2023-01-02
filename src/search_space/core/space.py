@@ -11,7 +11,7 @@ class SpaceWrapper:
         self.name = name
 
     @abstractmethod
-    def new_architecture(self, arch_id: int):
+    def new_architecture(self, arch_id: str):
         """
         Generate an architecture with arch_index
         :return:
@@ -22,25 +22,6 @@ class SpaceWrapper:
         """
         Generate an architecture with arch_index
         :return:
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    def query_performance(self, arch_id: int, dataset_name: str) -> dict:
-        """
-        Query from nas-bench dataset.
-        :param arch_id: arch id
-        :param dataset_name: dataset name
-        :return: {accuracy, training_time, final_test_accuracy}
-        """
-        raise NotImplementedError
-
-    def query_performance_hash(self, arch_hash: str, dataset_name: str) -> dict:
-        """
-        Query from nas-bench dataset.
-        :param arch_hash: arch id
-        :param dataset_name: dataset name
-        :return: {accuracy, training_time, final_test_accuracy}
         """
         raise NotImplementedError
 
@@ -60,7 +41,7 @@ class SpaceWrapper:
         """
         raise NotImplementedError
 
-    def copy_architecture(self, arch_id: int, architecture: nn.Module, new_bn: bool = True) -> nn.Module:
+    def copy_architecture(self, arch_id: str, architecture: nn.Module, new_bn: bool = True) -> nn.Module:
         """
         Copy an architecture by id, it creates an new architecture, and then load the static dict
         :param arch_id:
@@ -76,17 +57,6 @@ class SpaceWrapper:
         # print("--in copy arch, time to load dic = " + str(time.time() - arch_load_time))
         return new_architecture
 
-    def copy_architecture_hash(self, arch_hash: str, architecture: nn.Module) -> nn.Module:
-        """
-        Copy an architecture by arch_hash / str, it creates a new architecture, and then load the static dict
-        :param arch_hash: hash of the architecture
-        :param architecture:
-        :return:
-        """
-        new_architecture = self.new_architecture_hash(arch_hash)
-        new_architecture.load_state_dict(architecture.state_dict(), strict=False)
-        return new_architecture
-
     def update_bn_flag(self, bn: bool):
         """
         Update architecture's bn,
@@ -97,7 +67,7 @@ class SpaceWrapper:
 
     '''Below is for integrating space with various sampler'''
 
-    def random_architecture_id(self, max_nodes: int) -> (int, object):
+    def random_architecture_id(self, max_nodes: int) -> (str, object):
         """
         Random generate architecture id, cell structure, supporting RN, RL, R
         :param max_nodes:  how many nodes in this cell
@@ -120,7 +90,7 @@ class SpaceWrapper:
         """
         raise NotImplementedError
 
-    def arch_to_id(self, arch_struct: object) -> int:
+    def arch_to_id(self, arch_struct: object) -> str:
         """
         Architecture to arch id
         :return:

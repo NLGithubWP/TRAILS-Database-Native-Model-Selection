@@ -8,6 +8,7 @@ import numpy as np
 
 from common.constant import Config
 from logger import logger
+from query_api.score_api import LocalApi
 from search_space.core.space import SpaceWrapper
 from search_space.nas_101_api.lib import nb101_api
 from search_space.nas_101_api.lib.model import NasBench101Network
@@ -32,9 +33,10 @@ ALLOWED_EDGES = [0, 1]   # Binary adjacency matrix
 
 class NasBench101Space(SpaceWrapper):
 
-    def __init__(self, api_loc: str, modelCfg: NasBench101Cfg):
+    def __init__(self, api_loc: str, modelCfg: NasBench101Cfg, loapi: LocalApi):
         super().__init__(modelCfg, Config.NB101)
         self.api = nb101_api.NASBench(api_loc)
+        self.loapi = loapi
 
     @classmethod
     def serialize_model_encoding(cls, matrix: list, operations: str) -> str:
@@ -46,8 +48,8 @@ class NasBench101Space(SpaceWrapper):
         data = json.loads(data_str)
         return data["matrix"], data["operations"]
 
-    def new_architecture(self, arch_id: int):
-        arch_hash = next(itertools.islice(self.api.hash_iterator(), arch_id, None))
+    def new_architecture(self, arch_id: str):
+        arch_hash = next(itertools.islice(self.api.hash_iterator(), int(arch_id), None))
         return self.new_architecture_hash(arch_hash)
 
     def new_architecture_hash(self, arch_hash: str):
@@ -55,37 +57,6 @@ class NasBench101Space(SpaceWrapper):
         # generate network with adjacency and operation
         architecture = NasBench101Network(spec, self.model_cfg)
         return architecture
-
-    def query_performance(self, arch_id: int, dataset_name: str) -> dict:
-
-        if dataset_name != "cifar10":
-            logger.info("NasBench101 only be evaluated at CIFAR10")
-
-        arch_hash = next(itertools.islice(self.api.hash_iterator(), arch_id, None))
-        return self.query_performance_hash(arch_hash, dataset_name)
-
-    def query_performance_hash(self, arch_hash: str, dataset_name: str) -> dict:
-
-        if dataset_name != "cifar10":
-            logger.info("NasBench101 only be evaluated at CIFAR10")
-
-        test_accuracy, training_time = self.query_api(arch_hash)
-        final_res = {"test_accuracy": test_accuracy,
-                     "time_usage": training_time}
-        return final_res
-
-    def query_api(self, arch_hash):
-        res = self.api.query(self._get_spec(arch_hash))
-        static = {
-            "architecture_id": arch_hash,
-            "trainable_parameters": res["trainable_parameters"],
-            "training_time": res["training_time"],
-            "train_accuracy": res["train_accuracy"],
-            "validation_accuracy": res["validation_accuracy"],
-            "test_accuracy": res["test_accuracy"],
-        }
-
-        return res["test_accuracy"], res["training_time"]
 
     def __len__(self):
         return len(self.api.hash_iterator())
@@ -100,7 +71,7 @@ class NasBench101Space(SpaceWrapper):
 
         return spec
 
-    def random_architecture_id(self, max_nodes: int) -> (int, object):
+    def random_architecture_id(self, max_nodes: int) -> (str, object):
         """Returns a random valid spec."""
         while True:
             matrix = np.random.choice(ALLOWED_EDGES, size=(NUM_VERTICES, NUM_VERTICES))
@@ -109,9 +80,9 @@ class NasBench101Space(SpaceWrapper):
             ops[0] = INPUT
             ops[-1] = OUTPUT
             spec = ModelSpec(matrix=matrix, ops=ops)
-            if self.api.is_valid(spec):
+            if self.is_valid(spec):
                 arch_id = self.arch_to_id(spec)
-                return arch_id, spec
+                return str(arch_id), spec
 
     def mutate_architecture(self, parent_arch: object) -> object:
         mutation_rate = 1.0
@@ -136,20 +107,31 @@ class NasBench101Space(SpaceWrapper):
                     new_ops[ind] = random.choice(available)
 
             new_spec = ModelSpec(new_matrix, new_ops)
-            if self.api.is_valid(new_spec):
+            if self.is_valid(new_spec) and self.is_scored(new_spec):
                 return new_spec
+
+    def is_valid(self, new_spec: ModelSpec):
+        return self.api.is_valid(new_spec) and self.is_scored(new_spec)
+
+    def is_scored(self, new_spec: ModelSpec):
+        arch_id = self.arch_to_id(new_spec)
+        return self.loapi.is_arch_inside_data(arch_id)
 
     def get_reinforcement_learning_policy(self, rl_learning_rate):
         return RLPolicy101Topology(self, rl_learning_rate, NUM_VERTICES)
 
-    def arch_to_id(self, arch_spec: object) -> int:
+    def arch_to_id(self, arch_spec: object) -> str:
         assert isinstance(arch_spec, ModelSpec)
         if self.api.is_valid(arch_spec):
             arch_hash = arch_spec.hash_spec(ALLOWED_OPS)
             arch_id = list(self.api.hash_iterator()).index(arch_hash)
-            return arch_id
+            return str(arch_id)
         else:
-            return -1
+            return "-1"
+
+    def arch_hash_to_id(self, arch_hash: str) -> str:
+        arch_id = list(self.api.hash_iterator()).index(arch_hash)
+        return str(arch_id)
 
     def get_configuration_space(self):
         cs = ConfigSpace.ConfigurationSpace()
@@ -180,7 +162,7 @@ if __name__ == '__main__':
     api_loc = "/Users/kevin/project_python/Fast-AutoNAS/data/nasbench_only108.pkl"
     model_cfg = NasBench101Cfg(16,3,3,10,True)
 
-    a = NasBench101Space(api_loc, model_cfg)
+    a = NasBench101Space(api_loc, model_cfg, None)
 
     aid, spec = a.random_architecture_id(4)
     a.mutate_architecture(spec)

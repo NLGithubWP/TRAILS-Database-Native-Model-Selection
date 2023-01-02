@@ -1,7 +1,7 @@
 
 from eva_engine.phase1.evaluator_base import Evaluator
-from eva_engine.utils.autograd_hacks import *
-from eva_engine.utils.p_utils import get_layer_metric_array
+from .utils.autograd_hacks import *
+from .utils.p_utils import get_layer_metric_array
  
 
 class WeightNormEvaluator(Evaluator):

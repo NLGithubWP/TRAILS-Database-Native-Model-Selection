@@ -1,93 +1,89 @@
+This is about how to reproduce the results. 
 
+# Download
+
+1. The code is available at the https://anonymous.4open.science/r/Fast-AutoNAS-B7F4/
+2. The data is available at the https://drive.google.com/file/d/1I3_U22rKFxoYaYTfLLkzGWFXz8IxqHF2/view
+3. Download the dataset and extract them to `./result_base`
 
 # Requirement
 
+```bash
 torch              1.11.0
 torchaudio         0.11.0
 torchvision        0.12.0
 TensorFlow 1.15
-python 3.60
+python 3.60s
+```
 
-# CIDDA
-ssh shaofeng@ciidaa.d2.comp.nus.edu.sg
-pwd: shaofengtmp
+Pip install
 
-ssh xingnaili@10.0.0.125
-xingnailincrs
-
-# XAI
-ssh shaofeng@xai.d2.comp.nus.edu.sg
-3U3Ge}5~.CpGo]U]-hi)
-
-ssh shaofeng@172.28.176.234
-3U3Ge}5~.CpGo]U]-hi)
-
-# Pip install
-conda env export --no-builds > env.yml
+```bash
 conda env create -f env.yml
+```
 
-# envs, When run in server, add path to env
-    export PATH="$PATH:/home/shaofeng/naili/Fast-AutoNAS/src"
-    export PYTHONPATH=$PYTHONPATH:/home/shaofeng/naili/Fast-AutoNAS/src
-    export PYTHONPATH=$PYTHONPATH:/home/shaofeng/naili/Fast-AutoNAS/main/
-    export PATH="$PATH:/home/shaofeng/naili/Fast-AutoNAS/main/"
-    export PYTHONPATH=$PYTHONPATH:/home/shaofeng/naili/Fast-AutoNAS/main/0_local_api/
-    export PATH="$PATH:/home/shaofeng/naili/Fast-AutoNAS/main/0_local_api/"
-    export PYTHONPATH=$PYTHONPATH:/home/shaofeng/naili/Fast-AutoNAS/main/2_verify_sampler/
-    export PATH="$PATH:/home/shaofeng/naili/Fast-AutoNAS/main/2_verify_sampler/"
-    export PYTHONPATH=$PYTHONPATH:/home/shaofeng/naili/Fast-AutoNAS/main/3_benchmark_sampler/
-    export PATH="$PATH:/home/shaofeng/naili/Fast-AutoNAS/main/3_benchmark_sampler/"
-    export PYTHONPATH=$PYTHONPATH:/home/shaofeng/naili/Fast-AutoNAS/main/statistic_lib/
-    export PATH="$PATH:/home/shaofeng/naili/Fast-AutoNAS/main/statistic_lib/"
+# Reproduce the results
 
+In the experiments,  we score each model in both NB101 and NB201 with all training-free-model evaluation metrics, and the search results are stored at SQLlite. 
 
+reproducing those results
 
-# Env in pandax2
+```bash
+python main/4_system/1_model_selection/FastAutoNAS/model_evaluation_simulate.py --dataset cifar10 --search_space nasbench201 --api_loc NAS-Bench-201-v1_1-096897.pth
+```
 
-    export PYTHONPATH=$PYTHONPATH:/home/naili/Fast-AutoNAS/src
-    export PATH="$PATH:/home/naili/Fast-AutoNAS/src"
-    export PYTHONPATH=$PYTHONPATH:/home/naili/Fast-AutoNAS/main/
-    export PATH="$PATH:/home/naili/Fast-AutoNAS/main/"
-    export PYTHONPATH=$PYTHONPATH:/home/naili/Fast-AutoNAS/main/0_local_api/
-    export PATH="$PATH:/home/naili/Fast-AutoNAS/main/0_local_api/"
-    export PYTHONPATH=$PYTHONPATH:/home/naili/Fast-AutoNAS/main/2_verify_sampler/
-    export PATH="$PATH:/home/naili/Fast-AutoNAS/main/2_verify_sampler/"
-    export PYTHONPATH=$PYTHONPATH:/home/naili/Fast-AutoNAS/main/3_benchmark_sampler/
-    export PATH="$PATH:/home/naili/Fast-AutoNAS/main/3_benchmark_sampler/"
-    export PYTHONPATH=$PYTHONPATH:/home/naili/Fast-AutoNAS/main/statistic_lib/
-    export PATH="$PATH:/home/naili/Fast-AutoNAS/main/statistic_lib/"
-    export PYTHONPATH=$PYTHONPATH:/home/naili/Fast-AutoNAS/main/apiserver/
-    export PATH="$PATH:/home/naili/Fast-AutoNAS/main/apiserver/"
+Or just download our results directly: https://drive.google.com/file/d/1I3_U22rKFxoYaYTfLLkzGWFXz8IxqHF2/view
 
-# local env
-    export PYTHONPATH=$PYTHONPATH:/Users/kevin/project_python/Fast-AutoNAS/src
-    export PATH="$PATH:/Users/kevin/project_python/Fast-AutoNAS/src"
-    export PYTHONPATH=$PYTHONPATH:/Users/kevin/project_python/Fast-AutoNAS/main/
-    export PATH="$PATH:/Users/kevin/project_python/Fast-AutoNAS/main/"
-    export PYTHONPATH=$PYTHONPATH:/Users/kevin/project_python/Fast-AutoNAS/main/0_local_api/
-    export PATH="$PATH:/Users/kevin/project_python/Fast-AutoNAS/main/0_local_api/"
-    export PYTHONPATH=$PYTHONPATH:/Users/kevin/project_python/Fast-AutoNAS/main/2_verify_sampler/
-    export PATH="$PATH:/Users/kevin/project_python/Fast-AutoNAS/main/2_verify_sampler/"
-    export PYTHONPATH=$PYTHONPATH:/Users/kevin/project_python/Fast-AutoNAS/main/3_benchmark_sampler/
-    export PATH="$PATH:/Users/kevin/project_python/Fast-AutoNAS/main/3_benchmark_sampler/"
-    export PYTHONPATH=$PYTHONPATH:/Users/kevin/project_python/Fast-AutoNAS/main/statistic_lib/
-    export PATH="$PATH:/Users/kevin/project_python/Fast-AutoNAS/main/statistic_lib/"
-    export PYTHONPATH=$PYTHONPATH:/Users/kevin/project_python/Fast-AutoNAS/main/apiserver/
-    export PATH="$PATH:/Users/kevin/project_python/Fast-AutoNAS/main/apiserver/"
+1. Reproduce Fig2
+```bash
+# generate the running results
+python main/4_system/analysis/2_benchmarking/0_macro_com_with_base.py --dataset cifar10 --search_space nasbench201
+# plot the results
+python main/4_system/analysis/2_benchmarking/0_draw_compare_with_base.py
+```
+![image-20230123164427375](documents/image-20230123164427375.png)
 
-# Sampling Algorithms
-    1. https://github.com/automl/SMAC3
-    2. https://github.com/microsoft/FLAML
-    3. https://github.com/automl/HpBandSter, https://automl.github.io/HpBandSter/build/html/auto_examples/example_5_mnist.html
+2. Reproduce Table2
 
-[Sampling summary](https://github.com/huawei-noah/vega/blob/master/docs/cn/algorithms/hpo.md)
+   The above results show the test accuracy searched across all time budgets; the information can be used in this step. 
+```bash
+python main/4_system/analysis/2_benchmarking/measure_speed_ups.py
+```
 
-![image-20220512213253528](documents/img.png)
+3. Reproduce Fig3
+```bash
+# get the FLOPs and parameter size with batch size and channel size
+python main/1_benchmark_metrics/analysis/0_get_sensitive.py --batch_size 256 --init_channels 128
+# record results and draw
+python main/1_benchmark_metrics/analysis/2_draw_sensitive_seperate.py
+```
+![image-20230123164800041](documents/image-20230123164800041.png)
 
-# Problems
+4. reproduce Table3
 
-    1. 多分类，求∇0 f(xi), 是不是只考虑这个样本的true label 的那以个维度的输出 f ?
-    2. NASI 什么时候算一个epoch， 怎么判断是否满足了一个epoch， 怎么定义T 从而看出满足了一个epoch?
+```bash
+# get the correlation using this scripts
+python main/1_benchmark_metrics/analysis/1_micro_phase1.py
+```
+5. Reproduce Fig4
 
-       ![image-20220528205050861](documents/image-20220528205049492.png)
+```bash
+# generate results 
+python main/4_system/analysis/2_benchmarking/1_micro_phase2.py
+# draw with following cmd
+python main/4_system/analysis/2_benchmarking/1_micro_phase2_only_draw.py
+```
+![image-20230123164332648](documents/fig/image-20230123164332648.png)
 
+6. Reproduce Fig5 and Fig6:
+
+```bash
+# print the information about the trade-off between K, U
+python main/4_system/analysis/1_sys_design/1_joint_tune_U.py
+# print the information about the trade-off between N, K
+python main/4_system/analysis/1_sys_design/2_joint_tune_k_N.py
+# draw results with the following:
+python main/4_system/analysis/1_sys_design/plot_1.py 
+python main/4_system/analysis/1_sys_design/plot_2.py 
+```
+![image-20230123165610460](documents/image-20230123165610460.png)

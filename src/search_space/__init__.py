@@ -9,7 +9,12 @@ from .nas_201_api.model_params import NasBench201Cfg
 from .nas_201_api.space import NasBench201Space
 
 
-def init_search_space(args) -> SpaceWrapper:
+def init_search_space(args, loapi=None) -> SpaceWrapper:
+    """
+    :param args:
+    :param loapi: Local score API, records all scored arch, 101 use it to detect which arch is scored.
+    :return:
+    """
 
     if args.bn == 1:
         bn = True
@@ -25,7 +30,18 @@ def init_search_space(args) -> SpaceWrapper:
             args.num_labels,
             bn)
 
-        return NasBench101Space(os.path.join(os.getcwd(), "data",  args.api_loc), model_cfg)
+        return NasBench101Space(os.path.join(os.getcwd(), "data",  args.api_loc), model_cfg, loapi)
+
+    elif args.search_space == Config.NB201:
+
+        model_cfg = NasBench201Cfg(
+            args.init_channels,
+            args.init_b_type,
+            args.init_w_type,
+            args.num_labels,
+            bn)
+
+        return NasBench201Space(os.path.join(os.getcwd(), "data",  args.api_loc), model_cfg)
 
     elif args.search_space == Config.NB201:
 

@@ -1,19 +1,16 @@
-third_party/AutoDL-Projects
-third_party/AutoDL_Projects
-third_party/GraSP
-third_party/HpBandSter
-third_party/NAS-Bench-201
-third_party/nas-without-training
-third_party/nasbench
-third_party/NASBench-PyTorch
-third_party/NASI
-third_party/NASLib
-third_party/naszilla
-third_party/NATS_Bench
-third_party/nni
-third_party/zero-cost-nas
+#third_party/*
+result_base/*
 
 .idea/*
 Logs
 .DS_Store
+
+data/*
+*.pdf
+
+*/__pycache__/*
+
+**/__pycache__/
+
+*.deploy
 

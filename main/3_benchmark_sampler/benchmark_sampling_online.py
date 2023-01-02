@@ -6,7 +6,6 @@ import time
 import traceback
 
 import numpy as np
-import local_api
 from controller import sampler_register
 from eva_engine import evaluator_register
 from logger import logger
@@ -200,7 +199,7 @@ if __name__ == '__main__':
         datadir=args.base_dir)
     args.num_labels = class_num
     if args.batch_size // class_num == 0:
-        logger.info("batch_size is smaller than class_num", args.batch_size, class_num )
+        logger.info("batch_size is smaller than class_num", args.batch_size, class_num)
         # exit(0)
     # sample a batch with random or GRASP
     mini_batch, mini_batch_targets = dataset.get_mini_batch(

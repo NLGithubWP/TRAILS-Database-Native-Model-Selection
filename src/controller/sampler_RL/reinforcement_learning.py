@@ -39,7 +39,7 @@ class RLSampler(Sampler):
             self.log_prob, action = self.policy.select_action()
             arch_struct = self.policy.generate_arch(action)
             arch_id = self.space.arch_to_id(arch_struct)
-            yield str(arch_id), arch_struct
+            yield arch_id, arch_struct
 
     def fit_sampler(self, score: float):
         reward = score

@@ -4,7 +4,7 @@ from abc import abstractmethod
 import torch
 
 from logger import logger
-from eva_engine.utils.gpu_util import showUtilization
+from .utils.gpu_util import showUtilization
 
 
 class Evaluator:

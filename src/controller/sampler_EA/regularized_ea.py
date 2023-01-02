@@ -47,7 +47,7 @@ class RegularizedEASampler(Sampler):
                     # make sure EA population has no repeated value
                     if arch_id not in self.population:
                         self.current_arch_structure = arch_struc
-                        yield str(arch_id), arch_struc
+                        yield arch_id, arch_struc
             else:
                 sample = []
                 while len(sample) < self.sample_size:
@@ -58,7 +58,7 @@ class RegularizedEASampler(Sampler):
                 arch_struct = self.space.mutate_architecture(parent.arch)
                 arch_id = self.space.arch_to_id(arch_struct)
                 self.current_arch_structure = arch_struct
-                yield str(arch_id), arch_struct
+                yield arch_id, arch_struct
 
     def fit_sampler(self, score: float):
         # if it;s in Initialize stage, add to the population with random models.

@@ -1,6 +1,7 @@
 import os
 from utilslibs.tools import write_json
 from search_space.nas_201_api.lib import NASBench201API
+from nats_bench import create
 
 
 # obtain the metric for the `index`-th architecture
@@ -43,17 +44,18 @@ def simulate_train_eval(index, dataset, iepoch, hp, is_random=False):
 def save_acc_time():
     parsed_result = {}
     for arch_id in range(0, 15625):
-            parsed_result[arch_id] = {}
-            for epoch_num in [12, 200]:
-                parsed_result[arch_id][epoch_num] = {}
-                for dataset in ['cifar10', 'cifar10-valid', 'cifar100', 'ImageNet16-120']:
-                    parsed_result[arch_id][epoch_num][dataset] = {}
-                    for each_epoch in range(epoch_num):
-                        test_acc, time_usage = simulate_train_eval(arch_id, dataset, iepoch=each_epoch, hp=str(epoch_num))
-                        parsed_result[arch_id][epoch_num][dataset][each_epoch] = {
-                            "test_accuracy": test_acc,
-                            "time_usage": time_usage
-                        }
+        print(arch_id)
+        parsed_result[arch_id] = {}
+        for epoch_num in [12, 200]:
+            parsed_result[arch_id][epoch_num] = {}
+            for dataset in ['cifar10', 'cifar10-valid', 'cifar100', 'ImageNet16-120']:
+                parsed_result[arch_id][epoch_num][dataset] = {}
+                for each_epoch in range(epoch_num):
+                    test_acc, time_usage = simulate_train_eval(arch_id, dataset, iepoch=each_epoch, hp=str(epoch_num))
+                    parsed_result[arch_id][epoch_num][dataset][each_epoch] = {
+                        "test_accuracy": test_acc,
+                        "time_usage": time_usage
+                    }
     write_json(pre_file, parsed_result)
 
 
@@ -62,7 +64,8 @@ if __name__ == "__main__":
     base_dir = os.getcwd()
     api_loc = os.path.join(base_dir, "data/NAS-Bench-201-v1_1-096897.pth")
     pre_file = os.path.join(base_dir, "result_base/ground_truth/201_allEpoch_info")
-    api = NASBench201API(api_loc)
+
+    api = create(None, "tss", fast_mode=True, verbose=False)
 
     simulate_train_eval(9099, "cifar10", iepoch=None, hp=str(200))
 

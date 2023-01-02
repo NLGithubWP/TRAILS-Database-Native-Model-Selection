@@ -5,26 +5,15 @@ import random
 import time
 
 import numpy as np
-import local_api
+from controller import sampler_register
 from logger import logger
-from sampler import sampler_register
 import search_space
 import torch
 import argparse
 
+from query_api.score_api import LocalApi
 
 voteList = [['nas_wot', 'synflow'],
-            # ['nas_wot', 'grasp', 'synflow'],
-            # ['nas_wot', 'snip', 'synflow'],
-            # ['grad_norm', 'nas_wot', 'synflow'],
-            # ['nas_wot', 'fisher', 'synflow'],
-            # ['nas_wot', 'ntk_trace', 'synflow'],
-            # ['nas_wot', 'ntk_trace_approx', 'synflow'],
-            # ['grad_norm', 'nas_wot', 'grasp', 'snip', 'synflow'],
-            # ['nas_wot', 'fisher', 'grasp', 'snip', 'synflow'],
-            # ['grad_norm', 'nas_wot', 'fisher', 'grasp', 'synflow'],
-            # ['nas_wot', 'ntk_trace', 'grasp', 'snip', 'synflow'],
-            # ['grad_norm', 'nas_wot', 'fisher', 'snip', 'synflow']
             ]
 
 singleList = ["grad_norm", "nas_wot", "grasp", "synflow", "snip", "ntk_trace", "fisher", "ntk_trace_approx"]
@@ -83,7 +72,7 @@ def parse_arguments():
     parser.add_argument('--arch_size', type=int, default=7,
                         help='How many node the architecture has at least')
 
-    parser.add_argument('--total_run', type=int, default=300,
+    parser.add_argument('--total_run', type=int, default=100,
                         help='Total run number in benchmark stage. ')
 
     parser.add_argument('--num_arch_each_run', type=int, default=400,
@@ -106,7 +95,7 @@ if __name__ == '__main__':
     torch.manual_seed(20)
 
     args = parse_arguments()
-    loapi = local_api.LocalApi(args.pre_scored_data, args.gt_file)
+    loapi = LocalApi()
 
     if args.is_vote == 1:
         d_is_vote_str = "vote"

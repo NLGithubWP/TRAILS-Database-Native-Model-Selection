@@ -1,13 +1,18 @@
 
 import os
 import numpy as np
+
+from common.constant import Config
 from utilslibs.tools import read_json, write_json
 
-base_dir = os.getcwd()
+base_dir = os.path.join(os.getcwd(), "result_base/result_append")
 print("local api running at {}".format(base_dir))
-pre_score_path = \
-    os.path.join(base_dir,
-                 "result_base/result_append/CIFAR10_15625/union/201_15625_c10_bs32_ic16_unionBest.json")
+
+pre_score_path_101C10 = os.path.join(base_dir, "CIFAR10_15625/union/101_15k_c10_bs32_ic16_unionBest.json")
+
+pre_score_path_201C10 = os.path.join(base_dir, "CIFAR10_15625/union/201_15625_c10_bs32_ic16_unionBest.json")
+pre_score_path_201C100 = os.path.join(base_dir, "CIFAR100_15625/union/201_15k_c100_bs32_ic16_unionBest.json")
+pre_score_path_201IMG = os.path.join(base_dir, "IMAGENET/union/201_15k_imgNet_bs32_ic16_unionBest.json")
 
 
 def api_get_current_best_acc(acc_list):
@@ -87,8 +92,18 @@ def convert2pos_(m_name, score):
 
 class LocalApi:
 
-    def __init__(self):
+    def __init__(self, search_space_name, dataset):
         self.data = None
+        if search_space_name == Config.NB201:
+            if dataset == Config.c10:
+                self.pre_score_path = pre_score_path_201C10
+            elif dataset == Config.c100:
+                self.pre_score_path = pre_score_path_201C100
+            elif dataset == Config.imgNet:
+                self.pre_score_path = pre_score_path_201IMG
+
+        if search_space_name == Config.NB101:
+            self.pre_score_path = pre_score_path_101C10
 
     def api_get_score(self, arch_id, algName_m):
         # retrieve score from pre-scored file
@@ -111,18 +126,29 @@ class LocalApi:
             self.data[str(arch_id)] = self.data[str(arch_id)]
         self.data[str(arch_id)][alg_name] = '{:f}'.format(score_str)
 
-    def is_arch_inside_data(self, arch_id, alg_name):
+    def is_arch_and_alg_inside_data(self, arch_id, alg_name):
         self.lazy_load_data()
         if arch_id in self.data and alg_name in self.data[arch_id]:
             return True
         else:
             return False
 
+    def is_arch_inside_data(self, arch_id):
+        self.lazy_load_data()
+        if arch_id in self.data:
+            return True
+        else:
+            return False
+
+    def get_len_data(self):
+        self.lazy_load_data()
+        return len(self.data)
+
     def save_latest_data(self):
         """
         update the latest score data
         """
-        write_json(pre_score_path, self.data)
+        write_json(self.pre_score_path, self.data)
 
     def lazy_load_data(self):
         """
@@ -130,12 +156,10 @@ class LocalApi:
         :return:
         """
         if self.data is None:
-            self.data = read_json(pre_score_path)
+            self.data = read_json(self.pre_score_path)
             print("localApi init, len(data) = ", len(list(self.data.keys())))
 
 
 if __name__ == "__main__":
-    loapi = LocalApi()
-
-
-
+    lapi = LocalApi(Config.NB101, Config.c10)
+    lapi.get_len_data()

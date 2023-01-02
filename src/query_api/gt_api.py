@@ -1,77 +1,148 @@
+
 import os
 import random
+import threading
 import time
-
 from common.constant import Config
-from utilslibs.tools import read_json
+from utilslibs.tools import read_json, read_pickle
 
 base_dir = os.getcwd()
 print("gt_api running at {}".format(base_dir))
 gt201 = os.path.join(base_dir, "result_base/ground_truth/201_allEpoch_info")
-gt101 = os.path.join(base_dir, "result_base/ground_truth/101_allEpoch_info")
+
+gt101 = os.path.join(base_dir, "result_base/ground_truth/101_allEpoch_info_json")
+gt101P = os.path.join(base_dir, "result_base/ground_truth/nasbench1_accuracy.p")
+id_to_hash_path = os.path.join(base_dir, "result_base/ground_truth/nb101_id_to_hash.json")
 
 
-class Gt201:
-    data201 = read_json(gt201)
+def guess_score_time(search_space_m, dataset):
+    if search_space_m == Config.NB101:
+        return Gt101.guess_score_time()
+    if search_space_m == Config.NB201:
+        return Gt201.guess_score_time(dataset)
 
-    @classmethod
-    def get_c10valid_200epoch_test_info(cls, arch_id: int):
+
+def guess_train_one_epoch_time(search_space_m, dataset):
+    if search_space_m == Config.NB101:
+        return Gt101().guess_train_one_epoch_time()
+    if search_space_m == Config.NB201:
+        return Gt201().guess_train_one_epoch_time(dataset)
+
+
+def profile_NK_trade_off(dataset):
+    if dataset == Config.c10:
+        return 85
+    if dataset == Config.c100:
+        return 85
+    if dataset == Config.imgNet:
+        return 130
+
+
+class Singleton(object):
+    _instance_lock = threading.Lock()
+
+    def __new__(cls, *args, **kwargs):
+        if not hasattr(Singleton, "_instance"):
+            with Singleton._instance_lock:
+                if not hasattr(Singleton, "_instance"):
+                    Singleton._instance = object.__new__(cls)
+        return Singleton._instance
+
+
+class Gt201(Singleton):
+    # multiple instance share the class variables.
+    _instance_lock = threading.Lock()
+    data201 = None
+
+    def load_201(self):
+        if self.data201 is None:
+            self.data201 = read_json(gt201)
+
+    def get_c10valid_200epoch_test_info(self, arch_id: int):
         """
         cifar10-valid means train with train set, valid with validation dataset
         Thus, acc is lower than train with train+valid.
         :param arch_id:
         :return:
         """
-        return cls.query_200_epoch(str(arch_id), Config.c10_valid)
+        return self.query_200_epoch(str(arch_id), Config.c10_valid)
 
-    @classmethod
-    def get_c10_200epoch_test_info(cls, arch_id: int):
+    def get_c10_200epoch_test_info(self, arch_id: int):
         """
         cifar10-valid means train with train set, valid with validation dataset
         Thus, acc is lower than train with train+valid.
         :param arch_id:
         :return:
         """
-        return cls.query_200_epoch(str(arch_id), Config.c10)
+        return self.query_200_epoch(str(arch_id), Config.c10)
 
-    @classmethod
-    def get_c100_200epoch_test_info(cls, arch_id: int):
-        return cls.query_200_epoch(str(arch_id), Config.c100)
+    def get_c100_200epoch_test_info(self, arch_id: int):
+        return self.query_200_epoch(str(arch_id), Config.c100)
 
-    @classmethod
-    def get_imgNet_200epoch_test_info(cls, arch_id: int):
-        return cls.query_200_epoch(str(arch_id), Config.imgNet)
+    def get_imgNet_200epoch_test_info(self, arch_id: int):
+        return self.query_200_epoch(str(arch_id), Config.imgNet)
 
-    @staticmethod
-    def query_200_epoch(arch_id: str, dataset, epoch_num: int = 199):
-        if epoch_num > 199:
+    def query_200_epoch(self, arch_id: str, dataset, epoch_num: int = 199):
+        self.load_201()
+        if epoch_num is None or epoch_num > 199:
             epoch_num = 199
         arch_id = str(arch_id)
-        t_acc = Gt201.data201[arch_id]["200"][dataset][str(epoch_num)]["test_accuracy"] * 0.01
-        time_usage = Gt201.data201[arch_id]["200"][dataset][str(epoch_num)]["time_usage"]
+        t_acc = self.data201[arch_id]["200"][dataset][str(epoch_num)]["test_accuracy"]
+        time_usage = self.data201[arch_id]["200"][dataset][str(epoch_num)]["time_usage"]
         return t_acc, time_usage
 
-    @classmethod
-    def count_models(cls):
-        return len(cls.data201)
+    def query_12_epoch(self, arch_id: str, dataset, epoch_num: int = 11):
+        self.load_201()
+        if epoch_num is None or epoch_num > 11:
+            epoch_num = 11
+        arch_id = str(arch_id)
+        t_acc = self.data201[arch_id]["12"][dataset][str(epoch_num)]["test_accuracy"]
+        time_usage = self.data201[arch_id]["12"][dataset][str(epoch_num)]["time_usage"]
+        return t_acc, time_usage
+
+    def count_models(self):
+        return len(self.data201)
 
     @classmethod
-    def guess_eval_time(cls):
+    def guess_score_time(cls, dataset=Config.c10):
         return random.randint(3315, 4502) * 0.0001
 
+    def guess_train_one_epoch_time(self, dataset):
+        if dataset == Config.c10:
+            dataset = Config.c10_valid
+        all_usage = 0
+        for rep_time in range(200):
+            arch_id = str(random.randint(1, 15624))
+            _, time_usage = self.query_200_epoch(arch_id, dataset, 1)
+            all_usage += time_usage
+        return all_usage/200
 
-class Gt101:
-    data101 = read_json(gt101)
 
-    @classmethod
-    def get_c10_test_info(cls, arch_id: int, epoch_num: int = 108):
+class Gt101(Singleton):
+    # multiple instance share the class variables.
+    data101_from_zerocost = None
+    id_to_hash_map = None
+    data101_full = None
+
+    def load_101(self):
+        if self.data101_from_zerocost is None:
+            self.data101_from_zerocost = read_pickle(gt101P)
+            self.id_to_hash_map = read_json(id_to_hash_path)
+            self.data101_full = read_json(gt101)
+
+    def get_c10_test_info(self, arch_id: str, dataset: str = Config.c10, epoch_num: int = 108):
         """
         Default use 108 epoch for c10, this is the largest epoch number.
+        :param dataset:
         :param arch_id: architecture id
         :param epoch_num: query the result of the specific epoch number
         :return:
         """
-        if epoch_num > 108:
+        self.load_101()
+        if dataset != Config.c10:
+            raise "NB101 only have c10 results"
+
+        if epoch_num is None or epoch_num > 108:
             epoch_num = 108
         elif epoch_num > 36:
             epoch_num = 36
@@ -81,32 +152,55 @@ class Gt101:
             epoch_num = 4
         else:
             epoch_num = 4
+        arch_id = str(arch_id)
+        # this is acc from zero-cost paper, which only record 108 epoch' result [test, valid, train]
+        # t_acc = self.data101_from_zerocost[self.id_to_hash_map[arch_id]][0]
+        # this is acc from parse_testacc_101.py,
+        t_acc_usage = self.data101_full[arch_id][Config.c10][str(epoch_num)]["test-accuracy"]
+        time_usage = self.data101_full[arch_id][Config.c10][str(epoch_num)]["time_usage"]
+        # print(f"[Debug]: Acc different = {t_acc_usage - t_acc}")
+        return t_acc_usage, time_usage
 
-        t_acc = cls.data101[str(arch_id)][Config.c10][str(epoch_num)]["test-accuracy"]
-        time_usage = cls.data101[str(arch_id)][Config.c10][str(epoch_num)]["time_usage"]
-        return t_acc, time_usage
+    def count_models(self):
+        return len(self.data101_from_zerocost)
 
     @classmethod
-    def count_models(cls):
-        return len(cls.data101)
-
-    @classmethod
-    def guess_eval_time(cls):
+    def guess_score_time(cls):
         return random.randint(1169, 1372) * 0.0001
+
+    def guess_train_one_epoch_time(self):
+        # only have information for 4 epoch
+        self.load_101()
+
+        d = dict.fromkeys(self.data101_full)
+        keys = random.sample(list(d), 200)
+
+        all_usage = 0
+        for rep_time in range(200):
+            arch_id = keys[rep_time]
+            _, time_usage = self.get_c10_test_info(arch_id=arch_id, dataset=Config.c10, epoch_num=4)
+            all_usage += time_usage
+        return all_usage / 200
 
 
 if __name__ == "__main__":
-    gt201 = Gt201()
-    begin_time201 = time.time()
-    test_accuracy, time_usage = gt201.query_200_epoch(arch_id=str(123), dataset=Config.imgNet, epoch_num=1)
-    end_time = time.time()
-    print(test_accuracy, time_usage, end_time-begin_time201)
 
     # 101 time measurement
     begin_time101 = time.time()
-    gt101 = Gt101()
-    test_accuracy, time_usage = gt101.get_c10_test_info(arch_id=123)
+    gt101_ins = Gt101()
+    test_accuracy, time_usage = gt101_ins.get_c10_test_info(arch_id=str(123))
     end_time = time.time()
     print(test_accuracy, time_usage, end_time - begin_time101)
 
+    # 201 time measurement
+    gt201_ins = Gt201()
+    begin_time201 = time.time()
+    test_accuracy, time_usage = gt201_ins.query_12_epoch(arch_id=str(35), dataset=Config.c10_valid)
+    end_time = time.time()
+    print(test_accuracy, time_usage, end_time - begin_time201)
 
+    res = []
+    for arch in range(1, 15615):
+        res.append(gt201_ins.query_200_epoch(arch_id=str(arch), dataset=Config.c10_valid)[0])
+
+    print("Max accuracy in NB201 with c10_valid is ", max(res))

@@ -18,8 +18,8 @@ class NasBench201Space(SpaceWrapper):
         super().__init__(modelCfg, Config.NB201)
         self.api = NASBench201API(api_loc)
 
-    def new_architecture(self, arch_id: int):
-        arch_str = self.api[arch_id]
+    def new_architecture(self, arch_id: str):
+        arch_str = self.api[int(arch_id)]
         return self.new_architecture_hash(arch_str)
 
     def new_architecture_hash(self, arch_hash: str):
@@ -32,67 +32,6 @@ class NasBench201Space(SpaceWrapper):
         init_net(architecture, self.model_cfg.init_w_type, self.model_cfg.init_b_type)
         return architecture
 
-    def query_performance(self, arch_id: int, dataset_name: str) -> dict:
-        res = {}
-
-        test_acc, time_usage = self.simulate_train_eval(arch_id, dataset_name)
-
-        res["test_accuracy"] = test_acc
-        res["time_usage"] = time_usage
-
-        # if dataset_name == "cifar10":
-        #     dataset_name = "cifar10-valid"
-        # info = self.api.get_more_info(int(arch_id), dataset_name, iepoch=None, hp='12', is_random=False)
-        # static = {
-        #     "architecture_id": arch_id,
-        #     "trainable_parameters": None,
-        #     "training_time": info['train-per-time'],
-        #     "train_accuracy": info['train-accuracy'],
-        #     "validation_accuracy": info['valid-accuracy'],
-        #     "test_accuracy": info['test-accuracy'],
-        # }
-
-        return res
-
-    def simulate_train_eval(self, arch_id: int, dataset, iepoch=None, hp="12"):
-        return NasBench201Space.simulate_tran_eval_log(self.api, arch_id, dataset, iepoch, hp)
-
-    @staticmethod
-    def simulate_tran_eval_log(api, arch_id: int, dataset, iepoch=None, hp="12"):
-        """This function is used to simulate training and evaluating an arch."""
-        index = arch_id
-        all_names = ("cifar10", "cifar100", "ImageNet16-120")
-        if dataset not in all_names:
-            raise ValueError(
-                "Invalid dataset name : {:} vs {:}".format(dataset, all_names)
-            )
-        if dataset == "cifar10":
-            info = api.get_more_info(
-                index, "cifar10-valid", iepoch=iepoch, hp=hp, is_random=True
-            )
-        else:
-            info = api.get_more_info(
-                index, dataset, iepoch=iepoch, hp=hp, is_random=True
-            )
-        # get cost
-        if "valid-accuracy" in info:
-            valid_acc, time_cost = (
-                info["valid-accuracy"],
-                info["train-all-time"] + info["valid-per-time"],
-            )
-        else:
-            valid_acc = info["valtest-accuracy"]
-            temp_info = api.get_more_info(
-                index, dataset, iepoch=None, hp=hp, is_random=True
-            )
-            time_cost = info["train-all-time"] + temp_info["valid-per-time"]
-        # latency = self.api.get_latency(index, dataset)
-        test_acc = info['test-accuracy']
-        return test_acc, time_cost
-
-    def query_performance_hash(self, arch_str: str, dataset_name: str) -> dict:
-        return self.query_performance(int(arch_str), dataset_name)
-
     def __len__(self):
         return len(self.api)
 
@@ -103,7 +42,7 @@ class NasBench201Space(SpaceWrapper):
         arch_str = get_arch_str_from_model(architecture)
         return len([ele for ele in arch_str.split("|") if "none" not in ele])
 
-    def random_architecture_id(self, max_nodes: int) -> (int, object):
+    def random_architecture_id(self, max_nodes: int) -> (str, object):
         """
         default 4 nodes in 201
         :param max_nodes:
@@ -124,7 +63,7 @@ class NasBench201Space(SpaceWrapper):
             arch_struc = CellStructure(genotypes)
             arch_id = self.api.query_index_by_arch(arch_struc)
             if arch_id != -1:
-                return arch_id, arch_struc
+                return str(arch_id), arch_struc
 
     def mutate_architecture(self, parent_arch: object) -> object:
         """Computes the architecture for a child of the given parent architecture.
@@ -148,10 +87,10 @@ class NasBench201Space(SpaceWrapper):
         op_names = get_search_spaces("tss", "nats-bench")
         return RLPolicy201Topology(op_names, rl_learning_rate)
 
-    def arch_to_id(self, arch_struct: object) -> int:
+    def arch_to_id(self, arch_struct: object) -> str:
         assert isinstance(arch_struct, CellStructure)
         arch_id = self.api.query_index_by_arch(arch_struct)
-        return arch_id
+        return str(arch_id)
 
     def get_configuration_space(self):
         max_nodes = 4

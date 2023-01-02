@@ -1,7 +1,14 @@
 
 
 
-NB101
+NB101:
+    There are exactly 423,624 computationally unique modules within this search space and each one has been trained for 4, 12, 36, and 108 epochs three times each (423K * 3 * 4 = ~5M total trained models). We report the following metrics:
+    training accuracy
+    validation accuracy
+    testing accuracy
+    number of parameters
+    training time
+
     Subset of the dataset with only models trained at 108 epochs:
         https://storage.googleapis.com/nasbench/nasbench_only108.tfrecord
 

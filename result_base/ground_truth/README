@@ -1,0 +1,10 @@
+
+101_allEpoch_info: NB101, each model's acc trained at 4.8.16.108 epoches and time
+101_target: searching target acc, used to measure latency
+201_allEpoch_info: NB201, each model's acc trained at 4.8.16.108 epoches and time
+201_target: searching target acc, used to measure latency
+
+all_graphs.json: NB101 all graph's space and ops
+nasbench1_accuracy.p : NB101 43k models's test acc
+nasbench_only108.tfrecord: NB101 43k models's test acc at 108
+nb101_id_to_hash.json: 101 id to hash dict

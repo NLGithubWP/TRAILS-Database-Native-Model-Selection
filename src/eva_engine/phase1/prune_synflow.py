@@ -3,7 +3,7 @@
 import torch
 from torch import nn
 from eva_engine.phase1.evaluator_base import Evaluator
-from eva_engine.utils.p_utils import get_layer_metric_array
+from .utils.p_utils import get_layer_metric_array
  
 
 class SynFlowEvaluator(Evaluator):

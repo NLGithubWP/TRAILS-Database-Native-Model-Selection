@@ -3,10 +3,7 @@
 import json
 import random
 import time
-
 import numpy as np
-
-import local_api
 from benchmark_sampling_online import get_score_result
 from logger import logger
 import search_space
@@ -15,7 +12,6 @@ import argparse
 from hpbandster.optimizers.bohb import BOHB
 import hpbandster.core.nameserver as hpns
 from hpbandster.core.worker import Worker
-
 from storage import dataset
 
 voteList = [['nas_wot', 'synflow']]
@@ -245,7 +241,7 @@ class MyVoteWorker(Worker):
 
     def compute(self, config, budget, **kwargs):
         arch_struct = self.space.config2arch_func(config)
-        arch_id = str(self.space.arch_to_id(arch_struct))
+        arch_id = self.space.arch_to_id(arch_struct)
         if arch_id != "-1":
             gt = loapi.api_get_ground_truth(arch_id, self.dataSet)
             rank_score = 0.0
@@ -354,7 +350,7 @@ if __name__ == '__main__':
     mini_batch_targets = mini_batch_targets.to(args.device)
 
     used_search_space = search_space.init_search_space(args)
-    loapi = local_api.LocalApi(args.pre_scored_data, args.gt_file, used_search_space, args.search_space)
+    loapi = local_api
 
     all_run_result = {}
     for run_id in range(args.total_run):

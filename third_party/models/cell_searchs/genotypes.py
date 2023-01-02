@@ -198,6 +198,12 @@ class Structure:
             return [Structure(x) for x in all_archs]
 
 
+class Struct101(Structure):
+    def __init__(self, arch_id, genotype):
+        super().__init__(genotype)
+        self.arch_id = arch_id
+
+
 ResNet_CODE = Structure(
     [
         (("nor_conv_3x3", 0),),  # node-1

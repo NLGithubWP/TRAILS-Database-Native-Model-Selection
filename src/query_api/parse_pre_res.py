@@ -32,26 +32,30 @@ def get_current_best_acc(acc_list):
 # query ground truth
 class FetchGroundTruth:
 
-    def __init__(self, space):
-        self.space = space
+    def __init__(self, space_name: str, total_epoch: int):
+        """
+        :param space_name: NB101 or NB201
+        :param total_epoch: only 201 use it, 201 will query from 200 epoch in total.
+        """
+        self.space_name = space_name
         self.api = None
+        self.total_epoch = total_epoch
 
     # get the test_acc and time usage to train of this arch_id
-    def get_ground_truth(self, arch_id, epoch_num=None, dataset=Config.c10):
-        if self.space == Config.NB101:
+    def get_ground_truth(self, arch_id, dataset=Config.c10, epoch_num=None):
+        if self.space_name == Config.NB101:
             if self.api is None:
                 self.api = Gt101()
-            if epoch_num is None:
-                epoch_num = 108
-            score_, time_usage = self.api.get_c10_test_info(arch_id, epoch_num)
+            score_, time_usage = self.api.get_c10_test_info(arch_id, dataset, epoch_num)
             return score_, time_usage
 
-        if self.space == Config.NB201:
+        if self.space_name == Config.NB201:
             if self.api is None:
                 self.api = Gt201()
-            if epoch_num is None:
-                epoch_num = 199
-            score_, time_usage = self.api.query_200_epoch(arch_id, Config.c10, epoch_num)
+            if self.total_epoch == 200:
+                score_, time_usage = self.api.query_200_epoch(arch_id, dataset, epoch_num)
+            else: # 12
+                score_, time_usage = self.api.query_12_epoch(arch_id, dataset, epoch_num)
             return score_, time_usage
 
     # get the high acc of k arch with highest score
@@ -123,7 +127,7 @@ class ParseLatencyAll:
                 if target_key not in number_arch_to_target:
                     number_arch_to_target[target_key] = []
 
-                if high_acc > target_value:
+                if high_acc >= target_value:
                     # 10 is server launch time.
                     result[target_key] = current_time
                     number_arch_to_target[target_key].append(i)

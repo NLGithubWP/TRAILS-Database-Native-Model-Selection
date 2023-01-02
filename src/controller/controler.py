@@ -12,7 +12,7 @@ class ModelScore:
         self.score = score
 
     def __repr__(self):
-        return "{}_{}".format(self.model_id, self.score)
+        return "m_{}_s_{}".format(self.model_id, self.score)
 
 
 # for binary insert
@@ -37,16 +37,18 @@ def search_position(rank_list_m: list, new_item: ModelScore):
     right = len(rank_list_m) - 1
     while left + 1 < right:
         mid = int((left + right) / 2)
-        if rank_list_m[mid].score < new_item.score:
+        if rank_list_m[mid].score <= new_item.score:
             left = mid
         else:
             right = mid
-    if rank_list_m[left].score >= new_item.score:
-        return left
-    elif rank_list_m[right].score >= new_item.score:
-        return right
-    else:
+
+    # consider the time.
+    if rank_list_m[right].score <= new_item.score:
         return right + 1
+    elif rank_list_m[left].score <= new_item.score:
+        return left + 1
+    else:
+        return left
 
 
 class Controller(object):
@@ -57,11 +59,10 @@ class Controller(object):
 
         # this is pair of (model, score )
         self.model_rank = {}
-        self.vote_history = []
-
         # model vite_score dict
-        self.vote_score = []
         self.vote_model_id = []
+
+        self.history = []
 
     def sample_next_arch(self, max_nodes: int) -> (str, CellStructure):
         """
@@ -71,30 +72,53 @@ class Controller(object):
         """
         return self.search_strategy.sample_next_arch(max_nodes)
 
-    def fit_sampler(self, arch_id, alg_score):
-        score = self._add_model_to_rank(arch_id, alg_score)
+    def fit_sampler(self, arch_id, alg_score, use_prue_score: bool = False):
+        if use_prue_score:
+            score = self.use_pure_score_as_final_res(arch_id, alg_score)
+        else:
+            score = self._add_model_to_rank(arch_id, alg_score)
         self.search_strategy.fit_sampler(score)
 
     def _add_model_to_rank(self, model_id: str, alg_score: dict):
+        # todo: bug: only all scores' under all arg is greater than previous one, then treat it as greater.
         for alg in alg_score:
             if alg not in self.model_rank:
                 self.model_rank[alg] = []
 
         # add model and score to local list
-        # rank = index + 1, since index can be 0
-        rank_score = 0
         for alg, score in alg_score.items():
-            alg_index = binary_insert_get_rank(self.model_rank[alg], ModelScore(model_id, score))
-            alg_rank_ = alg_index + 1
-            rank_score_ = alg_rank_ / len(self.model_rank[alg])
-            rank_score += rank_score_
+            binary_insert_get_rank(self.model_rank[alg], ModelScore(model_id, score))
 
-        vote_index = binary_insert_get_rank(self.vote_history, ModelScore(model_id, rank_score))
-        final_vote_score = (vote_index + 1) / len(self.vote_history)
+        new_rank_score = self.re_rank_model_id(model_id, alg_score)
+        return new_rank_score
 
-        model_score_index = binary_insert_get_rank(self.vote_score, ModelScore(model_id, final_vote_score))
-        self.vote_model_id.insert(model_score_index, int(model_id))
-        return final_vote_score
+    def use_pure_score_as_final_res(self, model_id: str, alg_score: dict):
+        final_score = 0
+        for alg in alg_score:
+            final_score += float(alg_score[alg])
+        index = binary_insert_get_rank(self.history, ModelScore(model_id, final_score))
+        self.vote_model_id.insert(index, int(model_id))
+        return final_score
+
+    def re_rank_model_id(self, model_id: str, alg_score: dict):
+        # todo: re-rank everything, to make it self.vote_model_id more accurate.
+        model_new_rank_score = {}
+        for alg, score in alg_score.items():
+            for rank_index in range(len(self.model_rank[alg])):
+                current_explored_models = len(self.model_rank[alg])
+                ms_ins = self.model_rank[alg][rank_index]
+                # rank = index + 1, since index can be 0
+                if ms_ins.model_id in model_new_rank_score:
+                    model_new_rank_score[ms_ins.model_id] += rank_index + 1
+                else:
+                    model_new_rank_score[ms_ins.model_id] = rank_index + 1
+
+        for ele in model_new_rank_score.keys():
+            model_new_rank_score[ele] = model_new_rank_score[ele] / current_explored_models
+
+        self.vote_model_id = [int(k) for k, v in sorted(model_new_rank_score.items(), key=lambda item: item[1])]
+        new_rank_score = model_new_rank_score[model_id]
+        return new_rank_score
 
     def get_current_top_k_models(self, k=10):
         """
@@ -110,9 +134,20 @@ if __name__ == "__main__":
 
     rank_list = []
     begin = time.time()
-    for i in range(10):
-        ms = ModelScore(i, random.randint(0, 10))
+    score_list = [1, 2, 3, 1, 2]
+    for i in range(5):
+        ms = ModelScore(i, score_list[i])
         binary_insert_get_rank(rank_list, ms)
+    print(rank_list)
+    print(time.time() - begin)
+
+    rank_list = []
+    begin = time.time()
+    score_list = [1, 1, 1, 1, 1]
+    for i in range(5):
+        ms = ModelScore(i, score_list[i])
+        binary_insert_get_rank(rank_list, ms)
+    print(rank_list)
     print(time.time() - begin)
 
 

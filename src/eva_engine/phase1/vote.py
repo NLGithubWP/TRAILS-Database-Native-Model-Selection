@@ -1,5 +1,5 @@
 from eva_engine.phase1.evaluator_base import Evaluator
-from eva_engine.utils.autograd_hacks import *
+from .utils.autograd_hacks import *
 
 
 class VoteEvaluator(Evaluator):

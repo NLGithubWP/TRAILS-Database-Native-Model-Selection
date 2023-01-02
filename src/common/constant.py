@@ -45,6 +45,8 @@ class Config:
 
     NB101 = "nasbench101"
     NB201 = "nasbench201"
+    DARTS = "darts"
+    NDS = "NDS"
 
     c10_valid = "cifar10-valid"
     c10 = "cifar10"

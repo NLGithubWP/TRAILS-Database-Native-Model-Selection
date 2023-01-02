@@ -52,6 +52,25 @@ class ModelAcquireData:
         return res
 
 
+class ClientStruct:
+    """
+    Client get data
+    """
+
+    def __init__(self, budget: float, dataset: str):
+        self.budget = budget
+        self.dataset = dataset
+
+    @classmethod
+    def deserialize(cls, data_str: str):
+        data = json.loads(data_str)
+        res = cls(
+            data["budget"],
+            data["dataset"]
+        )
+        return res
+
+
 if __name__ == "__main__":
     data = ModelEvaData("1", {"a": 1, "b": 2})
     data_str = data.serialize_model()

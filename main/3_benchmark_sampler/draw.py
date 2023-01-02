@@ -1,10 +1,11 @@
 
 
-import json
 from matplotlib import pyplot as plt
 import numpy as np
-import local_api
-from benchmark_sampling import singleList, voteList
+from benchmark_sampling import voteList
+from query_api.parse_pre_res import get_current_best_acc
+from query_api.score_api import LocalApi, api_simulate_evaluate
+from utilslibs.tools import read_json
 
 
 def plot_acc(accuracy, axsp, plim=[]):
@@ -64,9 +65,9 @@ def gather_all_run_result(all_run_result, top_k, singleList, loapi):
         simulate_system_performance[alg_name] = []
         best_acc_all_run[alg_name] = []
         for _, run_info in all_run_result.items():
-            simulate_system_result = loapi.api_simulate_evaluate(
+            simulate_system_result = api_simulate_evaluate(
                 run_info[alg_name]["acc"], run_info[alg_name]["ori_score"], top_k)
-            best_acc = loapi.api_get_acc(run_info[alg_name]["acc"])
+            best_acc = get_current_best_acc(run_info[alg_name]["acc"])
             simulate_system_performance[alg_name].append(simulate_system_result[:380])
             best_acc_all_run[alg_name].append(best_acc[:380])
     return simulate_system_performance, best_acc_all_run
@@ -80,9 +81,9 @@ def gather_all_run_result_vote(all_run_result, top_k, loapi):
         simulate_system_performance[vote_comb_name] = []
         best_acc_all_run[vote_comb_name] = []
         for _, run_info in all_run_result.items():
-            simulate_system_result = loapi.api_simulate_evaluate(
+            simulate_system_result = api_simulate_evaluate(
                 run_info[vote_comb_name]["acc"], run_info[vote_comb_name]["ori_score"], top_k)
-            best_acc = loapi.api_get_acc(run_info[vote_comb_name]["acc"])
+            best_acc = get_current_best_acc(run_info[vote_comb_name]["acc"])
             simulate_system_performance[vote_comb_name].append(simulate_system_result)
             best_acc_all_run[vote_comb_name].append(best_acc)
     return simulate_system_performance, best_acc_all_run
@@ -115,18 +116,19 @@ def draw_graph_vote(simulate_system_performance, acc_all_run, img_name, plim=[])
 
 if __name__ == '__main__':
 
-    input_file = './main/3_benchmark_sampler/101_cifar10_sampling_res/bohb_vote_cifar10'
-    pre_scored_data = "./result_append/CIFAR10_15625/union/101_15k_c10_bs32_ic16_unionBest.json"
-    gt_file = "./101_result"
-    train_num_list = [1, 5, 10, 20]
-    train_num_one = 10
-    plim = [0.90, 0.95]
+    # input_file = './result_base/main_result/3_benchmark_sampler/101_cifar10_sampling_res/bohb_vote_cifar10'
+    # pre_scored_data = "./result_base/result_append/CIFAR10_15625/union/101_15k_c10_bs32_ic16_unionBest.json"
+
+    input_file = './result_base/main_result/3_benchmark_sampler/201_cifar10_sampling_res/ea_vote'
+
+    train_num_list = [1, 10]
+    train_num_one = 1
+    plim = [0.9250, 0.945]
     img_name = input_file + ".jpg"
 
-    with open(input_file, 'r') as readfile:
-        all_run_result = json.load(readfile)
+    all_run_result = read_json(input_file)
 
-    loapi = local_api.LocalApi(pre_scored_data, gt_file, None, "101")
+    loapi = LocalApi()
 
     if "vote" in input_file:
         simulate_system_performance, acc_all_run = gather_all_run_result_vote(all_run_result, train_num_one, loapi)
@@ -143,7 +145,7 @@ if __name__ == '__main__':
         for metrics in singleList:
             sampler_alg[metrics] = {}
 
-        f, allaxs = plt.subplots(1, 2, figsize=(15, 9))
+        f, allaxs = plt.subplots(1, 2, figsize=(25, 9))
         allaxs = allaxs.ravel()
 
         # collect all ac![](101_cifar10_sampling_res/ea_vote_cifar1010.jpg)c over different top K
@@ -166,6 +168,7 @@ if __name__ == '__main__':
 
         plt.subplots_adjust(hspace=0.3, wspace=0.3)
         plt.tight_layout()
+        plt.grid()
         plt.show()
         f.savefig(img_name, bbox_inches='tight')
 
