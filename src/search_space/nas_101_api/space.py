@@ -8,11 +8,11 @@ import numpy as np
 
 from common.constant import Config
 from logger import logger
-from query_api.score_api import LocalApi
+from query_api.query_p1_score_api import LocalApi
 from search_space.core.space import SpaceWrapper
-from search_space.nas_101_api.lib import nb101_api
-from search_space.nas_101_api.lib.model import NasBench101Network
-from search_space.nas_101_api.lib.nb101_api import ModelSpec
+from third_party.sp101_lib import nb101_api
+from third_party.sp101_lib.model import NasBench101Network
+from third_party.sp101_lib.nb101_api import ModelSpec
 from search_space.nas_101_api.model_params import NasBench101Cfg
 from search_space.nas_101_api.rl_policy import RLPolicy101Topology
 
@@ -47,6 +47,19 @@ class NasBench101Space(SpaceWrapper):
     def deserialize_model_encoding(cls, data_str) -> (list, str):
         data = json.loads(data_str)
         return data["matrix"], data["operations"]
+
+    @staticmethod
+    def new_architecture_default(matrix, operations, bn: bool, num_labels: int):
+        model_cfg = NasBench101Cfg(
+            bn=bn,
+            init_channels=16,
+            num_stacks=3,
+            num_modules_per_stack=3,
+            num_labels=num_labels
+        )
+        spec = ModelSpec(matrix, operations)
+        model = NasBench101Network(spec, model_cfg)
+        return model
 
     def new_architecture(self, arch_id: str):
         arch_hash = next(itertools.islice(self.api.hash_iterator(), int(arch_id), None))

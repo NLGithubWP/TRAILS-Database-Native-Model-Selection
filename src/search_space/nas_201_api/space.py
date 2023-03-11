@@ -4,8 +4,8 @@ from common.constant import Config
 from search_space.nas_201_api.rl_policy import RLPolicy201Topology
 from third_party.models import get_search_spaces, CellStructure
 from search_space.core.space import SpaceWrapper
-from search_space.nas_201_api.lib import nasbench2, NASBench201API
-from search_space.nas_201_api.lib.nasbench2 import get_arch_str_from_model
+from third_party.sp201_lib import nasbench2, NASBench201API
+from third_party.sp201_lib.nasbench2 import get_arch_str_from_model
 from search_space.nas_201_api.model_params import NasBench201Cfg
 from search_space.utils.weight_initializers import init_net
 import random
@@ -21,6 +21,24 @@ class NasBench201Space(SpaceWrapper):
     def new_architecture(self, arch_id: str):
         arch_str = self.api[int(arch_id)]
         return self.new_architecture_hash(arch_str)
+
+    @staticmethod
+    def new_architecture_default(arch_hash: str, bn: bool, num_labels: int):
+        model_cfg = NasBench201Cfg(
+            bn=bn,
+            init_channels=16,
+            init_b_type="none",
+            init_w_type="none",
+            num_labels=num_labels
+        )
+        architecture = nasbench2.get_model_from_arch_str(
+            arch_hash,
+            model_cfg.num_labels,
+            model_cfg.bn,
+            model_cfg.init_channels)
+
+        init_net(architecture, model_cfg.init_w_type, model_cfg.init_b_type)
+        return architecture
 
     def new_architecture_hash(self, arch_hash: str):
         architecture = nasbench2.get_model_from_arch_str(

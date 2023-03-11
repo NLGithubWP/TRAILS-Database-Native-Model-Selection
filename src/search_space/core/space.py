@@ -97,4 +97,7 @@ class SpaceWrapper:
         """
         raise NotImplementedError
 
+    def archid_to_hash(self, arch_id: str) -> str:
+        pass
+
 

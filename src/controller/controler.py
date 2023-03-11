@@ -2,6 +2,7 @@ import random
 import time
 
 from controller import RegularizedEASampler
+from controller.core.sample import Sampler
 from search_space import SpaceWrapper
 from third_party.models import CellStructure
 
@@ -52,10 +53,14 @@ def search_position(rank_list_m: list, new_item: ModelScore):
 
 
 class Controller(object):
+    """
+    Controller control the sample-score flow in the 1st phase.
+    It records the results in the history.
+    """
 
-    def __init__(self, space: SpaceWrapper, args):
+    def __init__(self, search_strategy: Sampler):
         # Current ea is better than others.
-        self.search_strategy = RegularizedEASampler(space, args)
+        self.search_strategy = search_strategy
 
         # this is pair of (model, score )
         self.model_rank = {}
@@ -73,6 +78,14 @@ class Controller(object):
         return self.search_strategy.sample_next_arch(max_nodes)
 
     def fit_sampler(self, arch_id, alg_score, use_prue_score: bool = False):
+        """
+
+        :param arch_id:
+        :param alg_score:
+        :param use_prue_score: if simply sum multiple scores (good performing),
+                             or sum over their rank (worse performing)
+        :return:
+        """
         if use_prue_score:
             score = self.use_pure_score_as_final_res(arch_id, alg_score)
         else:

@@ -14,7 +14,7 @@ class ExponentialMovingAverage(object):
 
     def update(self, value):
         self._numerator = (
-            self._momentum * self._numerator + (1 - self._momentum) * value
+            self._momentum * self._denominator + (1 - self._momentum) * value
         )
         self._denominator = self._momentum * self._denominator + (1 - self._momentum)
 

@@ -1,11 +1,9 @@
-import math
-import random
-
 from common.constant import Config
-from eva_engine.phase2.run_phase2 import P2Evaluator
-from eva_engine.phase2.sh import SH
-from query_api import gt_api
-from query_api.parse_pre_res import FetchGroundTruth
+
+from eva_engine.phase2.evaluator import P2Evaluator
+from eva_engine.phase2.run_sh import SH
+from logger import logger
+from utilslibs.parse_pre_res import SimulateTrain
 
 eta = 3
 
@@ -52,14 +50,14 @@ def schedule(sh: SH, T_, t1_, t2_, w_, space_name, N_K_ratio, only_phase1: bool 
 
     # find the larges K and then large U
     if len(history) == 0:
-        print(f"Budget {T_} is too small, it's at least >= {min_budget_required} with current worker, {t1_}, {t2_}, eta")
+        logger.info(f" [FIRMEST] Budget {T_} is too small, it's at least >= {min_budget_required} with current worker, {t1_}, {t2_}, eta")
         raise
     else:
         best_K, best_U, best_N = history[-1][0], history[-1][1], history[-1][2]
         N_scored = best_N
         B1_time_used = N_scored * t1_
         B2_all_epoch, B2_time_used = sh.pre_calculate_time_required(K=best_K, U=best_U)
-        print(f" The schedule result: when T = {T_} second, N = {N_scored}, K = {best_K}, best_U = {best_U}, time_used = {B1_time_used+B2_time_used}")
+        logger.info(f" [FIRMEST] The schedule result: when T = {T_} second, N = {N_scored}, K = {best_K}, best_U = {best_U}, time_used = {B1_time_used+B2_time_used}")
         return best_K, best_U, N_scored, B1_time_used, B2_time_used, B2_all_epoch
 
 
@@ -76,9 +74,9 @@ if __name__ == "__main__":
         Tsec = T*60
         if Tsec == 540:
             continue
-        # print(f"T = {T}min, T = {Tsec} second")
-        fgt = FetchGroundTruth(space_name=space_used, total_epoch=108)
-        evaluator = P2Evaluator(fgt, dataset_used)
+        # logger.info(f"T = {T}min, T = {Tsec} second")
+        fgt = SimulateTrain(space_name=space_used, total_epoch=108)
+        evaluator = P2Evaluator(space_used, dataset_used)
 
         t1 = gt_api.guess_score_time(space_used, dataset_used)
         time_per_epoch = gt_api.guess_train_one_epoch_time(space_used, dataset_used)
@@ -86,4 +84,4 @@ if __name__ == "__main__":
         sh = SH(evaluator, eta, time_per_epoch)
 
         best_K, best_U, N_scored, B1_time_used, B2_time_used = schedule(sh, Tsec, t1, time_per_epoch, W, space_used, N_K_ratio)
-        # print(f"Budget={T}, real_time_used={B1_time_used + B2_time_used}, N={N_scored}, K={best_K}, U={best_U}")
+        # logger.info(f"Budget={T}, real_time_used={B1_time_used + B2_time_used}, N={N_scored}, K={best_K}, U={best_U}")

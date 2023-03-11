@@ -19,13 +19,13 @@ class Model(object):
 
 class RegularizedEASampler(Sampler):
 
-    def __init__(self, space: SpaceWrapper, args):
+    def __init__(self, space: SpaceWrapper, population_size: int, sample_size: int):
         super().__init__(space)
 
-        self.population_size = args.population_size
+        self.population_size = population_size
         self.population = collections.deque()
         self.space = space
-        self.sample_size = args.sample_size
+        self.sample_size = sample_size
         self.current_sampled = 0
         self.current_arch_structure = None
 

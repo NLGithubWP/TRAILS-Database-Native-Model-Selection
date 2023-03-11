@@ -103,11 +103,11 @@ if __name__ == "__main__":
 
     from common.constant import Config
     from common.structure import ModelAcquireData, ModelEvaData, ClientStruct
-    from query_api.gt_api import Gt201, Gt101
+    from query_api.query_model_gt_acc_api import Gt201, Gt101
     from controller.controler import Controller
     import search_space
     from search_space import NasBench101Space
-    from utilslibs.tools import write_json
+    from utilslibs.io_tools import write_json
     from logger import logger
 
     if args.search_space == Config.NB201:
