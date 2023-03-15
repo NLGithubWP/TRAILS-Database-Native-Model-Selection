@@ -5,7 +5,9 @@ import numpy as np
 from common.constant import Config
 from utilslibs.io_tools import read_json, write_json
 
-base_dir = os.path.join(os.getcwd(), "result_base/result_append")
+base_dir_folder = os.environ.get("base_dir")
+if base_dir_folder is None:base_dir_folder = os.getcwd()
+base_dir = os.path.join(base_dir_folder, "result_base/result_append")
 print("local api running at {}".format(base_dir))
 
 pre_score_path_101C10 = os.path.join(base_dir, "CIFAR10_15625/union/101_15k_c10_bs32_ic16_unionBest.json")

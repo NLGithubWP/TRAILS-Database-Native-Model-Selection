@@ -21,8 +21,6 @@ from .base_ops import *
 import torch
 import torch.nn as nn
 
-from search_space.nas_101_api.model_params import NasBench101Cfg
-
 
 class Cell(nn.Module):
     """
@@ -107,17 +105,17 @@ class Cell(nn.Module):
 
 
 class NasBench101Network(nn.Module):
-    def __init__(self, spec, model_cfg: NasBench101Cfg):
+    def __init__(self, spec, init_channels, num_stacks, num_modules_per_stack, num_labels, bn):
         super(NasBench101Network, self).__init__()
         self.layers = nn.ModuleList([])
         self.spec = spec
         in_channels = 3
 
-        out_channels = model_cfg.init_channels
-        num_stacks = model_cfg.num_stacks
-        num_modules_per_stack = model_cfg.num_modules_per_stack
-        num_labels = model_cfg.num_labels
-        bn = model_cfg.bn
+        out_channels = init_channels
+        num_stacks = num_stacks
+        num_modules_per_stack = num_modules_per_stack
+        num_labels = num_labels
+        bn = bn
 
         # stem consisting of one 3 × 3 convolution with 128 output channels
         stem_conv = ConvBnRelu(in_channels, out_channels, 3, 1, 1, bn=bn)

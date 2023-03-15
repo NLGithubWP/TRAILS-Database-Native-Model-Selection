@@ -1,7 +1,8 @@
 
 
 from controller.core.sample import Sampler
-from search_space import SpaceWrapper
+from search_space.core.space import SpaceWrapper
+from search_space.core.model_params import ModelMicroCfg
 from third_party.models import CellStructure
 
 
@@ -11,7 +12,7 @@ class RandomSampler(Sampler):
         super().__init__(space)
         self.visited = []
 
-    def sample_next_arch(self, max_nodes: int) -> (str, CellStructure):
+    def sample_next_arch(self, max_nodes: int) -> (str, ModelMicroCfg):
         while True:
             arch_id, arch_struc = self.space.random_architecture_id(max_nodes)
 

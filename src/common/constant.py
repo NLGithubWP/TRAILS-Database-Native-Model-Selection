@@ -43,12 +43,17 @@ class CommonVars:
 
 class Config:
 
+    MLPSP = "mlp_sp"
     NB101 = "nasbench101"
     NB201 = "nasbench201"
     DARTS = "darts"
     NDS = "NDS"
 
+    # vision dataset
     c10_valid = "cifar10-valid"
     c10 = "cifar10"
     c100 = "cifar100"
     imgNet = "ImageNet16-120"
+
+    # struct dataset
+

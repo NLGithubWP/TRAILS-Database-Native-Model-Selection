@@ -1,7 +1,7 @@
 import pickle
 import numpy as np
 from common.constant import Config
-from search_space.core.space import SpaceWrapper
+from controller.core.sample import Sampler
 from search_space.darts_api.model_params import DartsCfg
 from darts_space.model import *
 import codecs

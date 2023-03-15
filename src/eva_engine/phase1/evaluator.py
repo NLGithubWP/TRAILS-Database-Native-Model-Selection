@@ -4,7 +4,11 @@ import torch
 from common.constant import Config, CommonVars
 from common.structure import ModelAcquireData
 from eva_engine import evaluator_register
-from search_space import NasBench101Space, NasBench201Space
+from search_space.nas_101_api.model_params import NB101MacroCfg
+from search_space.nas_101_api.space import NasBench101Space
+from search_space.nas_201_api.model_params import NB201MacroCfg
+from search_space.nas_201_api.space import NasBench201Space
+
 from storage import dataset
 
 
@@ -71,8 +75,24 @@ class P1Evaluator:
         return model_score
 
     def _load_101_cfg(self, model_encoding: str, bn: bool):
-        matrix, operations = NasBench101Space.deserialize_model_encoding(model_encoding)
-        return NasBench101Space.new_architecture_default(matrix, operations, bn, self.num_labels)
+        model_cfg = NB101MacroCfg(
+            bn=bn,
+            init_channels=16,
+            num_stacks=3,
+            num_modules_per_stack=3,
+            num_labels=self.num_labels
+        )
+        model_micro = NasBench101Space.deserialize_model_encoding(model_encoding)
+        return NasBench101Space.new_arch_scratch(model_cfg, model_micro)
 
     def _load_201_cfg(self, model_encoding: str, bn: bool):
-        return NasBench201Space.new_architecture_default(model_encoding, bn, self.num_labels)
+        model_cfg = NB201MacroCfg(
+            bn=bn,
+            init_channels=16,
+            init_b_type="none",
+            init_w_type="none",
+            num_labels=self.num_labels
+        )
+        model_micro = NasBench201Space.deserialize_model_encoding(model_encoding)
+        return NasBench201Space.new_arch_scratch(model_cfg, model_micro)
+

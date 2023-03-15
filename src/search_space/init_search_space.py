@@ -1,0 +1,94 @@
+
+
+
+import os
+
+from common.constant import Config
+from .core.space import SpaceWrapper
+
+
+def init_search_space(args, loapi=None) -> SpaceWrapper:
+    """
+    :param args:
+    :param loapi: Local score API, records all scored arch, 101 use it to detect which arch is scored.
+    :return:
+    """
+
+    if args.bn == 1:
+        bn = True
+    else:
+        bn = False
+
+    if args.search_space == Config.NB101:
+        from .nas_101_api.model_params import NB101MacroCfg
+        from .nas_101_api.space import NasBench101Space
+        model_cfg = NB101MacroCfg(
+            args.init_channels,
+            args.num_stacks,
+            args.num_modules_per_stack,
+            args.num_labels,
+            bn)
+
+        base_dir_folder = os.environ.get("base_dir")
+        if base_dir_folder is None: base_dir_folder = os.getcwd()
+        return NasBench101Space(os.path.join(base_dir_folder, "data",  args.api_loc), model_cfg, loapi)
+
+    elif args.search_space == Config.NB201:
+        from .nas_201_api.model_params import NB201MacroCfg
+        from .nas_201_api.space import NasBench201Space
+        model_cfg = NB201MacroCfg(
+            args.init_channels,
+            args.init_b_type,
+            args.init_w_type,
+            args.num_labels,
+            bn)
+
+        base_dir_folder = os.environ.get("base_dir")
+        if base_dir_folder is None: base_dir_folder = os.getcwd()
+        return NasBench201Space(os.path.join(base_dir_folder, "data",  args.api_loc), model_cfg)
+
+    # elif args.nasspace == 'nds_resnet':
+    #     return NDS('ResNet')
+    # elif args.nasspace == 'nds_amoeba':
+    #     return NDS('Amoeba')
+    # elif args.nasspace == 'nds_amoeba_in':
+    #     return NDS('Amoeba_in')
+    # elif args.nasspace == 'nds_darts_in':
+    #     return NDS('DARTS_in')
+    # elif args.nasspace == 'nds_darts':
+    #     return NDS('DARTS')
+    # elif args.nasspace == 'nds_darts_fix-w-d':
+    #     return NDS('DARTS_fix-w-d')
+    # elif args.nasspace == 'nds_darts_lr-wd':
+    #     return NDS('DARTS_lr-wd')
+    # elif args.nasspace == 'nds_enas':
+    #     return NDS('ENAS')
+    # elif args.nasspace == 'nds_enas_in':
+    #     return NDS('ENAS_in')
+    # elif args.nasspace == 'nds_enas_fix-w-d':
+    #     return NDS('ENAS_fix-w-d')
+    # elif args.nasspace == 'nds_pnas':
+    #     return NDS('PNAS')
+    # elif args.nasspace == 'nds_pnas_fix-w-d':
+    #     return NDS('PNAS_fix-w-d')
+    # elif args.nasspace == 'nds_pnas_in':
+    #     return NDS('PNAS_in')
+    # elif args.nasspace == 'nds_nasnet':
+    #     return NDS('NASNet')
+    # elif args.nasspace == 'nds_nasnet_in':
+    #     return NDS('NASNet_in')
+    # elif args.nasspace == 'nds_resnext-a':
+    #     return NDS('ResNeXt-A')
+    # elif args.nasspace == 'nds_resnext-a_in':
+    #     return NDS('ResNeXt-A_in')
+    # elif args.nasspace == 'nds_resnext-b':
+    #     return NDS('ResNeXt-B')
+    # elif args.nasspace == 'nds_resnext-b_in':
+    #     return NDS('ResNeXt-B_in')
+    # elif args.nasspace == 'nds_vanilla':
+    #     return NDS('Vanilla')
+    # elif args.nasspace == 'nds_vanilla_lr-wd':
+    #     return NDS('Vanilla_lr-wd')
+    # elif args.nasspace == 'nds_vanilla_lr-wd_in':
+    #     return NDS('Vanilla_lr-wd_in')
+

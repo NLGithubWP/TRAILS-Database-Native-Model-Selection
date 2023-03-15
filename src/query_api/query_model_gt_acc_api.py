@@ -6,7 +6,9 @@ import time
 from common.constant import Config
 from utilslibs.io_tools import read_json, read_pickle
 
-base_dir = os.getcwd()
+
+base_dir = os.environ.get("base_dir")
+if base_dir is None:base_dir = os.getcwd()
 print("gt_api running at {}".format(base_dir))
 gt201 = os.path.join(base_dir, "result_base/ground_truth/201_allEpoch_info")
 

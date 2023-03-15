@@ -1,8 +1,8 @@
 
-from search_space.core.model_params import ModelCfgs
+from search_space.core.model_params import ModelMacroCfg
 
 
-class DartsCfg(ModelCfgs):
+class DartsCfg(ModelMacroCfg):
 
     def __init__(self, dataset, bn, init_channels, layers, auxiliary, max_sample):
         '''

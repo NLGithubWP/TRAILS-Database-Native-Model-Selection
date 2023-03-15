@@ -3,10 +3,10 @@ import time
 from eva_engine import coordinator
 from eva_engine.phase1.run_phase1 import RunPhase1
 from torch.utils.data import DataLoader
-import search_space
 import query_api.query_model_gt_acc_api as gt_api
 from eva_engine.phase2.run_sh import SH
 from logger import logger
+from search_space.init_search_space import init_search_space
 
 
 class RunModelSelection:
@@ -80,7 +80,7 @@ class RunModelSelection:
         """
 
         if self.search_space_ins is None:
-            self.search_space_ins = search_space.init_search_space(args)
+            self.search_space_ins = init_search_space(args)
 
         logger.info("0. [FIRMEST] Begin model selection ... ")
         begin_time = time.time()

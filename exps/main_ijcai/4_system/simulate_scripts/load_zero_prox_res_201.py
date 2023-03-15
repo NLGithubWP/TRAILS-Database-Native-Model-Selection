@@ -13,13 +13,13 @@ all_metrics = {}
 all_runs = {}
 metric_names = ['grad_norm', 'snip', 'grasp', 'fisher', 'synflow', 'jacob_cov']
 for fname, rname in [(
-        '/Users/kevin/project_python/Fast-AutoNAS/data/nasbench2/nb2_cf10_seed42_dlrandom_dlinfo1_initwnone_initbnone.p',
+        '/Users/kevin/project_python/FIRMEST/data/nasbench2/nb2_cf10_seed42_dlrandom_dlinfo1_initwnone_initbnone.p',
         'CIFAR10'),
     (
-            '/Users/kevin/project_python/Fast-AutoNAS/data/nasbench2/nb2_cf100_seed42_dlrandom_dlinfo1_initwnone_initbnone.p',
+            '/Users/kevin/project_python/FIRMEST/data/nasbench2/nb2_cf100_seed42_dlrandom_dlinfo1_initwnone_initbnone.p',
                      'CIFAR100'),
                      (
-                     '/Users/kevin/project_python/Fast-AutoNAS/data/nasbench2/nb2_im120_seed42_dlrandom_dlinfo1_initwnone_initbnone.p',
+                     '/Users/kevin/project_python/FIRMEST/data/nasbench2/nb2_im120_seed42_dlrandom_dlinfo1_initwnone_initbnone.p',
                      'ImageNet16-120')]:
     runs = []
     f = open(fname, 'rb')

@@ -35,7 +35,7 @@ def parse_arguments():
     parser.add_argument('--log_name', type=str, default="result.json", help="log_name")
 
     # define base dir, where it stores apis, datasets, logs, etc,
-    parser.add_argument('--base_dir', type=str, default="/Users/kevin/project_python/Fast-AutoNAS/data",
+    parser.add_argument('--base_dir', type=str, default="/Users/kevin/project_python/FIRMEST/data",
                         help='path of data folder')
 
     # define search space,
@@ -80,7 +80,7 @@ def parse_arguments():
                         help='How many arch to evaluate in each run')
 
     parser.add_argument('--pre_scored_data', type=str,
-                        default="/Users/kevin/project_python/Fast-AutoNAS/result/CIFAR10_15625/vote_res/"
+                        default="/Users/kevin/project_python/FIRMEST/result/CIFAR10_15625/vote_res/"
                                 "201_15625_c10_128_unionBest.json",
                         help="log_name")
 

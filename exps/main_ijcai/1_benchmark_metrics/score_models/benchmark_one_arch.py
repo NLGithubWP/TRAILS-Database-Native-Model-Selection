@@ -21,7 +21,7 @@ def parse_arguments():
     parser.add_argument('--num_arch', type=int, default=2, help="how many architecture to evaluate")
 
     # define base dir, where it stores apis, datasets, logs, etc,
-    parser.add_argument('--base_dir', type=str, default="/Users/kevin/project_python/Fast-AutoNAS/data",
+    parser.add_argument('--base_dir', type=str, default="/Users/kevin/project_python/FIRMEST/data",
                         help='path of data folder')
 
     # dataLoader setting,

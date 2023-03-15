@@ -2,9 +2,11 @@
 
 import collections
 from controller.core.sample import Sampler
-from third_party.models import CellStructure
+from search_space.core.model_params import ModelMicroCfg
+from controller.core.sample import Sampler
 import random
-from search_space import SpaceWrapper
+
+from search_space.core.space import SpaceWrapper
 
 
 class Model(object):
@@ -27,9 +29,9 @@ class RegularizedEASampler(Sampler):
         self.space = space
         self.sample_size = sample_size
         self.current_sampled = 0
-        self.current_arch_structure = None
+        self.current_arch_micro = None
 
-    def sample_next_arch(self, max_nodes: int) -> (str, CellStructure):
+    def sample_next_arch(self, max_nodes: int) -> (str, ModelMicroCfg):
         """
         # Carry out evolution in cycles. Each cycle produces a model and removes another
         # Sample randomly chosen models from the current population.
@@ -43,11 +45,11 @@ class RegularizedEASampler(Sampler):
             # Initialize the population with random models.
             if len(self.population) < self.population_size:
                 while True:
-                    arch_id, arch_struc = self.space.random_architecture_id(max_nodes)
+                    arch_id, arch_micro = self.space.random_architecture_id(max_nodes)
                     # make sure EA population has no repeated value
                     if arch_id not in self.population:
-                        self.current_arch_structure = arch_struc
-                        yield arch_id, arch_struc
+                        self.current_arch_micro = arch_micro
+                        yield arch_id, arch_micro
             else:
                 sample = []
                 while len(sample) < self.sample_size:
@@ -55,23 +57,22 @@ class RegularizedEASampler(Sampler):
                     sample.append(candidate)
                 # The parent is the model with best score in the sample.
                 parent = max(sample, key=lambda i: i.score)
-                arch_struct = self.space.mutate_architecture(parent.arch)
-                arch_id = self.space.arch_to_id(arch_struct)
-                self.current_arch_structure = arch_struct
-                yield arch_id, arch_struct
+                arch_id, arch_micro = self.space.mutate_architecture(parent.arch)
+                self.current_arch_micro = arch_micro
+                yield arch_id, arch_micro
 
     def fit_sampler(self, score: float):
         # if it;s in Initialize stage, add to the population with random models.
         if len(self.population) < self.population_size:
             model = Model()
-            model.arch = self.current_arch_structure
+            model.arch = self.current_arch_micro
             model.score = score
             self.population.append(model)
 
         # if it's in mutation stage
         else:
             child = Model()
-            child.arch = self.current_arch_structure
+            child.arch = self.current_arch_micro
             child.score = score
 
             self.population.append(child)

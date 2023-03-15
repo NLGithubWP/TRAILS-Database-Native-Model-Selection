@@ -7,13 +7,13 @@ import ConfigSpace
 import numpy as np
 
 from common.constant import Config
-from logger import logger
 from query_api.query_p1_score_api import LocalApi
+from search_space.core.model_params import ModelMicroCfg, ModelMacroCfg
 from search_space.core.space import SpaceWrapper
 from third_party.sp101_lib import nb101_api
 from third_party.sp101_lib.model import NasBench101Network
 from third_party.sp101_lib.nb101_api import ModelSpec
-from search_space.nas_101_api.model_params import NasBench101Cfg
+from search_space.nas_101_api.model_params import NB101MacroCfg
 from search_space.nas_101_api.rl_policy import RLPolicy101Topology
 
 
@@ -31,60 +31,110 @@ ALLOWED_OPS = [CONV3X3, CONV1X1, MAXPOOL3X3]
 ALLOWED_EDGES = [0, 1]   # Binary adjacency matrix
 
 
-class NasBench101Space(SpaceWrapper):
+class NB101MicroCfg(ModelMicroCfg):
 
-    def __init__(self, api_loc: str, modelCfg: NasBench101Cfg, loapi: LocalApi):
+    @classmethod
+    def builder(cls, encoding: str):
+        data = json.loads(encoding)
+        spec = ModelSpec(data["matrix"], data["operations"])
+        return NB101MicroCfg(spec)
+
+    def __init__(self, spec: ModelSpec):
+        super().__init__()
+        self.spec = spec
+
+    def __str__(self):
+        return json.dumps({"matrix": self.spec.original_matrix,
+                           "operations": self.spec.original_ops})
+
+
+class NasBench101Space(SpaceWrapper):
+    def __init__(self, api_loc: str, modelCfg: NB101MacroCfg, loapi: LocalApi):
         super().__init__(modelCfg, Config.NB101)
         self.api = nb101_api.NASBench(api_loc)
         self.loapi = loapi
 
-    @classmethod
-    def serialize_model_encoding(cls, matrix: list, operations: str) -> str:
-        data = {"matrix": matrix, "operations": operations}
-        return json.dumps(data)
+    def _is_valid(self, new_spec: ModelSpec):
+        return self.api.is_valid(new_spec) and self._is_scored(new_spec)
+
+    def _is_scored(self, new_spec: ModelSpec):
+        arch_id = self._arch_to_id(new_spec)
+        return self.loapi.is_arch_inside_data(arch_id)
+
+    def _arch_to_id(self, arch_spec: object) -> str:
+        assert isinstance(arch_spec, ModelSpec)
+        if self.api.is_valid(arch_spec):
+            arch_hash = arch_spec.hash_spec(ALLOWED_OPS)
+            arch_id = list(self.api.hash_iterator()).index(arch_hash)
+            return str(arch_id)
+        else:
+            return "-1"
+
+    def micro_to_id(self, arch_struct: ModelMicroCfg) -> str:
+        assert isinstance(arch_struct, NB101MicroCfg)
+        arch_id = self._arch_to_id(arch_struct.spec)
+        return str(arch_id)
 
     @classmethod
-    def deserialize_model_encoding(cls, data_str) -> (list, str):
-        data = json.loads(data_str)
-        return data["matrix"], data["operations"]
+    def serialize_model_encoding(cls, arch_micro: ModelMicroCfg) -> str:
+        assert isinstance(arch_micro, NB101MicroCfg)
+        return str(arch_micro)
 
-    @staticmethod
-    def new_architecture_default(matrix, operations, bn: bool, num_labels: int):
-        model_cfg = NasBench101Cfg(
-            bn=bn,
-            init_channels=16,
-            num_stacks=3,
-            num_modules_per_stack=3,
-            num_labels=num_labels
-        )
-        spec = ModelSpec(matrix, operations)
-        model = NasBench101Network(spec, model_cfg)
+    @classmethod
+    def deserialize_model_encoding(cls, model_encoding: str) -> ModelMicroCfg:
+        return NB101MicroCfg.builder(model_encoding)
+
+    @classmethod
+    def new_arch_scratch(cls, arch_macro: ModelMacroCfg, arch_micro: ModelMicroCfg):
+        assert isinstance(arch_micro, NB101MicroCfg)
+        assert isinstance(arch_macro, NB101MacroCfg)
+        model = NasBench101Network(arch_micro.spec,
+                                   arch_macro.init_channels,
+                                   arch_macro.num_stacks,
+                                   arch_macro.num_modules_per_stack,
+                                   arch_macro.num_labels,
+                                   arch_macro.bn)
+
         return model
 
     def new_architecture(self, arch_id: str):
+        # id -> hash
         arch_hash = next(itertools.islice(self.api.hash_iterator(), int(arch_id), None))
-        return self.new_architecture_hash(arch_hash)
+        # arch_id = list(self.api.hash_iterator()).index(arch_hash)
+        # hash -> spec
+        matrix = self.api.fixed_statistics[arch_hash]['module_adjacency']
+        operations = self.api.fixed_statistics[arch_hash]['module_operations']
+        spec = ModelSpec(matrix, operations)
+        # spec -> model
 
-    def new_architecture_hash(self, arch_hash: str):
-        spec = self._get_spec(arch_hash)
+        assert isinstance(self.model_cfg, NB101MacroCfg)
+        architecture = NasBench101Network(spec, self.model_cfg.init_channels,
+                                          self.model_cfg.num_stacks,
+                                          self.model_cfg.num_modules_per_stack,
+                                          self.model_cfg.num_labels,
+                                          self.model_cfg.bn)
+        return architecture
+
+    def new_architecture_with_micro_cfg(self, arch_micro: ModelMicroCfg):
+        assert isinstance(arch_micro, NB101MicroCfg)
+        spec = arch_micro.spec
         # generate network with adjacency and operation
-        architecture = NasBench101Network(spec, self.model_cfg)
+        assert isinstance(self.model_cfg, NB101MacroCfg)
+        architecture = NasBench101Network(spec, self.model_cfg.init_channels,
+                                          self.model_cfg.num_stacks,
+                                          self.model_cfg.num_modules_per_stack,
+                                          self.model_cfg.num_labels,
+                                          self.model_cfg.bn)
         return architecture
 
     def __len__(self):
         return len(self.api.hash_iterator())
 
-    def get_arch_size(self, architecture) -> int:
-        return len(architecture.spec.matrix)
+    def get_arch_size(self, arch_micro: ModelMicroCfg) -> int:
+        assert isinstance(arch_micro, NB101MicroCfg)
+        return len(arch_micro.spec.matrix)
 
-    def _get_spec(self, arch_hash: str):
-        matrix = self.api.fixed_statistics[arch_hash]['module_adjacency']
-        operations = self.api.fixed_statistics[arch_hash]['module_operations']
-        spec = ModelSpec(matrix, operations)
-
-        return spec
-
-    def random_architecture_id(self, max_nodes: int) -> (str, object):
+    def random_architecture_id(self, max_nodes: int) -> (str, ModelMicroCfg):
         """Returns a random valid spec."""
         while True:
             matrix = np.random.choice(ALLOWED_EDGES, size=(NUM_VERTICES, NUM_VERTICES))
@@ -93,17 +143,18 @@ class NasBench101Space(SpaceWrapper):
             ops[0] = INPUT
             ops[-1] = OUTPUT
             spec = ModelSpec(matrix=matrix, ops=ops)
-            if self.is_valid(spec):
-                arch_id = self.arch_to_id(spec)
-                return str(arch_id), spec
+            if self._is_valid(spec):
+                arch_id = self._arch_to_id(spec)
+                return str(arch_id), NB101MicroCfg(spec)
 
-    def mutate_architecture(self, parent_arch: object) -> object:
+    '''Below is for EA'''
+    def mutate_architecture(self, parent_arch: ModelMicroCfg) -> (str, ModelMicroCfg):
         mutation_rate = 1.0
-        assert isinstance(parent_arch, ModelSpec)
+        assert isinstance(parent_arch, NB101MicroCfg)
         """Computes a valid mutated spec from the old_spec."""
         while True:
-            new_matrix = copy.deepcopy(parent_arch.original_matrix)
-            new_ops = copy.deepcopy(parent_arch.original_ops)
+            new_matrix = copy.deepcopy(parent_arch.spec.original_matrix)
+            new_ops = copy.deepcopy(parent_arch.spec.original_ops)
 
             # In expectation, V edges flipped (note that most end up being pruned).
             edge_mutation_prob = mutation_rate / NUM_VERTICES
@@ -120,31 +171,13 @@ class NasBench101Space(SpaceWrapper):
                     new_ops[ind] = random.choice(available)
 
             new_spec = ModelSpec(new_matrix, new_ops)
-            if self.is_valid(new_spec) and self.is_scored(new_spec):
-                return new_spec
+            if self._is_valid(new_spec) and self._is_scored(new_spec):
+                arch_id = self._arch_to_id(spec)
+                return arch_id, NB101MicroCfg(new_spec)
 
-    def is_valid(self, new_spec: ModelSpec):
-        return self.api.is_valid(new_spec) and self.is_scored(new_spec)
-
-    def is_scored(self, new_spec: ModelSpec):
-        arch_id = self.arch_to_id(new_spec)
-        return self.loapi.is_arch_inside_data(arch_id)
-
+    '''Below is for RL and BOHB'''
     def get_reinforcement_learning_policy(self, rl_learning_rate):
         return RLPolicy101Topology(self, rl_learning_rate, NUM_VERTICES)
-
-    def arch_to_id(self, arch_spec: object) -> str:
-        assert isinstance(arch_spec, ModelSpec)
-        if self.api.is_valid(arch_spec):
-            arch_hash = arch_spec.hash_spec(ALLOWED_OPS)
-            arch_id = list(self.api.hash_iterator()).index(arch_hash)
-            return str(arch_id)
-        else:
-            return "-1"
-
-    def arch_hash_to_id(self, arch_hash: str) -> str:
-        arch_id = list(self.api.hash_iterator()).index(arch_hash)
-        return str(arch_id)
 
     def get_configuration_space(self):
         cs = ConfigSpace.ConfigurationSpace()
@@ -172,8 +205,8 @@ class NasBench101Space(SpaceWrapper):
 
 
 if __name__ == '__main__':
-    api_loc = "/Users/kevin/project_python/Fast-AutoNAS/data/nasbench_only108.pkl"
-    model_cfg = NasBench101Cfg(16,3,3,10,True)
+    api_loc = "/Users/kevin/project_python/FIRMEST/data/nasbench_only108.pkl"
+    model_cfg = NB101MacroCfg(16,3,3,10,True)
 
     a = NasBench101Space(api_loc, model_cfg, None)
 

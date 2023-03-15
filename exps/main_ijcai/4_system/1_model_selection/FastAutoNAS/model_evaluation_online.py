@@ -161,7 +161,7 @@ if __name__ == "__main__":
     from storage import dataset
     from common.constant import CommonVars
     from eva_engine import evaluator_register
-    from search_space import NasBench101Cfg, NasBench101Space, NasBench201Cfg, NasBench201Space
+    from search_space import NB101MacroCfg, NasBench101Space, NB201MacroCfg, NasBench201Space
     from third_party.sp101_lib.model import NasBench101Network
     from third_party.sp101_lib import ModelSpec
     from third_party.sp201_lib import nasbench2

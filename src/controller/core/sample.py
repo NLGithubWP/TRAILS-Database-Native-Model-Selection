@@ -1,8 +1,9 @@
 
 
 from abc import abstractmethod
-from search_space import SpaceWrapper
-from third_party.models import CellStructure
+
+from search_space.core.model_params import ModelMicroCfg
+from search_space.core.space import SpaceWrapper
 
 
 class Sampler:
@@ -11,10 +12,9 @@ class Sampler:
         self.space = space
 
     @abstractmethod
-    def sample_next_arch(self, max_nodes: int) -> (str, CellStructure):
+    def sample_next_arch(self, max_nodes: int) -> (str, ModelMicroCfg):
         """
         Sample next architecture,
-        :param space: search space wrapper
         :param max_nodes: how many nodes in each cell.
         :return:
         """

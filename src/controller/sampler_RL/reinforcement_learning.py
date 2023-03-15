@@ -1,6 +1,7 @@
 
 from controller.core.sample import Sampler
-from search_space import SpaceWrapper
+from search_space.core.space import SpaceWrapper
+from search_space.core.model_params import ModelMicroCfg
 from third_party.models import CellStructure
 
 
@@ -34,7 +35,7 @@ class RLSampler(Sampler):
         self.baseline = ExponentialMovingAverage(args.rl_EMA_momentum)
         self.log_prob = 0
 
-    def sample_next_arch(self, max_nodes: int) -> (str, CellStructure):
+    def sample_next_arch(self, max_nodes: int) -> (str, ModelMicroCfg):
         while True:
             self.log_prob, action = self.policy.select_action()
             arch_struct = self.policy.generate_arch(action)

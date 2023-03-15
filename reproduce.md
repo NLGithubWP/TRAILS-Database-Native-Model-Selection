@@ -2,7 +2,7 @@ This is about how to reproduce the results.
 
 # Download
 
-1. The code is available at the https://anonymous.4open.science/r/Fast-AutoNAS-B7F4/
+1. The code is available at the https://anonymous.4open.science/r/FIRMEST-B7F4/
 2. The data is available at the https://drive.google.com/file/d/1I3_U22rKFxoYaYTfLLkzGWFXz8IxqHF2/view
 3. Download the dataset and extract them to `./result_base`
 

@@ -2,7 +2,8 @@
 import random
 
 from controller.core.sample import Sampler
-from search_space import SpaceWrapper
+from controller.core.sample import Sampler
+from search_space.core.space import SpaceWrapper
 from third_party.models import CellStructure
 
 

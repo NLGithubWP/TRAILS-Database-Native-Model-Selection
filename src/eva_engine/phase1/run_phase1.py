@@ -2,17 +2,18 @@ import json
 
 from common.constant import Config
 from common.structure import ModelAcquireData, ModelEvaData
-from controller import RegularizedEASampler
-from controller.controler import Controller
+from controller.controler import SampleController
+
 from eva_engine.phase1.evaluator import P1Evaluator
 from logger import logger
 from query_api.db_base import fetch_from_db
 from query_api.query_model_gt_acc_api import Gt201, Gt101
-from search_space import NasBench101Space, SpaceWrapper
 from torch.utils.data import DataLoader
-
-
+from controller import RegularizedEASampler
 # Run ms in online, with scoring and updating controller.
+from search_space.core.space import SpaceWrapper
+
+
 class RunPhase1:
 
     @staticmethod
@@ -49,7 +50,7 @@ class RunPhase1:
                                         population_size=self.args.population_size,
                                         sample_size=self.args.sample_size)
 
-        self.sampler = Controller(strategy)
+        self.sampler = SampleController(strategy)
         self.arch_generator = self.sampler.sample_next_arch(self.args.arch_size)
 
         # seq: init the phase 1 evaluator,
@@ -76,15 +77,8 @@ class RunPhase1:
                 self.sampler.fit_sampler(model_eva.model_id, model_eva.model_score, use_prue_score=True)
 
             # generate new model
-            arch_id, model_struc = self.arch_generator.__next__()
-            if self.search_space_ins.name == Config.NB101:
-                model_encoding = NasBench101Space.serialize_model_encoding(
-                    model_struc.original_matrix.tolist(),
-                    model_struc.original_ops)
-            elif self.search_space_ins.name == Config.NB201:
-                model_encoding = self.search_space_ins.archid_to_hash(arch_id)
-            else:
-                model_encoding, test_accuracy = None, None
+            arch_id, arch_micro = self.arch_generator.__next__()
+            model_encoding = self.search_space_ins.serialize_model_encoding(arch_micro)
 
             explored_n += 1
 

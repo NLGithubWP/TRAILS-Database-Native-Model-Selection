@@ -4,8 +4,9 @@ import sqlite3
 import traceback
 
 from common.constant import Config
-
-base_dir = os.path.join(os.getcwd(), "result_base/result_system/simulate")
+base_folder_dir = os.environ.get("base_dir")
+if base_folder_dir is None:base_folder_dir = os.getcwd()
+base_dir = os.path.join(base_folder_dir, "result_base/result_system/simulate")
 
 tf_smt_file_NB101C10 = os.path.join(base_dir, "TFMEM_101_c10_100run_8k_models_score_sum")
 

@@ -4,7 +4,7 @@
 import json
 import math
 
-file_name = "/Users/kevin/project_python/Fast-AutoNAS/result/CIFAR10_15625/vote_res/201_15625_c10_128_unionBest.json"
+file_name = "//result/CIFAR10_15625/vote_res/201_15625_c10_128_unionBest.json"
 with open(file_name, 'r') as readfile:
     dataBest = json.load(readfile)
 

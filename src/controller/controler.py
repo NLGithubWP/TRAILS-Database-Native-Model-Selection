@@ -3,7 +3,6 @@ import time
 
 from controller import RegularizedEASampler
 from controller.core.sample import Sampler
-from search_space import SpaceWrapper
 from third_party.models import CellStructure
 
 
@@ -52,7 +51,7 @@ def search_position(rank_list_m: list, new_item: ModelScore):
         return left
 
 
-class Controller(object):
+class SampleController(object):
     """
     Controller control the sample-score flow in the 1st phase.
     It records the results in the history.

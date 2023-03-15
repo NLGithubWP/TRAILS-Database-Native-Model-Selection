@@ -4,8 +4,6 @@ import argparse
 import calendar
 import os
 import time
-from eva_engine.run_ms import RunModelSelection
-from storage import dataset
 
 
 def default_args(parser):
@@ -31,31 +29,32 @@ def default_args(parser):
     parser.add_argument('--population_size', type=int, default=10, help="The learning rate for REINFORCE.")
     parser.add_argument('--sample_size', type=int, default=3, help="The momentum value for EMA.")
 
-    # define base dir, where it stores apis, datasets, logs, etc,
-    parser.add_argument('--base_dir', type=str, default=os.path.join(base_dir, "data"),
-                        help='path of data folder')
-
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='FastAutoNAS')
 
     # job config
     parser.add_argument('--device', type=str, default="cpu")
-    parser.add_argument('--log_name', type=str, default="main_T_100s")
+    parser.add_argument('--log_name', type=str, default="main_T_100s", help="file name to store the log")
+    parser.add_argument('--budget', type=int, default=250, help="Given budget, in second")
 
     # define search space,
     parser.add_argument('--search_space', type=str, default="nasbench201",
-                        help='search space to use, [nasbench101, nasbench201, ... ]')
+                        help='search space [nasbench101, nasbench201, ... ]')
 
     # define search space,
     parser.add_argument('--dataset', type=str, default='cifar10', help='[cifar10, cifar100, ImageNet16-120]')
     parser.add_argument('--num_labels', type=int, default=10, help='[10, 100, 120]')
 
     parser.add_argument('--api_loc', type=str, default="NAS-Bench-201-v1_1-096897.pth",
-                        help='which search space to use, ['
+                        help='which search space file to use, ['
                              'nasbench101: nasbench_only108.pkl'
                              'nasbench201: NAS-Bench-201-v1_1-096897.pth'
                              ' ... ]')
+
+    # define base dir, where it stores apis, datasets, logs, etc,
+    parser.add_argument('--base_dir', type=str, default="/Users/kevin/project_python/firmest_data/",
+                        help='path of data and result parent folder')
 
     default_args(parser)
     return parser.parse_args()
@@ -73,7 +72,7 @@ def run_with_time_budget(time_budget: float):
         test_batch_size=1,
         dataset=args.dataset,
         num_workers=1,
-        datadir=args.base_dir)
+        datadir=os.path.join(args.base_dir, "data"))
     args.num_labels = class_num
 
     rms = RunModelSelection(args.search_space, args.dataset, is_simulate=False)
@@ -83,12 +82,16 @@ def run_with_time_budget(time_budget: float):
 
 
 if __name__ == "__main__":
-    base_dir = os.getcwd()
+
     args = parse_arguments()
 
     # set the log name
     gmt = time.gmtime()
     ts = calendar.timegm(gmt)
     os.environ.setdefault("log_file_name", args.log_name+"_"+str(ts)+".log")
+    os.environ.setdefault("base_dir", args.base_dir)
 
-    run_with_time_budget(500)
+    from eva_engine.run_ms import RunModelSelection
+    from storage import dataset
+
+    run_with_time_budget(args.budget)

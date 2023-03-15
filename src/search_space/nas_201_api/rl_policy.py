@@ -1,5 +1,5 @@
 
-from search_space.core.rl_policy import RLPolicyBase
+from src.search_space.core.rl_policy import RLPolicyBase
 from copy import deepcopy
 import torch
 import torch.nn as nn

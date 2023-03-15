@@ -4,7 +4,7 @@ import os, pickle
 from tqdm import tqdm
 
 
-d = '/Users/kevin/project_python/Fast-AutoNAS/data/nasbench1/proxies'
+d = '/Users/kevin/project_python/FIRMEST/data/nasbench1/proxies'
 runs = []
 processed = set()
 
