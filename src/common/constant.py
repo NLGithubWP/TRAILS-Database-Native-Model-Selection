@@ -56,4 +56,7 @@ class Config:
     imgNet = "ImageNet16-120"
 
     # struct dataset
+    Frappe = "frappe"
+    Movielens = "movielens"
+    UCIDataset = "uci_diabetes"
 

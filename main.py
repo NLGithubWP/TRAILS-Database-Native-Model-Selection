@@ -5,9 +5,15 @@ import calendar
 import os
 import time
 
+from common.constant import Config
+from storage.structure_data_loader import libsvm_dataloader
+
 
 def default_args(parser):
-    parser.add_argument('--init_channels', default=16, type=int, help='output channels of stem convolution')
+
+    # search space configs for nasBench101
+    parser.add_argument('--num_layers', default=3, type=int, help='# hidden layers')
+
     # search space configs for nasBench101
     parser.add_argument('--num_stacks', default=3, type=int, help='#stacks of modules')
     parser.add_argument('--num_modules_per_stack', default=3, type=int, help='# modules per stack')
@@ -39,12 +45,8 @@ def parse_arguments():
     parser.add_argument('--budget', type=int, default=250, help="Given budget, in second")
 
     # define search space,
-    parser.add_argument('--search_space', type=str, default="nasbench201",
-                        help='search space [nasbench101, nasbench201, ... ]')
-
-    # define search space,
-    parser.add_argument('--dataset', type=str, default='cifar10', help='[cifar10, cifar100, ImageNet16-120]')
-    parser.add_argument('--num_labels', type=int, default=10, help='[10, 100, 120]')
+    parser.add_argument('--search_space', type=str, default="mlp_sp",
+                        help='search space [nasbench101, nasbench201, mlp_sp]')
 
     parser.add_argument('--api_loc', type=str, default="NAS-Bench-201-v1_1-096897.pth",
                         help='which search space file to use, ['
@@ -56,8 +58,39 @@ def parse_arguments():
     parser.add_argument('--base_dir', type=str, default="/Users/kevin/project_python/firmest_data/",
                         help='path of data and result parent folder')
 
+    # define search space,
+
+    parser.add_argument('--dataset', type=str, default='frappe',
+                        help='cifar10, cifar100, ImageNet16-120, '
+                             'frappe, movielens, uci_diabetes')
+
+    parser.add_argument('--init_channels', default=10, type=int, help='output channels of stem convolution')
+
+    parser.add_argument('--num_labels', type=int, default=2,
+                        help='[10, 100, 120],'
+                             '[2, 2, 2]')
+
     default_args(parser)
     return parser.parse_args()
+
+
+def generate_data_loader():
+    if args.dataset in [Config.c10, Config.c100, Config.imgNet]:
+        train_loader, val_loader, class_num = dataset.get_dataloader(
+            train_batch_size=1,
+            test_batch_size=1,
+            dataset=args.dataset,
+            num_workers=1,
+            datadir=os.path.join(args.base_dir, "data"))
+    else:
+        train_loader, val_loader, test_loader = libsvm_dataloader(
+            data_dir=os.path.join(args.base_dir, "data", "structure_data", args.dataset),
+            nfield=args.init_channels,
+            batch_size=512,
+            workers=1)
+        class_num = args.num_labels
+
+    return train_loader, val_loader, class_num
 
 
 def run_with_time_budget(time_budget: float):
@@ -67,12 +100,7 @@ def run_with_time_budget(time_budget: float):
     """
 
     # define dataLoader, and sample a mini-batch
-    train_loader, val_loader, class_num = dataset.get_dataloader(
-        train_batch_size=1,
-        test_batch_size=1,
-        dataset=args.dataset,
-        num_workers=1,
-        datadir=os.path.join(args.base_dir, "data"))
+    train_loader, val_loader, class_num = generate_data_loader()
     args.num_labels = class_num
 
     rms = RunModelSelection(args.search_space, args.dataset, is_simulate=False)
