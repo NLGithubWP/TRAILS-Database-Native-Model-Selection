@@ -4,26 +4,33 @@ from copy import copy
 from common.constant import Config
 from eva_engine.phase2.evaluator import P2Evaluator
 
-
 # successive halving
 from logger import logger
+from search_space.core.space import SpaceWrapper
+from torch.utils.data import DataLoader
 
 
 class SH:
     def __init__(self,
-                 search_space_name: str, dataset_name: str,
+                 search_space_ins: SpaceWrapper, dataset_name: str,
                  eta, time_per_epoch,
+                 train_loader: DataLoader = None,
+                 val_loader: DataLoader = None,
+                 args=None,
                  is_simulate: bool = True,
                  max_unit=200):
         """
-        :param search_space_name:
+        :param search_space_ins:
         :param dataset_name:
         :param time_per_epoch:
         :param is_simulate:
         :param eta: 1/mu to keep in each iteration
         :param max_unit:  for 201, it's 200, for 101 it's 108
         """
-        self._evaluator = P2Evaluator(search_space_name, dataset_name, is_simulate=is_simulate)
+        self._evaluator = P2Evaluator(search_space_ins, dataset_name,
+                                      is_simulate=is_simulate,
+                                      train_loader=train_loader, val_loader=val_loader,
+                                      args=args)
         self.eta = eta
         self.max_unit_per_model = max_unit
         self.time_per_epoch = time_per_epoch
@@ -95,7 +102,7 @@ class SH:
                 K = num_keep
         return min_budget_required
 
-    def run(self, U: int, candidates_m: list):
+    def run_phase2(self, U: int, candidates_m: list):
         """
         :param candidates_m: candidates lists
         :param U: min resource each candidate needs

@@ -1,4 +1,5 @@
 import os
+import random
 import sys
 import warnings
 import numpy as np
@@ -16,18 +17,22 @@ warnings.filterwarnings("error")
 
 
 class AvgrageMeter(object):
+    """Computes and stores the average and current value"""
+
     def __init__(self):
         self.reset()
 
     def reset(self):
+        self.val = 0
         self.avg = 0
         self.sum = 0
-        self.cnt = 0
+        self.count = 0
 
     def update(self, val, n=1):
+        self.val = val
         self.sum += val * n
-        self.cnt += n
-        self.avg = self.sum / self.cnt
+        self.count += n
+        self.avg = self.sum / self.count
 
 
 def accuracy(output, target, topk=(1, )):
@@ -275,14 +280,6 @@ def count_parameters(model):
     return sum([torch.numel(v) for v in model.parameters()])
 
 
-def save_checkpoint(state, is_best, save):
-    filename = os.path.join(save, 'checkpoint.pth.tar')
-    torch.save(state, filename)
-    if is_best:
-        best_filename = os.path.join(save, 'model_best.pth.tar')
-        shutil.copyfile(filename, best_filename)
-
-
 def save(model, model_path):
     torch.save(model.state_dict(), model_path)
 
@@ -385,4 +382,57 @@ class CrossEntropyLabelSmooth(nn.Module):
     targets = (1 - self.epsilon) * targets + self.epsilon / self.num_classes
     loss = (-targets * log_probs).mean(0).sum()
     return loss
+
+
+
+
+
+
+def roc_auc_compute_fn(y_pred, y_target):
+    """ IGNITE.CONTRIB.METRICS.ROC_AUC """
+    try:
+        from sklearn.metrics import roc_auc_score
+    except ImportError:
+        raise RuntimeError("This contrib module requires sklearn to be installed.")
+
+    if y_pred.requires_grad:
+        y_pred = y_pred.detach()
+
+    if y_target.is_cuda:
+        y_target = y_target.cpu()
+    if y_pred.is_cuda:
+        y_pred = y_pred.cpu()
+
+    y_true = y_target.numpy()
+    y_pred = y_pred.numpy()
+    try:
+        return roc_auc_score(y_true, y_pred)
+    except ValueError:
+        print('ValueError: Only one class present in y_true. ROC AUC score is not defined in that case.')
+        return 0.
+
+
+def load_checkpoint(args):
+    try:
+        return torch.load(args.resume)
+    except RuntimeError:
+        raise RuntimeError(f"Fail to load checkpoint at {args.resume}")
+
+
+def save_checkpoint(ckpt, is_best, file_dir, file_name='model.ckpt'):
+    if not os.path.exists(file_dir):
+        os.makedirs(file_dir)
+    ckpt_name = "{0}{1}".format(file_dir, file_name)
+    torch.save(ckpt, ckpt_name)
+    if is_best: shutil.copyfile(ckpt_name, "{0}{1}".format(file_dir, 'best_'+file_name))
+
+
+def seed_everything(seed=2022):
+    ''' [reference] https://gist.github.com/KirillVladimirov/005ec7f762293d2321385580d3dbe335 '''
+    random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.backends.cudnn.deterministic = True
 

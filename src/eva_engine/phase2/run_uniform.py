@@ -48,7 +48,7 @@ class UniformAllocation:
         """
         return K*U
 
-    def run(self, U: int, candidates_m: list):
+    def run_phase2(self, U: int, candidates_m: list):
         """
         :param U: mini unit computation for each modle
         :param candidates_m:

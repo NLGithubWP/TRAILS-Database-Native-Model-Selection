@@ -71,7 +71,7 @@ class SR:
                 K = cur_cand_num - 1
         return min_budget_required
 
-    def run(self, U: int, candidates_m: list):
+    def run_phase2(self, U: int, candidates_m: list):
         """
         :param candidates_m: candidates lists
         :param U: min resource each candidate needs

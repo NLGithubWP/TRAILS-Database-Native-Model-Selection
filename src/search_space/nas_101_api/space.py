@@ -15,7 +15,8 @@ from third_party.sp101_lib.model import NasBench101Network
 from third_party.sp101_lib.nb101_api import ModelSpec
 from search_space.nas_101_api.model_params import NB101MacroCfg
 from search_space.nas_101_api.rl_policy import RLPolicy101Topology
-
+import query_api.query_model_gt_acc_api as gt_api
+from torch.utils.data import DataLoader
 
 # Useful constants
 INPUT = 'input'
@@ -70,11 +71,6 @@ class NasBench101Space(SpaceWrapper):
         else:
             return "-1"
 
-    def micro_to_id(self, arch_struct: ModelMicroCfg) -> str:
-        assert isinstance(arch_struct, NB101MicroCfg)
-        arch_id = self._arch_to_id(arch_struct.spec)
-        return str(arch_id)
-
     @classmethod
     def serialize_model_encoding(cls, arch_micro: ModelMicroCfg) -> str:
         assert isinstance(arch_micro, NB101MicroCfg)
@@ -96,6 +92,17 @@ class NasBench101Space(SpaceWrapper):
                                    arch_macro.bn)
 
         return model
+
+    def profiling(self, dataset: str, dataloader: DataLoader = None, device: str = None, args=None) -> (float, float):
+        score_time_per_model = gt_api.guess_score_time(self.name, dataset)
+        train_time_per_epoch = gt_api.guess_train_one_epoch_time(self.name, dataset)
+        N_K_ratio = gt_api.profile_NK_trade_off(dataset)
+        return score_time_per_model, train_time_per_epoch, N_K_ratio
+
+    def micro_to_id(self, arch_struct: ModelMicroCfg) -> str:
+        assert isinstance(arch_struct, NB101MicroCfg)
+        arch_id = self._arch_to_id(arch_struct.spec)
+        return str(arch_id)
 
     def new_architecture(self, arch_id: str):
         # id -> hash

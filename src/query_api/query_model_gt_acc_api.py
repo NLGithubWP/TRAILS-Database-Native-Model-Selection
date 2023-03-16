@@ -34,10 +34,12 @@ def guess_train_one_epoch_time(search_space_m, dataset):
 def profile_NK_trade_off(dataset):
     if dataset == Config.c10:
         return 85
-    if dataset == Config.c100:
+    elif dataset == Config.c100:
         return 85
-    if dataset == Config.imgNet:
+    elif dataset == Config.imgNet:
         return 130
+    else:
+        return 80
 
 
 class Singleton(object):

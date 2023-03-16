@@ -1,6 +1,6 @@
 
 from abc import abstractmethod
-from torch import nn
+from torch.utils.data import DataLoader
 from search_space.core.model_params import ModelMacroCfg, ModelMicroCfg
 
 
@@ -27,6 +27,23 @@ class SpaceWrapper:
             arch_micro: micro setting for one architecture
         Returns:
         """
+        raise NotImplementedError
+
+    @abstractmethod
+    def profiling(self, dataset: str, dataloader: DataLoader = None, device: str = None, args=None) -> (float, float):
+        """
+        Profile the training and scoring time.
+        Args:
+            args:
+            device:
+            dataset:
+            dataloader:
+        Returns:
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def micro_to_id(self, arch_struct: ModelMicroCfg) -> str:
         raise NotImplementedError
 
     """init new architecture"""
@@ -93,19 +110,3 @@ class SpaceWrapper:
         :return:
         """
         raise NotImplementedError
-
-    # def copy_architecture(self, arch_id: str, architecture: nn.Module, new_bn: bool = True) -> nn.Module:
-    #     """
-    #     Copy an architecture by id, it creates an new architecture, and then load the static dict
-    #     :param arch_id:
-    #     :param architecture:
-    #     :return:
-    #     """
-    #     # arch_new_time = time.time()
-    #     self.update_bn_flag(new_bn)
-    #     new_architecture = self.new_architecture(arch_id)
-    #     # print("--in copy arch, time to new arch = " + str(time.time() - arch_new_time))
-    #     # arch_load_time = time.time()
-    #     # new_architecture.load_state_dict(architecture.state_dict(), strict=False)
-    #     # print("--in copy arch, time to load dic = " + str(time.time() - arch_load_time))
-    #     return new_architecture

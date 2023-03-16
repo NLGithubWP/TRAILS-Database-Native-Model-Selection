@@ -2,7 +2,6 @@
 
 
 import os
-
 from common.constant import Config
 from .core.space import SpaceWrapper
 
@@ -46,6 +45,22 @@ def init_search_space(args, loapi=None) -> SpaceWrapper:
         base_dir_folder = os.environ.get("base_dir")
         if base_dir_folder is None: base_dir_folder = os.getcwd()
         return NasBench201Space(os.path.join(base_dir_folder, "data",  args.api_loc), model_cfg)
+
+    elif args.search_space == Config.MLPSP:
+        from .mlp_api.space import MlpSpace
+        from .mlp_api.model_params import MlpMacroCfg
+        from .mlp_api.space import DEFAULT_LAYER_CHOICES_20
+        model_cfg = MlpMacroCfg(
+            args.init_channels,
+            args.num_layers,
+            args.num_labels,
+            DEFAULT_LAYER_CHOICES_20,
+            bn)
+
+        return MlpSpace(model_cfg)
+    else:
+        raise Exception
+
 
     # elif args.nasspace == 'nds_resnet':
     #     return NDS('ResNet')

@@ -11,6 +11,8 @@ from search_space.nas_201_api.model_params import NB201MacroCfg
 from search_space.utils.weight_initializers import init_net
 import random
 import ConfigSpace
+import query_api.query_model_gt_acc_api as gt_api
+from torch.utils.data import DataLoader
 
 
 class NB201MicroCfg(ModelMicroCfg):
@@ -37,11 +39,6 @@ class NasBench201Space(SpaceWrapper):
         super().__init__(modelCfg, Config.NB201)
         self.api = NASBench201API(api_loc)
 
-    def micro_to_id(self, arch_struct: ModelMicroCfg) -> str:
-        assert isinstance(arch_struct, NB201MicroCfg)
-        arch_id = self.api.query_index_by_arch(arch_struct.cell_struct)
-        return str(arch_id)
-
     @classmethod
     def serialize_model_encoding(cls, arch_micro: ModelMicroCfg) -> str:
         assert isinstance(arch_micro, NB201MicroCfg)
@@ -63,6 +60,17 @@ class NasBench201Space(SpaceWrapper):
             arch_macro.init_channels)
         init_net(architecture, arch_macro.init_w_type, arch_macro.init_b_type)
         return architecture
+
+    def micro_to_id(self, arch_struct: ModelMicroCfg) -> str:
+        assert isinstance(arch_struct, NB201MicroCfg)
+        arch_id = self.api.query_index_by_arch(arch_struct.cell_struct)
+        return str(arch_id)
+
+    def profiling(self, dataset: str, dataloader: DataLoader = None, device: str = None, args=None) -> (float, float):
+        score_time_per_model = gt_api.guess_score_time(self.name, dataset)
+        train_time_per_epoch = gt_api.guess_train_one_epoch_time(self.name, dataset)
+        N_K_ratio = gt_api.profile_NK_trade_off(dataset)
+        return score_time_per_model, train_time_per_epoch, N_K_ratio
 
     def new_architecture(self, arch_id: str):
         arch_hash = self.api[int(arch_id)]

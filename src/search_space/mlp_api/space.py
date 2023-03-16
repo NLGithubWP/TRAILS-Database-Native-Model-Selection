@@ -1,11 +1,16 @@
-import os
+
 import random
+import time
 from copy import deepcopy
-from common.constant import Config
+from torch import optim
+from common.constant import Config, CommonVars
+from eva_engine import evaluator_register
 from search_space.core.model_params import ModelMicroCfg, ModelMacroCfg
-from controller.core.sample import Sampler
+from search_space.core.space import SpaceWrapper
 from search_space.mlp_api.model_params import MlpMacroCfg
 import torch.nn as nn
+from torch.utils.data import DataLoader
+import query_api.query_model_gt_acc_api as gt_api
 
 # Useful constants
 DEFAULT_LAYER_CHOICES_20 = [8, 16, 24, 32, # 8
@@ -89,6 +94,65 @@ class MlpSpace(SpaceWrapper):
                   noutput=arch_macro.num_labels)
         return mlp
 
+    def profiling(self, dataset: str, dataloader: DataLoader = None, device: str = None, args=None) -> (float, float):
+        # pick the largest net to train
+        super_net = MLP(
+                  ninput=self.model_cfg.init_channels,
+                  hidden_layer_list=[DEFAULT_LAYER_CHOICES_20[-1]] * self.model_cfg.num_layers,
+                  dropout_rate=0,
+                  noutput=self.model_cfg.num_labels)
+
+        # get a random batch.
+        for batch_idx, batch in enumerate(dataloader):
+
+            target = batch['y']
+            batch['id'] = batch['id'].to(device)
+            batch['value'] = batch['value'].to(device)
+            target = target.to(device)
+            # .reshape(target.shape[0], self.model_cfg.num_labels).
+
+            # measure score time,
+            score_time_begin = time.time()
+            naswot_score, _ = evaluator_register[CommonVars.NAS_WOT].evaluate_wrapper(
+                arch=super_net,
+                device=device,
+                batch_data=batch['value'],
+                batch_labels=target)
+
+            score_time = time.time() - score_time_begin
+
+            # re-init hte net
+            del super_net
+            super_net = MLP(
+                ninput=self.model_cfg.init_channels,
+                hidden_layer_list=[DEFAULT_LAYER_CHOICES_20[-1]] * self.model_cfg.num_layers,
+                dropout_rate=0,
+                noutput=self.model_cfg.num_labels)
+
+            # optimizer
+            opt_metric = nn.CrossEntropyLoss(reduction='mean')
+            opt_metric = opt_metric.to(device)
+            optimizer = optim.Adam(super_net.parameters(), lr=args.lr)
+
+            # measure training for one epoch time
+            train_time_begin = time.time()
+            y = super_net(batch['value'])
+            loss = opt_metric(y, target)
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            train_time_iter = time.time() - train_time_begin
+
+            # todo: this is pre-defined by using img Dataset, suppose each epoch only train 200 iterations
+            score_time_per_model = score_time
+            train_time_per_epoch = train_time_iter * 200
+            N_K_ratio = gt_api.profile_NK_trade_off(dataset)
+            return score_time_per_model, train_time_per_epoch, N_K_ratio
+
+    def micro_to_id(self, arch_struct: ModelMicroCfg) -> str:
+        assert isinstance(arch_struct, MlpMicroCfg)
+        return str(arch_struct.hidden_layer_list)
+
     def new_architecture(self, arch_id: str):
         """
         Args:
@@ -112,7 +176,7 @@ class MlpSpace(SpaceWrapper):
         return mlp
 
     def __len__(self):
-        return self.model_cfg.layer_choices ** self.model_cfg.num_layers
+        return len(DEFAULT_LAYER_CHOICES_20) ** self.model_cfg.num_layers
 
     def get_arch_size(self, arch_micro: ModelMicroCfg) -> int:
         assert isinstance(arch_micro, MlpMicroCfg)
@@ -130,7 +194,7 @@ class MlpSpace(SpaceWrapper):
 
         arch_encod = []
         for _ in range(self.model_cfg.num_layers):
-            layer_size = random.choice(self.model_cfg.layer_choices)
+            layer_size = random.choice(DEFAULT_LAYER_CHOICES_20)
             arch_encod.append(layer_size)
 
         model_micro = MlpMicroCfg(arch_encod)
@@ -148,12 +212,20 @@ class MlpSpace(SpaceWrapper):
 
         # 2. choose size of the layer index.
         while True:
-            for ele in [8, -8, 16, -16, 128, -128]:
-                modified_layer_size = child_layer_list[chosen_hidden_layer_index] + ele
-                if modified_layer_size in DEFAULT_LAYER_CHOICES_20:
-                    child_layer_list[chosen_hidden_layer_index] = child_layer_list[chosen_hidden_layer_index] + ele
-                    new_model = MlpMicroCfg(child_layer_list)
-                    return str(new_model), new_model
+            cur_layer_size = child_layer_list[chosen_hidden_layer_index]
+            cur_index = DEFAULT_LAYER_CHOICES_20.index(cur_layer_size)
+
+            # right traverse
+            if cur_index + 1 <= len(DEFAULT_LAYER_CHOICES_20) - 1:
+                new_model = MlpMicroCfg(child_layer_list)
+                return str(new_model), new_model
+
+            # left traverse
+            elif cur_index - 1 <= len(DEFAULT_LAYER_CHOICES_20)-1:
+                new_model = MlpMicroCfg(child_layer_list)
+                return str(new_model), new_model
+            else:
+                raise Exception
 
 
 if __name__ == '__main__':
