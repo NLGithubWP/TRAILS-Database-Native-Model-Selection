@@ -30,7 +30,7 @@ class RunModelSelection:
         self.sh = None
 
         # instance of the search space.
-        self.search_space_ins = init_search_space(args)
+        self.search_space_ins = init_search_space(self.args)
 
     def select_model_simulate(self, budget: float, run_id: int = 0, only_phase1: bool = False, run_workers: int = 1):
         """
@@ -75,7 +75,7 @@ class RunModelSelection:
 
     def select_model_online(self, budget: float,
                             train_loader: DataLoader, val_loader: DataLoader,
-                            args=None, only_phase1: bool = False, run_workers: int = 1):
+                            only_phase1: bool = False, run_workers: int = 1):
         """
         Select model online
         :param train_loader:
@@ -95,7 +95,7 @@ class RunModelSelection:
         logger.info("1. [FIRMEST] Begin profiling.")
 
         # 0. profiling dataset and search space, get t1 and t2
-        self.search_space_ins.profiling(self.dataset, train_loader, args.device)
+        self.search_space_ins.profiling(self.dataset, train_loader, self.args.device)
         self.sh = SH(search_space_ins=self.search_space_ins,
                      dataset_name=self.dataset,
                      eta=self.eta,
@@ -103,7 +103,7 @@ class RunModelSelection:
                      is_simulate=self.is_simulate,
                      train_loader=train_loader,
                      val_loader=val_loader,
-                     args=args)
+                     args=self.args)
 
         t1 = self.score_time_per_model
         t2 = self.train_time_per_epoch
@@ -124,7 +124,7 @@ class RunModelSelection:
         # lazy loading the search space if needed.
 
         # run phase-1 to get the K models.
-        p1_runner = RunPhase1(args, K, N, self.search_space_ins, train_loader)
+        p1_runner = RunPhase1(self.args, K, N, self.search_space_ins, train_loader)
         K_models = p1_runner.run_phase1_seq()
 
         logger.info("4. [FIRMEST] Begin to run phase2: refinement phase")

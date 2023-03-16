@@ -52,8 +52,12 @@ class NB101MicroCfg(ModelMicroCfg):
 class NasBench101Space(SpaceWrapper):
     def __init__(self, api_loc: str, modelCfg: NB101MacroCfg, loapi: LocalApi):
         super().__init__(modelCfg, Config.NB101)
-        self.api = nb101_api.NASBench(api_loc)
+        self.api_loc = api_loc
         self.loapi = loapi
+        self.api = None
+
+    def load(self):
+        self.api = nb101_api.NASBench(api_loc)
 
     def _is_valid(self, new_spec: ModelSpec):
         return self.api.is_valid(new_spec) and self._is_scored(new_spec)

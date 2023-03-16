@@ -103,8 +103,8 @@ def run_with_time_budget(time_budget: float):
     train_loader, val_loader, class_num = generate_data_loader()
     args.num_labels = class_num
 
-    rms = RunModelSelection(args.search_space, args.dataset, is_simulate=False)
-    best_arch, _, _, _ = rms.select_model_online(time_budget, train_loader, args)
+    rms = RunModelSelection(args.search_space, args.dataset, args, is_simulate=False)
+    best_arch, _, _, _ = rms.select_model_online(time_budget, train_loader, val_loader)
 
     return best_arch
 

@@ -30,6 +30,14 @@ class SpaceWrapper:
         raise NotImplementedError
 
     @abstractmethod
+    def load(self):
+        """
+        Load the related API
+        Returns:
+        """
+        raise NotImplementedError
+
+    @abstractmethod
     def profiling(self, dataset: str, dataloader: DataLoader = None, device: str = None, args=None) -> (float, float):
         """
         Profile the training and scoring time.

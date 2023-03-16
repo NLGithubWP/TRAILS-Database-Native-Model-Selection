@@ -75,6 +75,9 @@ class MlpSpace(SpaceWrapper):
     def __init__(self, modelCfg: MlpMacroCfg):
         super().__init__(modelCfg, Config.MLPSP)
 
+    def load(self):
+        pass
+
     @classmethod
     def serialize_model_encoding(cls, arch_micro: ModelMicroCfg) -> str:
         assert isinstance(arch_micro, MlpMicroCfg)

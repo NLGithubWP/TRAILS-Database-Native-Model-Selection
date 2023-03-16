@@ -37,7 +37,11 @@ class NasBench201Space(SpaceWrapper):
 
     def __init__(self, api_loc: str, modelCfg: NB201MacroCfg):
         super().__init__(modelCfg, Config.NB201)
+        self.api_loc = api_loc
         self.api = NASBench201API(api_loc)
+
+    def load(self):
+        self.api = NASBench201API(self.api_loc)
 
     @classmethod
     def serialize_model_encoding(cls, arch_micro: ModelMicroCfg) -> str:
