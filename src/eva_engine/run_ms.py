@@ -20,12 +20,6 @@ class RunModelSelection:
         self.search_space_name = search_space_name
         self.dataset = dataset
 
-        # profiling result
-        self.train_time_per_epoch = None
-        self.score_time_per_model = None
-        # this is confirmed by exp on NB201+c10
-        self.N_K_ratio = None
-
         # p2 evaluator
         self.sh = None
 
@@ -42,23 +36,18 @@ class RunModelSelection:
         """
 
         # 0. profiling dataset and search space, get t1 and t2
-        # 0. profiling dataset and search space, get t1 and t2
 
-        self.search_space_ins.profiling(self.dataset)
+        score_time_per_model, train_time_per_epoch, N_K_ratio = self.search_space_ins.profiling(self.dataset)
         self.sh = SH(search_space_ins=self.search_space_ins,
                      dataset_name=self.dataset,
                      eta=self.eta,
-                     time_per_epoch=self.train_time_per_epoch,
+                     time_per_epoch=train_time_per_epoch,
                      is_simulate=self.is_simulate)
-
-        t1 = self.score_time_per_model
-        t2 = self.train_time_per_epoch
-        N_K_ratio = self.N_K_ratio
 
         # 1. run coordinator to schedule
         K, U, N, B1_planed_time, B2_planed_time, B2_all_epoch = coordinator.schedule(self.sh, budget,
-                                                                                     t1,
-                                                                                     t2,
+                                                                                     score_time_per_model,
+                                                                                     train_time_per_epoch,
                                                                                      run_workers,
                                                                                      self.search_space_name,
                                                                                      N_K_ratio,
@@ -71,7 +60,7 @@ class RunModelSelection:
         best_arch, B2_actual_epoch_use = self.sh.run_phase2(U, K_models)
         # print("best model returned from Phase2 = ", K_models)
 
-        return best_arch, B1_actual_time_use + B2_actual_epoch_use * t2, B1_planed_time + B2_planed_time, B2_all_epoch
+        return best_arch, B1_actual_time_use + B2_actual_epoch_use * train_time_per_epoch, B1_planed_time + B2_planed_time, B2_all_epoch
 
     def select_model_online(self, budget: float,
                             train_loader: DataLoader, val_loader: DataLoader,
@@ -95,25 +84,24 @@ class RunModelSelection:
         logger.info("1. [FIRMEST] Begin profiling.")
 
         # 0. profiling dataset and search space, get t1 and t2
-        self.search_space_ins.profiling(self.dataset, train_loader, self.args.device)
+        score_time_per_model, train_time_per_epoch, N_K_ratio = self.search_space_ins.profiling(self.dataset,
+                                                                                                train_loader,
+                                                                                                self.args)
+
         self.sh = SH(search_space_ins=self.search_space_ins,
                      dataset_name=self.dataset,
                      eta=self.eta,
-                     time_per_epoch=self.train_time_per_epoch,
+                     time_per_epoch=train_time_per_epoch,
                      is_simulate=self.is_simulate,
                      train_loader=train_loader,
                      val_loader=val_loader,
                      args=self.args)
 
-        t1 = self.score_time_per_model
-        t2 = self.train_time_per_epoch
-        N_K_ratio = self.N_K_ratio
-
         # 1. run coordinator to schedule
         logger.info("2. [FIRMEST] Begin scheduling...")
         K, U, N, B1_planed_time, B2_planed_time, B2_all_epoch = coordinator.schedule(self.sh, budget,
-                                                                                     t1,
-                                                                                     t2,
+                                                                                     score_time_per_model,
+                                                                                     train_time_per_epoch,
                                                                                      run_workers,
                                                                                      self.search_space_name,
                                                                                      N_K_ratio,

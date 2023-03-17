@@ -40,7 +40,6 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description='FastAutoNAS')
 
     # job config
-    parser.add_argument('--device', type=str, default="cpu")
     parser.add_argument('--log_name', type=str, default="main_T_100s", help="file name to store the log")
     parser.add_argument('--budget', type=int, default=250, help="Given budget, in second")
 
@@ -70,6 +69,14 @@ def parse_arguments():
                         help='[10, 100, 120],'
                              '[2, 2, 2]')
 
+    # those are for training
+    parser.add_argument('--device', type=str, default="cpu")
+    parser.add_argument('--iter_per_epoch', type=int, default=200, help="Iteration per epoch")
+    parser.add_argument('--batch_size', type=int, default=512, help='batch size')
+    parser.add_argument('--lr', type=float, default=0.002, help="learning reate")
+
+    parser.add_argument('--report_freq', type=int, default=30, help='report frequency')
+
     default_args(parser)
     return parser.parse_args()
 
@@ -77,8 +84,8 @@ def parse_arguments():
 def generate_data_loader():
     if args.dataset in [Config.c10, Config.c100, Config.imgNet]:
         train_loader, val_loader, class_num = dataset.get_dataloader(
-            train_batch_size=1,
-            test_batch_size=1,
+            train_batch_size=args.batch_size,
+            test_batch_size=args.batch_size,
             dataset=args.dataset,
             num_workers=1,
             datadir=os.path.join(args.base_dir, "data"))
@@ -86,7 +93,7 @@ def generate_data_loader():
         train_loader, val_loader, test_loader = libsvm_dataloader(
             data_dir=os.path.join(args.base_dir, "data", "structure_data", args.dataset),
             nfield=args.init_channels,
-            batch_size=512,
+            batch_size=args.batch_size,
             workers=1)
         class_num = args.num_labels
 

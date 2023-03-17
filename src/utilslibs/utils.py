@@ -2,6 +2,8 @@ import os
 import random
 import sys
 import warnings
+
+import numpy
 import numpy as np
 import torch
 import shutil
@@ -33,6 +35,12 @@ class AvgrageMeter(object):
         self.sum += val * n
         self.count += n
         self.avg = self.sum / self.count
+
+
+def get_correct_num(y, target):
+
+    pred_label = torch.argmax(y, dim=1)
+    return (target == pred_label).sum().item()
 
 
 def accuracy(output, target, topk=(1, )):
@@ -382,11 +390,6 @@ class CrossEntropyLabelSmooth(nn.Module):
     targets = (1 - self.epsilon) * targets + self.epsilon / self.num_classes
     loss = (-targets * log_probs).mean(0).sum()
     return loss
-
-
-
-
-
 
 def roc_auc_compute_fn(y_pred, y_target):
     """ IGNITE.CONTRIB.METRICS.ROC_AUC """

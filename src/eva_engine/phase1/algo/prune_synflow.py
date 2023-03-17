@@ -51,7 +51,7 @@ class SynFlowEvaluator(Evaluator):
 
         # add one dimension to feature dim, [1] + [3, 32, 32] = [1, 3, 32, 32]
         feature_dim = list(batch_data[0, :].shape)
-        batch_data = torch.ones([1] + feature_dim).double().to(device)
+        batch_data = torch.ones([10] + feature_dim).double().to(device)
 
         output = arch.forward(batch_data)
 

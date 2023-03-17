@@ -192,7 +192,7 @@ if __name__ == '__main__':
 
     # define dataLoader, and sample a mini-batch
     train_loader, val_loader, class_num = dataset.get_dataloader(
-        train_batch_size=1,
+        32,
         test_batch_size=1,
         dataset=args.dataset,
         num_workers=args.num_data_workers,

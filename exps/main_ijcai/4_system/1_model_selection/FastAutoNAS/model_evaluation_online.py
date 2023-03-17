@@ -19,7 +19,7 @@ def load_201_cfg(model_acquire: ModelAcquireData, bn: bool):
 def load_dataset(args):
     # define dataLoader, and sample a mini-batch
     train_loader, val_loader, class_num = dataset.get_dataloader(
-        train_batch_size=1,
+        32,
         test_batch_size=1,
         dataset=args.dataset,
         num_workers=1,

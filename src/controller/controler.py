@@ -109,7 +109,7 @@ class SampleController(object):
         for alg in alg_score:
             final_score += float(alg_score[alg])
         index = binary_insert_get_rank(self.history, ModelScore(model_id, final_score))
-        self.vote_model_id.insert(index, int(model_id))
+        self.vote_model_id.insert(index, model_id)
         return final_score
 
     def re_rank_model_id(self, model_id: str, alg_score: dict):
@@ -128,7 +128,7 @@ class SampleController(object):
         for ele in model_new_rank_score.keys():
             model_new_rank_score[ele] = model_new_rank_score[ele] / current_explored_models
 
-        self.vote_model_id = [int(k) for k, v in sorted(model_new_rank_score.items(), key=lambda item: item[1])]
+        self.vote_model_id = [k for k, v in sorted(model_new_rank_score.items(), key=lambda item: item[1])]
         new_rank_score = model_new_rank_score[model_id]
         return new_rank_score
 

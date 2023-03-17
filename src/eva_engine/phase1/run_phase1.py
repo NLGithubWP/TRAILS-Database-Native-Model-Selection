@@ -54,8 +54,7 @@ class RunPhase1:
         self.arch_generator = self.sampler.sample_next_arch(self.args.arch_size)
 
         # seq: init the phase 1 evaluator,
-        self._evaluator = P1Evaluator(args.device, args.num_labels, args.search_space,
-                                      train_loader=train_loader)
+        self._evaluator = P1Evaluator(self.args, train_loader=train_loader)
 
         # return K models
         self.K = K

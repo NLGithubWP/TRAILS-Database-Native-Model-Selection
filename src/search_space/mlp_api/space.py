@@ -2,6 +2,8 @@
 import random
 import time
 from copy import deepcopy
+
+import torch
 from torch import optim
 from common.constant import Config, CommonVars
 from eva_engine import evaluator_register
@@ -13,6 +15,8 @@ from torch.utils.data import DataLoader
 import query_api.query_model_gt_acc_api as gt_api
 
 # Useful constants
+from utilslibs import utils
+
 DEFAULT_LAYER_CHOICES_20 = [8, 16, 24, 32, # 8
                             48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, # 16
                             384, 512]
@@ -36,7 +40,7 @@ class MlpMicroCfg(ModelMicroCfg):
 
 class MLP(nn.Module):
 
-    def __init__(self, ninput: int, hidden_layer_list: list, dropout_rate: float, noutput: int = 1):
+    def __init__(self, ninput: int, hidden_layer_list: list, dropout_rate: float, noutput: int, use_bn: bool = True):
         super().__init__()
         """
         Args:
@@ -49,7 +53,8 @@ class MLP(nn.Module):
         # 1. all hidden layers.
         for index, layer_size in enumerate(hidden_layer_list):
             layers.append(nn.Linear(ninput, layer_size))
-            layers.append(nn.BatchNorm1d(layer_size))
+            if use_bn:
+                layers.append(nn.BatchNorm1d(layer_size))
             layers.append(nn.ReLU())
             layers.append(nn.Dropout(p=dropout_rate))
             ninput = layer_size
@@ -63,12 +68,27 @@ class MLP(nn.Module):
         # 3. generate the MLP
         self.mlp = nn.Sequential(*layers)
 
+        self._initialize_weights()
+
     def forward(self, x):
         """
         :param x:   FloatTensor B*ninput
         :return:    FloatTensor B*nouput
         """
         return self.mlp(x)
+
+    def _initialize_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.BatchNorm2d):
+                m.weight.data.fill_(1)
+                m.bias.data.zero_()
+            elif isinstance(m, nn.Linear):
+                n = m.weight.size(1)
+                m.weight.data.normal_(0, 0.01)
+                m.bias.data.zero_()
+
+    def reset_zero_grads(self):
+        self.zero_grad()
 
 
 class MlpSpace(SpaceWrapper):
@@ -94,63 +114,80 @@ class MlpSpace(SpaceWrapper):
         mlp = MLP(ninput=arch_macro.init_channels,
                   hidden_layer_list=arch_micro.hidden_layer_list,
                   dropout_rate=0,
-                  noutput=arch_macro.num_labels)
+                  noutput=arch_macro.num_labels,
+                  use_bn=arch_macro.bn)
         return mlp
 
-    def profiling(self, dataset: str, dataloader: DataLoader = None, device: str = None, args=None) -> (float, float):
-        # pick the largest net to train
-        super_net = MLP(
-                  ninput=self.model_cfg.init_channels,
-                  hidden_layer_list=[DEFAULT_LAYER_CHOICES_20[-1]] * self.model_cfg.num_layers,
-                  dropout_rate=0,
-                  noutput=self.model_cfg.num_labels)
+    def profiling(self, dataset: str, dataloader: DataLoader = None, args=None) -> (float, float, int):
+        device = args.device
 
         # get a random batch.
-        for batch_idx, batch in enumerate(dataloader):
+        batch = iter(dataloader).__next__()
+        target = batch['y'].type(torch.LongTensor)
+        batch['id'] = batch['id'].to(device)
+        batch['value'] = batch['value'].to(device)
+        target = target.to(device)
+        # .reshape(target.shape[0], self.model_cfg.num_labels).
 
-            target = batch['y']
-            batch['id'] = batch['id'].to(device)
-            batch['value'] = batch['value'].to(device)
-            target = target.to(device)
-            # .reshape(target.shape[0], self.model_cfg.num_labels).
+        # pick the largest net to train
+        super_net = MLP(
+            ninput=self.model_cfg.init_channels,
+            hidden_layer_list=[DEFAULT_LAYER_CHOICES_20[-1]] * self.model_cfg.num_layers,
+            dropout_rate=0,
+            noutput=self.model_cfg.num_labels)
 
-            # measure score time,
-            score_time_begin = time.time()
-            naswot_score, _ = evaluator_register[CommonVars.NAS_WOT].evaluate_wrapper(
-                arch=super_net,
-                device=device,
-                batch_data=batch['value'],
-                batch_labels=target)
+        # measure score time,
+        score_time_begin = time.time()
+        # naswot_score, _ = evaluator_register[CommonVars.NAS_WOT].evaluate_wrapper(
+        #     arch=super_net,
+        #     device=device,
+        #     batch_data=batch['value'],
+        #     batch_labels=target)
 
-            score_time = time.time() - score_time_begin
+        # re-init hte net
+        del super_net
+        super_net = MLP(
+            ninput=self.model_cfg.init_channels,
+            hidden_layer_list=[DEFAULT_LAYER_CHOICES_20[-1]] * self.model_cfg.num_layers,
+            dropout_rate=0,
+            noutput=self.model_cfg.num_labels,
+            use_bn=False)
 
-            # re-init hte net
-            del super_net
-            super_net = MLP(
-                ninput=self.model_cfg.init_channels,
-                hidden_layer_list=[DEFAULT_LAYER_CHOICES_20[-1]] * self.model_cfg.num_layers,
-                dropout_rate=0,
-                noutput=self.model_cfg.num_labels)
+        synflow_score, _ = evaluator_register[CommonVars.PRUNE_SYNFLOW].evaluate_wrapper(
+            arch=super_net,
+            device=device,
+            batch_data=batch['value'],
+            batch_labels=target)
 
-            # optimizer
-            opt_metric = nn.CrossEntropyLoss(reduction='mean')
-            opt_metric = opt_metric.to(device)
-            optimizer = optim.Adam(super_net.parameters(), lr=args.lr)
+        score_time = time.time() - score_time_begin
 
-            # measure training for one epoch time
-            train_time_begin = time.time()
-            y = super_net(batch['value'])
-            loss = opt_metric(y, target)
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-            train_time_iter = time.time() - train_time_begin
+        # re-init hte net
+        del super_net
+        super_net = MLP(
+            ninput=self.model_cfg.init_channels,
+            hidden_layer_list=[DEFAULT_LAYER_CHOICES_20[-1]] * self.model_cfg.num_layers,
+            dropout_rate=0,
+            noutput=self.model_cfg.num_labels)
 
-            # todo: this is pre-defined by using img Dataset, suppose each epoch only train 200 iterations
-            score_time_per_model = score_time
-            train_time_per_epoch = train_time_iter * 200
-            N_K_ratio = gt_api.profile_NK_trade_off(dataset)
-            return score_time_per_model, train_time_per_epoch, N_K_ratio
+        # optimizer
+        opt_metric = nn.CrossEntropyLoss(reduction='mean')
+        opt_metric = opt_metric.to(device)
+        optimizer = optim.Adam(super_net.parameters(), lr=args.lr)
+
+        # measure training for one epoch time
+        train_time_begin = time.time()
+        y = super_net(batch['value'])
+        loss = opt_metric(y, target)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        train_time_iter = time.time() - train_time_begin
+
+        # todo: this is pre-defined by using img Dataset, suppose each epoch only train 200 iterations
+        score_time_per_model = score_time
+        train_time_per_epoch = train_time_iter * args.iter_per_epoch
+        N_K_ratio = gt_api.profile_NK_trade_off(dataset)
+        return score_time_per_model, train_time_per_epoch, N_K_ratio
 
     def micro_to_id(self, arch_struct: ModelMicroCfg) -> str:
         assert isinstance(arch_struct, MlpMicroCfg)
@@ -218,17 +255,20 @@ class MlpSpace(SpaceWrapper):
             cur_layer_size = child_layer_list[chosen_hidden_layer_index]
             cur_index = DEFAULT_LAYER_CHOICES_20.index(cur_layer_size)
 
-            # right traverse
-            if cur_index + 1 <= len(DEFAULT_LAYER_CHOICES_20) - 1:
-                new_model = MlpMicroCfg(child_layer_list)
-                return str(new_model), new_model
-
-            # left traverse
-            elif cur_index - 1 <= len(DEFAULT_LAYER_CHOICES_20)-1:
-                new_model = MlpMicroCfg(child_layer_list)
-                return str(new_model), new_model
+            # replace the chosen layer size,
+            if cur_index - 1 < 0:
+                # only goes right
+                child_layer_list[chosen_hidden_layer_index] = DEFAULT_LAYER_CHOICES_20[cur_index + 1]
+            elif cur_index + 1 > len(DEFAULT_LAYER_CHOICES_20) - 1:
+                # only goes left
+                child_layer_list[chosen_hidden_layer_index] = DEFAULT_LAYER_CHOICES_20[cur_index - 1]
             else:
-                raise Exception
+                # randomly select a direction
+                options = random.choice([1, -1])
+                child_layer_list[chosen_hidden_layer_index] = DEFAULT_LAYER_CHOICES_20[cur_index + options]
+
+            new_model = MlpMicroCfg(child_layer_list)
+            return str(new_model), new_model
 
 
 if __name__ == '__main__':

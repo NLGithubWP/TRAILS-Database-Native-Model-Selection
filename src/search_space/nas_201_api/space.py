@@ -70,7 +70,7 @@ class NasBench201Space(SpaceWrapper):
         arch_id = self.api.query_index_by_arch(arch_struct.cell_struct)
         return str(arch_id)
 
-    def profiling(self, dataset: str, dataloader: DataLoader = None, device: str = None, args=None) -> (float, float):
+    def profiling(self, dataset: str, dataloader: DataLoader = None, args=None) -> (float, float, int):
         score_time_per_model = gt_api.guess_score_time(self.name, dataset)
         train_time_per_epoch = gt_api.guess_train_one_epoch_time(self.name, dataset)
         N_K_ratio = gt_api.profile_NK_trade_off(dataset)
