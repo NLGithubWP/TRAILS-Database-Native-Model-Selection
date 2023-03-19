@@ -2,6 +2,7 @@ import math
 import time
 from abc import abstractmethod
 import torch
+from torch import nn
 
 
 class Evaluator:
@@ -9,12 +10,12 @@ class Evaluator:
         pass
 
     @abstractmethod
-    def evaluate(self, arch, pre_defined, batch_data: torch.tensor, batch_labels: torch.tensor) -> float:
+    def evaluate(self, arch: nn.Module, device, batch_data: object, batch_labels: torch.Tensor) -> float:
         """
         Score each architecture with predefined architecture and data
         :param arch: architecture to be scored
-        :param pre_defined: pre-defined evaluation args
-        :param batch_data: a mini batch of data, [ batch_size, channel, W, H ]
+        :param device:  cpu or gpu
+        :param batch_data: a mini batch of data, [ batch_size, channel, W, H ] or dict for structure data
         :param batch_labels: a mini batch of labels
         :return: score
         """

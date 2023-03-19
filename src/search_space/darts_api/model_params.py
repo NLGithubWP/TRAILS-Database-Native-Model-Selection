@@ -13,7 +13,7 @@ class DartsCfg(ModelMacroCfg):
         :param auxiliary:
         :param max_sample: max number of architectures used
         '''
-        super(DartsCfg, self).__init__(bn, init_channels)
+        super(DartsCfg, self).__init__(init_channels)
         self.dataset = dataset
 
         if dataset == 'cifar10':

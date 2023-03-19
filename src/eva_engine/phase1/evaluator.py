@@ -52,7 +52,8 @@ class P1Evaluator:
             batch = iter(self.train_loader).__next__()
             target = batch['y'].type(torch.LongTensor)
             batch['id'] = batch['id'].to(self.device)
-            mini_batch = batch['value'].to(self.device)
+            batch['value'] = batch['value'].to(self.device)
+            mini_batch = batch
             mini_batch_targets = target.to(self.device)
 
         if self.search_space == Config.NB101:
@@ -65,13 +66,13 @@ class P1Evaluator:
             raise NotImplementedError
 
         # 1. Score NasWot
-        # new_model = cfg_load_method(model_encoding, bn=True)
-        # new_model = new_model.to(self.device)
-        # naswot_score, _ = evaluator_register[CommonVars.NAS_WOT].evaluate_wrapper(
-        #     arch=new_model,
-        #     device=self.device,
-        #     batch_data=mini_batch,
-        #     batch_labels=mini_batch_targets)
+        new_model = cfg_load_method(model_encoding, bn=True)
+        new_model = new_model.to(self.device)
+        naswot_score, _ = evaluator_register[CommonVars.NAS_WOT].evaluate_wrapper(
+            arch=new_model,
+            device=self.device,
+            batch_data=mini_batch,
+            batch_labels=mini_batch_targets)
 
         # 2. Score SynFlow
         new_model = cfg_load_method(model_encoding, bn=False)
@@ -83,41 +84,40 @@ class P1Evaluator:
             batch_labels=mini_batch_targets)
 
         # 3. combine the result and return
-        model_score = {CommonVars.NAS_WOT: 0,
+        model_score = {CommonVars.NAS_WOT: naswot_score,
                        CommonVars.PRUNE_SYNFLOW: synflow_score}
 
         return model_score
 
     def _load_101_cfg(self, model_encoding: str, bn: bool):
         model_cfg = NB101MacroCfg(
-            bn=bn,
             init_channels=16,
             num_stacks=3,
             num_modules_per_stack=3,
             num_labels=self.num_labels
         )
         model_micro = NasBench101Space.deserialize_model_encoding(model_encoding)
-        return NasBench101Space.new_arch_scratch(model_cfg, model_micro)
+        return NasBench101Space.new_arch_scratch(model_cfg, model_micro, bn)
 
     def _load_201_cfg(self, model_encoding: str, bn: bool):
         model_cfg = NB201MacroCfg(
-            bn=bn,
             init_channels=16,
             init_b_type="none",
             init_w_type="none",
             num_labels=self.num_labels
         )
         model_micro = NasBench201Space.deserialize_model_encoding(model_encoding)
-        return NasBench201Space.new_arch_scratch(model_cfg, model_micro)
+        return NasBench201Space.new_arch_scratch(model_cfg, model_micro, bn)
 
     def _load_mlp_cfg(self, model_encoding: str, bn: bool):
         model_cfg = MlpMacroCfg(
-            bn=bn,
-            input_fea_dims=self.args.init_channels,
-            layer_choices=DEFAULT_LAYER_CHOICES_20,
+            nfield=self.args.nfield,
+            nfeat=self.args.nfeat,
+            nemb=self.args.nemb,
             num_layers=self.args.num_layers,
-            num_labels=self.num_labels
+            num_labels=self.num_labels,
+            layer_choices=DEFAULT_LAYER_CHOICES_20,
         )
         model_micro = MlpSpace.deserialize_model_encoding(model_encoding)
-        return MlpSpace.new_arch_scratch(model_cfg, model_micro)
+        return MlpSpace.new_arch_scratch(model_cfg, model_micro, bn)
 

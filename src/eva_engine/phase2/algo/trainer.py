@@ -73,7 +73,7 @@ class ModelTrainer:
             num_total += val_loader.batch_size
 
             # 2.2 train
-            y = model(batch['value'])
+            y = model(batch)
             loss = opt_metric(y, target)
             optimizer.zero_grad()
             loss.backward()
@@ -108,7 +108,7 @@ class ModelTrainer:
 
             # 3.2 conduct the evaluation
             with torch.no_grad():
-                y = model(batch['value'])
+                y = model(batch)
                 loss = opt_metric(y, target)
 
                 loss_avg.update(loss.item(), target.size(0))

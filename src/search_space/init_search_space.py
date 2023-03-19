@@ -12,12 +12,6 @@ def init_search_space(args, loapi=None) -> SpaceWrapper:
     :param loapi: Local score API, records all scored arch, 101 use it to detect which arch is scored.
     :return:
     """
-
-    if args.bn == 1:
-        bn = True
-    else:
-        bn = False
-
     if args.search_space == Config.NB101:
         from .nas_101_api.model_params import NB101MacroCfg
         from .nas_101_api.space import NasBench101Space
@@ -25,8 +19,7 @@ def init_search_space(args, loapi=None) -> SpaceWrapper:
             args.init_channels,
             args.num_stacks,
             args.num_modules_per_stack,
-            args.num_labels,
-            bn)
+            args.num_labels)
 
         base_dir_folder = os.environ.get("base_dir")
         if base_dir_folder is None: base_dir_folder = os.getcwd()
@@ -39,8 +32,7 @@ def init_search_space(args, loapi=None) -> SpaceWrapper:
             args.init_channels,
             args.init_b_type,
             args.init_w_type,
-            args.num_labels,
-            bn)
+            args.num_labels)
 
         base_dir_folder = os.environ.get("base_dir")
         if base_dir_folder is None: base_dir_folder = os.getcwd()
@@ -51,11 +43,12 @@ def init_search_space(args, loapi=None) -> SpaceWrapper:
         from .mlp_api.model_params import MlpMacroCfg
         from .mlp_api.space import DEFAULT_LAYER_CHOICES_20
         model_cfg = MlpMacroCfg(
-            args.init_channels,
+            args.nfield,
+            args.nfeat,
+            args.nemb,
             args.num_layers,
             args.num_labels,
-            DEFAULT_LAYER_CHOICES_20,
-            bn)
+            DEFAULT_LAYER_CHOICES_20)
 
         return MlpSpace(model_cfg)
     else:

@@ -10,16 +10,13 @@ class NWTEvaluator(Evaluator):
     def __init__(self):
         super().__init__()
 
-    def evaluate(self, arch: nn.Module, device, batch_data: torch.tensor, batch_labels: torch.tensor) -> float:
+    def evaluate(self, arch: nn.Module, device, batch_data: object, batch_labels: torch.Tensor) -> float:
         """
         This is implementation of paper "Neural Architecture Search without Training"
         The score takes 5 steps:
             1. for ech example, get the binary vector for each relu layer, where 1 means x > 0, 0 otherwise,
             2. calculate K = [Na - hamming_distance (ci, cj) for each ci, cj]
         """
-
-        # add new attribute K
-        arch.K = np.zeros((batch_data.shape[0], batch_data.shape[0]))
 
         def counting_forward_hook(module, inp, out):
             """
@@ -47,6 +44,17 @@ class NWTEvaluator(Evaluator):
             # sum up all relu module's result
             arch.K = arch.K + K.cpu().numpy() + K2.cpu().numpy()
 
+        # add new attribute K
+
+        # this is for the structure data,
+        if isinstance(batch_data, dict):
+            arch.K = np.zeros((batch_data["value"].shape[0], batch_data["value"].shape[0]))
+        elif isinstance(batch_data, torch.Tensor):
+            arch.K = np.zeros((batch_data.shape[0], batch_data.shape[0]))
+            batch_data = batch_data.to(device)
+        else:
+            raise
+
         # def counting_backward_hook(module, inp, out):
         #     module.visited_backwards = True
 
@@ -56,12 +64,10 @@ class NWTEvaluator(Evaluator):
                 module.register_forward_hook(counting_forward_hook)
                 # module.register_backward_hook(counting_backward_hook)
 
-        batch_data2 = torch.clone(batch_data)
-
         # self.get_batch_jacobian(arch, batch_data, batch_labels)
 
         # run a forward computation
-        arch(batch_data2.to(device))
+        arch(batch_data)
 
         # calculate s = log|K|
         s, ld = np.linalg.slogdet(arch.K)

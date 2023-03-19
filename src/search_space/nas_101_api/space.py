@@ -85,7 +85,7 @@ class NasBench101Space(SpaceWrapper):
         return NB101MicroCfg.builder(model_encoding)
 
     @classmethod
-    def new_arch_scratch(cls, arch_macro: ModelMacroCfg, arch_micro: ModelMicroCfg):
+    def new_arch_scratch(cls, arch_macro: ModelMacroCfg, arch_micro: ModelMicroCfg, bn :bool = True):
         assert isinstance(arch_micro, NB101MicroCfg)
         assert isinstance(arch_macro, NB101MacroCfg)
         model = NasBench101Network(arch_micro.spec,

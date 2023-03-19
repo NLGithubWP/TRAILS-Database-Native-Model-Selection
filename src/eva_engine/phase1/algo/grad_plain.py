@@ -11,7 +11,7 @@ class GradPlainEvaluator(Evaluator):
     def __init__(self):
         super().__init__()
 
-    def evaluate(self, arch: nn.Module, device, batch_data: torch.tensor, batch_labels: torch.tensor) -> float:
+    def evaluate(self, arch: nn.Module, device, batch_data: object, batch_labels: torch.Tensor) -> float:
         """
         The score takes 3 steps:
             1. Run a forward & backward pass to calculate gradient of loss on weight, grad_w = d_loss/d_w

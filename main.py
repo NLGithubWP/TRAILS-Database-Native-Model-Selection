@@ -12,7 +12,7 @@ from storage.structure_data_loader import libsvm_dataloader
 def default_args(parser):
 
     # search space configs for nasBench101
-    parser.add_argument('--num_layers', default=3, type=int, help='# hidden layers')
+    parser.add_argument('--num_layers', default=4, type=int, help='# hidden layers')
 
     # search space configs for nasBench101
     parser.add_argument('--num_stacks', default=3, type=int, help='#stacks of modules')
@@ -23,9 +23,6 @@ def default_args(parser):
                         help='weight initialization (before pruning) type [none, xavier, kaiming, zero]')
     parser.add_argument('--init_b_type', type=str, default='none',
                         help='bias initialization (before pruning) type [none, xavier, kaiming, zero]')
-
-    parser.add_argument('--bn', type=int, default=1,
-                        help="If use batch norm in network 1 = true, 0 = false")
 
     # nas101 doesn't need this, while 201 need it.
     parser.add_argument('--arch_size', type=int, default=3,
@@ -58,7 +55,6 @@ def parse_arguments():
                         help='path of data and result parent folder')
 
     # define search space,
-
     parser.add_argument('--dataset', type=str, default='frappe',
                         help='cifar10, cifar100, ImageNet16-120, '
                              'frappe, movielens, uci_diabetes')
@@ -74,6 +70,11 @@ def parse_arguments():
     parser.add_argument('--iter_per_epoch', type=int, default=200, help="Iteration per epoch")
     parser.add_argument('--batch_size', type=int, default=512, help='batch size')
     parser.add_argument('--lr', type=float, default=0.002, help="learning reate")
+
+    # MLP model config
+    parser.add_argument('--nfeat', type=int, default=5500, help='the number of features')
+    parser.add_argument('--nfield', type=int, default=10, help='the number of fields')
+    parser.add_argument('--nemb', type=int, default=10, help='embedding size')
 
     parser.add_argument('--report_freq', type=int, default=30, help='report frequency')
 

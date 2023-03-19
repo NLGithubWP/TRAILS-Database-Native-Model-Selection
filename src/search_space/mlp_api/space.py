@@ -2,7 +2,6 @@
 import random
 import time
 from copy import deepcopy
-
 import torch
 from torch import optim
 from common.constant import Config, CommonVars
@@ -15,7 +14,6 @@ from torch.utils.data import DataLoader
 import query_api.query_model_gt_acc_api as gt_api
 
 # Useful constants
-from utilslibs import utils
 
 DEFAULT_LAYER_CHOICES_20 = [8, 16, 24, 32, # 8
                             48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, # 16
@@ -38,9 +36,25 @@ class MlpMicroCfg(ModelMicroCfg):
         return "-".join(str(x) for x in self.hidden_layer_list)
 
 
+class Embedding(nn.Module):
+
+    def __init__(self, nfeat, nemb):
+        super().__init__()
+        self.embedding = nn.Embedding(nfeat, nemb)
+        nn.init.xavier_uniform_(self.embedding.weight)
+
+    def forward(self, x: dict):
+        """
+        :param x:   {'id': LongTensor B*F, 'value': FloatTensor B*F}
+        :return:    embeddings B*F*E
+        """
+        emb = self.embedding(x['id'])                           # B*F*E
+        return emb * x['value'].unsqueeze(2)                    # B*F*E
+
+
 class MLP(nn.Module):
 
-    def __init__(self, ninput: int, hidden_layer_list: list, dropout_rate: float, noutput: int, use_bn: bool = True):
+    def __init__(self, ninput: int, hidden_layer_list: list, dropout_rate: float, noutput: int, use_bn: bool):
         super().__init__()
         """
         Args:
@@ -49,6 +63,7 @@ class MLP(nn.Module):
             dropout_rate: if use drop out
             noutput: number of labels. 
         """
+
         layers = list()
         # 1. all hidden layers.
         for index, layer_size in enumerate(hidden_layer_list):
@@ -83,12 +98,41 @@ class MLP(nn.Module):
                 m.weight.data.fill_(1)
                 m.bias.data.zero_()
             elif isinstance(m, nn.Linear):
-                n = m.weight.size(1)
-                m.weight.data.normal_(0, 0.01)
-                m.bias.data.zero_()
+                nn.init.xavier_uniform_(m.weight)
+                # m.weight.data.normal_(0, 0.01)
+                # m.bias.data.zero_()
 
     def reset_zero_grads(self):
         self.zero_grad()
+
+
+class DNNModel(torch.nn.Module):
+    """
+    Model:  Deep Neural Networks
+    """
+
+    def __init__(self, nfield: int, nfeat: int, nemb: int,
+                 hidden_layer_list: list, dropout_rate: float,
+                 noutput: int, use_bn: bool = True):
+        """
+        Args:
+            nfield: the number of fields
+            nfeat: the number of features
+            nemb: embedding size
+        """
+        super().__init__()
+        self.embedding = Embedding(nfeat, nemb)
+        self.mlp_ninput = nfield*nemb
+        self.mlp = MLP(self.mlp_ninput, hidden_layer_list, dropout_rate, noutput, use_bn)
+
+    def forward(self, x):
+        """
+        :param x:   {'id': LongTensor B*F, 'value': FloatTensor B*F}
+        :return:    y of size B, Regression and Classification (+sigmoid)
+        """
+        x_emb = self.embedding(x)                           # B*F*E
+        y = self.mlp(x_emb.view(-1, self.mlp_ninput))       # B*label
+        return y.squeeze(1)
 
 
 class MlpSpace(SpaceWrapper):
@@ -108,14 +152,18 @@ class MlpSpace(SpaceWrapper):
         return MlpMicroCfg.builder(model_encoding)
 
     @classmethod
-    def new_arch_scratch(cls, arch_macro: ModelMacroCfg, arch_micro: ModelMicroCfg):
+    def new_arch_scratch(cls, arch_macro: ModelMacroCfg, arch_micro: ModelMicroCfg, bn: bool = True):
         assert isinstance(arch_micro, MlpMicroCfg)
         assert isinstance(arch_macro, MlpMacroCfg)
-        mlp = MLP(ninput=arch_macro.init_channels,
-                  hidden_layer_list=arch_micro.hidden_layer_list,
-                  dropout_rate=0,
-                  noutput=arch_macro.num_labels,
-                  use_bn=arch_macro.bn)
+        mlp = DNNModel(
+            nfield=arch_macro.nfield,
+            nfeat=arch_macro.nfeat,
+            nemb=arch_macro.nemb,
+            hidden_layer_list=arch_micro.hidden_layer_list,
+            dropout_rate=0,
+            noutput=arch_macro.num_labels,
+            use_bn=bn,
+        )
         return mlp
 
     def profiling(self, dataset: str, dataloader: DataLoader = None, args=None) -> (float, float, int):
@@ -130,24 +178,28 @@ class MlpSpace(SpaceWrapper):
         # .reshape(target.shape[0], self.model_cfg.num_labels).
 
         # pick the largest net to train
-        super_net = MLP(
-            ninput=self.model_cfg.init_channels,
+        super_net = DNNModel(
+            nfield=args.nfield,
+            nfeat=args.nfeat,
+            nemb=args.nemb,
             hidden_layer_list=[DEFAULT_LAYER_CHOICES_20[-1]] * self.model_cfg.num_layers,
             dropout_rate=0,
             noutput=self.model_cfg.num_labels)
 
         # measure score time,
         score_time_begin = time.time()
-        # naswot_score, _ = evaluator_register[CommonVars.NAS_WOT].evaluate_wrapper(
-        #     arch=super_net,
-        #     device=device,
-        #     batch_data=batch['value'],
-        #     batch_labels=target)
+        naswot_score, _ = evaluator_register[CommonVars.NAS_WOT].evaluate_wrapper(
+            arch=super_net,
+            device=device,
+            batch_data=batch,
+            batch_labels=target)
 
         # re-init hte net
         del super_net
-        super_net = MLP(
-            ninput=self.model_cfg.init_channels,
+        super_net = DNNModel(
+            nfield=args.nfield,
+            nfeat=args.nfeat,
+            nemb=args.nemb,
             hidden_layer_list=[DEFAULT_LAYER_CHOICES_20[-1]] * self.model_cfg.num_layers,
             dropout_rate=0,
             noutput=self.model_cfg.num_labels,
@@ -156,15 +208,17 @@ class MlpSpace(SpaceWrapper):
         synflow_score, _ = evaluator_register[CommonVars.PRUNE_SYNFLOW].evaluate_wrapper(
             arch=super_net,
             device=device,
-            batch_data=batch['value'],
+            batch_data=batch,
             batch_labels=target)
 
         score_time = time.time() - score_time_begin
 
         # re-init hte net
         del super_net
-        super_net = MLP(
-            ninput=self.model_cfg.init_channels,
+        super_net = DNNModel(
+            nfield=args.nfield,
+            nfeat=args.nfeat,
+            nemb=args.nemb,
             hidden_layer_list=[DEFAULT_LAYER_CHOICES_20[-1]] * self.model_cfg.num_layers,
             dropout_rate=0,
             noutput=self.model_cfg.num_labels)
@@ -176,7 +230,7 @@ class MlpSpace(SpaceWrapper):
 
         # measure training for one epoch time
         train_time_begin = time.time()
-        y = super_net(batch['value'])
+        y = super_net(batch)
         loss = opt_metric(y, target)
         optimizer.zero_grad()
         loss.backward()
@@ -201,18 +255,24 @@ class MlpSpace(SpaceWrapper):
         """
         arch_micro = MlpSpace.deserialize_model_encoding(arch_id)
         assert isinstance(arch_micro, MlpMicroCfg)
-        mlp = MLP(ninput=self.model_cfg.init_channels,
-                  hidden_layer_list=arch_micro.hidden_layer_list,
-                  dropout_rate=0,
-                  noutput=self.model_cfg.num_labels)
+        mlp = DNNModel(
+            nfield=self.model_cfg.nfield,
+            nfeat=self.model_cfg.nfeat,
+            nemb=self.model_cfg.nemb,
+            hidden_layer_list=arch_micro.hidden_layer_list,
+            dropout_rate=0,
+            noutput=self.model_cfg.num_labels)
         return mlp
 
     def new_architecture_with_micro_cfg(self, arch_micro: ModelMicroCfg):
         assert isinstance(arch_micro, MlpMicroCfg)
-        mlp = MLP(ninput=self.model_cfg.init_channels,
-                  hidden_layer_list=arch_micro.hidden_layer_list,
-                  dropout_rate=0,
-                  noutput=self.model_cfg.num_labels)
+        mlp = DNNModel(
+            nfield=self.model_cfg.nfield,
+            nfeat=self.model_cfg.nfeat,
+            nemb=self.model_cfg.nemb,
+            hidden_layer_list=arch_micro.hidden_layer_list,
+            dropout_rate=0,
+            noutput=self.model_cfg.num_labels)
         return mlp
 
     def __len__(self):

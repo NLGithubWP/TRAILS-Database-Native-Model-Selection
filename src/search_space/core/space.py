@@ -20,7 +20,7 @@ class SpaceWrapper:
         raise NotImplementedError
 
     @classmethod
-    def new_arch_scratch(cls, arch_macro: ModelMacroCfg, arch_micro: ModelMicroCfg):
+    def new_arch_scratch(cls, arch_macro: ModelMacroCfg, arch_micro: ModelMicroCfg, bn: bool = True):
         """
         Args:
             arch_macro: macro setting for one architecture
