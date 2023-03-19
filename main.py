@@ -38,7 +38,7 @@ def parse_arguments():
 
     # job config
     parser.add_argument('--log_name', type=str, default="main_T_100s", help="file name to store the log")
-    parser.add_argument('--budget', type=int, default=250, help="Given budget, in second")
+    parser.add_argument('--budget', type=int, default=300, help="Given budget, in second")
 
     # define search space,
     parser.add_argument('--search_space', type=str, default="mlp_sp",

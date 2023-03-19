@@ -43,19 +43,22 @@ class SynFlowEvaluator(Evaluator):
                 if 'weight_mask' not in name:
                     param.mul_(signs[name])
 
-        # this is for the structure data,
-        if isinstance(batch_data, torch.Tensor):
-            feature_dim = list(batch_data[0, :].shape)
-            # add one dimension to feature dim, [1] + [3, 32, 32] = [1, 3, 32, 32]
-            batch_data = torch.ones([1] + feature_dim).double().to(device)
-
         # record signs of all params
         signs = linearize(arch)
 
         # 2. Compute gradients with input of one dummy example ( 1-vector with dimension [1, c, h, w] )
         arch.double()
 
-        output = arch.forward(batch_data)
+        # this is for the structure data,
+        if isinstance(batch_data, torch.Tensor):
+            feature_dim = list(batch_data[0, :].shape)
+            # add one dimension to feature dim, [1] + [3, 32, 32] = [1, 3, 32, 32]
+            batch_data = torch.ones([1] + feature_dim).double().to(device)
+            output = arch.forward(batch_data)
+        else:
+            # this is for the embedding data,
+            batch_data = arch.generate_all_ones_embedding().to(device)
+            output = arch.forward_wo_embedding(batch_data)
 
         # 3.R = sum(output)
         torch.sum(output).backward()

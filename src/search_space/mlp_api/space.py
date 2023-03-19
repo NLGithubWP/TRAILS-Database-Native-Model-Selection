@@ -125,6 +125,22 @@ class DNNModel(torch.nn.Module):
         self.mlp_ninput = nfield*nemb
         self.mlp = MLP(self.mlp_ninput, hidden_layer_list, dropout_rate, noutput, use_bn)
 
+    def run_all_ones_embedding(self, x):
+        x_emb = self.embedding(x)  # B*F*E
+        y = self.mlp(x_emb.view(-1, self.mlp_ninput))  # B*lab
+
+    def generate_all_ones_embedding(self):
+        """
+        Only for the MLP
+        Returns:
+        """
+        batch_data = torch.ones(1, self.mlp_ninput).double()
+        return batch_data
+
+    def forward_wo_embedding(self, x):
+        y = self.mlp(x)  # B*label
+        return y.squeeze(1)
+
     def forward(self, x):
         """
         :param x:   {'id': LongTensor B*F, 'value': FloatTensor B*F}
@@ -227,6 +243,10 @@ class MlpSpace(SpaceWrapper):
         opt_metric = nn.CrossEntropyLoss(reduction='mean')
         opt_metric = opt_metric.to(device)
         optimizer = optim.Adam(super_net.parameters(), lr=args.lr)
+        scheduler = optim.lr_scheduler.CosineAnnealingLR(
+            optimizer,
+            T_max=args.iter_per_epoch,  # Maximum number of iterations.
+            eta_min=1e-4)  # Minimum learning rate.
 
         # measure training for one epoch time
         train_time_begin = time.time()
@@ -235,6 +255,7 @@ class MlpSpace(SpaceWrapper):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
+        scheduler.step()
         train_time_iter = time.time() - train_time_begin
 
         # todo: this is pre-defined by using img Dataset, suppose each epoch only train 200 iterations
