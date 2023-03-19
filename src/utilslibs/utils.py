@@ -1,6 +1,8 @@
+import math
 import os
 import random
 import sys
+import time
 import warnings
 
 import numpy
@@ -16,6 +18,16 @@ import torchvision.datasets as dset
 import torch.nn as nn
 
 warnings.filterwarnings("error")
+
+
+def timeSince(since=None, s=None):
+    if s is None:
+        s = int(time.time() - since)
+    m = math.floor(s / 60)
+    s %= 60
+    h = math.floor(m / 60)
+    m %= 60
+    return '%dh %dm %ds' %(h, m, s)
 
 
 class AvgrageMeter(object):

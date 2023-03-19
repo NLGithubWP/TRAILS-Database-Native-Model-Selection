@@ -124,10 +124,7 @@ class DNNModel(torch.nn.Module):
         self.embedding = Embedding(nfeat, nemb)
         self.mlp_ninput = nfield*nemb
         self.mlp = MLP(self.mlp_ninput, hidden_layer_list, dropout_rate, noutput, use_bn)
-
-    def run_all_ones_embedding(self, x):
-        x_emb = self.embedding(x)  # B*F*E
-        y = self.mlp(x_emb.view(-1, self.mlp_ninput))  # B*lab
+        self.sigmoid = nn.Sigmoid()
 
     def generate_all_ones_embedding(self):
         """
@@ -148,6 +145,7 @@ class DNNModel(torch.nn.Module):
         """
         x_emb = self.embedding(x)                           # B*F*E
         y = self.mlp(x_emb.view(-1, self.mlp_ninput))       # B*label
+        y = self.sigmoid(y)
         return y.squeeze(1)
 
 

@@ -206,7 +206,7 @@ def one_run_bohb(used_space, dataBest, alg_name):
         min_bandwidth=args.min_bandwidth,
     )
 
-    results = bohb.run(args.num_arch_each_run, min_n_workers=num_workers)
+    results = run(args.num_arch_each_run, min_n_workers=num_workers)
 
     bohb.shutdown(shutdown_workers=True)
     NS.shutdown()

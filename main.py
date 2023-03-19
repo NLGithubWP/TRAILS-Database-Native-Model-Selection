@@ -61,7 +61,7 @@ def parse_arguments():
 
     parser.add_argument('--init_channels', default=10, type=int, help='output channels of stem convolution')
 
-    parser.add_argument('--num_labels', type=int, default=2,
+    parser.add_argument('--num_labels', type=int, default=1,
                         help='[10, 100, 120],'
                              '[2, 2, 2]')
 
@@ -70,6 +70,8 @@ def parse_arguments():
     parser.add_argument('--iter_per_epoch', type=int, default=200, help="Iteration per epoch")
     parser.add_argument('--batch_size', type=int, default=512, help='batch size')
     parser.add_argument('--lr', type=float, default=0.002, help="learning reate")
+    parser.add_argument('--patience', type=int, default=1, help='number of epochs for stopping training')
+    parser.add_argument('--eval_freq', type=int, default=10000, help='max number of batches to train per epoch')
 
     # MLP model config
     parser.add_argument('--nfeat', type=int, default=5500, help='the number of features')
@@ -93,7 +95,7 @@ def generate_data_loader():
     else:
         train_loader, val_loader, test_loader = libsvm_dataloader(
             data_dir=os.path.join(args.base_dir, "data", "structure_data", args.dataset),
-            nfield=args.init_channels,
+            nfield=args.nfield,
             batch_size=args.batch_size,
             workers=1)
         class_num = args.num_labels

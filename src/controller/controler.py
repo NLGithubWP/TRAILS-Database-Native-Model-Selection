@@ -68,7 +68,7 @@ class SampleController(object):
 
         self.history = []
 
-    def sample_next_arch(self, max_nodes: int) -> (str, CellStructure):
+    def sample_next_arch(self, max_nodes: int = 5) -> (str, CellStructure):
         """
         Return a generator
         :param max_nodes:

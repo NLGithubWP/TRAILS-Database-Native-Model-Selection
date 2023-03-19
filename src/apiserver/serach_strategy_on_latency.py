@@ -302,4 +302,4 @@ if __name__ == "__main__":
     target = get_target_latency()
 
     logger.info("start server")
-    app.run(host="0.0.0.0", port=args.controller_port, debug=False, access_log=False)
+    run(host="0.0.0.0", port=args.controller_port, debug=False, access_log=False)

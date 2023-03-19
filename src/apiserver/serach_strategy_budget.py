@@ -117,4 +117,4 @@ if __name__ == "__main__":
     used_search_space = search_space.init_search_space(args)
 
     logger.info("start server")
-    app.run(host="0.0.0.0", port=args.controller_port, debug=False, access_log=False)
+    run(host="0.0.0.0", port=args.controller_port, debug=False, access_log=False)

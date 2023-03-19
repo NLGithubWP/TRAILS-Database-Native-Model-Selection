@@ -197,7 +197,7 @@ def one_run_bohb(used_space, alg_name, loapi):
         min_bandwidth=args.min_bandwidth,
     )
 
-    results = bohb.run(args.num_arch_each_run, min_n_workers=num_workers)
+    results = run(args.num_arch_each_run, min_n_workers=num_workers)
 
     bohb.shutdown(shutdown_workers=True)
     NS.shutdown()
@@ -303,7 +303,7 @@ def one_run_bohb_vote(used_space, loapi, vote_com):
         min_bandwidth=args.min_bandwidth,
     )
 
-    results = bohb.run(args.num_arch_each_run, min_n_workers=num_workers)
+    results = run(args.num_arch_each_run, min_n_workers=num_workers)
 
     bohb.shutdown(shutdown_workers=True)
     NS.shutdown()

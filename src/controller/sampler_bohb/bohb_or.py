@@ -150,7 +150,7 @@ def main(xargs, api):
         min_bandwidth=xargs.min_bandwidth,
     )
 
-    results = bohb.run(xargs.n_iters, min_n_workers=num_workers)
+    results = run(xargs.n_iters, min_n_workers=num_workers)
 
     bohb.shutdown(shutdown_workers=True)
     NS.shutdown()

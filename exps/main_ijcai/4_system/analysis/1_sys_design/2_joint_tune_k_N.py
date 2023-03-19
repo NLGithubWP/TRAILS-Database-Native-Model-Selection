@@ -106,7 +106,7 @@ if __name__ == "__main__":
                             each_b2.append(-1)
                         else:
                             arch_id, candidates_all, curr_time = fetch_from_db(used_space, used_dataset, run_id, B1)
-                            best_arch, B2_used = sh.run(U, candidates_all[-k:])
+                            best_arch, B2_used = run(U, candidates_all[-k:])
                             assert B2_used == B2_planed, f"when time_min = {time_min}, U={U}, k = {k}" \
                                                          f" differs in {B2_used-B2_planed}"
                             acc_sh_v, _ = fgt.get_ground_truth(best_arch, dataset=used_dataset)

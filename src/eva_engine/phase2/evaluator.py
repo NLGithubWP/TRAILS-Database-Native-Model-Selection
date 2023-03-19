@@ -63,10 +63,11 @@ class P2Evaluator:
         """
         acc, _ = ModelTrainer.fully_train_arch(search_space_ins=self.search_space_ins,
                                                arch_id=cand,
-                                               dataset=self.dataset,
+                                               use_test_acc=False,
                                                epoch_num=epoch_per_model,
                                                train_loader=self.train_loader,
                                                val_loader=self.val_loader,
+                                               test_loader=self.val_loader,
                                                args=self.args)
 
         return acc
