@@ -76,7 +76,7 @@ class SampleController(object):
         """
         return self.search_strategy.sample_next_arch(max_nodes)
 
-    def fit_sampler(self, arch_id, alg_score, use_prue_score: bool = False):
+    def fit_sampler(self, arch_id: str, alg_score: dict, use_prue_score: bool = False):
         """
 
         :param arch_id:

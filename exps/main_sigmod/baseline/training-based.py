@@ -40,16 +40,17 @@ def parse_arguments():
 
     # those are for training
     parser.add_argument('--device', type=str, default="cpu")
-    parser.add_argument('--iter_per_epoch', type=int, default=None,
-                        help="None, or some number, Iteration per epoch, it is controlled by scheduler")
+
     parser.add_argument('--batch_size', type=int, default=512, help='batch size')
     parser.add_argument('--lr', type=float, default=0.002, help="learning reate")
     parser.add_argument('--patience', type=int, default=1, help='number of epochs for stopping training')
-    parser.add_argument('--eval_freq', type=int, default=1, help='max number of batches to train per epoch')
+    # parser.add_argument('--eval_freq', type=int, default=1, help='max number of batches to train per epoch')
 
     parser.add_argument('--N', type=int, default=5000, help='How many arch to train')
 
-    parser.add_argument('--epoch', type=int, default=100, help='number of maximum epochs')
+    parser.add_argument('--epoch', type=int, default=2, help='number of maximum epochs')
+    parser.add_argument('--iter_per_epoch', type=int, default=None,
+                        help="None, or some number, Iteration per epoch, it is controlled by scheduler")
 
     # MLP model config
     parser.add_argument('--num_layers', default=4, type=int, help='# hidden layers')
@@ -82,7 +83,7 @@ if __name__ == "__main__":
     search_space_ins = init_search_space(args)
     search_space_ins.load()
 
-    # seq: init the search strategy and controller,
+    # 1. seq: init the search strategy and controller,
     strategy = RegularizedEASampler(search_space_ins,
                                     population_size=args.population_size,
                                     sample_size=args.sample_size)
@@ -90,31 +91,39 @@ if __name__ == "__main__":
     sampler = SampleController(strategy)
     arch_generator = sampler.sample_next_arch()
 
-    explored_n = 0
-
-    model_eva = ModelEvaData()
-
+    # 1. data loader
     train_loader, val_loader, test_loader = libsvm_dataloader(
         data_dir=os.path.join(args.base_dir, "data", "structure_data", args.dataset),
         nfield=args.nfield,
         batch_size=args.batch_size,
         workers=1)
 
+    explored_n = 0
+    model_eva = ModelEvaData()
+
+    base_line_log = {args.dataset: {}}
     while explored_n < args.N:
+        if explored_n > 0:
+            sampler.fit_sampler(model_eva.model_id, model_eva.model_score, use_prue_score=True)
 
-        sampler.fit_sampler(model_eva.model_id, model_eva.model_score, use_prue_score=True)
         explored_n += 1
-
         arch_id, arch_micro = arch_generator.__next__()
+        f1score, _, train_log = ModelTrainer.fully_train_arch(
+               search_space_ins=search_space_ins,
+               arch_id=arch_id,
+               use_test_acc=True,
+               epoch_num=args.epoch,
+               train_loader=train_loader,
+               val_loader=val_loader,
+               test_loader=test_loader,
+               args=args)
 
-        acc, _ = ModelTrainer.fully_train_arch(search_space_ins=search_space_ins,
-                                               arch_id=arch_id,
-                                               use_test_acc=True,
-                                               epoch_num=args.epoch,
-                                               train_loader=train_loader,
-                                               val_loader=val_loader,
-                                               test_loader=test_loader,
-                                               args=args)
+        # update the shared model eval res
+        model_eva.model_id = str(arch_id)
+        model_eva.model_score = {"f1score": f1score}
+
+        base_line_log[args.dataset][arch_id] = train_log
+
 
 
 

@@ -21,7 +21,7 @@ class ModelTrainer:
                          train_loader: DataLoader,
                          val_loader: DataLoader,
                          test_loader: DataLoader,
-                         args):
+                         args) -> (float, float, dict):
         """
         Args:
             search_space_ins:
@@ -54,7 +54,8 @@ class ModelTrainer:
 
         # for multiple classification
         # opt_metric = nn.CrossEntropyLoss(reduction='mean')
-        opt_metric = nn.BCEWithLogitsLoss(reduction='mean')
+        # opt_metric = nn.BCEWithLogitsLoss(reduction='mean')
+        opt_metric = nn.BCELoss(reduction='mean')
         opt_metric = opt_metric.to(device)
         optimizer = optim.Adam(model.parameters(), lr=lr)
         scheduler = optim.lr_scheduler.CosineAnnealingLR(
@@ -71,6 +72,7 @@ class ModelTrainer:
         prob_all = []
 
         patience_cnt = 0
+        info_dic = {}
         for epoch in range(epoch_num):
             logger.info(f'Epoch [{epoch:3d}/{epoch_num:3d}]')
             # train and eval
@@ -90,6 +92,10 @@ class ModelTrainer:
 
             label_all.extend(label_per_epoch)
             prob_all.extend(prob_per_epoch)
+
+            # log
+            f1_res = f1_score(label_all, prob_all)
+            info_dic[epoch] = {"f1score": f1_res, 'time_since_begin': time.time() - start_time}
 
             # record best aue and save checkpoint
             if valid_auc >= best_valid_auc:
@@ -112,7 +118,7 @@ class ModelTrainer:
 
         f1_res = f1_score(label_all, prob_all)
         logger.info(f' ----- model id: {arch_id}, F1-Score : {f1_res} Total running time: {utils.timeSince(since=start_time)}-----')
-        return f1_res, time.time() - start_time
+        return f1_res, time.time() - start_time, info_dic
 
     #  train one epoch of train/val/test
     @classmethod
@@ -130,6 +136,7 @@ class ModelTrainer:
 
         for batch_idx, batch in enumerate(data_loader):
             # if suer set this, then only train fix number of iteras
+            # stop training current epoch for evaluation
             if namespace == 'train' and iter_per_epoch is not None and batch_idx >= iter_per_epoch:
                 break
 
@@ -167,9 +174,6 @@ class ModelTrainer:
                 logger.info(f'Epoch [{epoch:3d}/{args.epoch_num}][{batch_idx:3d}/{len(data_loader)}]\t'
                             f'{time_avg.val:.3f} ({time_avg.avg:.3f}) AUC {auc_avg.val:4f} ({auc_avg.avg:4f}) '
                             f'Loss {loss_avg.val:8.4f} ({loss_avg.avg:8.4f})')
-
-            # stop training current epoch for evaluation
-            if batch_idx >= args.eval_freq: break
 
         logger.info(f'{namespace}\tTime {utils.timeSince(s=time_avg.sum):>12s} '
                     f'AUC {auc_avg.avg:8.4f} Loss {loss_avg.avg:8.4f}')
