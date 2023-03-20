@@ -1,0 +1,24 @@
+
+
+
+
+python exps/main_sigmod/baseline/training-based.py \
+    --log_name=baseline_train_based \
+    --search_space=mlp_sp \
+    --base_dir=/home/shaofeng/naili/firmest_data/ \
+    --dataset=frappe \
+    --num_labels=1 \
+    --device=cuda:0 \
+    --epoch=10 \
+    --N=10
+
+
+python exps/main_sigmod/baseline/training-based.py \
+    --log_name=baseline_train_based \
+    --search_space=mlp_sp \
+    --base_dir=/Users/kevin/project_python/firmest_data/ \
+    --dataset=frappe \
+    --num_labels=1 \
+    --device=cpu \
+    --epoch=10 \
+    --N=2

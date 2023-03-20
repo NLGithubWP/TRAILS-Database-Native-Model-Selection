@@ -11,18 +11,20 @@ pip install -r requirements.txt
 
     export PYTHONPATH=$PYTHONPATH:./src
     export PATH="$PATH:./src"
-    export PYTHONPATH=$PYTHONPATH:./main/
-    export PATH="$PATH:./main/"
-    export PYTHONPATH=$PYTHONPATH:./main/0_local_api/
-    export PATH="$PATH:./main/0_local_api/"
-    export PYTHONPATH=$PYTHONPATH:./main/2_verify_sampler/
-    export PATH="$PATH:./main/2_verify_sampler/"
-    export PYTHONPATH=$PYTHONPATH:./main/3_benchmark_sampler/
-    export PATH="$PATH:./main/3_benchmark_sampler/"
-    export PYTHONPATH=$PYTHONPATH:./main/statistic_lib/
-    export PATH="$PATH:./main/statistic_lib/"
-    export PYTHONPATH=$PYTHONPATH:./main/apiserver/
-    export PATH="$PATH:./main/apiserver/"
+    export PYTHONPATH=$PYTHONPATH:./third_party
+    export PATH="$PATH:./third_party"
+    export PYTHONPATH=$PYTHONPATH:./exps/main_ijcai/
+    export PATH="$PATH:./exps/main_ijcai/"
+    export PYTHONPATH=$PYTHONPATH:./exps/main_ijcai/0_local_api/
+    export PATH="$PATH:./exps/main_ijcai/0_local_api/"
+    export PYTHONPATH=$PYTHONPATH:./exps/main_ijcai/2_verify_sampler/
+    export PATH="$PATH:./exps/main_ijcai/2_verify_sampler/"
+    export PYTHONPATH=$PYTHONPATH:./exps/main_ijcai/3_benchmark_sampler/
+    export PATH="$PATH:./exps/main_ijcai/3_benchmark_sampler/"
+    export PYTHONPATH=$PYTHONPATH:./exps/main_ijcai/statistic_lib/
+    export PATH="$PATH:./exps/main_ijcai/statistic_lib/"
+    export PYTHONPATH=$PYTHONPATH:./exps/main_ijcai/apiserver/
+    export PATH="$PATH:./exps/main_ijcai/apiserver/"
 
 # run one example
 

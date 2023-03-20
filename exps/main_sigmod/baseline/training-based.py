@@ -1,6 +1,5 @@
 import torch
 
-from common.structure import ModelEvaData
 import argparse
 import calendar
 import os
@@ -19,11 +18,9 @@ def parse_arguments():
 
     # job config
     parser.add_argument('--log_name', type=str, default="baseline_train_based", help="file name to store the log")
-    parser.add_argument('--budget', type=int, default=300, help="Given budget, in second")
 
     # define search space,
-    parser.add_argument('--search_space', type=str, default="mlp_sp",
-                        help='search space [nasbench101, nasbench201, mlp_sp]')
+    parser.add_argument('--search_space', type=str, default="mlp_sp", help='[nasbench101, nasbench201, mlp_sp]')
 
     # define base dir, where it stores apis, datasets, logs, etc,
     parser.add_argument('--base_dir', type=str, default="/Users/kevin/project_python/firmest_data/",
@@ -31,25 +28,18 @@ def parse_arguments():
 
     # define search space,
     parser.add_argument('--dataset', type=str, default='frappe',
-                        help='cifar10, cifar100, ImageNet16-120, '
-                             'frappe, movielens, uci_diabetes')
+                        help='cifar10, cifar100, ImageNet16-120, frappe, movielens, uci_diabetes')
 
-    parser.add_argument('--num_labels', type=int, default=1,
-                        help='[10, 100, 120],'
-                             '[2, 2, 2]')
+    parser.add_argument('--num_labels', type=int, default=1, help='[10, 100, 120, 2, 2, 2]')
 
     # those are for training
     parser.add_argument('--device', type=str, default="cpu")
 
     parser.add_argument('--batch_size', type=int, default=512, help='batch size')
-    parser.add_argument('--lr', type=float, default=0.002, help="learning reate")
-    parser.add_argument('--patience', type=int, default=1, help='number of epochs for stopping training')
-    # parser.add_argument('--eval_freq', type=int, default=1, help='max number of batches to train per epoch')
+    parser.add_argument('--lr', type=float, default=0.001, help="learning rate")
 
-    parser.add_argument('--N', type=int, default=5000, help='How many arch to train')
-
-    parser.add_argument('--epoch', type=int, default=2, help='number of maximum epochs')
-    parser.add_argument('--iter_per_epoch', type=int, default=None,
+    parser.add_argument('--epoch', type=int, default=20, help='number of maximum epochs')
+    parser.add_argument('--iter_per_epoch', type=int, default=200,
                         help="None, or some number, Iteration per epoch, it is controlled by scheduler")
 
     # MLP model config
@@ -59,6 +49,8 @@ def parse_arguments():
     parser.add_argument('--nemb', type=int, default=10, help='embedding size')
 
     parser.add_argument('--report_freq', type=int, default=30, help='report frequency')
+
+    parser.add_argument('--N', type=int, default=5000, help='How many arch to train')
 
     default_args(parser)
     return parser.parse_args()
@@ -74,11 +66,14 @@ if __name__ == "__main__":
     os.environ.setdefault("log_file_name", args.log_name+"_"+str(ts)+".log")
     os.environ.setdefault("base_dir", args.base_dir)
 
+    from logger import logger
     from controller import RegularizedEASampler
     from controller.controler import SampleController
     from eva_engine.phase2.algo.trainer import ModelTrainer
     from search_space.init_search_space import init_search_space
     from storage.structure_data_loader import libsvm_dataloader
+    from common.structure import ModelEvaData
+    from utilslibs.io_tools import write_json
 
     search_space_ins = init_search_space(args)
     search_space_ins.load()
@@ -111,7 +106,7 @@ if __name__ == "__main__":
         f1score, _, train_log = ModelTrainer.fully_train_arch(
                search_space_ins=search_space_ins,
                arch_id=arch_id,
-               use_test_acc=True,
+               use_test_acc=False,
                epoch_num=args.epoch,
                train_loader=train_loader,
                val_loader=val_loader,
@@ -122,9 +117,9 @@ if __name__ == "__main__":
         model_eva.model_id = str(arch_id)
         model_eva.model_score = {"f1score": f1score}
 
+        logger.info(f" ---- explored {explored_n} models. ")
+
         base_line_log[args.dataset][arch_id] = train_log
 
-
-
-
-
+    logger.info(f" Saving result to: ", f"train_baseline_{explored_n}.json", base_line_log)
+    write_json(f"train_baseline_{explored_n}.json", base_line_log)

@@ -12,9 +12,6 @@ from storage.structure_data_loader import libsvm_dataloader
 def default_args(parser):
 
     # search space configs for nasBench101
-    parser.add_argument('--num_layers', default=4, type=int, help='# hidden layers')
-
-    # search space configs for nasBench101
     parser.add_argument('--num_stacks', default=3, type=int, help='#stacks of modules')
     parser.add_argument('--num_modules_per_stack', default=3, type=int, help='# modules per stack')
 
@@ -67,13 +64,18 @@ def parse_arguments():
 
     # those are for training
     parser.add_argument('--device', type=str, default="cpu")
-    parser.add_argument('--iter_per_epoch', type=int, default=200, help="Iteration per epoch")
+
     parser.add_argument('--batch_size', type=int, default=512, help='batch size')
     parser.add_argument('--lr', type=float, default=0.002, help="learning reate")
     parser.add_argument('--patience', type=int, default=1, help='number of epochs for stopping training')
-    parser.add_argument('--eval_freq', type=int, default=10000, help='max number of batches to train per epoch')
+    # parser.add_argument('--eval_freq', type=int, default=10000, help='max number of batches to train per epoch')
+
+    # parser.add_argument('--epoch', type=int, default=2, help='number of maximum epochs')
+    parser.add_argument('--iter_per_epoch', type=int, default=None,
+                        help="None, or some number, Iteration per epoch, it is controlled by scheduler")
 
     # MLP model config
+    parser.add_argument('--num_layers', default=4, type=int, help='# hidden layers')
     parser.add_argument('--nfeat', type=int, default=5500, help='the number of features')
     parser.add_argument('--nfield', type=int, default=10, help='the number of fields')
     parser.add_argument('--nemb', type=int, default=10, help='embedding size')

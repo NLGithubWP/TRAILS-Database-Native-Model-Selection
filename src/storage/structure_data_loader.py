@@ -58,6 +58,7 @@ class LibsvmDataset(Dataset):
 
 
 def libsvm_dataloader(data_dir, nfield, batch_size, workers):
+    print("Loading data from ", data_dir)
     train_file = glob.glob("%s/tr*libsvm" % data_dir)[0]
     val_file = glob.glob("%s/va*libsvm" % data_dir)[0]
     test_file = glob.glob("%s/te*libsvm" % data_dir)[0]
