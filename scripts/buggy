@@ -1,0 +1,27 @@
+
+
+
+
+# xai
+#NVIDIA-SMI 470.141.03   Driver Version: 470.141.03   CUDA Version: 11.4
+
+# panda x2
+#NVIDIA-SMI 460.73.01    Driver Version: 460.73.01    CUDA Version: 11.2
+
+
+
+# multiple process share the same tensor reports:
+    "Cannot re-initialize CUDA in forked subprocess. To use CUDA with "
+    RuntimeError: Cannot re-initialize CUDA in forked subprocess. To use CUDA with multiprocessing, you must use the 'spawn' start method
+    Process Process-12:
+
+
+# use the queue in torch.mulitplecessing
+    n = write(self._handle, buf)
+    BrokenPipeError: [Errno 32] Broken pipe
+
+
+
+
+
+

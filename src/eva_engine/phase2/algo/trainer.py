@@ -3,7 +3,6 @@ import time
 import torch
 import torch.nn as nn
 from torch import optim
-from logger import logger
 from search_space.core.space import SpaceWrapper
 from torch.utils.data import DataLoader
 from utilslibs import utils
@@ -20,7 +19,9 @@ class ModelTrainer:
                          train_loader: DataLoader,
                          val_loader: DataLoader,
                          test_loader: DataLoader,
-                         args) -> (float, float, dict):
+                         args,
+                         logger=None
+                         ) -> (float, float, dict):
         """
         Args:
             search_space_ins:
@@ -34,6 +35,10 @@ class ModelTrainer:
         Returns:
         """
 
+        if logger is None:
+            from logger import logger
+            logger = logger
+
         start_time, best_valid_auc = time.time(), 0.
 
         # training params
@@ -46,11 +51,11 @@ class ModelTrainer:
 
         # assign new values
         args.epoch_num = epoch_num
-
+        # print("loading model to GPU...")
         # create model
         model = search_space_ins.new_architecture(arch_id).to(device)
         # optimizer
-
+        # print("loading opt_metric to GPU...")
         # for multiple classification
         # opt_metric = nn.CrossEntropyLoss(reduction='mean').to(device)
         # opt_metric = nn.BCELoss(reduction='mean').to(device)
@@ -70,21 +75,29 @@ class ModelTrainer:
         for epoch in range(epoch_num):
             logger.info(f'Epoch [{epoch:3d}/{epoch_num:3d}]')
             # train and eval
-            ModelTrainer.run(epoch, iter_per_epoch, model, train_loader, opt_metric,
-                             args, optimizer=optimizer, namespace='train')
+            # print("begin to train...")
+            train_auc, train_loss = ModelTrainer.run(logger,
+                epoch, iter_per_epoch, model, train_loader, opt_metric, args, optimizer=optimizer, namespace='train')
             scheduler.step()
-            valid_auc = ModelTrainer.run(epoch, iter_per_epoch, model, val_loader,
-                                         opt_metric,
-                                         args, namespace='val')
+
+            # print("begin to evaluate...")
+            valid_auc, valid_loss = ModelTrainer.run(logger,
+                                                     epoch, iter_per_epoch, model, val_loader,
+                                                     opt_metric, args, namespace='val')
 
             if use_test_acc:
-                test_auc = ModelTrainer.run(epoch, iter_per_epoch, model, test_loader,
-                                            opt_metric,
-                                            args, namespace='test')
+                test_auc, test_loss = ModelTrainer.run(logger,
+                                                       epoch, iter_per_epoch, model, test_loader,
+                                                       opt_metric, args, namespace='test')
             else:
                 test_auc = -1
 
-            info_dic[epoch] = {"valid_auc": valid_auc, 'time_since_begin': time.time() - start_time}
+            info_dic[epoch] = {
+                "train_auc": train_auc,
+                "valid_auc": valid_auc,
+                "train_loss": train_loss,
+                "valid_loss": valid_loss,
+                "train_val_total_time": time.time() - start_time}
 
             # record best auc and save checkpoint
             if valid_auc >= best_valid_auc:
@@ -99,7 +112,7 @@ class ModelTrainer:
 
     #  train one epoch of train/val/test
     @classmethod
-    def run(cls, epoch, iter_per_epoch, model, data_loader, opt_metric, args, optimizer=None, namespace='train'):
+    def run(cls, logger, epoch, iter_per_epoch, model, data_loader, opt_metric, args, optimizer=None, namespace='train'):
         if optimizer:
             model.train()
         else:
@@ -145,5 +158,5 @@ class ModelTrainer:
 
         logger.info(f'{namespace}\tTime {utils.timeSince(s=time_avg.sum):>12s} '
                     f'AUC {auc_avg.avg:8.4f} Loss {loss_avg.avg:8.4f}')
-        return auc_avg.avg
+        return auc_avg.avg, loss_avg.avg
 

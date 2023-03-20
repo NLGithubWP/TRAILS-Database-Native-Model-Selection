@@ -111,6 +111,11 @@ class NasBench201Space(SpaceWrapper):
         arch_str = get_arch_str_from_model(arch_micro)
         return len([ele for ele in arch_str.split("|") if "none" not in ele])
 
+    def sample_all_models(self) -> list:
+        total_num_arch = len(self.api.hash_iterator())
+        arch_id_list = random.sample(range(total_num_arch), total_num_arch)
+        return arch_id_list
+
     def random_architecture_id(self, max_nodes: int) -> (str, ModelMicroCfg):
         """
         default 4 nodes in 201

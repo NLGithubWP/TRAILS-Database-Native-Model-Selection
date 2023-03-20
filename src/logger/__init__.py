@@ -3,15 +3,21 @@
 import logging
 import os
 
-if not os.path.exists("./Logs"):
-    os.makedirs("./Logs")
+
+if os.environ.get("log_logger_folder_name") == None:
+    log_logger_folder_name = "Logs"
+else:
+    log_logger_folder_name = os.environ.get("log_logger_folder_name")
+
+if not os.path.exists(f"./{log_logger_folder_name}"):
+    os.makedirs(f"./{log_logger_folder_name}")
 
 logger = logging.getLogger(__name__)
 
 if os.environ.get("log_file_name") == None:
-    log_name = "./Logs/test.log"
+    log_name = f"./{log_logger_folder_name}/test.log"
 else:
-    log_name = "./Logs/" + os.environ.get("log_file_name")
+    log_name = f"./{log_logger_folder_name}/" + os.environ.get("log_file_name")
 
 
 logging.basicConfig(level=logging.DEBUG,

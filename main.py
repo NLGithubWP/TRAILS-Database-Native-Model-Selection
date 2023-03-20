@@ -82,6 +82,8 @@ def parse_arguments():
 
     parser.add_argument('--report_freq', type=int, default=30, help='report frequency')
 
+    parser.add_argument('--workers', default=4, type=int, help='number of data loading workers')
+
     default_args(parser)
     return parser.parse_args()
 
@@ -96,10 +98,10 @@ def generate_data_loader():
             datadir=os.path.join(args.base_dir, "data"))
     else:
         train_loader, val_loader, test_loader = libsvm_dataloader(
+            args=args,
             data_dir=os.path.join(args.base_dir, "data", "structure_data", args.dataset),
             nfield=args.nfield,
-            batch_size=args.batch_size,
-            workers=1)
+            batch_size=args.batch_size)
         class_num = args.num_labels
 
     return train_loader, val_loader, class_num

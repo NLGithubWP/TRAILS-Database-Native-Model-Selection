@@ -10,6 +10,13 @@ class SpaceWrapper:
         self.model_cfg = cfg
         self.name = name
 
+    @abstractmethod
+    def sample_all_models(self) -> list:
+        """
+        Sample all models, return a list of arch ids
+        """
+        raise NotImplementedError
+
     """serialize and deserialize"""
     @classmethod
     def serialize_model_encoding(cls, arch_micro: ModelMicroCfg) -> str:

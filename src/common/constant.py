@@ -57,6 +57,6 @@ class Config:
 
     # struct dataset
     Frappe = "frappe"
-    Movielens = "movielens"
+    Criteo = "criteo"
     UCIDataset = "uci_diabetes"
 

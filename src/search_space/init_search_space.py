@@ -41,14 +41,23 @@ def init_search_space(args, loapi=None) -> SpaceWrapper:
     elif args.search_space == Config.MLPSP:
         from .mlp_api.space import MlpSpace
         from .mlp_api.model_params import MlpMacroCfg
-        from .mlp_api.space import DEFAULT_LAYER_CHOICES_20
-        model_cfg = MlpMacroCfg(
-            args.nfield,
-            args.nfeat,
-            args.nemb,
-            args.num_layers,
-            args.num_labels,
-            DEFAULT_LAYER_CHOICES_20)
+        from .mlp_api.space import DEFAULT_LAYER_CHOICES_20, DEFAULT_LAYER_CHOICES_10
+        if args.hidden_choice_len == 10:
+            model_cfg = MlpMacroCfg(
+                args.nfield,
+                args.nfeat,
+                args.nemb,
+                args.num_layers,
+                args.num_labels,
+                DEFAULT_LAYER_CHOICES_10)
+        else:
+            model_cfg = MlpMacroCfg(
+                args.nfield,
+                args.nfeat,
+                args.nemb,
+                args.num_layers,
+                args.num_labels,
+                DEFAULT_LAYER_CHOICES_20)
 
         return MlpSpace(model_cfg)
     else:

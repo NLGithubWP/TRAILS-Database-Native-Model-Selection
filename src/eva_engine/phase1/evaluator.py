@@ -5,7 +5,7 @@ from common.constant import Config, CommonVars
 from common.structure import ModelAcquireData
 from eva_engine import evaluator_register
 from search_space.mlp_api.model_params import MlpMacroCfg
-from search_space.mlp_api.space import MlpSpace, DEFAULT_LAYER_CHOICES_20
+from search_space.mlp_api.space import MlpSpace, MlpMicroCfg
 from search_space.nas_101_api.model_params import NB101MacroCfg
 from search_space.nas_101_api.space import NasBench101Space
 from search_space.nas_201_api.model_params import NB201MacroCfg
@@ -110,14 +110,17 @@ class P1Evaluator:
         return NasBench201Space.new_arch_scratch(model_cfg, model_micro, bn)
 
     def _load_mlp_cfg(self, model_encoding: str, bn: bool):
+        model_micro = MlpSpace.deserialize_model_encoding(model_encoding)
+        assert isinstance(model_micro, MlpMicroCfg)
+
         model_cfg = MlpMacroCfg(
             nfield=self.args.nfield,
             nfeat=self.args.nfeat,
             nemb=self.args.nemb,
             num_layers=self.args.num_layers,
             num_labels=self.num_labels,
-            layer_choices=DEFAULT_LAYER_CHOICES_20,
+            layer_choices=model_micro.hidden_layer_list,
         )
-        model_micro = MlpSpace.deserialize_model_encoding(model_encoding)
+
         return MlpSpace.new_arch_scratch(model_cfg, model_micro, bn)
 

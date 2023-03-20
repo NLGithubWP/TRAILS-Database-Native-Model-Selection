@@ -145,6 +145,11 @@ class NasBench101Space(SpaceWrapper):
         assert isinstance(arch_micro, NB101MicroCfg)
         return len(arch_micro.spec.matrix)
 
+    def sample_all_models(self) -> list:
+        total_num_arch = len(self.api.hash_iterator())
+        arch_id_list = random.sample(range(total_num_arch), total_num_arch)
+        return arch_id_list
+
     def random_architecture_id(self, max_nodes: int) -> (str, ModelMicroCfg):
         """Returns a random valid spec."""
         while True:

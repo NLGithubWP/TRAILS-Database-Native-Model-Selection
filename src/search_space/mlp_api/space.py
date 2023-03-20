@@ -1,4 +1,4 @@
-
+import itertools
 import random
 import time
 from copy import deepcopy
@@ -18,8 +18,9 @@ import query_api.query_model_gt_acc_api as gt_api
 DEFAULT_LAYER_CHOICES_20 = [8, 16, 24, 32, # 8
                             48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, # 16
                             384, 512]
-DEFAULT_LAYER_CHOICES_12 = [8, 16, 24, 32,
-                            48, 64, 80, 96, 112, 128, 144, 160]
+DEFAULT_LAYER_CHOICES_10 = [8, 
+                            16, 32, 48, 
+                            96, 112, 144, 176, 240, 384]
 
 
 class MlpMicroCfg(ModelMicroCfg):
@@ -295,13 +296,31 @@ class MlpSpace(SpaceWrapper):
         return mlp
 
     def __len__(self):
-        return len(DEFAULT_LAYER_CHOICES_20) ** self.model_cfg.num_layers
+        return len(self.model_cfg.num_layers) ** self.model_cfg.num_layers
 
     def get_arch_size(self, arch_micro: ModelMicroCfg) -> int:
         assert isinstance(arch_micro, MlpMicroCfg)
         result = 1
         for ele in arch_micro.hidden_layer_list:
             result = result * ele
+        return result
+
+    def sample_all_models(self) -> list:
+        # 2-dimensional matrix for the search spcae
+        space = []
+        for _ in range(self.model_cfg.num_layers):
+            space.append(self.model_cfg.layer_choices)
+
+        # generate all possible combinations
+        combinations = list(itertools.product(*space))
+        # encoding each of them
+
+        result = []
+        for ele in combinations:
+            model_micro = MlpMicroCfg(list(ele))
+            model_encoding = str(model_micro)
+            result.append(model_encoding)
+
         return result
 
     def random_architecture_id(self, max_nodes: int = None) -> (str, ModelMicroCfg):
@@ -313,7 +332,7 @@ class MlpSpace(SpaceWrapper):
 
         arch_encod = []
         for _ in range(self.model_cfg.num_layers):
-            layer_size = random.choice(DEFAULT_LAYER_CHOICES_20)
+            layer_size = random.choice(self.model_cfg.num_layers)
             arch_encod.append(layer_size)
 
         model_micro = MlpMicroCfg(arch_encod)
@@ -332,35 +351,22 @@ class MlpSpace(SpaceWrapper):
         # 2. choose size of the layer index.
         while True:
             cur_layer_size = child_layer_list[chosen_hidden_layer_index]
-            cur_index = DEFAULT_LAYER_CHOICES_20.index(cur_layer_size)
+            cur_index = self.model_cfg.num_layers.index(cur_layer_size)
 
             # replace the chosen layer size,
             if cur_index - 1 < 0:
                 # only goes right
-                child_layer_list[chosen_hidden_layer_index] = DEFAULT_LAYER_CHOICES_20[cur_index + 1]
-            elif cur_index + 1 > len(DEFAULT_LAYER_CHOICES_20) - 1:
+                child_layer_list[chosen_hidden_layer_index] = self.model_cfg.num_layers[cur_index + 1]
+            elif cur_index + 1 > len(self.model_cfg.num_layers) - 1:
                 # only goes left
-                child_layer_list[chosen_hidden_layer_index] = DEFAULT_LAYER_CHOICES_20[cur_index - 1]
+                child_layer_list[chosen_hidden_layer_index] = self.model_cfg.num_layers[cur_index - 1]
             else:
                 # randomly select a direction
                 options = random.choice([1, -1])
-                child_layer_list[chosen_hidden_layer_index] = DEFAULT_LAYER_CHOICES_20[cur_index + options]
+                child_layer_list[chosen_hidden_layer_index] = self.model_cfg.num_layers[cur_index + options]
 
             new_model = MlpMicroCfg(child_layer_list)
             return str(new_model), new_model
 
-
-if __name__ == '__main__':
-    model_cfg = MlpMacroCfg(4, 2, 1, DEFAULT_LAYER_CHOICES_20, True)
-    ms = MlpSpace(model_cfg)
-    encoding, model_micro = ms.random_architecture_id()
-    b = ms.mutate_architecture(model_micro)
-
-    arch = ms.new_architecture_with_micro_cfg(model_micro)
-    print(ms)
-    print(b)
-    print(arch)
-
-    print("Done")
 
 

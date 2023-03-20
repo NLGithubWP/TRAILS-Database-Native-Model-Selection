@@ -12,7 +12,7 @@ class SequenceSampler(Sampler):
     def __init__(self, space: SpaceWrapper, args):
         super().__init__(space)
 
-    def sample_next_arch(self, max_nodes: int) -> (str, CellStructure):
+    def sample_next_arch(self, max_nodes: int = 0) -> (str, CellStructure):
         """
         Sample one random architecture, can sample max 10k architectures.
         :param space: search space,
@@ -20,10 +20,7 @@ class SequenceSampler(Sampler):
         :return: arch_id, architecture
         """
         # random.seed(20)
-
-        total_num_arch = len(self.space)
-        arch_id_list = random.sample(range(total_num_arch), total_num_arch)
-        print("arch_idList", arch_id_list[:30])
+        arch_id_list = self.space.sample_all_models()
         for arch_id in arch_id_list:
             yield str(arch_id), None
 

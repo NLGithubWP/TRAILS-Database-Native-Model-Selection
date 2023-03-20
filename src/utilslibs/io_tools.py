@@ -33,4 +33,9 @@ def write_pickle(file_name, data):
         pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
+if __name__ == "__main__":
+    a = {1:1}
+    write_json("./asdf.json", a)
+    b = {2:2323}
+    write_json("./asdf.json", b)
 

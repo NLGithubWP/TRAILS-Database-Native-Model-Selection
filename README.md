@@ -2,29 +2,17 @@
 
 # Create new environment for it.
 
+conda config --set ssl_verify false
 conda create -n "firmest" python=3.6.13
 conda activate firmest
-pip install -r requirements.txt
+pip install -r requirements.txt  --trusted-host pypi.org --trusted-host files.pythonhosted.org
 
+pip install  tqdm==4.47.0 --trusted-host pypi.org --trusted-host files.pythonhosted.org
+pip install torch==1.8.1+cu111 torchvision==0.9.1+cu111 torchaudio==0.8.1 -f https://download.pytorch.org/whl/torch_stable.html --trusted-host pypi.org --trusted-host files.pythonhosted.org
 
 # config the python path
 
-    export PYTHONPATH=$PYTHONPATH:./src
-    export PATH="$PATH:./src"
-    export PYTHONPATH=$PYTHONPATH:./third_party
-    export PATH="$PATH:./third_party"
-    export PYTHONPATH=$PYTHONPATH:./exps/main_ijcai/
-    export PATH="$PATH:./exps/main_ijcai/"
-    export PYTHONPATH=$PYTHONPATH:./exps/main_ijcai/0_local_api/
-    export PATH="$PATH:./exps/main_ijcai/0_local_api/"
-    export PYTHONPATH=$PYTHONPATH:./exps/main_ijcai/2_verify_sampler/
-    export PATH="$PATH:./exps/main_ijcai/2_verify_sampler/"
-    export PYTHONPATH=$PYTHONPATH:./exps/main_ijcai/3_benchmark_sampler/
-    export PATH="$PATH:./exps/main_ijcai/3_benchmark_sampler/"
-    export PYTHONPATH=$PYTHONPATH:./exps/main_ijcai/statistic_lib/
-    export PATH="$PATH:./exps/main_ijcai/statistic_lib/"
-    export PYTHONPATH=$PYTHONPATH:./exps/main_ijcai/apiserver/
-    export PATH="$PATH:./exps/main_ijcai/apiserver/"
+source init_env
 
 # run one example
 

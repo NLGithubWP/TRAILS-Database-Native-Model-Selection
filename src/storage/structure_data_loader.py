@@ -1,4 +1,4 @@
-
+import random
 
 from tqdm import tqdm
 import torch
@@ -57,31 +57,56 @@ class LibsvmDataset(Dataset):
                 'y': self.y[idx]}
 
 
-def libsvm_dataloader(data_dir, nfield, batch_size, workers):
+def libsvm_dataloader(args, data_dir, nfield, batch_size, use_ful_data=True):
     print("Loading data from ", data_dir)
+
+    # for the large dataset, random subsample one 1M training dataset,
+    # if args.dataset == "criteo" and use_ful_data == False:
+    #     all_segs = os.listdir(data_dir + "/output_train")
+    #     picked_train_libsvm = random.choice(all_segs)
+    #     train_file = glob.glob(f"{data_dir}/output_train/{picked_train_libsvm}")[0]
+    #
+    #     all_segs = os.listdir(data_dir + "/output_val")
+    #     picked_val_libsvm = random.choice(all_segs)
+    #     val_file = glob.glob(f"{data_dir}/output_val/{picked_val_libsvm}")[0]
+    # else:
     train_file = glob.glob("%s/tr*libsvm" % data_dir)[0]
     val_file = glob.glob("%s/va*libsvm" % data_dir)[0]
     test_file = glob.glob("%s/te*libsvm" % data_dir)[0]
+    print(f"using train={train_file}, valid={val_file}")
+    
+    # todo: use test as the validation
+    workers = args.workers
+    if args.device == "cpu":
+        train_loader = DataLoader(LibsvmDataset(train_file, nfield),
+                                  batch_size=batch_size,
+                                  shuffle=True)
+        val_loader = DataLoader(LibsvmDataset(val_file, nfield),
+                                batch_size=batch_size,
+                                shuffle=False)
+        # test_loader = DataLoader(LibsvmDataset(test_file, nfield),
+        #                          batch_size=batch_size,
+        #                          shuffle=False)
+    else:
+        train_loader = DataLoader(LibsvmDataset(train_file, nfield),
+                                  batch_size=batch_size,
+                                  shuffle=True,
+                                  num_workers=workers,
+                                  pin_memory=True)
 
-    train_loader = DataLoader(LibsvmDataset(train_file, nfield),
-                              batch_size=batch_size,
-                              shuffle=True,
-                              # num_workers=workers,
-                              # pin_memory=True
-                              )
-    val_loader = DataLoader(LibsvmDataset(val_file, nfield),
-                            batch_size=batch_size,
-                            shuffle=False,
-                            # num_workers=workers,
-                            # pin_memory=True
-                            )
-    test_loader = DataLoader(LibsvmDataset(test_file, nfield),
-                             batch_size=batch_size,
-                             shuffle=False,
-                             # pin_memory=True
-                             )
+        val_loader = DataLoader(LibsvmDataset(val_file, nfield),
+                                batch_size=batch_size,
+                                shuffle=False,
+                                num_workers=workers,
+                                pin_memory=True)
 
-    return train_loader, val_loader, test_loader
+        # test_loader = DataLoader(LibsvmDataset(test_file, nfield),
+        #                          batch_size=batch_size,
+        #                          shuffle=False,
+        #                          num_workers=workers,
+        #                          pin_memory=True)
+
+    return train_loader, val_loader, val_loader
 
 
 class UCILibsvmDataset(Dataset):
