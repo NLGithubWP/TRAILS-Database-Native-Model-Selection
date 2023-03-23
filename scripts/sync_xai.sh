@@ -1,7 +1,7 @@
 
 
-sshpass -p "Abcd!1234" scp -r exps shaofeng@xai.d2.comp.nus.edu.sg:/home/shaofeng/naili/FIRMEST
-sshpass -p "Abcd!1234" scp -r src shaofeng@xai.d2.comp.nus.edu.sg:/home/shaofeng/naili/FIRMEST
-sshpass -p "Abcd!1234" scp -r third_party shaofeng@xai.d2.comp.nus.edu.sg:/home/shaofeng/naili/FIRMEST/
 
-#sshpass -p "Abcd!1234" scp -r ../firmest_data/data/structure_data shaofeng@xai.d2.comp.nus.edu.sg:/home/shaofeng/naili/data/firmest_data/
+sshpass -p "naili" scp -r exps naili@xai.d2.comp.nus.edu.sg:/home/naili/FIRMEST
+sshpass -p "naili" scp -r src naili@xai.d2.comp.nus.edu.sg:/home/naili/FIRMEST
+sshpass -p "naili" scp -r third_party naili@xai.d2.comp.nus.edu.sg:/home/naili/FIRMEST/
+

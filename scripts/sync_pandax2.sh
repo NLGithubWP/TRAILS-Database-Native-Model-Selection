@@ -11,4 +11,5 @@ sshpass -p "naili" scp -r third_party naili@pandax2.d2.comp.nus.edu.sg:/home/nai
 #sshpass -p "naili" scp -r ../firmest_data/data/structure_data/frappe naili@pandax2.d2.comp.nus.edu.sg:/home/naili/firmest_data/data/structure_data/frappe
 #sshpass -p "naili" scp -r ../firmest_data/data/structure_data/criteo naili@pandax2.d2.comp.nus.edu.sg:/home/naili/firmest_data/data/structure_data/criteo
 
+#sshpass -p "naili" scp -r ../firmest_data/data/structure_data/criteo/decoded_valid_y.pt naili@pandax2.d2.comp.nus.edu.sg:/home/naili/firmest_data/data/structure_data/criteo/
 

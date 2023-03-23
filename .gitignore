@@ -6,7 +6,7 @@ logs_uci
 Logs
 LogCriteoTrainTune
 A_structure_dataexp_res
-base_line_res_criteo
+base_line_res_criteo_debiug
 criteo_train_cfg_exp
 .DS_Store
 

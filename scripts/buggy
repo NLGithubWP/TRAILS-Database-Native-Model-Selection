@@ -21,7 +21,43 @@
     BrokenPipeError: [Errno 32] Broken pipe
 
 
+# bottnecked.
+When multiple train-jobs uses the same dataloader, It's working but very slow.
+Multiple reasons:
+    1. Data loading can become a bottleneck: In the case of multiple training jobs
+        sharing a single DataLoader, each job needs to wait its turn to fetch a
+        batch of data from the queue. This can introduce additional waiting time for
+         each job, leading to slower training overall. On the other hand, when each
+         training job has its own DataLoader, it can fetch data independently,
+          without waiting for other jobs to finish.
+
+    2. Resource contention: When multiple training jobs share a single DataLoader,
+       there can be contention for system resources, such as CPU and memory.
+       This can happen when multiple jobs try to access the same data at the same time,
+       leading to slower performance.
+
+    3. Communication overhead: Sharing a DataLoader using torch multiprocessing queue
+       requires communication between processes, which can introduce additional
+       overhead. This overhead can be more significant when there are many jobs
+       running in parallel, leading to slower performance.
 
 
+# manually partition and launch multiple train jobs.
+    1. To slow to decode the dataset:
+        => pre-decode, save /load with torch.save and torch.load,
+        => (4 mins to load)
+    2. To much memory usage:
+        6 worker using 116GB,
+        => reduce the memory usage
+    3. To slow to do the validation.
+        => why is this happening ?
+        Is it due to multiple jobs on a single GPU ?
+        => try with one train job one GPU on pandax1. This is still not working.
+        Finding:
+        => To many tasks using to much memory, leading to slow training process of each process.
+        The reason may be CPU/Memory access contention,
+    4. increase batch-size do not increase the validation speed in a large extends,
+        small iterations, while each with more time usage.
 
-
+    5. New research problem? How to provide a share data loader to multiple train-jobs whiel
+       guarantee the speedups.

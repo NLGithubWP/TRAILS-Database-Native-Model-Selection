@@ -3,20 +3,20 @@
 #!/bin/bash
 
 worker_id=0
-GPU_NUM=8
-worker_each_gpu=9
+GPU_NUM=9
+worker_each_gpu=6
 total_workers=$((worker_each_gpu*GPU_NUM))
 
 for((gpu_id=0; gpu_id < GPU_NUM; ++gpu_id)); do
 #  echo "GPU id is $gpu_id"
   for((i=0; i < worker_each_gpu; ++i)); do
-#    echo "worker id is $worker_id"
+    echo "Assign task to worker id is $worker_id"
     python exps/main_sigmod/ground_truth/2.seq_train_online.py  \
     --log_name=baseline_train_based \
     --search_space=mlp_sp \
     --num_layers=4 \
     --hidden_choice_len=10 \
-    --base_dir=/home/shaofeng/naili/firmest_data/ \
+    --base_dir=../firmest_data/ \
     --num_labels=1 \
     --device=cuda:$gpu_id \
     --batch_size=1024 \
@@ -30,10 +30,11 @@ for((gpu_id=0; gpu_id < GPU_NUM; ++gpu_id)); do
     --worker_id=$worker_id \
     --total_workers=$total_workers \
     --workers=0 \
-    --log_folder=LogCriteo &
-#    --total_models_per_worker=2 &
+    --log_folder=LogCriteo \
+    --total_models_per_worker=-1 \
+    --pre_partitioned_file=./exps/main_sigmod/ground_truth/sampled_models_10000_models.json &
 
-    sleep 1
+#    sleep 1
     worker_id=$((worker_id+1))
   done
 done

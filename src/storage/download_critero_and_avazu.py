@@ -30,7 +30,10 @@ if __name__ == "__main__":
     if not os.path.exists('../firmest_data/data/structure_data/criteo/'):
         os.mkdir('../firmest_data/data/structure_data/criteo/')
     print("Begin to download criteo data, the total size is 3GB...")
-    download('https://worksheets.codalab.org/rest/bundles/0x8dca5e7bac42470aa445f9a205d177c6/contents/blob/', '../firmest_data/data/structure_data/criteo/criteo.zip')
+
+    output_path ='../firmest_data/data/structure_data/criteo/criteo.zip'
+    if not os.path.exists(output_path):
+        download('https://worksheets.codalab.org/rest/bundles/0x8dca5e7bac42470aa445f9a205d177c6/contents/blob/', output_path)
     print("Unzipping criteo dataset...")
     with zipfile.ZipFile('../firmest_data/data/structure_data/criteo/criteo.zip', 'r') as zip_ref:
         zip_ref.extractall('../firmest_data/data/structure_data/criteo/')

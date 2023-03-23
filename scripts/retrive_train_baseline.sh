@@ -15,3 +15,9 @@ sshpass -p "Abcd!1234" scp -r shaofeng@xai.d2.comp.nus.edu.sg:/home/shaofeng/nai
 
 
 sshpass -p "Abcd!1234" scp -r third_party shaofeng@xai.d2.comp.nus.edu.sg:/home/shaofeng/naili/FIRMEST/
+
+
+
+sshpass -p "naili" ssh naili@pandax1.d2.comp.nus.edu.sg
+
+sshpass -p "naili" scp -r naili@pandax1.d2.comp.nus.edu.sg:/home/naili/FIRMEST/LogCriteo ./base_line_res_criteo_debiug/

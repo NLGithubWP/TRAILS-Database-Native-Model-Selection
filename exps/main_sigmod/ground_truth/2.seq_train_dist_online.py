@@ -18,7 +18,7 @@ def parse_arguments():
     # define search space,
     parser.add_argument('--search_space', type=str, default="mlp_sp", help='[nasbench101, nasbench201, mlp_sp]')
     parser.add_argument('--num_layers', default=4, type=int, help='# hidden layers')
-    parser.add_argument('--hidden_choice_len', default=20, type=int, help='number of hidden layer choices, 10 or 20')
+    parser.add_argument('--hidden_choice_len', default=10, type=int, help='number of hidden layer choices, 10 or 20')
 
     # define base dir, where it stores apis, datasets, logs, etc,
     parser.add_argument('--base_dir', type=str, default="/Users/kevin/project_python/firmest_data/",
@@ -52,11 +52,16 @@ def parse_arguments():
 
     parser.add_argument('--total_models_per_worker', type=int, default=None, help='How many models to evaluate')
 
-    parser.add_argument('--workers', default=4, type=int, help='number of data loading workers')
+    parser.add_argument('--workers', default=0, type=int, help='number of data loading workers')
 
     parser.add_argument('--worker_each_gpu', default=6, type=int, help='num worker each gpu')
     parser.add_argument('--gpu_num', default=8, type=int, help='num GPus')
+
     parser.add_argument('--log_folder', default="Logs", type=str, help='num GPus')
+
+    parser.add_argument('--pre_partitioned_file',
+                        default="./exps/main_sigmod/ground_truth/sampled_models_10000_models.json",
+                        type=str, help='num GPus')
 
     return parser.parse_args()
 
@@ -87,8 +92,6 @@ def start_one_worker(queue, args, worker_id, my_partition, search_space_ins, res
     logger.addHandler(handler)
     from eva_engine.phase2.algo.trainer import ModelTrainer
 
-    base_line_log = {args.dataset: {}}
-
     if args.total_models_per_worker is None:
         logger.info(
             f" ---- begin exploring, current worker have  "
@@ -98,6 +101,14 @@ def start_one_worker(queue, args, worker_id, my_partition, search_space_ins, res
                     f"{len(my_partition)} models. but explore {args.total_models_per_worker} models ")
 
     train_loader, val_loader, test_loader = queue.get()
+
+    checkpoint_file_name = f"./base_line_res_{args.dataset}/train_baseline_{args.dataset}_wkid_{worker_id}.json"
+    visited = read_json(checkpoint_file_name)
+    if visited == {}:
+        visited = {args.dataset: {}}
+        logger.info(f" ---- initialize checkpointing with {visited} . ")
+    else:
+        logger.info(f" ---- recovery from checkpointing with {len(visited[args.dataset])} model. ")
 
     explored_arch_num = 0
     for arch_index in my_partition:
@@ -115,14 +126,14 @@ def start_one_worker(queue, args, worker_id, my_partition, search_space_ins, res
         # update the shared model eval res
         logger.info(f" ---- exploring {explored_arch_num} model. ")
         logger.info(f" ---- info: {json.dumps({res[arch_index]: train_log})}")
-        base_line_log[args.dataset][res[arch_index]] = train_log
+        visited[args.dataset][res[arch_index]] = train_log
         explored_arch_num += 1
 
         if args.total_models_per_worker is not None and explored_arch_num > args.total_models_per_worker:
             break
-    logger.info(f" Saving result to:  train_baseline_{args.dataset}_wkid_{worker_id}.json")
-    write_json(f"./base_line_res/train_baseline_{args.dataset}_wkid_{worker_id}.json", base_line_log)
-    time.sleep(10)
+
+        logger.info(f" Saving result to: {checkpoint_file_name}")
+        write_json(checkpoint_file_name, visited)
 
 
 if __name__ == "__main__":
@@ -144,7 +155,8 @@ if __name__ == "__main__":
     search_space_ins.load()
 
     # 1. main process partition data and group results,
-    res = read_json("./exps/main_sigmod/ground_truth/sampled_models_all.json")
+    res = read_json(args.pre_partitioned_file)
+
     total_workers = args.worker_each_gpu * args.gpu_num
     all_partition = partition_list_by_worker_id(list(res.keys()), total_workers)
 

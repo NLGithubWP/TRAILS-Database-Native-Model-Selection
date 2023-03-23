@@ -16,7 +16,7 @@ def parse_arguments():
     # define search space,
     parser.add_argument('--search_space', type=str, default="mlp_sp", help='[nasbench101, nasbench201, mlp_sp]')
     parser.add_argument('--num_layers', default=4, type=int, help='# hidden layers')
-    parser.add_argument('--hidden_choice_len', default=20, type=int, help='number of hidden layer choices, 10 or 20')
+    parser.add_argument('--hidden_choice_len', default=10, type=int, help='number of hidden layer choices, 10 or 20')
 
     # define base dir, where it stores apis, datasets, logs, etc,
     parser.add_argument('--base_dir', type=str, default="/Users/kevin/project_python/firmest_data/",
@@ -28,7 +28,7 @@ def parse_arguments():
     # those are for training
     parser.add_argument('--device', type=str, default="cpu")
 
-    parser.add_argument('--batch_size', type=int, default=512, help='batch size')
+    parser.add_argument('--batch_size', type=int, default=1024, help='batch size')
     parser.add_argument('--lr', type=float, default=0.001, help="learning rate")
 
     parser.add_argument('--epoch', type=int, default=1,
@@ -50,11 +50,15 @@ def parse_arguments():
 
     parser.add_argument('--worker_id', type=int, default=0, help='start from 0')
     parser.add_argument('--total_workers', type=int, default=120, help='total number of workers')
-    parser.add_argument('--total_models_per_worker', type=int, default=None, help='How many models to evaluate')
+    parser.add_argument('--total_models_per_worker', type=int, default=-1, help='How many models to evaluate')
 
-    parser.add_argument('--workers', default=4, type=int, help='number of data loading workers')
+    parser.add_argument('--workers', default=0, type=int, help='number of data loading workers')
 
     parser.add_argument('--log_folder', default="LogCriteo", type=str, help='num GPus')
+
+    parser.add_argument('--pre_partitioned_file',
+                        default="./exps/main_sigmod/ground_truth/sampled_models_10000_models.json",
+                        type=str, help='num GPus')
 
     return parser.parse_args()
 
@@ -91,17 +95,18 @@ if __name__ == "__main__":
     search_space_ins.load()
 
     # 1. data loader
+    logger.info(f" Loading data....")
     train_loader, val_loader, test_loader = libsvm_dataloader(
         args=args,
         data_dir=os.path.join(args.base_dir, "data", "structure_data", args.dataset),
         nfield=args.nfield,
         batch_size=args.batch_size)
 
-    res = read_json("./exps/main_sigmod/ground_truth/sampled_models_all.json")
+    res = read_json(args.pre_partitioned_file)
 
     all_partition = partition_list_by_worker_id(list(res.keys()), args.total_workers)
 
-    if args.total_models_per_worker is None:
+    if args.total_models_per_worker == -1:
         logger.info(
             f" ---- begin exploring, current worker have  "
             f"{len(all_partition[args.worker_id])} models. explore all those models ")
@@ -140,7 +145,7 @@ if __name__ == "__main__":
         visited[args.dataset][res[arch_index]] = train_log
         explored_arch_num += 1
         
-        if args.total_models_per_worker is not None and explored_arch_num > args.total_models_per_worker:
+        if args.total_models_per_worker != -1 and explored_arch_num > args.total_models_per_worker:
             break
 
         logger.info(f" Saving result to: {checkpoint_file_name}")
