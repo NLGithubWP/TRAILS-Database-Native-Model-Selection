@@ -18,5 +18,7 @@ export PYTHONPATH=$PYTHONPATH:./exps/main_ijcai/statistic_lib/
 export PATH="$PATH:./exps/main_ijcai/statistic_lib/"
 export PYTHONPATH=$PYTHONPATH:./exps/main_ijcai/apiserver/
 export PATH="$PATH:./exps/main_ijcai/apiserver/"
+export PYTHONPATH=$PYTHONPATH:./exps/main_sigmod/common/
+export PATH="$PATH:./exps/main_sigmod/common/"
 
 conda activate firmest

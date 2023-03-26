@@ -21,3 +21,9 @@ sshpass -p "Abcd!1234" scp -r third_party shaofeng@xai.d2.comp.nus.edu.sg:/home/
 sshpass -p "naili" ssh naili@pandax1.d2.comp.nus.edu.sg
 
 sshpass -p "naili" scp -r naili@pandax1.d2.comp.nus.edu.sg:/home/naili/FIRMEST/LogCriteo ./base_line_res_criteo_debiug/
+
+
+sshpass -p "naili" scp -r naili@pandax1.d2.comp.nus.edu.sg:/home/naili/FIRMEST/LogUci ./
+sshpass -p "naili" scp -r naili@pandax1.d2.comp.nus.edu.sg:/home/naili/FIRMEST/base_line_res_uci_diabetes ./
+
+sshpass -p "naili" scp -r naili@pandax1.d2.comp.nus.edu.sg:/home/naili/FIRMEST/score_uci_diabetes_batch_size_32.json ./

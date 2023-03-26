@@ -3,7 +3,10 @@ import os
 import random
 import threading
 import time
+
+import utilslibs
 from common.constant import Config
+from utilslibs.compute import binary_insert_get_rank, load_global_rank
 from utilslibs.io_tools import read_json, read_pickle
 
 
@@ -17,9 +20,13 @@ gt101P = os.path.join(base_dir, "result_base/ground_truth/nasbench1_accuracy.p")
 id_to_hash_path = os.path.join(base_dir, "result_base/ground_truth/nb101_id_to_hash.json")
 
 # MLP related ground truth
-mlp_train_frappe = os.path.join(base_dir, "result_base/ground_truth/all_train_baseline_frappe.json")
-mlp_train_uci_diabetes = os.path.join(base_dir, "result_base/ground_truth/uci_diabetes_train.json")
-mlp_train_criteo = os.path.join(base_dir, "result_base/ground_truth/criteo_train.json")
+mlp_train_frappe = os.path.join(base_dir, "result_base/mlp_results/frappe/all_train_baseline_frappe.json")
+mlp_train_uci_diabetes = os.path.join(base_dir, "result_base/mlp_results/frappe/uci_diabetes_train.json")
+mlp_train_criteo = os.path.join(base_dir, "result_base/mlp_results/frappe/criteo_train.json")
+
+mlp_score_frappe = os.path.join(base_dir, "result_base/mlp_results/frappe/score_frappe_batch_size_32.json")
+mlp_score_uci_diabetes = os.path.join(base_dir, "result_base/mlp_results/frappe/uci_diabetes_train.json")
+mlp_score_criteo = os.path.join(base_dir, "result_base/mlp_results/frappe/criteo_train.json")
 
 
 def guess_score_time(search_space_m, dataset):
@@ -199,21 +206,47 @@ class Gt101(Singleton):
 class GTMLP(Singleton):
     # multiple instance share the class variables.
     _instance_lock = threading.Lock()
-    mlp_frappe = None
+    mlp_frappe_train = None
+    mlp_frappe_score = None
+    mlp_frappe_global_rank = {}
     mlp_uci = None
     mlp_criteo = None
 
-    def load_mlp(self):
-        if self.mlp_frappe is None:
-            self.mlp_frappe = read_json(mlp_train_frappe)
+    def load_mlp_train(self, dataset):
+        if self.mlp_frappe_train is None:
+            self.mlp_frappe_train = read_json(mlp_train_frappe)
+
+    def load_mlp_score(self, dataset):
+        if self.mlp_frappe_score is None:
+            self.mlp_frappe_score = read_json(mlp_score_frappe)
+
+    def load_mlp_global_score_rank(self, dataset):
+        self.load_mlp_score(dataset)
+        if self.mlp_frappe_global_rank == {}:
+            self.mlp_frappe_global_rank = load_global_rank(self.mlp_frappe_score)
 
     def get_valid_auc(self, arch_id: str, dataset, epoch_num: int):
-        self.load_mlp()
+        self.load_mlp_train(dataset)
         if dataset == Config.Frappe:
             if epoch_num is None: epoch_num = 19
-            t_acc = self.mlp_frappe[dataset][arch_id][str(epoch_num)]["valid_auc"]
-            time_usage = self.mlp_frappe[dataset][arch_id][str(epoch_num)]["train_val_total_time"]
+            t_acc = self.mlp_frappe_train[dataset][arch_id][str(epoch_num)]["valid_auc"]
+            time_usage = self.mlp_frappe_train[dataset][arch_id][str(epoch_num)]["train_val_total_time"]
             return t_acc, time_usage
+        else:
+            raise NotImplementedError
+
+    def get_metrics_score(self, arch_id: str, dataset) -> dict:
+        self.load_mlp_score(dataset)
+        if dataset == Config.Frappe:
+            score_dic = self.mlp_frappe_score[arch_id]
+            return score_dic
+        else:
+            raise NotImplementedError
+
+    def get_global_rank_score(self, arch_id, dataset):
+        self.load_mlp_global_score_rank(dataset)
+        if dataset == Config.Frappe:
+            return self.mlp_frappe_global_rank[arch_id]
         else:
             raise NotImplementedError
 

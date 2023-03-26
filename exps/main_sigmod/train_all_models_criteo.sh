@@ -11,7 +11,7 @@ for((gpu_id=0; gpu_id < GPU_NUM; ++gpu_id)); do
 #  echo "GPU id is $gpu_id"
   for((i=0; i < worker_each_gpu; ++i)); do
     echo "Assign task to worker id is $worker_id"
-    python exps/main_sigmod/ground_truth/2.seq_train_online.py  \
+    echo "nohup python exps/main_sigmod/ground_truth/2.seq_train_online.py  \
     --log_name=baseline_train_based \
     --search_space=mlp_sp \
     --num_layers=4 \
@@ -32,7 +32,7 @@ for((gpu_id=0; gpu_id < GPU_NUM; ++gpu_id)); do
     --workers=0 \
     --log_folder=LogCriteo \
     --total_models_per_worker=-1 \
-    --pre_partitioned_file=./exps/main_sigmod/ground_truth/sampled_models_10000_models.json &
+    --pre_partitioned_file=./exps/main_sigmod/ground_truth/sampled_models_10000_models.json & ">> train_all_models_criteo_seq.sh
 
 #    sleep 1
     worker_id=$((worker_id+1))

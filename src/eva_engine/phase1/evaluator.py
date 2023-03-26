@@ -4,13 +4,7 @@ import torch
 from common.constant import Config, CommonVars
 from common.structure import ModelAcquireData
 from eva_engine import evaluator_register
-from search_space.mlp_api.model_params import MlpMacroCfg
-from search_space.mlp_api.space import MlpSpace, MlpMicroCfg
-from search_space.nas_101_api.model_params import NB101MacroCfg
-from search_space.nas_101_api.space import NasBench101Space
-from search_space.nas_201_api.model_params import NB201MacroCfg
-from search_space.nas_201_api.space import NasBench201Space
-
+from eva_engine.phase2.algo.api_query import SimulateScore
 from storage import dataset
 from torch.utils.data import DataLoader
 
@@ -29,6 +23,8 @@ class P1Evaluator:
 
         self.device = device
         self.num_labels = num_label
+
+        self.score_getter = None
 
     def p1_evaluate(self, data_str: str) -> dict:
         """
@@ -89,6 +85,8 @@ class P1Evaluator:
         return model_score
 
     def _p1_evaluate_simu(self, model_encoding: str) -> dict:
-        # todo: add scoring for 160K models for MLP
-        return self._p1_evaluate_online(model_encoding)
+        if self.score_getter is None:
+            self.score_getter = SimulateScore(space_name=self.search_space_ins.name)
+        model_score = self.score_getter.get_score_res(arch_id=model_encoding,  dataset=self.dataset_name)
+        return model_score
 

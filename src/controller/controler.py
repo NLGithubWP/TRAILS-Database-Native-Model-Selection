@@ -62,7 +62,7 @@ class SampleController(object):
         self.search_strategy = search_strategy
 
         # the large the index, the better the model
-        self.vote_model_id = []
+        self.ranked_models = []
 
         # when use_prue_score=False, records the model's score of each algorithm,
         # use when use_prue_score=True, record the model's sum score
@@ -73,7 +73,7 @@ class SampleController(object):
         Return a generator
         :return:
         """
-        return self.search_strategy.sample_next_arch(self.vote_model_id)
+        return self.search_strategy.sample_next_arch(self.ranked_models)
 
     def fit_sampler(self, arch_id: str, alg_score: dict, use_prue_score: bool = False):
         """
@@ -84,7 +84,7 @@ class SampleController(object):
                              or sum over their rank (worse performing)
         :return:
         """
-        if use_prue_score:
+        if use_prue_score or len(alg_score.keys()) == 1:
             score = self._use_pure_score_as_final_res(arch_id, alg_score)
         else:
             score = self._use_vote_rank_as_final_res(arch_id, alg_score)
@@ -112,11 +112,11 @@ class SampleController(object):
             final_score += float(alg_score[alg])
         # insert and get rank
         index = binary_insert_get_rank(self.history[score_sum_key], ModelScore(model_id, final_score))
-        self.vote_model_id.insert(index, model_id)
+        self.ranked_models.insert(index, model_id)
         return final_score
 
     def _re_rank_model_id(self, model_id: str, alg_score: dict):
-        # todo: re-rank everything, to make it self.vote_model_id more accurate.
+        # todo: re-rank everything, to make it self.ranked_models more accurate.
         model_new_rank_score = {}
         current_explored_models = 0
         for alg, score in alg_score.items():
@@ -132,7 +132,7 @@ class SampleController(object):
         for ele in model_new_rank_score.keys():
             model_new_rank_score[ele] = model_new_rank_score[ele] / current_explored_models
 
-        self.vote_model_id = [k for k, v in sorted(model_new_rank_score.items(), key=lambda item: item[1])]
+        self.ranked_models = [k for k, v in sorted(model_new_rank_score.items(), key=lambda item: item[1])]
         new_rank_score = model_new_rank_score[model_id]
         return new_rank_score
 
@@ -143,7 +143,7 @@ class SampleController(object):
         :return:
         """
         # return [ele.model_id for ele in self.vote_score[-k:]]
-        return self.vote_model_id[-k:]
+        return self.ranked_models[-k:]
 
 
 if __name__ == "__main__":

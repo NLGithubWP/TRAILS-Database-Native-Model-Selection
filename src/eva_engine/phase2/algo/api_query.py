@@ -62,3 +62,24 @@ class SimulateTrain:
                 cur_best = score_
                 res = arch_id
         return res
+
+
+class SimulateScore:
+    def __init__(self, space_name: str):
+        """
+        :param space_name: NB101 or NB201, MLP
+        """
+        self.space_name = space_name
+        self.api = None
+
+    # get the test_acc and time usage to train of this arch_id
+    def get_score_res(self, arch_id, dataset=Config.c10):
+        if self.space_name == Config.MLPSP:
+            if self.api is None:
+                self.api = GTMLP()
+            # todo: here we directly return the rank_score, instead of the mutilpel_algs score
+            # return self.api.get_metrics_score(arch_id, dataset)
+            return self.api.get_global_rank_score(arch_id, dataset)
+        else:
+            raise NotImplementedError
+

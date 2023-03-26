@@ -10,18 +10,25 @@ from third_party.models import CellStructure
 
 class SequenceSampler(Sampler):
 
-    def __init__(self, space: SpaceWrapper, args):
+    def __init__(self, space: SpaceWrapper):
         super().__init__(space)
 
-    def sample_next_arch(self, sorted_model: list) -> (str, ModelMicroCfg):
+        self.arch_gene = self.space.sample_all_models()
+
+    def sample_next_arch(self, sorted_model: list = None) -> (str, ModelMicroCfg):
         """
         Sample one random architecture, can sample max 10k architectures.
         :return: arch_id, architecture
         """
         # random.seed(20)
-        arch_id_list = self.space.sample_all_models()
-        for arch_id in arch_id_list:
-            yield str(arch_id), None
+        try:
+            return self.arch_gene.__next__(), None
+        except Exception as e:
+            if "StopIteration" in str(e):
+                print("the end")
+                return None, None
+            else:
+                raise e
 
     def fit_sampler(self, score: float):
         pass

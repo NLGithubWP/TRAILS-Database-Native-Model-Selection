@@ -1,5 +1,7 @@
 
 from abc import abstractmethod
+from typing import Generator
+
 from torch.utils.data import DataLoader
 from search_space.core.model_params import ModelMacroCfg, ModelMicroCfg
 
@@ -11,7 +13,7 @@ class SpaceWrapper:
         self.name = name
 
     @abstractmethod
-    def sample_all_models(self) -> list:
+    def sample_all_models(self) -> Generator[str, None, None]:
         """
         Sample all models, return a list of arch ids
         """

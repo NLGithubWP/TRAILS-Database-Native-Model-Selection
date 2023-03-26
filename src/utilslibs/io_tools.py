@@ -11,6 +11,7 @@ def read_json(file_name):
             data = json.load(readfile)
         return data
     else:
+        print(f"{file_name} is not exist")
         return {}
 
 

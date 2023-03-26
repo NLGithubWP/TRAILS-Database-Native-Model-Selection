@@ -139,11 +139,11 @@ class SH:
 
             if epoch_per_model >= self.max_unit_per_model:
                 epoch_per_model = self.max_unit_per_model
-            # print(f"[run]: {cur_cand_num} model left, "
-            #       f"and evaluate each model with {epoch_per_model} epoch")
+            print(f"[run]: {cur_cand_num} model left, "
+                  f"and evaluate each model with {epoch_per_model} epoch")
             # evaluate each arch
             for cand in candidates:
-                score = self._evaluator.p2_evaluate(cand, epoch_per_model)
+                score, _ = self._evaluator.p2_evaluate(cand, epoch_per_model)
                 total_score.append((cand, score))
                 min_budget_required += epoch_per_model
             # sort from min to max
@@ -159,5 +159,5 @@ class SH:
                     num_keep = 1
                 candidates = [ele[0] for ele in scored_cand[-num_keep:]]
 
-        best_perform = self._evaluator.p2_evaluate(candidates[0], self.max_unit_per_model)
+        best_perform, _ = self._evaluator.p2_evaluate(candidates[0], self.max_unit_per_model)
         return candidates[0], best_perform, min_budget_required

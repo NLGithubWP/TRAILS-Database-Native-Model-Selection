@@ -6,7 +6,7 @@ import os.path
 
 # fetch result from server. rename base_line_res to base_line_res_2k5
 
-base_dir = "./A_structure_dataexp_res/frappe/fully_train_160k/saved_result"
+base_dir = "./A_structure_dataexp_res/uci/20230327_checkpointing/saved_result"
 all_files = os.listdir(base_dir)
 output_folder = os.path.dirname(base_dir)
 
@@ -21,4 +21,4 @@ for each_worker_info in all_files:
         result[dataset] = {}
     result[dataset].update(each_dic[dataset])
 
-write_json(os.path.join(output_folder, "all_train_baseline_frappe.json"), result)
+write_json(os.path.join(output_folder, "all_train_baseline_uci.json"), result)

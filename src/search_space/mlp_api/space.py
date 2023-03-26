@@ -3,8 +3,9 @@ import itertools
 import random
 import time
 from copy import deepcopy
+from typing import Generator
+
 import torch
-from torch import optim
 from common.constant import Config, CommonVars
 from eva_engine import evaluator_register
 from eva_engine.phase2.algo.trainer import ModelTrainer
@@ -211,7 +212,7 @@ class MlpSpace(SpaceWrapper):
             nemb=args.nemb,
             hidden_layer_list=[DEFAULT_LAYER_CHOICES_20[-1]] * self.model_cfg.num_layers,
             dropout_rate=0,
-            noutput=self.model_cfg.num_labels)
+            noutput=self.model_cfg.num_labels).to(device)
 
         # measure score time,
         score_time_begin = time.time()
@@ -230,7 +231,7 @@ class MlpSpace(SpaceWrapper):
             hidden_layer_list=[DEFAULT_LAYER_CHOICES_20[-1]] * self.model_cfg.num_layers,
             dropout_rate=0,
             noutput=self.model_cfg.num_labels,
-            use_bn=False)
+            use_bn=False).to(device)
 
         synflow_score, _ = evaluator_register[CommonVars.PRUNE_SYNFLOW].evaluate_wrapper(
             arch=super_net,
@@ -257,7 +258,7 @@ class MlpSpace(SpaceWrapper):
                 nemb=args.nemb,
                 hidden_layer_list=[DEFAULT_LAYER_CHOICES_20[-1]] * self.model_cfg.num_layers,
                 dropout_rate=0,
-                noutput=self.model_cfg.num_labels)
+                noutput=self.model_cfg.num_labels).to(device)
             # only train for ony iteratin to evaluat the time usage.
             targs = copy.deepcopy(args)
             targs.iter_per_epoch = 1
@@ -325,7 +326,7 @@ class MlpSpace(SpaceWrapper):
             result = result * ele
         return result
 
-    def sample_all_models(self) -> list:
+    def sample_all_models(self) -> Generator[str, None, None]:
         assert isinstance(self.model_cfg, MlpMacroCfg)
         # 2-dimensional matrix for the search spcae
         space = []
@@ -333,16 +334,14 @@ class MlpSpace(SpaceWrapper):
             space.append(self.model_cfg.layer_choices)
 
         # generate all possible combinations
-        combinations = list(itertools.product(*space))
+        combinations = itertools.product(*space)
         # encoding each of them
 
-        result = []
-        for ele in combinations:
+        while True:
+            ele = combinations.__next__()
             model_micro = MlpMicroCfg(list(ele))
             model_encoding = str(model_micro)
-            result.append(model_encoding)
-
-        return result
+            yield model_encoding
 
     def random_architecture_id(self) -> (str, ModelMicroCfg):
         assert isinstance(self.model_cfg, MlpMacroCfg)

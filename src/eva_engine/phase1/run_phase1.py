@@ -76,10 +76,6 @@ class RunPhase1:
         model_eva = ModelEvaData()
 
         while explored_n < self.N:
-            if explored_n > 0:
-                # fit sampler, None means first time acquire model
-                self.sampler.fit_sampler(model_eva.model_id, model_eva.model_score, use_prue_score=False)
-
             # generate new model
             arch_id, arch_micro = self.sampler.sample_next_arch()
             model_encoding = self.search_space_ins.serialize_model_encoding(arch_micro)
@@ -98,6 +94,8 @@ class RunPhase1:
             logger.info("3. [FIRMEST] Phase 1: filter phase explored " + str(explored_n) +
                         " model, model_id = " + model_eva.model_id +
                         " model_scores = " + json.dumps(model_eva.model_score))
+
+            self.sampler.fit_sampler(model_eva.model_id, model_eva.model_score, use_prue_score=False)
 
         # return the top K models
         return self.sampler.get_current_top_k_models(self.K)

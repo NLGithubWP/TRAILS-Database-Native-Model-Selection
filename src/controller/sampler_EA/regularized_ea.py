@@ -31,6 +31,8 @@ class RegularizedEASampler(Sampler):
         self.current_sampled = 0
         self.current_arch_micro = None
 
+        # todo: visited, collarpaze
+
     def sample_next_arch(self, sorted_model: list) -> (str, ModelMicroCfg):
         """
         # Carry out evolution in cycles. Each cycle produces a model and removes another

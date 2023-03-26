@@ -8,37 +8,75 @@ from utilslibs.parse_pre_res import SimulateTrain
 eta = 3
 
 
-def schedule(sh: SH, T_, t1_, t2_, w_, space_name, N_K_ratio, only_phase1: bool = False):
+def schedule(dataset, sh: SH, T_,
+             t1_, t2_,
+             w_,
+             search_space_ins, N_K_ratio, only_phase1: bool = False):
+    """
+    dataset: dataset name
+    sh: sh
+    T_: total time budget
+    t1_: time for score a model
+    t2_: time for train a model
+    w_:  number of workers, only used in distributed EA
+    space_name: search_space instance, 101, 201 MLP
+    N_K_ratio: ratio
+    only_phase1: if only using phase1.
+    """
     if T_ < 1:
         raise
-    # try different K and U combinations
-    # only consider 15625 arches in this paper
-    # min_budget_required: when K = 1, N = min_budget_required * 1
-    if space_name == Config.NB101:
-        K_max = int(15625 / N_K_ratio)
+
+    # min time budget used for having both phases, when K = 1, N = min_budget_required_both_phase * 1
+    if search_space_ins.name == Config.NB101:
+        K_max = int(len(search_space_ins) / N_K_ratio)
         U_options = [4, 12, 16, 108]
         U_min = U_options[0]
-        min_budget_required = sh.pre_calculate_time_required(K=1, U=U_min)[1] + N_K_ratio * t1_
-    else:
-        K_max = int(15625 / N_K_ratio)
+        min_budget_required_both_phase = sh.pre_calculate_time_required(K=1, U=U_min)[1] + N_K_ratio * t1_
+    elif search_space_ins.name == Config.NB201:
+        K_max = int(len(search_space_ins) / N_K_ratio)
         U_options = list(range(1, 200))
         U_min = U_options[0]
-        min_budget_required = sh.pre_calculate_time_required(K=1, U=U_min)[1] + N_K_ratio * t1_
+        min_budget_required_both_phase = sh.pre_calculate_time_required(K=1, U=U_min)[1] + N_K_ratio * t1_
+    elif search_space_ins.name == Config.MLPSP:
+        K_max = int(len(search_space_ins) / N_K_ratio)
+        # todo: this is for benchmark only
+        if dataset == Config.Frappe:
+            MaxEpochTrained = 20
+        elif dataset == Config.Criteo:
+            MaxEpochTrained = 10
+        elif dataset == Config.UCIDataset:
+            MaxEpochTrained = 40
+        else:
+            raise NotImplementedError
+        U_options = list(range(1, MaxEpochTrained))
+
+        U_min = U_options[0]
+        min_budget_required_both_phase = sh.pre_calculate_time_required(K=1, U=U_min)[1] + N_K_ratio * t1_
+    else:
+        raise NotImplementedError
 
     history = []
 
     # if there is only phase 1
     enable_phase2_at_least = sh.pre_calculate_time_required(K=2, U=U_min)[1] + 2 * N_K_ratio * t1_
-    if only_phase1 == True or enable_phase2_at_least > T_:
-        for N_only in range(1, min(int(T_ / t1_), 15625)):
+    if only_phase1 or enable_phase2_at_least > T_:
+        # all time give to phase1
+        for N_only in range(1, min(int(T_ / t1_), len(search_space_ins)) + 1):
             time_used = N_only * t1_
             if time_used > T_:
                 break
             else:
                 history.append((1, U_min, N_only))
+
+        if len(history) == 0:
+            logger.info(
+                f" [FIRMEST] Only p1, Budget {T_} is too small, it's at least >= {time_used} "
+                f"with current worker, {t1_}, {t2_}, eta")
+            raise
+
     else:
         # record all possible K, U pair meeting the SLO ( time used < T)
-        for K_ in range(2, min(int(T_ / t1_), K_max + 1)):
+        for K_ in range(2, min(int(T_ / t1_), K_max) + 1):
             N_ = K_ * N_K_ratio
             for U in U_options:
                 # when K ==1, phase 2 is zero
@@ -48,40 +86,16 @@ def schedule(sh: SH, T_, t1_, t2_, w_, space_name, N_K_ratio, only_phase1: bool 
                 else:
                     history.append((K_, U, N_))
 
-    # find the larges K and then large U
-    if len(history) == 0:
-        logger.info(f" [FIRMEST] Budget {T_} is too small, it's at least >= {min_budget_required} with current worker, {t1_}, {t2_}, eta")
-        raise
-    else:
-        best_K, best_U, best_N = history[-1][0], history[-1][1], history[-1][2]
-        N_scored = best_N
-        B1_time_used = N_scored * t1_
-        B2_all_epoch, B2_time_used = sh.pre_calculate_time_required(K=best_K, U=best_U)
-        logger.info(f" [FIRMEST] The schedule result: when T = {T_} second, N = {N_scored}, K = {best_K}, best_U = {best_U}, time_used = {B1_time_used+B2_time_used}")
-        return best_K, best_U, N_scored, B1_time_used, B2_time_used, B2_all_epoch
+        if len(history) == 0:
+            logger.info(
+                f" [FIRMEST] Budget {T_} is too small, it's at least >= {min_budget_required_both_phase} "
+                f"with current worker, {t1_}, {t2_}, eta")
+            raise
 
-
-if __name__ == "__main__":
-    W = 1
-    N_K_ratio = 120
-
-    budget_array = list(range(1, 320, 4))
-
-    space_used = Config.NB101
-    dataset_used = Config.c10
-
-    for T in budget_array:
-        Tsec = T*60
-        if Tsec == 540:
-            continue
-        # logger.info(f"T = {T}min, T = {Tsec} second")
-        fgt = SimulateTrain(space_name=space_used, total_epoch=108)
-        evaluator = P2Evaluator(space_used, dataset_used)
-
-        t1 = gt_api.guess_score_time(space_used, dataset_used)
-        time_per_epoch = gt_api.guess_train_one_epoch_time(space_used, dataset_used)
-
-        sh = SH(evaluator, eta, time_per_epoch)
-
-        best_K, best_U, N_scored, B1_time_used, B2_time_used = schedule(sh, Tsec, t1, time_per_epoch, W, space_used, N_K_ratio)
-        # logger.info(f"Budget={T}, real_time_used={B1_time_used + B2_time_used}, N={N_scored}, K={best_K}, U={best_U}")
+    best_K, best_U, best_N = history[-1][0], history[-1][1], history[-1][2]
+    N_scored = best_N
+    B1_time_used = N_scored * t1_
+    B2_all_epoch, B2_time_used = sh.pre_calculate_time_required(K=best_K, U=best_U)
+    logger.info(
+        f" [FIRMEST] The schedule result: when T = {T_} second, N = {N_scored}, K = {best_K}, best_U = {best_U}, time_used = {B1_time_used + B2_time_used}")
+    return best_K, best_U, N_scored, B1_time_used, B2_time_used, B2_all_epoch
