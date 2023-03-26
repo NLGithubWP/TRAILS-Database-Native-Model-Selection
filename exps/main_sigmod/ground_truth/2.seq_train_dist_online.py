@@ -113,15 +113,18 @@ def start_one_worker(queue, args, worker_id, my_partition, search_space_ins, res
     explored_arch_num = 0
     for arch_index in my_partition:
         print(f"begin to train the {arch_index}")
-        valid_auc, _, train_log = ModelTrainer.fully_train_arch(
-            search_space_ins=search_space_ins,
-            arch_id=res[arch_index],
+        model = search_space_ins.new_architecture(res[arch_index]).to(args.device)
+        valid_auc, total_run_time, train_log = ModelTrainer.fully_train_arch(
+            model=model,
             use_test_acc=False,
             epoch_num=args.epoch,
             train_loader=train_loader,
             val_loader=val_loader,
             test_loader=test_loader,
             args=args, logger=logger)
+
+        logger.info(f' ----- model id: {res[arch_index]}, Val_AUC : {valid_auc} Total running time: '
+                    f'{total_run_time}-----')
 
         # update the shared model eval res
         logger.info(f" ---- exploring {explored_arch_num} model. ")

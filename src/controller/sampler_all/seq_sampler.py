@@ -3,6 +3,7 @@ import random
 
 from controller.core.sample import Sampler
 from controller.core.sample import Sampler
+from search_space.core.model_params import ModelMicroCfg
 from search_space.core.space import SpaceWrapper
 from third_party.models import CellStructure
 
@@ -12,11 +13,9 @@ class SequenceSampler(Sampler):
     def __init__(self, space: SpaceWrapper, args):
         super().__init__(space)
 
-    def sample_next_arch(self, max_nodes: int = 0) -> (str, CellStructure):
+    def sample_next_arch(self, sorted_model: list) -> (str, ModelMicroCfg):
         """
         Sample one random architecture, can sample max 10k architectures.
-        :param space: search space,
-        :param required_size: how many edges the model's cell should greater than
         :return: arch_id, architecture
         """
         # random.seed(20)

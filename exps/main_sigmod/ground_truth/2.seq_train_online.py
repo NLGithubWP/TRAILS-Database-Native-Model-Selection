@@ -129,15 +129,18 @@ if __name__ == "__main__":
         if res[arch_index] in visited[args.dataset]:
             logger.info(f" ---- model {res[arch_index]} already visited")
             continue
-        valid_auc, _, train_log = ModelTrainer.fully_train_arch(
-            search_space_ins=search_space_ins,
-            arch_id=res[arch_index],
+        model = search_space_ins.new_architecture(res[arch_index]).to(args.device)
+        valid_auc, total_run_time, train_log = ModelTrainer.fully_train_arch(
+            model=model,
             use_test_acc=False,
             epoch_num=args.epoch,
             train_loader=train_loader,
             val_loader=val_loader,
             test_loader=test_loader,
             args=args)
+
+        logger.info(f' ----- model id: {res[arch_index]}, Val_AUC : {valid_auc} Total running time: '
+                    f'{total_run_time}-----')
 
         # update the shared model eval res
         logger.info(f" ---- exploring {explored_arch_num} model. ")

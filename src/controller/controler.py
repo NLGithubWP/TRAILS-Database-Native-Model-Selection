@@ -61,20 +61,19 @@ class SampleController(object):
         # Current ea is better than others.
         self.search_strategy = search_strategy
 
-        # this is pair of (model, score )
-        self.model_rank = {}
-        # model vite_score dict
+        # the large the index, the better the model
         self.vote_model_id = []
 
-        self.history = []
+        # when use_prue_score=False, records the model's score of each algorithm,
+        # use when use_prue_score=True, record the model's sum score
+        self.history = {}
 
-    def sample_next_arch(self, max_nodes: int = 5) -> (str, CellStructure):
+    def sample_next_arch(self) -> (str, CellStructure):
         """
         Return a generator
-        :param max_nodes:
         :return:
         """
-        return self.search_strategy.sample_next_arch(max_nodes)
+        return self.search_strategy.sample_next_arch(self.vote_model_id)
 
     def fit_sampler(self, arch_id: str, alg_score: dict, use_prue_score: bool = False):
         """
@@ -86,39 +85,44 @@ class SampleController(object):
         :return:
         """
         if use_prue_score:
-            score = self.use_pure_score_as_final_res(arch_id, alg_score)
+            score = self._use_pure_score_as_final_res(arch_id, alg_score)
         else:
-            score = self._add_model_to_rank(arch_id, alg_score)
+            score = self._use_vote_rank_as_final_res(arch_id, alg_score)
         self.search_strategy.fit_sampler(score)
 
-    def _add_model_to_rank(self, model_id: str, alg_score: dict):
+    def _use_vote_rank_as_final_res(self, model_id: str, alg_score: dict):
         # todo: bug: only all scores' under all arg is greater than previous one, then treat it as greater.
         for alg in alg_score:
-            if alg not in self.model_rank:
-                self.model_rank[alg] = []
+            if alg not in self.history:
+                self.history[alg] = []
 
         # add model and score to local list
         for alg, score in alg_score.items():
-            binary_insert_get_rank(self.model_rank[alg], ModelScore(model_id, score))
+            binary_insert_get_rank(self.history[alg], ModelScore(model_id, score))
 
-        new_rank_score = self.re_rank_model_id(model_id, alg_score)
+        new_rank_score = self._re_rank_model_id(model_id, alg_score)
         return new_rank_score
 
-    def use_pure_score_as_final_res(self, model_id: str, alg_score: dict):
+    def _use_pure_score_as_final_res(self, model_id: str, alg_score: dict):
+        # get the key and sum the score of various alg
+        score_sum_key = "_".join(list(alg_score.keys()))
+        self.history[score_sum_key] = []
         final_score = 0
         for alg in alg_score:
             final_score += float(alg_score[alg])
-        index = binary_insert_get_rank(self.history, ModelScore(model_id, final_score))
+        # insert and get rank
+        index = binary_insert_get_rank(self.history[score_sum_key], ModelScore(model_id, final_score))
         self.vote_model_id.insert(index, model_id)
         return final_score
 
-    def re_rank_model_id(self, model_id: str, alg_score: dict):
+    def _re_rank_model_id(self, model_id: str, alg_score: dict):
         # todo: re-rank everything, to make it self.vote_model_id more accurate.
         model_new_rank_score = {}
+        current_explored_models = 0
         for alg, score in alg_score.items():
-            for rank_index in range(len(self.model_rank[alg])):
-                current_explored_models = len(self.model_rank[alg])
-                ms_ins = self.model_rank[alg][rank_index]
+            for rank_index in range(len(self.history[alg])):
+                current_explored_models = len(self.history[alg])
+                ms_ins = self.history[alg][rank_index]
                 # rank = index + 1, since index can be 0
                 if ms_ins.model_id in model_new_rank_score:
                     model_new_rank_score[ms_ins.model_id] += rank_index + 1

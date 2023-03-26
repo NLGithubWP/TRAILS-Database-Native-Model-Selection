@@ -1,5 +1,7 @@
 import time
 
+from typing import Set, List
+
 from eva_engine import coordinator
 from eva_engine.phase1.run_phase1 import RunPhase1
 from torch.utils.data import DataLoader
@@ -60,32 +62,31 @@ class RunModelSelection:
         best_arch, B2_actual_epoch_use = self.sh.run_phase2(U, K_models)
         # print("best model returned from Phase2 = ", K_models)
 
-        return best_arch, B1_actual_time_use + B2_actual_epoch_use * train_time_per_epoch, B1_planed_time + B2_planed_time, B2_all_epoch
+        return best_arch, B1_actual_time_use + B2_actual_epoch_use * train_time_per_epoch, \
+               B1_planed_time + B2_planed_time, B2_all_epoch
 
-    def select_model_online(self, budget: float,
-                            train_loader: DataLoader, val_loader: DataLoader,
+    def select_model_online(self, budget: float, data_loader: List[DataLoader],
                             only_phase1: bool = False, run_workers: int = 1):
         """
         Select model online
-        :param train_loader:
-        :param val_loader:
         :param budget:  time budget
-        :param args:
+        :param data_loader:  time budget
         :param only_phase1:
         :param run_workers:
         :return:
         """
 
+        train_loader, valid_loader, test_loader = data_loader
         self.search_space_ins.load()
 
         logger.info("0. [FIRMEST] Begin model selection ... ")
         begin_time = time.time()
 
         logger.info("1. [FIRMEST] Begin profiling.")
-
         # 0. profiling dataset and search space, get t1 and t2
         score_time_per_model, train_time_per_epoch, N_K_ratio = self.search_space_ins.profiling(self.dataset,
                                                                                                 train_loader,
+                                                                                                valid_loader,
                                                                                                 self.args)
 
         self.sh = SH(search_space_ins=self.search_space_ins,
@@ -94,7 +95,7 @@ class RunModelSelection:
                      time_per_epoch=train_time_per_epoch,
                      is_simulate=self.is_simulate,
                      train_loader=train_loader,
-                     val_loader=val_loader,
+                     val_loader=valid_loader,
                      args=self.args)
 
         # 1. run coordinator to schedule

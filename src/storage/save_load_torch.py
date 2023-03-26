@@ -50,10 +50,10 @@ def _save_data(data_dir, fname, nfields, namespace):
 def parse_arguments():
     parser = argparse.ArgumentParser(description='FastAutoNAS')
 
-    parser.add_argument('--nfield', type=int, default=39,
+    parser.add_argument('--nfield', type=int, default=10,
                         help='the number of fields, frappe: 10, uci_diabetes: 43, criteo: 39')
 
-    parser.add_argument('--dataset', type=str, default='criteo',
+    parser.add_argument('--dataset', type=str, default='frappe',
                         help='cifar10, cifar100, ImageNet16-120, frappe, criteo, uci_diabetes')
 
     return parser.parse_args()

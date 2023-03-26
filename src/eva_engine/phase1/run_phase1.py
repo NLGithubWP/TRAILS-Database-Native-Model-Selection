@@ -51,10 +51,13 @@ class RunPhase1:
                                         sample_size=self.args.sample_size)
 
         self.sampler = SampleController(strategy)
-        self.arch_generator = self.sampler.sample_next_arch(self.args.arch_size)
 
         # seq: init the phase 1 evaluator,
-        self._evaluator = P1Evaluator(self.args, train_loader=train_loader)
+        self._evaluator = P1Evaluator(device=self.args.device,
+                                      num_label=self.args.num_labels,
+                                      dataset_name=self.args.dataset,
+                                      search_space_ins=self.search_space_ins,
+                                      train_loader=train_loader)
 
         # return K models
         self.K = K
@@ -73,10 +76,10 @@ class RunPhase1:
         while explored_n < self.N:
             if explored_n > 0:
                 # fit sampler, None means first time acquire model
-                self.sampler.fit_sampler(model_eva.model_id, model_eva.model_score, use_prue_score=True)
+                self.sampler.fit_sampler(model_eva.model_id, model_eva.model_score, use_prue_score=False)
 
             # generate new model
-            arch_id, arch_micro = self.arch_generator.__next__()
+            arch_id, arch_micro = self.sampler.sample_next_arch()
             model_encoding = self.search_space_ins.serialize_model_encoding(arch_micro)
 
             explored_n += 1

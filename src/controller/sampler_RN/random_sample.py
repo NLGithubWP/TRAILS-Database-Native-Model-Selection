@@ -12,9 +12,9 @@ class RandomSampler(Sampler):
         super().__init__(space)
         self.visited = []
 
-    def sample_next_arch(self, max_nodes: int = 0) -> (str, ModelMicroCfg):
+    def sample_next_arch(self, sorted_model: list) -> (str, ModelMicroCfg):
         while True:
-            arch_id, model_micro = self.space.random_architecture_id(max_nodes)
+            arch_id, model_micro = self.space.random_architecture_id()
 
             if arch_id not in self.visited:
                 self.visited.append(arch_id)

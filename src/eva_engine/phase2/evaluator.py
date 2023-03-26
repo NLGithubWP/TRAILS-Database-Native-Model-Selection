@@ -1,5 +1,6 @@
 from common.constant import Config
 from eva_engine.phase2.algo.trainer import ModelTrainer
+from logger import logger
 from utilslibs.parse_pre_res import SimulateTrain
 from search_space.core.space import SpaceWrapper
 from torch.utils.data import DataLoader
@@ -61,13 +62,17 @@ class P2Evaluator:
         :param epoch_per_model: how many resource it can use, epoch number
         :return:
         """
-        acc, _ = ModelTrainer.fully_train_arch(search_space_ins=self.search_space_ins,
-                                               arch_id=cand,
-                                               use_test_acc=False,
-                                               epoch_num=epoch_per_model,
-                                               train_loader=self.train_loader,
-                                               val_loader=self.val_loader,
-                                               test_loader=self.val_loader,
-                                               args=self.args)
+        model = self.search_space_ins.new_architecture(cand).to(self.args.device)
+        valid_auc, total_run_time, train_log = ModelTrainer.fully_train_arch(
+           model=model,
+           use_test_acc=False,
+           epoch_num=epoch_per_model,
+           train_loader=self.train_loader,
+           val_loader=self.val_loader,
+           test_loader=self.val_loader,
+           args=self.args)
 
-        return acc
+        logger.info(f' ----- model id: {cand}, Val_AUC : {valid_auc} Total running time: '
+                    f'{total_run_time}-----')
+
+        return valid_auc

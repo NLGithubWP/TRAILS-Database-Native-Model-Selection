@@ -85,7 +85,7 @@ class NasBench101Space(SpaceWrapper):
         return NB101MicroCfg.builder(model_encoding)
 
     @classmethod
-    def new_arch_scratch(cls, arch_macro: ModelMacroCfg, arch_micro: ModelMicroCfg, bn :bool = True):
+    def new_arch_scratch(cls, arch_macro: ModelMacroCfg, arch_micro: ModelMicroCfg, bn: bool = True):
         assert isinstance(arch_micro, NB101MicroCfg)
         assert isinstance(arch_macro, NB101MacroCfg)
         model = NasBench101Network(arch_micro.spec,
@@ -93,11 +93,17 @@ class NasBench101Space(SpaceWrapper):
                                    arch_macro.num_stacks,
                                    arch_macro.num_modules_per_stack,
                                    arch_macro.num_labels,
-                                   arch_macro.bn)
+                                   bn)
 
         return model
 
-    def profiling(self, dataset: str, dataloader: DataLoader = None, args=None) -> (float, float, int):
+    def new_arch_scratch_with_default_setting(self, model_encoding: str, bn: bool):
+        model_micro = NasBench101Space.deserialize_model_encoding(model_encoding)
+        return NasBench101Space.new_arch_scratch(self.model_cfg, model_micro, bn)
+
+    def profiling(self, dataset: str,
+                  train_loader: DataLoader = None, val_loader: DataLoader = None,
+                  args=None) -> (float, float, int):
         score_time_per_model = gt_api.guess_score_time(self.name, dataset)
         train_time_per_epoch = gt_api.guess_train_one_epoch_time(self.name, dataset)
         N_K_ratio = gt_api.profile_NK_trade_off(dataset)
@@ -150,7 +156,7 @@ class NasBench101Space(SpaceWrapper):
         arch_id_list = random.sample(range(total_num_arch), total_num_arch)
         return arch_id_list
 
-    def random_architecture_id(self, max_nodes: int) -> (str, ModelMicroCfg):
+    def random_architecture_id(self) -> (str, ModelMicroCfg):
         """Returns a random valid spec."""
         while True:
             matrix = np.random.choice(ALLOWED_EDGES, size=(NUM_VERTICES, NUM_VERTICES))
@@ -221,12 +227,13 @@ class NasBench101Space(SpaceWrapper):
 
 
 if __name__ == '__main__':
-    api_loc = "/Users/kevin/project_python/FIRMEST/data/nasbench_only108.pkl"
-    model_cfg = NB101MacroCfg(16,3,3,10,True)
-
-    a = NasBench101Space(api_loc, model_cfg, None)
-
-    aid, spec = a.random_architecture_id(4)
-    a.mutate_architecture(spec)
-
+    pass
+    # api_loc = "/Users/kevin/project_python/FIRMEST/data/nasbench_only108.pkl"
+    # model_cfg = NB101MacroCfg(16,3,3,10,True)
+    #
+    # a = NasBench101Space(api_loc, model_cfg, None)
+    #
+    # aid, spec = a.random_architecture_id(4)
+    # a.mutate_architecture(spec)
+    #
 

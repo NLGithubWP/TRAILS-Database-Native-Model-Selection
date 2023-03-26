@@ -46,9 +46,11 @@ Multiple reasons:
     1. To slow to decode the dataset:
         => pre-decode, save /load with torch.save and torch.load,
         => (4 mins to load)
+
     2. To much memory usage:
         6 worker using 116GB,
         => reduce the memory usage
+
     3. To slow to do the validation.
         => why is this happening ?
         Is it due to multiple jobs on a single GPU ?
@@ -59,5 +61,15 @@ Multiple reasons:
     4. increase batch-size do not increase the validation speed in a large extends,
         small iterations, while each with more time usage.
 
-    5. New research problem? How to provide a share data loader to multiple train-jobs whiel
+    5. New research problem? How to provide a share data loader to multiple train-jobs while
        guarantee the speedups.
+
+   6. Loss is to large, and valid AUC is to bad, why?
+      => big model cannot get the ground-truth under the same training configurations such as epoch, iteratnions etc.
+      => large model needs more iterations or training.
+
+
+# The exposing problems:
+    1. Why launching so many tasks cause the server lose the NVDA driver?
+    2. Why
+    

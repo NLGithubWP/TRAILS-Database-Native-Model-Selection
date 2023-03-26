@@ -32,6 +32,17 @@ class SpaceWrapper:
         Args:
             arch_macro: macro setting for one architecture
             arch_micro: micro setting for one architecture
+            bn: true or false
+        Returns:
+        """
+        raise NotImplementedError
+
+    def new_arch_scratch_with_default_setting(self, model_encoding: str, bn: bool):
+        """
+        Use the current search space's macro setting.
+        Args:
+            model_encoding: str of the model encoding
+            bn: true or false
         Returns:
         """
         raise NotImplementedError
@@ -45,14 +56,16 @@ class SpaceWrapper:
         raise NotImplementedError
 
     @abstractmethod
-    def profiling(self, dataset: str, dataloader: DataLoader = None, args=None) -> (float, float, int):
+    def profiling(self, dataset: str,
+                  train_loader: DataLoader = None, val_loader: DataLoader = None,
+                  args=None) -> (float, float, int):
         """
         Profile the training and scoring time.
         Args:
-            args:
-            device:
             dataset:
-            dataloader:
+            train_loader:
+            val_loader
+            args:
         Returns:
         """
         raise NotImplementedError
@@ -103,7 +116,7 @@ class SpaceWrapper:
 
     """Below is for integrating space with various sampler"""
 
-    def random_architecture_id(self, max_nodes: int) -> (str, ModelMicroCfg):
+    def random_architecture_id(self) -> (str, ModelMicroCfg):
         """
         Random generate architecture id, cell structure, supporting RN, RL, R
         :param max_nodes:  how many nodes in this cell

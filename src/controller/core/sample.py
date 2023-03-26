@@ -12,10 +12,10 @@ class Sampler:
         self.space = space
 
     @abstractmethod
-    def sample_next_arch(self, max_nodes: int) -> (str, ModelMicroCfg):
+    def sample_next_arch(self, sorted_model: list) -> (str, ModelMicroCfg):
         """
         Sample next architecture,
-        :param max_nodes: how many nodes in each cell.
+        :param sorted_model: the scoted model,
         :return:
         """
         raise NotImplementedError

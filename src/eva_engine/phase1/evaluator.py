@@ -17,12 +17,15 @@ from torch.utils.data import DataLoader
 
 class P1Evaluator:
 
-    def __init__(self, args, train_loader: DataLoader):
-        self.args = args
-        self.search_space = args.search_space
-        self.device = args.device
+    def __init__(self, device, num_label, dataset_name, search_space_ins, train_loader: DataLoader):
+
+        self.dataset_name = dataset_name
+
+        self.search_space_ins = search_space_ins
         self.train_loader = train_loader
-        self.num_labels = args.num_labels
+
+        self.device = device
+        self.num_labels = num_label
 
     def p1_evaluate(self, data_str: str) -> dict:
         """
@@ -35,19 +38,15 @@ class P1Evaluator:
 
     def _p1_evaluate(self, model_encoding: str) -> dict:
 
-        # 0. identify the load model method
-        cfg_load_method = None
-
-        # get a random batch.
-
-        if self.train_loader.dataset in [Config.c10, Config.c100, Config.imgNet]:
+        # load the data loader
+        if self.dataset_name in [Config.c10, Config.c100, Config.imgNet]:
             # for img data
             mini_batch, mini_batch_targets = dataset.get_mini_batch(
                 dataloader=self.train_loader,
                 sample_alg="random",
                 batch_size=32,
                 num_classes=self.num_labels)
-        else:
+        elif self.dataset_name in [Config.Criteo, Config.Frappe, Config.UCIDataset]:
             # this is structure data
             batch = iter(self.train_loader).__next__()
             target = batch['y'].type(torch.LongTensor)
@@ -55,18 +54,11 @@ class P1Evaluator:
             batch['value'] = batch['value'].to(self.device)
             mini_batch = batch
             mini_batch_targets = target.to(self.device)
-
-        if self.search_space == Config.NB101:
-            cfg_load_method = self._load_101_cfg
-        elif self.search_space == Config.NB201:
-            cfg_load_method = self._load_201_cfg
-        elif self.search_space == Config.MLPSP:
-            cfg_load_method = self._load_mlp_cfg
         else:
             raise NotImplementedError
 
         # 1. Score NasWot
-        new_model = cfg_load_method(model_encoding, bn=True)
+        new_model = self.search_space_ins.new_arch_scratch_with_default_setting(model_encoding, bn=True)
         new_model = new_model.to(self.device)
         naswot_score, _ = evaluator_register[CommonVars.NAS_WOT].evaluate_wrapper(
             arch=new_model,
@@ -75,7 +67,7 @@ class P1Evaluator:
             batch_labels=mini_batch_targets)
 
         # 2. Score SynFlow
-        new_model = cfg_load_method(model_encoding, bn=False)
+        new_model = self.search_space_ins.new_arch_scratch_with_default_setting(model_encoding, bn=False)
         new_model = new_model.to(self.device)
         synflow_score, _ = evaluator_register[CommonVars.PRUNE_SYNFLOW].evaluate_wrapper(
             arch=new_model,
@@ -88,39 +80,3 @@ class P1Evaluator:
                        CommonVars.PRUNE_SYNFLOW: synflow_score}
 
         return model_score
-
-    def _load_101_cfg(self, model_encoding: str, bn: bool):
-        model_cfg = NB101MacroCfg(
-            init_channels=16,
-            num_stacks=3,
-            num_modules_per_stack=3,
-            num_labels=self.num_labels
-        )
-        model_micro = NasBench101Space.deserialize_model_encoding(model_encoding)
-        return NasBench101Space.new_arch_scratch(model_cfg, model_micro, bn)
-
-    def _load_201_cfg(self, model_encoding: str, bn: bool):
-        model_cfg = NB201MacroCfg(
-            init_channels=16,
-            init_b_type="none",
-            init_w_type="none",
-            num_labels=self.num_labels
-        )
-        model_micro = NasBench201Space.deserialize_model_encoding(model_encoding)
-        return NasBench201Space.new_arch_scratch(model_cfg, model_micro, bn)
-
-    def _load_mlp_cfg(self, model_encoding: str, bn: bool):
-        model_micro = MlpSpace.deserialize_model_encoding(model_encoding)
-        assert isinstance(model_micro, MlpMicroCfg)
-
-        model_cfg = MlpMacroCfg(
-            nfield=self.args.nfield,
-            nfeat=self.args.nfeat,
-            nemb=self.args.nemb,
-            num_layers=self.args.num_layers,
-            num_labels=self.num_labels,
-            layer_choices=model_micro.hidden_layer_list,
-        )
-
-        return MlpSpace.new_arch_scratch(model_cfg, model_micro, bn)
-

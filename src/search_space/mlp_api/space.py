@@ -1,3 +1,4 @@
+import copy
 import itertools
 import random
 import time
@@ -6,6 +7,8 @@ import torch
 from torch import optim
 from common.constant import Config, CommonVars
 from eva_engine import evaluator_register
+from eva_engine.phase2.algo.trainer import ModelTrainer
+from logger import logger
 from search_space.core.model_params import ModelMicroCfg, ModelMacroCfg
 from search_space.core.space import SpaceWrapper
 from search_space.mlp_api.model_params import MlpMacroCfg
@@ -181,11 +184,20 @@ class MlpSpace(SpaceWrapper):
         )
         return mlp
 
-    def profiling(self, dataset: str, dataloader: DataLoader = None, args=None) -> (float, float, int):
+    def new_arch_scratch_with_default_setting(self, model_encoding: str, bn: bool):
+        model_micro = MlpSpace.deserialize_model_encoding(model_encoding)
+        return MlpSpace.new_arch_scratch(self.model_cfg, model_micro, bn)
+
+    def profiling(self, dataset: str,
+                  train_loader: DataLoader = None, val_loader: DataLoader = None,
+                  args=None) -> (float, float, int):
+
+        assert isinstance(self.model_cfg, MlpMacroCfg)
+
         device = args.device
 
         # get a random batch.
-        batch = iter(dataloader).__next__()
+        batch = iter(train_loader).__next__()
         target = batch['y'].type(torch.LongTensor)
         batch['id'] = batch['id'].to(device)
         batch['value'] = batch['value'].to(device)
@@ -237,30 +249,24 @@ class MlpSpace(SpaceWrapper):
             hidden_layer_list=[DEFAULT_LAYER_CHOICES_20[-1]] * self.model_cfg.num_layers,
             dropout_rate=0,
             noutput=self.model_cfg.num_labels)
-
-        # optimizer
-        opt_metric = nn.CrossEntropyLoss(reduction='mean')
-        opt_metric = opt_metric.to(device)
-        optimizer = optim.Adam(super_net.parameters(), lr=args.lr)
-        scheduler = optim.lr_scheduler.CosineAnnealingLR(
-            optimizer,
-            T_max=args.iter_per_epoch,  # Maximum number of iterations.
-            eta_min=1e-4)  # Minimum learning rate.
-
-        # measure training for one epoch time
-        train_time_begin = time.time()
-        y = super_net(batch)
-        loss = opt_metric(y, target)
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-        scheduler.step()
-        train_time_iter = time.time() - train_time_begin
+        # only train for ony iteratin to evaluat the time usage.
+        targs = copy.deepcopy(args)
+        targs.iter_per_epoch = 1
+        valid_auc, train_time_iter, train_log = ModelTrainer.fully_train_arch(
+           model=super_net,
+           use_test_acc=False,
+           epoch_num=1,
+           train_loader=train_loader,
+           val_loader=val_loader,
+           test_loader=val_loader,
+           args=targs)
 
         # todo: this is pre-defined by using img Dataset, suppose each epoch only train 200 iterations
         score_time_per_model = score_time
         train_time_per_epoch = train_time_iter * args.iter_per_epoch
         N_K_ratio = gt_api.profile_NK_trade_off(dataset)
+        logger.info(f"Profiling results:  score_time_per_model={score_time_per_model},"
+                    f" train_time_per_epoch={train_time_per_epoch}")
         return score_time_per_model, train_time_per_epoch, N_K_ratio
 
     def micro_to_id(self, arch_struct: ModelMicroCfg) -> str:
@@ -268,6 +274,7 @@ class MlpSpace(SpaceWrapper):
         return str(arch_struct.hidden_layer_list)
 
     def new_architecture(self, arch_id: str):
+        assert isinstance(self.model_cfg, MlpMacroCfg)
         """
         Args:
             arch_id: arch id is the same as encoding.
@@ -286,6 +293,7 @@ class MlpSpace(SpaceWrapper):
 
     def new_architecture_with_micro_cfg(self, arch_micro: ModelMicroCfg):
         assert isinstance(arch_micro, MlpMicroCfg)
+        assert isinstance(self.model_cfg, MlpMacroCfg)
         mlp = DNNModel(
             nfield=self.model_cfg.nfield,
             nfeat=self.model_cfg.nfeat,
@@ -296,7 +304,8 @@ class MlpSpace(SpaceWrapper):
         return mlp
 
     def __len__(self):
-        return len(self.model_cfg.num_layers) ** self.model_cfg.num_layers
+        assert isinstance(self.model_cfg, MlpMacroCfg)
+        return len(self.model_cfg.layer_choices) ** self.model_cfg.num_layers
 
     def get_arch_size(self, arch_micro: ModelMicroCfg) -> int:
         assert isinstance(arch_micro, MlpMicroCfg)
@@ -306,6 +315,7 @@ class MlpSpace(SpaceWrapper):
         return result
 
     def sample_all_models(self) -> list:
+        assert isinstance(self.model_cfg, MlpMacroCfg)
         # 2-dimensional matrix for the search spcae
         space = []
         for _ in range(self.model_cfg.num_layers):
@@ -323,16 +333,11 @@ class MlpSpace(SpaceWrapper):
 
         return result
 
-    def random_architecture_id(self, max_nodes: int = None) -> (str, ModelMicroCfg):
-        """
-        Args:
-            max_nodes: max_nodes is not used here,
-        Returns:
-        """
-
+    def random_architecture_id(self) -> (str, ModelMicroCfg):
+        assert isinstance(self.model_cfg, MlpMacroCfg)
         arch_encod = []
         for _ in range(self.model_cfg.num_layers):
-            layer_size = random.choice(self.model_cfg.num_layers)
+            layer_size = random.choice(self.model_cfg.layer_choices)
             arch_encod.append(layer_size)
 
         model_micro = MlpMicroCfg(arch_encod)
@@ -342,7 +347,7 @@ class MlpSpace(SpaceWrapper):
     '''Below is for EA'''
     def mutate_architecture(self, parent_arch: ModelMicroCfg) -> (str, ModelMicroCfg):
         assert isinstance(parent_arch, MlpMicroCfg)
-
+        assert isinstance(self.model_cfg, MlpMacroCfg)
         child_layer_list = deepcopy(parent_arch.hidden_layer_list)
 
         # 1. choose layer index
@@ -351,19 +356,19 @@ class MlpSpace(SpaceWrapper):
         # 2. choose size of the layer index.
         while True:
             cur_layer_size = child_layer_list[chosen_hidden_layer_index]
-            cur_index = self.model_cfg.num_layers.index(cur_layer_size)
+            cur_index = self.model_cfg.layer_choices.index(cur_layer_size)
 
             # replace the chosen layer size,
             if cur_index - 1 < 0:
                 # only goes right
-                child_layer_list[chosen_hidden_layer_index] = self.model_cfg.num_layers[cur_index + 1]
-            elif cur_index + 1 > len(self.model_cfg.num_layers) - 1:
+                child_layer_list[chosen_hidden_layer_index] = self.model_cfg.layer_choices[cur_index + 1]
+            elif cur_index + 1 > len(self.model_cfg.layer_choices) - 1:
                 # only goes left
-                child_layer_list[chosen_hidden_layer_index] = self.model_cfg.num_layers[cur_index - 1]
+                child_layer_list[chosen_hidden_layer_index] = self.model_cfg.layer_choices[cur_index - 1]
             else:
                 # randomly select a direction
                 options = random.choice([1, -1])
-                child_layer_list[chosen_hidden_layer_index] = self.model_cfg.num_layers[cur_index + options]
+                child_layer_list[chosen_hidden_layer_index] = self.model_cfg.layer_choices[cur_index + options]
 
             new_model = MlpMicroCfg(child_layer_list)
             return str(new_model), new_model

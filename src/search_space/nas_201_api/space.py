@@ -60,17 +60,23 @@ class NasBench201Space(SpaceWrapper):
         architecture = nasbench2.get_model_from_arch_str(
             arch_micro.arch_hash,
             arch_macro.num_labels,
-            arch_macro.bn,
+            bn,
             arch_macro.init_channels)
         init_net(architecture, arch_macro.init_w_type, arch_macro.init_b_type)
         return architecture
+
+    def new_arch_scratch_with_default_setting(self, model_encoding: str, bn: bool):
+        model_micro = NasBench201Space.deserialize_model_encoding(model_encoding)
+        return NasBench201Space.new_arch_scratch(self.model_cfg, model_micro, bn)
 
     def micro_to_id(self, arch_struct: ModelMicroCfg) -> str:
         assert isinstance(arch_struct, NB201MicroCfg)
         arch_id = self.api.query_index_by_arch(arch_struct.cell_struct)
         return str(arch_id)
 
-    def profiling(self, dataset: str, dataloader: DataLoader = None, args=None) -> (float, float, int):
+    def profiling(self, dataset: str,
+                  train_loader: DataLoader = None, val_loader: DataLoader = None,
+                  args=None) -> (float, float, int):
         score_time_per_model = gt_api.guess_score_time(self.name, dataset)
         train_time_per_epoch = gt_api.guess_train_one_epoch_time(self.name, dataset)
         N_K_ratio = gt_api.profile_NK_trade_off(dataset)
@@ -116,10 +122,9 @@ class NasBench201Space(SpaceWrapper):
         arch_id_list = random.sample(range(total_num_arch), total_num_arch)
         return arch_id_list
 
-    def random_architecture_id(self, max_nodes: int) -> (str, ModelMicroCfg):
+    def random_architecture_id(self) -> (str, ModelMicroCfg):
         """
         default 4 nodes in 201
-        :param max_nodes:
         :return:
         """
         max_nodes = 4

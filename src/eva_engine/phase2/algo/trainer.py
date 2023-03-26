@@ -3,7 +3,6 @@ import time
 import torch
 import torch.nn as nn
 from torch import optim
-from search_space.core.space import SpaceWrapper
 from torch.utils.data import DataLoader
 from utilslibs import utils
 
@@ -12,8 +11,7 @@ class ModelTrainer:
 
     @classmethod
     def fully_train_arch(cls,
-                         search_space_ins: SpaceWrapper,
-                         arch_id: str,
+                         model: nn.Module,
                          use_test_acc: bool,
                          epoch_num,
                          train_loader: DataLoader,
@@ -24,8 +22,7 @@ class ModelTrainer:
                          ) -> (float, float, dict):
         """
         Args:
-            search_space_ins:
-            arch_id:
+            model:
             use_test_acc:
             epoch_num: how many epoch, set by scheduler
             train_loader:
@@ -51,9 +48,6 @@ class ModelTrainer:
 
         # assign new values
         args.epoch_num = epoch_num
-        # print("loading model to GPU...")
-        # create model
-        model = search_space_ins.new_architecture(arch_id).to(device)
         # optimizer
         # print("loading opt_metric to GPU...")
         # for multiple classification
@@ -72,6 +66,7 @@ class ModelTrainer:
             p.register_hook(lambda grad: torch.clamp(grad, -1., 1.))
 
         info_dic = {}
+        valid_auc = -1
         for epoch in range(epoch_num):
             logger.info(f'Epoch [{epoch:3d}/{epoch_num:3d}]')
             # train and eval
@@ -106,8 +101,6 @@ class ModelTrainer:
             else:
                 logger.info(f'valid {valid_auc:.4f}, test {test_auc:.4f}')
 
-        logger.info(f' ----- model id: {arch_id}, Val_AUC : {valid_auc} Total running time: '
-                    f'{utils.timeSince(since=start_time)}-----')
         return valid_auc, time.time() - start_time, info_dic
 
     #  train one epoch of train/val/test

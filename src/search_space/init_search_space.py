@@ -32,6 +32,7 @@ def init_search_space(args, loapi=None) -> SpaceWrapper:
             args.init_channels,
             args.init_b_type,
             args.init_w_type,
+            args.arch_size,
             args.num_labels)
 
         base_dir_folder = os.environ.get("base_dir")
@@ -62,7 +63,6 @@ def init_search_space(args, loapi=None) -> SpaceWrapper:
         return MlpSpace(model_cfg)
     else:
         raise Exception
-
 
     # elif args.nasspace == 'nds_resnet':
     #     return NDS('ResNet')

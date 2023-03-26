@@ -101,15 +101,18 @@ if __name__ == "__main__":
         arch_id = "256-256-256-256"
         print(f"begin to train the {arch_id}")
 
-        valid_auc, _, train_log = ModelTrainer.fully_train_arch(
-            search_space_ins=search_space_ins,
-            arch_id=arch_id,
+        model = search_space_ins.new_architecture(arch_id).to(args.device)
+        valid_auc, total_run_time, train_log = ModelTrainer.fully_train_arch(
+            model=model,
             use_test_acc=False,
             epoch_num=args.epoch,
             train_loader=train_loader,
             val_loader=val_loader,
             test_loader=test_loader,
             args=args)
+
+        logger.info(f' ----- model id: {arch_id}, Val_AUC : {valid_auc} Total running time: '
+                    f'{total_run_time}-----')
 
         # update the shared model eval res
         logger.info(f" ---- info: {json.dumps({arch_id:train_log})}")
