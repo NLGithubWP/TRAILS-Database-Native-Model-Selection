@@ -127,7 +127,7 @@ class RunModelSelection:
         logger.info("4. [FIRMEST] Begin to run phase2: refinement phase")
 
         # 3. run phase-2 to determine the final model
-        best_arch, B2_actual_epoch_use = self.sh.run_phase2(U, K_models)
+        best_arch, best_arch_performance, B2_actual_epoch_use = self.sh.run_phase2(U, K_models)
         # print("best model returned from Phase2 = ", K_models)
         end_time = time.time()
 
@@ -136,4 +136,4 @@ class RunModelSelection:
                     + ", planned time usage = " + str(B1_planed_time + B2_planed_time)
                     )
 
-        return best_arch, end_time - begin_time, B1_planed_time + B2_planed_time, B2_all_epoch
+        return best_arch, best_arch_performance, end_time - begin_time, B1_planed_time + B2_planed_time, B2_all_epoch

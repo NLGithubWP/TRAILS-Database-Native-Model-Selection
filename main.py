@@ -45,12 +45,16 @@ def mlp_args(parser):
 
 
 def trainner_args(parser):
+    parser.add_argument('--epoch', type=int, default=20,
+                        help='number of maximum epochs, '
+                             'frappe: 20, uci_diabetes: 20, criteo: 100'
+                             'nb101: 108, nb201: 200')
+
     parser.add_argument('--batch_size', type=int, default=512, help='batch size')
     parser.add_argument('--lr', type=float, default=0.002, help="learning reate")
     parser.add_argument('--patience', type=int, default=1, help='number of epochs for stopping training')
     # parser.add_argument('--eval_freq', type=int, default=10000, help='max number of batches to train per epoch')
 
-    # parser.add_argument('--epoch', type=int, default=2, help='number of maximum epochs')
     parser.add_argument('--iter_per_epoch', type=int, default=200,
                         help="None, "
                              "200 for frappe, uci_diabetes, "

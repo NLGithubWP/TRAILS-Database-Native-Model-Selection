@@ -17,22 +17,20 @@ class SH:
                  train_loader: DataLoader = None,
                  val_loader: DataLoader = None,
                  args=None,
-                 is_simulate: bool = True,
-                 max_unit=200):
+                 is_simulate: bool = True):
         """
         :param search_space_ins:
         :param dataset_name:
         :param time_per_epoch:
         :param is_simulate:
         :param eta: 1/mu to keep in each iteration
-        :param max_unit:  for 201, it's 200, for 101 it's 108
         """
         self._evaluator = P2Evaluator(search_space_ins, dataset_name,
                                       is_simulate=is_simulate,
                                       train_loader=train_loader, val_loader=val_loader,
                                       args=args)
         self.eta = eta
-        self.max_unit_per_model = max_unit
+        self.max_unit_per_model = args.epoch - 1
         self.time_per_epoch = time_per_epoch
         self.name = "SUCCHALF"
 
@@ -102,7 +100,7 @@ class SH:
                 K = num_keep
         return min_budget_required
 
-    def run_phase2(self, U: int, candidates_m: list):
+    def run_phase2(self, U: int, candidates_m: list) -> (str, float, float):
         """
         :param candidates_m: candidates lists
         :param U: min resource each candidate needs
@@ -161,4 +159,5 @@ class SH:
                     num_keep = 1
                 candidates = [ele[0] for ele in scored_cand[-num_keep:]]
 
-        return candidates[0], min_budget_required
+        best_perform = self._evaluator.p2_evaluate(candidates[0], self.max_unit_per_model)
+        return candidates[0], best_perform, min_budget_required
