@@ -29,7 +29,8 @@ class RunPhase1:
         arch_id, candidates, current_time = fetch_from_db(space_name, dataset, run_id, N)
         return candidates[-K:], current_time
 
-    def __init__(self, args, K: int, N: int, search_space_ins: SpaceWrapper, train_loader: DataLoader):
+    def __init__(self, args, K: int, N: int, search_space_ins: SpaceWrapper,
+                 train_loader: DataLoader, is_simulate: bool):
         """
         :param args: space, population_size, sample_size
         :param K: K models return in 1st phase
@@ -57,7 +58,8 @@ class RunPhase1:
                                       num_label=self.args.num_labels,
                                       dataset_name=self.args.dataset,
                                       search_space_ins=self.search_space_ins,
-                                      train_loader=train_loader)
+                                      train_loader=train_loader,
+                                      is_simulate=is_simulate)
 
         # return K models
         self.K = K

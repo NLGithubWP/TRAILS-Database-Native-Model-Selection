@@ -103,7 +103,7 @@ class NasBench101Space(SpaceWrapper):
 
     def profiling(self, dataset: str,
                   train_loader: DataLoader = None, val_loader: DataLoader = None,
-                  args=None) -> (float, float, int):
+                  args=None, is_simulate: bool = False) -> (float, float, int):
         score_time_per_model = gt_api.guess_score_time(self.name, dataset)
         train_time_per_epoch = gt_api.guess_train_one_epoch_time(self.name, dataset)
         N_K_ratio = gt_api.profile_NK_trade_off(dataset)

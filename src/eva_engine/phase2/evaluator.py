@@ -50,8 +50,8 @@ class P2Evaluator:
         :return:
         """
         if self.acc_getter is None:
-            self.acc_getter = SimulateTrain(space_name=self.search_space_ins.name,
-                                            total_epoch=200)
+            self.acc_getter = SimulateTrain(space_name=self.search_space_ins.name)
+
         acc, _ = self.acc_getter.get_ground_truth(arch_id=cand, epoch_num=epoch_per_model, dataset=self.dataset)
 
         return acc

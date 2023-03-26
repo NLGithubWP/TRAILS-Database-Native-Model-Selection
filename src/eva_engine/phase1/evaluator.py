@@ -17,7 +17,10 @@ from torch.utils.data import DataLoader
 
 class P1Evaluator:
 
-    def __init__(self, device, num_label, dataset_name, search_space_ins, train_loader: DataLoader):
+    def __init__(self, device: str, num_label: int, dataset_name: str, search_space_ins,
+                 train_loader: DataLoader, is_simulate: bool):
+
+        self.is_simulate = is_simulate
 
         self.dataset_name = dataset_name
 
@@ -34,9 +37,13 @@ class P1Evaluator:
         """
 
         model_acquire = ModelAcquireData.deserialize(data_str)
-        return self._p1_evaluate(model_acquire.model_encoding)
 
-    def _p1_evaluate(self, model_encoding: str) -> dict:
+        if self.is_simulate:
+            return self._p1_evaluate_simu(model_acquire.model_encoding)
+        else:
+            return self._p1_evaluate_online(model_acquire.model_encoding)
+
+    def _p1_evaluate_online(self, model_encoding: str) -> dict:
 
         # load the data loader
         if self.dataset_name in [Config.c10, Config.c100, Config.imgNet]:
@@ -80,3 +87,8 @@ class P1Evaluator:
                        CommonVars.PRUNE_SYNFLOW: synflow_score}
 
         return model_score
+
+    def _p1_evaluate_simu(self, model_encoding: str) -> dict:
+        # todo: add scoring for 160K models for MLP
+        return self._p1_evaluate_online(model_encoding)
+

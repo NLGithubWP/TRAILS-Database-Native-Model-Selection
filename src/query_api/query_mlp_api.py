@@ -3,9 +3,6 @@ import os
 from common.constant import Config
 from utilslibs.io_tools import read_json
 
-base_dir_folder = os.environ.get("base_dir")
-if base_dir_folder is None:base_dir_folder = os.getcwd()
-base_dir = os.path.join(base_dir_folder, "result_base/mlp_training_append")
 
 base_dir_folder = os.environ.get("base_dir")
 if base_dir_folder is None:base_dir_folder = os.getcwd()

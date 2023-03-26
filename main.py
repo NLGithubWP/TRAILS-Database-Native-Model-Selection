@@ -41,7 +41,7 @@ def nb201_args(parser):
 
 def mlp_args(parser):
     parser.add_argument('--num_layers', default=4, type=int, help='# hidden layers')
-    parser.add_argument('--hidden_choice_len', default=10, type=int, help='number of hidden layer choices, 10 or 20')
+    parser.add_argument('--hidden_choice_len', default=20, type=int, help='number of hidden layer choices, 10 or 20')
 
 
 def trainner_args(parser):
@@ -84,7 +84,7 @@ def parse_arguments():
 
     # job config
     parser.add_argument('--log_name', type=str, default="main_T_100s", help="file name to store the log")
-    parser.add_argument('--budget', type=int, default=500, help="Given budget, in second")
+    parser.add_argument('--budget', type=int, default=600, help="Given budget, in second")
 
     # define search space,
     parser.add_argument('--search_space', type=str, default="mlp_sp",
@@ -137,7 +137,7 @@ def run_with_time_budget(time_budget: float):
     args.num_labels = class_num
     data_loader = [train_loader, val_loader, test_loader]
 
-    rms = RunModelSelection(args.search_space, args.dataset, args, is_simulate=False)
+    rms = RunModelSelection(args.search_space, args.dataset, args, is_simulate=True)
     best_arch, _, _, _ = rms.select_model_online(time_budget, data_loader)
 
     return best_arch

@@ -16,6 +16,11 @@ gt101 = os.path.join(base_dir, "result_base/ground_truth/101_allEpoch_info_json"
 gt101P = os.path.join(base_dir, "result_base/ground_truth/nasbench1_accuracy.p")
 id_to_hash_path = os.path.join(base_dir, "result_base/ground_truth/nb101_id_to_hash.json")
 
+# MLP related ground truth
+mlp_train_frappe = os.path.join(base_dir, "result_base/ground_truth/all_train_baseline_frappe.json")
+mlp_train_uci_diabetes = os.path.join(base_dir, "result_base/ground_truth/uci_diabetes_train.json")
+mlp_train_criteo = os.path.join(base_dir, "result_base/ground_truth/criteo_train.json")
+
 
 def guess_score_time(search_space_m, dataset):
     if search_space_m == Config.NB101:
@@ -189,6 +194,28 @@ class Gt101(Singleton):
             if time_usage > res:
                 res = time_usage
         return res
+
+
+class GTMLP(Singleton):
+    # multiple instance share the class variables.
+    _instance_lock = threading.Lock()
+    mlp_frappe = None
+    mlp_uci = None
+    mlp_criteo = None
+
+    def load_mlp(self):
+        if self.mlp_frappe is None:
+            self.mlp_frappe = read_json(mlp_train_frappe)
+
+    def get_valid_auc(self, arch_id: str, dataset, epoch_num: int):
+        self.load_mlp()
+        if dataset == Config.Frappe:
+            if epoch_num is None: epoch_num = 19
+            t_acc = self.mlp_frappe[dataset][arch_id][str(epoch_num)]["valid_auc"]
+            time_usage = self.mlp_frappe[dataset][arch_id][str(epoch_num)]["train_val_total_time"]
+            return t_acc, time_usage
+        else:
+            raise NotImplementedError
 
 
 if __name__ == "__main__":

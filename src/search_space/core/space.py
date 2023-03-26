@@ -58,7 +58,7 @@ class SpaceWrapper:
     @abstractmethod
     def profiling(self, dataset: str,
                   train_loader: DataLoader = None, val_loader: DataLoader = None,
-                  args=None) -> (float, float, int):
+                  args=None, is_simulate: bool = False) -> (float, float, int):
         """
         Profile the training and scoring time.
         Args:
@@ -66,6 +66,7 @@ class SpaceWrapper:
             train_loader:
             val_loader
             args:
+            is_simulate:
         Returns:
         """
         raise NotImplementedError

@@ -84,10 +84,12 @@ class RunModelSelection:
 
         logger.info("1. [FIRMEST] Begin profiling.")
         # 0. profiling dataset and search space, get t1 and t2
-        score_time_per_model, train_time_per_epoch, N_K_ratio = self.search_space_ins.profiling(self.dataset,
-                                                                                                train_loader,
-                                                                                                valid_loader,
-                                                                                                self.args)
+        score_time_per_model, train_time_per_epoch, N_K_ratio = self.search_space_ins.profiling(
+            self.dataset,
+            train_loader,
+            valid_loader,
+            self.args,
+            is_simulate=self.is_simulate)
 
         self.sh = SH(search_space_ins=self.search_space_ins,
                      dataset_name=self.dataset,
@@ -113,7 +115,13 @@ class RunModelSelection:
         # lazy loading the search space if needed.
 
         # run phase-1 to get the K models.
-        p1_runner = RunPhase1(self.args, K, N, self.search_space_ins, train_loader)
+        p1_runner = RunPhase1(
+            args=self.args,
+            K=K, N=N,
+            search_space_ins=self.search_space_ins,
+            train_loader=train_loader,
+            is_simulate=self.is_simulate)
+
         K_models = p1_runner.run_phase1_seq()
 
         logger.info("4. [FIRMEST] Begin to run phase2: refinement phase")

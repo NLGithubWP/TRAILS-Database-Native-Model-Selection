@@ -190,7 +190,7 @@ class MlpSpace(SpaceWrapper):
 
     def profiling(self, dataset: str,
                   train_loader: DataLoader = None, val_loader: DataLoader = None,
-                  args=None) -> (float, float, int):
+                  args=None, is_simulate: bool = False) -> (float, float, int):
 
         assert isinstance(self.model_cfg, MlpMacroCfg)
 
@@ -242,28 +242,39 @@ class MlpSpace(SpaceWrapper):
 
         # re-init hte net
         del super_net
-        super_net = DNNModel(
-            nfield=args.nfield,
-            nfeat=args.nfeat,
-            nemb=args.nemb,
-            hidden_layer_list=[DEFAULT_LAYER_CHOICES_20[-1]] * self.model_cfg.num_layers,
-            dropout_rate=0,
-            noutput=self.model_cfg.num_labels)
-        # only train for ony iteratin to evaluat the time usage.
-        targs = copy.deepcopy(args)
-        targs.iter_per_epoch = 1
-        valid_auc, train_time_iter, train_log = ModelTrainer.fully_train_arch(
-           model=super_net,
-           use_test_acc=False,
-           epoch_num=1,
-           train_loader=train_loader,
-           val_loader=val_loader,
-           test_loader=val_loader,
-           args=targs)
+
+        if is_simulate:
+            # those are from the pre-calculator
+            if dataset == Config.Frappe:
+                _train_time_per_epoch = 160
+            else:
+                raise NotImplementedError
+
+        else:
+            super_net = DNNModel(
+                nfield=args.nfield,
+                nfeat=args.nfeat,
+                nemb=args.nemb,
+                hidden_layer_list=[DEFAULT_LAYER_CHOICES_20[-1]] * self.model_cfg.num_layers,
+                dropout_rate=0,
+                noutput=self.model_cfg.num_labels)
+            # only train for ony iteratin to evaluat the time usage.
+            targs = copy.deepcopy(args)
+            targs.iter_per_epoch = 1
+            valid_auc, train_time_iter, train_log = ModelTrainer.fully_train_arch(
+               model=super_net,
+               use_test_acc=False,
+               epoch_num=1,
+               train_loader=train_loader,
+               val_loader=val_loader,
+               test_loader=val_loader,
+               args=targs)
+            del super_net
+            _train_time_per_epoch = train_time_iter * args.iter_per_epoch
 
         # todo: this is pre-defined by using img Dataset, suppose each epoch only train 200 iterations
         score_time_per_model = score_time
-        train_time_per_epoch = train_time_iter * args.iter_per_epoch
+        train_time_per_epoch = _train_time_per_epoch
         N_K_ratio = gt_api.profile_NK_trade_off(dataset)
         logger.info(f"Profiling results:  score_time_per_model={score_time_per_model},"
                     f" train_time_per_epoch={train_time_per_epoch}")
