@@ -71,8 +71,8 @@ if __name__ == "__main__":
     budget_array = log_scale_x_array(num_points=25, max_minute=1e4)
 
     # configurable settings for benchmarking
-    only_phase1 = False
-    total_run = 50
+    only_phase1 = True
+    total_run = 500
 
     checkpoint_name = f"./exps/main_sigmod/analysis/res_end_2_end_{args.dataset}.json"
     if only_phase1:
