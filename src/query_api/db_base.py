@@ -50,6 +50,7 @@ def fetch_from_db(space_name, dataset, run_id_m, N_m):
             print(f"{space_name} is Not implemented")
             raise
 
+        print(tf_smt_used)
         con = sqlite3.connect(tf_smt_used)
         cur = con.cursor()
 

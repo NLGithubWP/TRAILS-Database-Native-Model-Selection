@@ -363,25 +363,31 @@ class MlpSpace(SpaceWrapper):
         # 1. choose layer index
         chosen_hidden_layer_index = random.choice(list(range(len(child_layer_list))))
 
-        # 2. choose size of the layer index.
+        # 2. choose size of the layer index, increase the randomness
         while True:
             cur_layer_size = child_layer_list[chosen_hidden_layer_index]
-            cur_index = self.model_cfg.layer_choices.index(cur_layer_size)
+            mutated_layer_size = random.choice(self.model_cfg.layer_choices)
+            if mutated_layer_size != cur_layer_size:
+                child_layer_list[chosen_hidden_layer_index] = mutated_layer_size
+                new_model = MlpMicroCfg(child_layer_list)
+                return str(new_model), new_model
 
-            # replace the chosen layer size,
-            if cur_index - 1 < 0:
-                # only goes right
-                child_layer_list[chosen_hidden_layer_index] = self.model_cfg.layer_choices[cur_index + 1]
-            elif cur_index + 1 > len(self.model_cfg.layer_choices) - 1:
-                # only goes left
-                child_layer_list[chosen_hidden_layer_index] = self.model_cfg.layer_choices[cur_index - 1]
-            else:
-                # randomly select a direction
-                options = random.choice([1, -1])
-                child_layer_list[chosen_hidden_layer_index] = self.model_cfg.layer_choices[cur_index + options]
-
-            new_model = MlpMicroCfg(child_layer_list)
-            return str(new_model), new_model
+            # cur_index = self.model_cfg.layer_choices.index(cur_layer_size)
+            #
+            # # replace the chosen layer size,
+            # if cur_index - 1 < 0:
+            #     # only goes right
+            #     child_layer_list[chosen_hidden_layer_index] = self.model_cfg.layer_choices[cur_index + 1]
+            # elif cur_index + 1 > len(self.model_cfg.layer_choices) - 1:
+            #     # only goes left
+            #     child_layer_list[chosen_hidden_layer_index] = self.model_cfg.layer_choices[cur_index - 1]
+            # else:
+            #     # randomly select a direction
+            #     options = random.choice([1, -1])
+            #     child_layer_list[chosen_hidden_layer_index] = self.model_cfg.layer_choices[cur_index + options]
+            #
+            # new_model = MlpMicroCfg(child_layer_list)
+            # return str(new_model), new_model
 
 
 

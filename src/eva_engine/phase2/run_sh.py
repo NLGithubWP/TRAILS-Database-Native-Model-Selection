@@ -139,8 +139,8 @@ class SH:
 
             if epoch_per_model >= self.max_unit_per_model:
                 epoch_per_model = self.max_unit_per_model
-            print(f"[run]: {cur_cand_num} model left, "
-                  f"and evaluate each model with {epoch_per_model} epoch")
+            # print(f"[run]: {cur_cand_num} model left, "
+            #       f"and evaluate each model with {epoch_per_model} epoch")
             # evaluate each arch
             for cand in candidates:
                 score, _ = self._evaluator.p2_evaluate(cand, epoch_per_model)

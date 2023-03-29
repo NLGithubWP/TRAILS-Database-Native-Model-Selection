@@ -68,17 +68,18 @@ if __name__ == "__main__":
     train_loader, val_loader, test_loader, class_num = generate_data_loader()
     args.num_labels = class_num
 
-    budget_array = log_scale_x_array(num_points=25, max_minute=1e4)
-
     # configurable settings for benchmarking
     only_phase1 = True
-    total_run = 500
+    total_run = 3
+    max_minute = 1e4
+    budget_array = log_scale_x_array(num_points=25, max_minute=max_minute)
+    print(budget_array)
 
-    checkpoint_name = f"./exps/main_sigmod/analysis/res_end_2_end_{args.dataset}.json"
+    checkpoint_name = f"./exps/main_sigmod/analysis/res_end_2_end_{args.dataset}_{max_minute}.json"
     if only_phase1:
         checkpoint_name = f"./exps/main_sigmod/analysis/res_end_2_end_{args.dataset}_p1.json"
         # if it's reach 201, already explored all models.
-        budget_array = [ele for ele in budget_array if ele < 201]
+        budget_array = [ele for ele in budget_array if ele < 210]
 
     result = {
         "sys_time_budget": budget_array,

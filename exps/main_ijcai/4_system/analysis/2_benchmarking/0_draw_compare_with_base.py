@@ -1,6 +1,7 @@
 from common.constant import Config
+from query_api.query_train_baseline_api import get_base_annotations
 from utilslibs.io_tools import read_json
-from utilslibs.draw_tools import get_plot_compare_with_base_line_cfg, get_base_annotations
+from utilslibs.draw_tools import get_plot_compare_with_base_line_cfg
 
 
 dataset = Config.c10

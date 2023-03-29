@@ -31,7 +31,10 @@ class RegularizedEASampler(Sampler):
         self.current_sampled = 0
         self.current_arch_micro = None
 
-        # todo: visited, collarpaze
+        # use the visited to reduce the collapse
+        self.visited = {}
+        self.max_mutate_time = 40
+        self.max_mutate_sampler_time = 5
 
     def sample_next_arch(self, sorted_model: list) -> (str, ModelMicroCfg):
         """
@@ -53,15 +56,36 @@ class RegularizedEASampler(Sampler):
             self.current_arch_micro = arch_micro
             return arch_id, arch_micro
         else:
-            sample = []
-            while len(sample) < self.sample_size:
-                candidate = random.choice(list(self.population))
-                sample.append(candidate)
-            # The parent is the model with best score in the sample.
-            # todo: here use prue score may not accurate since the score is dynamic in the fly.
-            parent = max(sample, key=lambda i: sorted_model.index(str(i.arch)))
-            # parent = max(sample, key=lambda i: i.score)
-            arch_id, arch_micro = self.space.mutate_architecture(parent.arch)
+            cur_mutate_sampler_time = 0
+            cur_mutate_time = 0
+            # retry 5 times.
+            is_found_new = False
+            while cur_mutate_sampler_time < self.max_mutate_sampler_time:
+                # 1. get all samples
+                sample = []
+                while len(sample) < self.sample_size:
+                    candidate = random.choice(list(self.population))
+                    sample.append(candidate)
+                # The parent is the model with best score in the sample.
+                # todo: here use prue score may not accurate since the score is dynamic in the fly.
+                parent = max(sample, key=lambda i: sorted_model.index(str(i.arch)))
+                # parent = max(sample, key=lambda i: i.score)
+
+                # 2. try 200 times, until find a non-visited model
+                while cur_mutate_time < self.max_mutate_time:
+                    arch_id, arch_micro = self.space.mutate_architecture(parent.arch)
+                    if arch_id not in self.visited or len(self.space) == len(self.visited):
+                        self.visited[arch_id] = True
+                        is_found_new = True
+                        break
+                    cur_mutate_time += 1
+
+                if is_found_new:
+                    break
+                cur_mutate_sampler_time += 1
+
+            if cur_mutate_time * cur_mutate_sampler_time == self.max_mutate_time * self.max_mutate_sampler_time:
+                print("==================== meet fuck !! ====================")
             self.current_arch_micro = arch_micro
             return arch_id, arch_micro
 

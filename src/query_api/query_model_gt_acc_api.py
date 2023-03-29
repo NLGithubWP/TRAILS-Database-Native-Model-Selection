@@ -12,7 +12,7 @@ from utilslibs.io_tools import read_json, read_pickle
 
 base_dir = os.environ.get("base_dir")
 if base_dir is None:base_dir = os.getcwd()
-print("gt_api running at {}".format(base_dir))
+print("base_dir is {}".format(base_dir))
 gt201 = os.path.join(base_dir, "result_base/ground_truth/201_allEpoch_info")
 
 gt101 = os.path.join(base_dir, "result_base/ground_truth/101_allEpoch_info_json")

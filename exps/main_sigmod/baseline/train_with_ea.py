@@ -89,11 +89,13 @@ if __name__ == "__main__":
         "baseline_acc": []
     }
 
-    total_explore = 3000
-    total_run = 50
-    train_epoch = 5
+    total_explore = 5000
+    total_run = 3
+    train_epoch = 19
 
-    for run_id in range(50):
+    checkpoint_file = f"./exps/main_sigmod/analysis/res_train_base_line_{args.dataset}_epoch_{train_epoch}.json"
+
+    for run_id in range(total_run):
         all_time_usage = 0
         explored_n = 0
         model_eva = ModelEvaData()
@@ -121,44 +123,20 @@ if __name__ == "__main__":
             model_eva.model_score = {"AUC": auc}
             sampler.fit_sampler(model_eva.model_id, model_eva.model_score, use_prue_score=False)
 
-            full_train_auc, _ = _evaluator.p2_evaluate(str(arch_id), args.epoch)
+            if train_epoch == args.epoch:
+                full_train_auc = auc
+            else:
+                full_train_auc, _ = _evaluator.p2_evaluate(str(arch_id), args.epoch)
             performance_his.append(full_train_auc)
             logger.info("3. [FIRMEST] Phase 1: filter phase explored " + str(explored_n) +
                         " model, model_id = " + model_eva.model_id +
                         " model_scores = " + json.dumps(model_eva.model_score))
 
             all_time_usage += time_usage
-            time_usage_array.append(all_time_usage)
+            time_usage_array.append(all_time_usage/60)
             auc_array.append(max(performance_his))
 
         result["baseline_time_budget"].append(time_usage_array)
         result["baseline_acc"].append(auc_array)
 
-    budget_array = [0.017, 1, 5, 9, 17, 33, 65, 101, 201, 301, 349, 500, 1000]
-
-    result_with_fixed_budget = {
-        "baseline_time_budget": [],
-        "baseline_acc": []
-    }
-
-    # for run_id in range(len(result["baseline_time_budget"])):
-    #     record_time_list = []
-    #     record_acc_list = []
-    #     for _time_use in budget_array:
-    #         record_acc = -1
-    #         for index in range(len(result["baseline_time_budget"][run_id])-1, 0,-1):
-    #             cur_time_usage = result["baseline_time_budget"][run_id][index]
-    #             cur_acc = result["baseline_acc"][run_id][index]
-    #
-    #             if _time_use > cur_time_usage:
-    #                 record_acc = cur_acc
-    #                 break
-    #         if record_acc != -1:
-    #             record_time_list.append(_time_use)
-    #             record_acc_list.append(record_acc)
-    #
-    #     result_with_fixed_budget["baseline_time_budget"].append(record_time_list)
-    #     result_with_fixed_budget["baseline_acc"].append(record_acc_list)
-
-    write_json(f"./exps/main_sigmod/analysis/res_train_base_line_{args.dataset}_epoch_{train_epoch}.json",
-               result)
+    write_json(checkpoint_file, result)

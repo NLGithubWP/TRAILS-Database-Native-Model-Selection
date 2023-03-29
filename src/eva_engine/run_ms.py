@@ -3,7 +3,7 @@ import time
 from typing import Set, List
 
 from eva_engine import coordinator
-from eva_engine.phase1.run_phase1 import RunPhase1
+from eva_engine.phase1.run_phase1 import RunPhase1, p1_evaluate_query
 from torch.utils.data import DataLoader
 from eva_engine.phase2.run_sh import SH
 from logger import logger
@@ -20,7 +20,7 @@ class RunModelSelection:
         self.is_simulate = is_simulate
         # basic
         self.search_space_name = search_space_name
-        self.dataset = dataset
+        self.dataset = self.args.dataset
 
         # p2 evaluator
         self.sh = None
@@ -44,6 +44,7 @@ class RunModelSelection:
                      dataset_name=self.dataset,
                      eta=self.eta,
                      time_per_epoch=train_time_per_epoch,
+                     args=self.args,
                      is_simulate=self.is_simulate)
 
         # 1. run coordinator to schedule
@@ -55,11 +56,13 @@ class RunModelSelection:
                                                                                      N_K_ratio,
                                                                                      only_phase1)
 
+        print(f"Budget = {budget}, N={N}, K={K}")
+
         # 2. run phase 1 to score N models
-        K_models, B1_actual_time_use = RunPhase1.p1_evaluate_query(self.search_space_name, self.dataset, run_id, N, K)
+        K_models, B1_actual_time_use = p1_evaluate_query(self.search_space_name, self.dataset, run_id, N, K)
 
         # 3. run phase-2 to determine the final model
-        best_arch, B2_actual_epoch_use = self.sh.run_phase2(U, K_models)
+        best_arch, best_arch_performance, B2_actual_epoch_use = self.sh.run_phase2(U, K_models)
         # print("best model returned from Phase2 = ", K_models)
 
         return best_arch, B1_actual_time_use + B2_actual_epoch_use * train_time_per_epoch, \

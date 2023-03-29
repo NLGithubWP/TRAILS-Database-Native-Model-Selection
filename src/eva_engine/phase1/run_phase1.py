@@ -14,20 +14,20 @@ from controller import RegularizedEASampler
 from search_space.core.space import SpaceWrapper
 
 
-class RunPhase1:
+def p1_evaluate_query(space_name, dataset, run_id, N, K) -> (list, float):
+    """
+    :param space_name:
+    :param dataset:
+    :param run_id:
+    :param N:
+    :param K:
+    :return: return list of models and time usage.
+    """
+    arch_id, candidates, current_time = fetch_from_db(space_name, dataset, run_id, N)
+    return candidates[-K:], current_time
 
-    @staticmethod
-    def p1_evaluate_query(space_name, dataset, run_id, N, K) -> (list, float):
-        """
-        :param space_name:
-        :param dataset:
-        :param run_id:
-        :param N:
-        :param K:
-        :return: return list of models and time usage.
-        """
-        arch_id, candidates, current_time = fetch_from_db(space_name, dataset, run_id, N)
-        return candidates[-K:], current_time
+
+class RunPhase1:
 
     def __init__(self, args, K: int, N: int, search_space_ins: SpaceWrapper,
                  train_loader: DataLoader, is_simulate: bool):
@@ -72,7 +72,7 @@ class RunPhase1:
         :return:
         """
 
-        explored_n = 0
+        explored_n = 1
         model_eva = ModelEvaData()
 
         while explored_n < self.N:
