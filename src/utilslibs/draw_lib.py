@@ -69,7 +69,7 @@ def draw_structure_data_anytime(all_lines: List, dataset: str, name_img: str):
     export_legend(ori_fig=fig, colnum=5)
     plt.tight_layout()
 
-    fig.savefig(f"any_time_{name_img}_p1_from_0.1_sec.pdf", bbox_inches='tight')
+    fig.savefig(f"{name_img}.pdf", bbox_inches='tight')
 
 
 def export_legend(ori_fig, filename="any_time_legend", colnum=9, unique_labels=None):

@@ -69,13 +69,13 @@ if __name__ == "__main__":
     args.num_labels = class_num
 
     # configurable settings for benchmarking
-    only_phase1 = True
-    total_run = 3
-    max_minute = 1e4
-    budget_array = log_scale_x_array(num_points=25, max_minute=max_minute)
+    only_phase1 = False
+    total_run = 1
+    max_minute = 1e3
+    budget_array = log_scale_x_array(num_points=args.num_points, max_minute=max_minute)
     print(budget_array)
 
-    checkpoint_name = f"./exps/main_sigmod/analysis/res_end_2_end_{args.dataset}_{max_minute}.json"
+    checkpoint_name = f"./exps/main_sigmod/analysis/res_end_2_end_{args.dataset}_{args.kn_rate}_{args.num_points}.json"
     if only_phase1:
         checkpoint_name = f"./exps/main_sigmod/analysis/res_end_2_end_{args.dataset}_p1.json"
         # if it's reach 201, already explored all models.

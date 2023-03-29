@@ -276,7 +276,10 @@ class MlpSpace(SpaceWrapper):
         # todo: this is pre-defined by using img Dataset, suppose each epoch only train 200 iterations
         score_time_per_model = score_time
         train_time_per_epoch = _train_time_per_epoch
-        N_K_ratio = gt_api.profile_NK_trade_off(dataset)
+        # N_K_ratio = gt_api.profile_NK_trade_off(dataset)
+        N_K_ratio = args.kn_rate
+        print(f"Profiling results:  score_time_per_model={score_time_per_model},"
+                    f" train_time_per_epoch={train_time_per_epoch}")
         logger.info(f"Profiling results:  score_time_per_model={score_time_per_model},"
                     f" train_time_per_epoch={train_time_per_epoch}")
         return score_time_per_model, train_time_per_epoch, N_K_ratio

@@ -96,6 +96,13 @@ def dis_train_all_models(parser):
     parser.add_argument('--gpu_num', default=8, type=int, help='num GPus')
 
 
+# tune interval and schedule NK rate such that it can produce a good result
+def tune_interval_NK_rate(parser):
+    parser.add_argument('--kn_rate', default=50, type=int, help='num worker each gpu')
+    parser.add_argument('--num_points', default=8, type=int, help='num GPus')
+    parser.add_argument('--saved_result', default="", type=str, help='num GPus')
+
+
 def parse_arguments():
     parser = argparse.ArgumentParser(description='FastAutoNAS')
 
@@ -123,6 +130,8 @@ def parse_arguments():
     trainner_args(parser)
     seq_train_all_params(parser)
     dis_train_all_models(parser)
+
+    tune_interval_NK_rate(parser)
 
     return parser.parse_args()
 
