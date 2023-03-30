@@ -19,30 +19,26 @@ class GradNormEvaluator(Evaluator):
             3. Sum up all weights' grad norm and get the overall architecture score.
         """
 
-        split_data = 1
+        # if isinstance(batch_data, dict):
+        #     loss_fn = nn.BCEWithLogitsLoss(reduction='mean').to(device)
+        # else:
+        #     loss_fn = F.cross_entropy
         loss_fn = F.cross_entropy
-
-        # arch.zero_grad()
-        N = batch_data.shape[0]
-
+        # opt_metric = nn.BCEWithLogitsLoss(reduction='mean').to(device)
         grad_norm_arr = []
-        for sp in range(split_data):
-            st = sp * N // split_data
-            en = (sp + 1) * N // split_data
+        # 1. forward on mini-batch
+        # logger.info("min-batch is in cuda2 = " + str(batch_data.is_cuda))
+        outputs = arch(batch_data)
+        loss = loss_fn(outputs, batch_labels)
+        loss.backward()
 
-            # 1. forward on mini-batch
-            # logger.info("min-batch is in cuda2 = " + str(batch_data.is_cuda))
-            outputs = arch.forward(batch_data[st:en])
-            loss = loss_fn(outputs, batch_labels[st:en])
-            loss.backward()
+        # 2. lambda function as callback to calculate norm of gradient
+        part_grad = get_layer_metric_array(
+            arch,
+            lambda l:
+                l.weight.grad.norm() if l.weight.grad is not None else torch.zeros_like(l.weight), mode='param')
 
-            # 2. lambda function as callback to calculate norm of gradient
-            part_grad = get_layer_metric_array(
-                arch,
-                lambda l:
-                    l.weight.grad.norm() if l.weight.grad is not None else torch.zeros_like(l.weight), mode='param')
-
-            grad_norm_arr.extend(part_grad)
+        grad_norm_arr.extend(part_grad)
 
         # 3. Sum over all parameter's results to get the final score.
         score = 0.

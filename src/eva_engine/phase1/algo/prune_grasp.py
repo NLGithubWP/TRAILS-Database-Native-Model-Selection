@@ -37,44 +37,32 @@ class GraspEvaluator(Evaluator):
                 # TODO isn't this already true?
                 layer.weight.requires_grad_(True)
 
-        # NOTE original code had some input/target splitting into 2
-        # I am guessing this was because of GPU mem limit
-        # arch.zero_grad()
-        N = batch_data.shape[0]
-        for sp in range(split_data):
-            st = sp * N // split_data
-            en = (sp + 1) * N // split_data
+        # forward/grad pass #1
+        grad_w = None
+        for _ in range(num_iters):
+            # TODO get new data, otherwise num_iters is useless!
+            outputs = arch.forward(batch_data) / T
+            loss = loss_fn(outputs, batch_labels)
+            grad_w_p = autograd.grad(loss, weights, allow_unused=True)
+            if grad_w is None:
+                grad_w = list(grad_w_p)
+            else:
+                for idx in range(len(grad_w)):
+                    grad_w[idx] += grad_w_p[idx]
 
-            # forward/grad pass #1
-            grad_w = None
-            for _ in range(num_iters):
-                # TODO get new data, otherwise num_iters is useless!
-                outputs = arch.forward(batch_data[st:en]) / T
-                loss = loss_fn(outputs, batch_labels[st:en])
-                grad_w_p = autograd.grad(loss, weights, allow_unused=True)
-                if grad_w is None:
-                    grad_w = list(grad_w_p)
-                else:
-                    for idx in range(len(grad_w)):
-                        grad_w[idx] += grad_w_p[idx]
+        # forward/grad pass #2
+        outputs = arch.forward(batch_data) / T
+        loss = loss_fn(outputs, batch_labels)
+        grad_f = autograd.grad(loss, weights, create_graph=True, allow_unused=True)
 
-        for sp in range(split_data):
-            st = sp * N // split_data
-            en = (sp + 1) * N // split_data
-
-            # forward/grad pass #2
-            outputs = arch.forward(batch_data[st:en]) / T
-            loss = loss_fn(outputs, batch_labels[st:en])
-            grad_f = autograd.grad(loss, weights, create_graph=True, allow_unused=True)
-
-            # accumulate gradients computed in previous step and call backwards
-            z, count = 0, 0
-            for layer in arch.modules():
-                if isinstance(layer, nn.Conv2d) or isinstance(layer, nn.Linear):
-                    if grad_w[count] is not None:
-                        z += (grad_w[count].data * grad_f[count]).sum()
-                    count += 1
-            z.backward()
+        # accumulate gradients computed in previous step and call backwards
+        z, count = 0, 0
+        for layer in arch.modules():
+            if isinstance(layer, nn.Conv2d) or isinstance(layer, nn.Linear):
+                if grad_w[count] is not None:
+                    z += (grad_w[count].data * grad_f[count]).sum()
+                count += 1
+        z.backward()
 
         # compute final sensitivity metric and put in grads
         def grasp(layer):

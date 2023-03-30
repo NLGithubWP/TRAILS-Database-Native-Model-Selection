@@ -18,22 +18,16 @@ class SnipEvaluator(Evaluator):
         "SNIP: SINGLE -SHOT NETWORK PRUNING BASED ON CONNECTION SENSITIVITY"
         """
 
-        split_data = 1
-        N = batch_data.shape[0]
-
         # update module's forward and backward function
         self._update_module_compute(arch)
 
         # Compute gradients (but don't apply them)
 
         # run a forward + backward on mini-batch， spit data if it cannot fit into one GPU
-        for sp in range(split_data):
-            st = sp * N // split_data
-            en = (sp + 1) * N // split_data
 
-            outputs = arch.forward(batch_data[st:en])
-            loss = F.cross_entropy(outputs, batch_labels[st:en])
-            loss.backward()
+        outputs = arch.forward(batch_data)
+        loss = F.cross_entropy(outputs, batch_labels)
+        loss.backward()
 
         # select the gradients that we want to use for search/prune
         def snip(layer):

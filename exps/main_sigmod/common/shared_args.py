@@ -77,7 +77,7 @@ def data_set_config(parser):
                         help='cifar10, cifar100, ImageNet16-120, '
                              'frappe, criteo, uci_diabetes')
 
-    parser.add_argument('--num_labels', type=int, default=1,
+    parser.add_argument('--num_labels', type=int, default=2,
                         help='[10, 100, 120],'
                              '[2, 2, 2]')
 

@@ -19,17 +19,14 @@ class GradPlainEvaluator(Evaluator):
             3. Sum up all weights' grad and get the overall architecture score.
         """
 
-        split_data = 1
+        # if isinstance(batch_data, dict):
+        #     loss_fn = nn.BCEWithLogitsLoss(reduction='mean').to(device)
+        # else:
+        #     loss_fn = F.cross_entropy
         loss_fn = F.cross_entropy
-
-        N = batch_data.shape[0]
-        for sp in range(split_data):
-            st = sp * N // split_data
-            en = (sp + 1) * N // split_data
-
-            outputs = arch.forward(batch_data[st:en])
-            loss = loss_fn(outputs, batch_labels[st:en])
-            loss.backward()
+        outputs = arch(batch_data)
+        loss = loss_fn(outputs, batch_labels)
+        loss.backward()
 
         # select the gradients that we want to use for search/prune
         def plain(layer):

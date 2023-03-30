@@ -26,9 +26,16 @@ class NTKCondNumEvaluator(Evaluator):
 
         import time
 
+        # this is for the structure data,
+        if isinstance(batch_data, dict):
+            batch_size = batch_data["value"].shape[0]
+        elif isinstance(batch_data, torch.Tensor):
+            batch_size = batch_data.shape[0]
+        else:
+            raise
+
         # print("\n3. ----------------- Begin to evaluate NTK condNum -----------------\n")
         # print(showUtilization()[0])
-        batch_size = batch_data.shape[0]
 
         begin = time.time()
         add_hooks(arch)

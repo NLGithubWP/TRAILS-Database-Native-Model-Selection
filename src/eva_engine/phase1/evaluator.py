@@ -53,6 +53,7 @@ class P1Evaluator:
             # this is structure data
             batch = iter(self.train_loader).__next__()
             target = batch['y'].type(torch.LongTensor)
+            # target = batch['y'].to(self.device)
             batch['id'] = batch['id'].to(self.device)
             batch['value'] = batch['value'].to(self.device)
             mini_batch = batch
@@ -60,27 +61,42 @@ class P1Evaluator:
         else:
             raise NotImplementedError
 
+        model_score = {}
+        for alg, score_evaluator in evaluator_register.items():
+            if alg == CommonVars.PRUNE_SYNFLOW:
+                bn = False
+            else:
+                bn = True
+            new_model = self.search_space_ins.new_arch_scratch_with_default_setting(model_encoding, bn=bn)
+            new_model = new_model.to(self.device)
+            naswot_score, _ = score_evaluator.evaluate_wrapper(
+                arch=new_model,
+                device=self.device,
+                batch_data=mini_batch,
+                batch_labels=mini_batch_targets)
+            model_score[alg] = naswot_score
+
         # 1. Score NasWot
-        new_model = self.search_space_ins.new_arch_scratch_with_default_setting(model_encoding, bn=True)
-        new_model = new_model.to(self.device)
-        naswot_score, _ = evaluator_register[CommonVars.NAS_WOT].evaluate_wrapper(
-            arch=new_model,
-            device=self.device,
-            batch_data=mini_batch,
-            batch_labels=mini_batch_targets)
+        # new_model = self.search_space_ins.new_arch_scratch_with_default_setting(model_encoding, bn=True)
+        # new_model = new_model.to(self.device)
+        # naswot_score, _ = evaluator_register[CommonVars.NAS_WOT].evaluate_wrapper(
+        #     arch=new_model,
+        #     device=self.device,
+        #     batch_data=mini_batch,
+        #     batch_labels=mini_batch_targets)
 
         # 2. Score SynFlow
-        new_model = self.search_space_ins.new_arch_scratch_with_default_setting(model_encoding, bn=False)
-        new_model = new_model.to(self.device)
-        synflow_score, _ = evaluator_register[CommonVars.PRUNE_SYNFLOW].evaluate_wrapper(
-            arch=new_model,
-            device=self.device,
-            batch_data=mini_batch,
-            batch_labels=mini_batch_targets)
-
-        # 3. combine the result and return
-        model_score = {CommonVars.NAS_WOT: naswot_score,
-                       CommonVars.PRUNE_SYNFLOW: synflow_score}
+        # new_model = self.search_space_ins.new_arch_scratch_with_default_setting(model_encoding, bn=False)
+        # new_model = new_model.to(self.device)
+        # synflow_score, _ = evaluator_register[CommonVars.PRUNE_SYNFLOW].evaluate_wrapper(
+        #     arch=new_model,
+        #     device=self.device,
+        #     batch_data=mini_batch,
+        #     batch_labels=mini_batch_targets)
+        #
+        # # 3. combine the result and return
+        # model_score = {CommonVars.NAS_WOT: naswot_score,
+        #                CommonVars.PRUNE_SYNFLOW: synflow_score}
 
         return model_score
 

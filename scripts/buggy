@@ -73,3 +73,8 @@ Multiple reasons:
     1. Why launching so many tasks cause the server lose the NVDA driver?
     2. Why
     
+
+
+# torch function mismatch
+    1. register_full_backward_hook torch1.8
+    2. register_full_backward_hook torch1.5

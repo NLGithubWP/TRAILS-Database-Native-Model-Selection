@@ -3,8 +3,8 @@
 
 dataset=frappe
 
-for((num_points=8; num_points <= 9; ++num_points)); do
-  for((kn_rate=50; kn_rate <= 60; kn_rate+=10)); do
+for((num_points=8; num_points <= 25; ++num_points)); do
+  for((kn_rate=50; kn_rate <= 150; kn_rate+=10)); do
 
     python ./exps/main_sigmod/system/simulate.py \
       --dataset=frappe \

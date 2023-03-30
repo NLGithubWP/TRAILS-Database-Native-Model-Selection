@@ -70,32 +70,33 @@ if __name__ == "__main__":
     from search_space.init_search_space import init_search_space
     from utilslibs.io_tools import write_json
 
-    search_space_ins = init_search_space(args)
-    # seq: init the search strategy and controller,
-    strategy = RegularizedEASampler(search_space_ins,
-                                    population_size=args.population_size,
-                                    sample_size=args.sample_size)
-
-    sampler = SampleController(strategy)
-
-    _evaluator = P2Evaluator(search_space_ins, args.dataset,
-                             is_simulate=True,
-                             train_loader=None,
-                             val_loader=None,
-                             args=args)
-
     result = {
         "baseline_time_budget": [],
         "baseline_acc": []
     }
 
-    total_explore = 5000
-    total_run = 3
+    total_explore = 2500
+    total_run = 100
     train_epoch = 19
 
     checkpoint_file = f"./exps/main_sigmod/analysis/res_train_base_line_{args.dataset}_epoch_{train_epoch}.json"
 
     for run_id in range(total_run):
+
+        search_space_ins = init_search_space(args)
+        # seq: init the search strategy and controller,
+        strategy = RegularizedEASampler(search_space_ins,
+                                        population_size=args.population_size,
+                                        sample_size=args.sample_size)
+
+        sampler = SampleController(strategy)
+
+        _evaluator = P2Evaluator(search_space_ins, args.dataset,
+                                 is_simulate=True,
+                                 train_loader=None,
+                                 val_loader=None,
+                                 args=args)
+
         all_time_usage = 0
         explored_n = 0
         model_eva = ModelEvaData()

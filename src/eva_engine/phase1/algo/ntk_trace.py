@@ -23,7 +23,14 @@ class NTKTraceEvaluator(Evaluator):
             5. calculate M_trace = traceNorm(NTK), score = np.sqrt(trace_norm / batch_size)
         """
 
-        batch_size = batch_data.shape[0]
+        # this is for the structure data,
+        if isinstance(batch_data, dict):
+            batch_size = batch_data["value"].shape[0]
+        elif isinstance(batch_data, torch.Tensor):
+            batch_size = batch_data.shape[0]
+        else:
+            raise
+
         add_hooks(arch)
 
         # 1. forward on mini-batch

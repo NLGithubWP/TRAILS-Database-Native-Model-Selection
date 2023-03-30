@@ -31,16 +31,10 @@ class FisherEvaluator(Evaluator):
         # update model's forward and backward function
         self._update_module_compute(arch)
 
-        N = batch_data.shape[0]
-
-        for sp in range(split_data):
-            st = sp * N // split_data
-            en = (sp + 1) * N // split_data
-
-            # forward & backward
-            outputs = arch(batch_data[st:en])
-            loss = loss_fn(outputs, batch_labels[st:en])
-            loss.backward()
+        # forward & backward
+        outputs = arch(batch_data)
+        loss = loss_fn(outputs, batch_labels)
+        loss.backward()
 
         # retrieve fisher info
         def fisher(layer):
@@ -114,7 +108,8 @@ class FisherEvaluator(Evaluator):
                     return hook
 
                 # register backward hook on identity fcn to compute fisher info
-                layer.dummy.register_backward_hook(hook_factory(layer))
+                layer.dummy.register_full_backward_hook(hook_factory(layer))
+                # layer.dummy.register_backward_hook(hook_factory(layer))
 
 
 
