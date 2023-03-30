@@ -7,6 +7,7 @@ import os
 import random
 import time
 from exps.main_sigmod.common.shared_args import parse_arguments
+from datetime import datetime
 
 
 def generate_data_loader():
@@ -84,6 +85,7 @@ if __name__ == "__main__":
     result = {}
     explored_n = 0
     output_file = f"./score_{args.dataset}_batch_size_{args.batch_size}.json"
+    print("begin to score all ")
     while True:
         arch_micro, _ = sampler.sample_next_arch()
         if arch_micro is None:
@@ -97,7 +99,11 @@ if __name__ == "__main__":
         model_score = _evaluator.p1_evaluate(data_str)
         explored_n += 1
         result[arch_micro] = model_score
+        print(f" {datetime.now()}finish arch = {arch_micro}")
         if explored_n % 500 == 0:
+            print("3. [FIRMEST] Phase 1: filter phase explored " + str(explored_n) +
+                        " model, model_id = " + str(arch_micro) +
+                        " model_scores = " + json.dumps(model_score))
             logger.info("3. [FIRMEST] Phase 1: filter phase explored " + str(explored_n) +
                         " model, model_id = " + str(arch_micro) +
                         " model_scores = " + json.dumps(model_score))

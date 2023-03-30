@@ -51,7 +51,7 @@ class NTKTraceEvaluator(Evaluator):
         del arch
         torch.cuda.empty_cache()
 
-        print("gradient calculated done, delete arch, begin to compute NTK")
+        # print("gradient calculated done, delete arch, begin to compute NTK")
 
         # 4. ntk = ∇0 f(X) * Transpose( ∇0 f(X) ) [ batch_size * batch_size ]
         begin = time.time()
