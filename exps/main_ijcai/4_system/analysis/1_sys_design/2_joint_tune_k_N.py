@@ -6,7 +6,7 @@ from eva_engine.phase2.run_phase2 import P2Evaluator
 from query_api.db_base import fetch_from_db
 from utilslibs.parse_pre_res import SimulateTrain
 from common.constant import Config
-from eva_engine.phase2.algo.sh import SH
+from eva_engine.phase2.algo.sh import BudgetAwareControllerSH
 import os
 import numpy as np
 import query_api.query_model_gt_acc_api as gt_api
@@ -46,7 +46,7 @@ if __name__ == "__main__":
     fgt = SimulateTrain(used_space, 200)
     evaluator = P2Evaluator(used_space, used_dataset)
     eta = 3
-    sh = SH(evaluator, eta, time_per_epoch)
+    sh = BudgetAwareControllerSH(evaluator, eta, time_per_epoch)
 
     # y_k_array = [1, 5, 10, 20, 50, 100, 200]
     y_k_array = range(1, 200, 1)

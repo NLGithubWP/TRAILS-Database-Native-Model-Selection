@@ -10,7 +10,7 @@ from search_space.core.space import SpaceWrapper
 from torch.utils.data import DataLoader
 
 
-class SH:
+class BudgetAwareControllerSH:
     def __init__(self,
                  search_space_ins: SpaceWrapper, dataset_name: str,
                  eta, time_per_epoch,
@@ -30,7 +30,7 @@ class SH:
                                       train_loader=train_loader, val_loader=val_loader,
                                       args=args)
         self.eta = eta
-        self.max_unit_per_model = args.epoch - 1
+        self.max_unit_per_model = args.epoch
         self.time_per_epoch = time_per_epoch
         self.name = "SUCCHALF"
 
@@ -107,7 +107,7 @@ class SH:
         :return:
         """
 
-        # print(f" *********** begin SH with U={U}, K={len(candidates_m)} ***********")
+        # print(f" *********** begin BudgetAwareControllerSH with U={U}, K={len(candidates_m)} ***********")
         candidates = copy(candidates_m)
         total_epoch_each_rounds = len(candidates) * U
         min_budget_required = 0

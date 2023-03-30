@@ -106,7 +106,8 @@ class SampleController(object):
     def _use_pure_score_as_final_res(self, model_id: str, alg_score: dict):
         # get the key and sum the score of various alg
         score_sum_key = "_".join(list(alg_score.keys()))
-        self.history[score_sum_key] = []
+        if score_sum_key not in self.history:
+            self.history[score_sum_key] = []
         final_score = 0
         for alg in alg_score:
             final_score += float(alg_score[alg])

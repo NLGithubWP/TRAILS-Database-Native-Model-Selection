@@ -98,9 +98,15 @@ def dis_train_all_models(parser):
 
 # tune interval and schedule NK rate such that it can produce a good result
 def tune_interval_NK_rate(parser):
-    parser.add_argument('--kn_rate', default=50, type=int, help='num worker each gpu')
-    parser.add_argument('--num_points', default=8, type=int, help='num GPus')
-    parser.add_argument('--saved_result', default="", type=str, help='num GPus')
+    parser.add_argument('--kn_rate', default=100, type=int, help='num worker each gpu')
+    parser.add_argument('--num_points', default=12, type=int, help='num GPus')
+    parser.add_argument('--saved_result',
+        default="./exps/main_sigmod/analysis/result/res_end_2_end_frappe_100_12.json",
+        type=str, help='num GPus')
+    parser.add_argument('--img_save_path',
+        default="./exps/main_sigmod/analysis/",
+        type=str, help='num GPus')
+    parser.add_argument('--use_prue_score', default=True, type=bool, help='num GPus')
 
 
 def parse_arguments():

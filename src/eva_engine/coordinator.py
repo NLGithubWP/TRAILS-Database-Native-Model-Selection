@@ -1,14 +1,14 @@
 from common.constant import Config
 
 from eva_engine.phase2.evaluator import P2Evaluator
-from eva_engine.phase2.run_sh import SH
+from eva_engine.phase2.run_sh import BudgetAwareControllerSH
 from logger import logger
 from utilslibs.parse_pre_res import SimulateTrain
 
 eta = 3
 
 
-def schedule(dataset, sh: SH, T_,
+def schedule(dataset, sh: BudgetAwareControllerSH, T_,
              t1_, t2_,
              w_,
              search_space_ins, N_K_ratio, only_phase1: bool = False):

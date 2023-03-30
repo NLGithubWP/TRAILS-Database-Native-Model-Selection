@@ -32,19 +32,30 @@ def Add_one_line(x_time_array: list, y_twod_budget: List[List], namespace: str, 
     x_ = x_time_array
     y_ = y_twod_budget
 
+    if all(isinstance(item, list) for item in x_):
+        expx = np.array(x_)
+        x_m = np.quantile(expx, .5, axis=0)
+    else:
+        x_m = x_
+
     exp = np.array(y_) * 100
     y_h = np.quantile(exp, .75, axis=0)
     y_m = np.quantile(exp, .5, axis=0)
     y_l = np.quantile(exp, .25, axis=0)
 
-    ax.plot(x_, y_m,
+    ax.plot(x_m, y_m,
              mark_list[index%len(mark_list)]+line_shape_list[index%len(line_shape_list)],
              label=namespace, markersize=set_marker_size)
-    ax.fill_between(x_, y_l, y_h, alpha=shade_degree)
+    ax.fill_between(x_m, y_l, y_h, alpha=shade_degree)
 
 
-def draw_structure_data_anytime(all_lines: List, dataset: str, name_img: str):
+def draw_structure_data_anytime(
+        all_lines: List,
+        dataset: str, name_img: str,
+        x_ticks=None, y_ticks=None):
+
     fig, ax = plt.subplots()
+
     # draw all lines
     for i, each_line_info in enumerate(all_lines):
         _x_array = each_line_info[0]
@@ -63,8 +74,15 @@ def draw_structure_data_anytime(all_lines: List, dataset: str, name_img: str):
     ax.set_xscale("log")
     # ax.set_xlim(0.001, 10e4)
     # ax.set_ylim(x1_lim[0], x1_lim[1])
+
+    if y_ticks is not None:
+        ax.set_yticks(y_ticks)
+        ax.set_yticklabels(y_ticks)
+    if x_ticks is not None:
+        ax.set_xticks(x_ticks)
+        ax.set_xticklabels(x_ticks)
+
     ax.xaxis.set_major_locator(ticker.LogLocator(base=10, numticks=5))
-    # ax.yaxis.set_major_locator(ticker.MaxNLocator(integer=True))
 
     export_legend(ori_fig=fig, colnum=5)
     plt.tight_layout()

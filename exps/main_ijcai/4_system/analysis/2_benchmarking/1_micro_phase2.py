@@ -8,7 +8,7 @@ from eva_engine.phase2.run_phase2 import P2Evaluator
 from eva_engine.phase2.algo.sr import SR
 from eva_engine.phase2.algo.uniform import UniformAllocation
 from utilslibs.parse_pre_res import SimulateTrain
-from eva_engine.phase2.algo.sh import SH
+from eva_engine.phase2.algo.sh import BudgetAwareControllerSH
 import random
 import query_api.query_model_gt_acc_api as gt_api
 import matplotlib
@@ -112,7 +112,7 @@ if __name__ == "__main__":
     result_save_dic = {}
 
     print("--- benchmarking sh_")
-    sh_ = SH(evaluator, 3, time_per_epoch)
+    sh_ = BudgetAwareControllerSH(evaluator, 3, time_per_epoch)
     time_used_mean, accuracy_mean, accuracy_q_25, accuracy_q_75 = run_one_fixed_budget_alg(sh_, time_per_epoch)
     result_save_dic["sh"] = {
         "time_used_mean": time_used_mean,

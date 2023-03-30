@@ -38,7 +38,7 @@ def run_with_time_budget(time_budget: float):
 
     data_loader = [train_loader, val_loader, test_loader]
 
-    rms = RunModelSelection(args.search_space, args.dataset, args, is_simulate=True)
+    rms = RunModelSelection(args.search_space,  args, is_simulate=True)
     best_arch, best_arch_performance, _, _, _ = rms.select_model_online(
         budget=time_budget,
         data_loader=data_loader,
@@ -70,14 +70,14 @@ if __name__ == "__main__":
 
     # configurable settings for benchmarking
     only_phase1 = False
-    total_run = 100
+    total_run = 50
     max_minute = 1e3
     budget_array = log_scale_x_array(num_points=args.num_points, max_minute=max_minute)
     print(budget_array)
 
-    checkpoint_name = f"./exps/main_sigmod/analysis/res_end_2_end_{args.dataset}_{args.kn_rate}_{args.num_points}.json"
+    checkpoint_name = f"./exps/main_sigmod/analysis/result/res_end_2_end_{args.dataset}_{args.kn_rate}_{args.num_points}.json"
     if only_phase1:
-        checkpoint_name = f"./exps/main_sigmod/analysis/res_end_2_end_{args.dataset}_p1.json"
+        checkpoint_name = f"./exps/main_sigmod/analysis/result/res_end_2_end_{args.dataset}_p1.json"
         # if it's reach 201, already explored all models.
         budget_array = [ele for ele in budget_array if ele < 210]
 

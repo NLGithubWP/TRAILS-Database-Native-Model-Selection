@@ -88,7 +88,7 @@ if __name__ == "__main__":
     run_range_, budget_array, sub_graph_y1, sub_graph_y2, sub_graph_split, draw_graph = \
         get_plot_compare_with_base_line_cfg(args.search_space, args.dataset, False)
 
-    runner = RunModelSelection(args.search_space, args.dataset, args, is_simulate=True)
+    runner = RunModelSelection(args.search_space,  args, is_simulate=True)
     y_acc_list_arr = []
     for run_id in run_range_:
         print(f"getting system-based result run={run_range_}")

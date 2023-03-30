@@ -95,7 +95,7 @@ class RunPhase1:
                         " model, model_id = " + model_eva.model_id +
                         " model_scores = " + json.dumps(model_eva.model_score))
 
-            self.sampler.fit_sampler(model_eva.model_id, model_eva.model_score, use_prue_score=False)
+            self.sampler.fit_sampler(model_eva.model_id, model_eva.model_score, use_prue_score=self.args.use_prue_score)
 
         # return the top K models
         return self.sampler.get_current_top_k_models(self.K)

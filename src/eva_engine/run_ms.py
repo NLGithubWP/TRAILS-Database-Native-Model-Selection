@@ -5,14 +5,14 @@ from typing import Set, List
 from eva_engine import coordinator
 from eva_engine.phase1.run_phase1 import RunPhase1, p1_evaluate_query
 from torch.utils.data import DataLoader
-from eva_engine.phase2.run_sh import SH
+from eva_engine.phase2.run_sh import BudgetAwareControllerSH
 from logger import logger
 from search_space.init_search_space import init_search_space
 
 
 class RunModelSelection:
 
-    def __init__(self, search_space_name: str, dataset: str, args, is_simulate: bool = False):
+    def __init__(self, search_space_name: str, args, is_simulate: bool = False):
 
         self.args = args
 
@@ -40,12 +40,13 @@ class RunModelSelection:
         # 0. profiling dataset and search space, get t1 and t2
 
         score_time_per_model, train_time_per_epoch, N_K_ratio = self.search_space_ins.profiling(self.dataset)
-        self.sh = SH(search_space_ins=self.search_space_ins,
-                     dataset_name=self.dataset,
-                     eta=self.eta,
-                     time_per_epoch=train_time_per_epoch,
-                     args=self.args,
-                     is_simulate=self.is_simulate)
+        self.sh = BudgetAwareControllerSH(
+            search_space_ins=self.search_space_ins,
+            dataset_name=self.dataset,
+            eta=self.eta,
+            time_per_epoch=train_time_per_epoch,
+            args=self.args,
+            is_simulate=self.is_simulate)
 
         # 1. run coordinator to schedule
         K, U, N, B1_planed_time, B2_planed_time, B2_all_epoch = coordinator.schedule(self.dataset, self.sh, budget,
@@ -94,14 +95,15 @@ class RunModelSelection:
             self.args,
             is_simulate=self.is_simulate)
 
-        self.sh = SH(search_space_ins=self.search_space_ins,
-                     dataset_name=self.dataset,
-                     eta=self.eta,
-                     time_per_epoch=train_time_per_epoch,
-                     is_simulate=self.is_simulate,
-                     train_loader=train_loader,
-                     val_loader=valid_loader,
-                     args=self.args)
+        self.sh = BudgetAwareControllerSH(
+             search_space_ins=self.search_space_ins,
+             dataset_name=self.dataset,
+             eta=self.eta,
+             time_per_epoch=train_time_per_epoch,
+             is_simulate=self.is_simulate,
+             train_loader=train_loader,
+             val_loader=valid_loader,
+             args=self.args)
 
         # 1. run coordinator to schedule
         logger.info("2. [FIRMEST] Begin scheduling...")
@@ -169,14 +171,15 @@ class RunModelSelection:
             self.args,
             is_simulate=self.is_simulate)
 
-        self.sh = SH(search_space_ins=self.search_space_ins,
-                     dataset_name=self.dataset,
-                     eta=self.eta,
-                     time_per_epoch=train_time_per_epoch,
-                     is_simulate=self.is_simulate,
-                     train_loader=train_loader,
-                     val_loader=valid_loader,
-                     args=self.args)
+        self.sh = BudgetAwareControllerSH(
+             search_space_ins=self.search_space_ins,
+             dataset_name=self.dataset,
+             eta=self.eta,
+             time_per_epoch=train_time_per_epoch,
+             is_simulate=self.is_simulate,
+             train_loader=train_loader,
+             val_loader=valid_loader,
+             args=self.args)
 
         # 1. run coordinator to schedule
         logger.info("2. [FIRMEST] Begin scheduling...")
