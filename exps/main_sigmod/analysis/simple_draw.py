@@ -23,6 +23,7 @@ def sample_few_points_from_fully_train(x_array, y_2d_array, remove_n_points=1) -
         start_exp = np.log10(1)
         end_exp = np.log10(len(time_list))
         indices = np.logspace(start_exp, end_exp, factor, endpoint=False, base=10).astype(int) - 1
+        indices = np.unique(indices)
 
         # Sample the list using the calculated indices
         each_run_x_array = [time_list[i] for i in indices]

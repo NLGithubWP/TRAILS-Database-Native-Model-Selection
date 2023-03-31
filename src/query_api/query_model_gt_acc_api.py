@@ -21,12 +21,12 @@ id_to_hash_path = os.path.join(base_dir, "result_base/ground_truth/nb101_id_to_h
 
 # MLP related ground truth
 mlp_train_frappe = os.path.join(base_dir, "result_base/mlp_results/frappe/all_train_baseline_frappe.json")
-mlp_train_uci_diabetes = os.path.join(base_dir, "result_base/mlp_results/frappe/uci_diabetes_train.json")
-mlp_train_criteo = os.path.join(base_dir, "result_base/mlp_results/frappe/criteo_train.json")
+mlp_train_uci_diabetes = os.path.join(base_dir, "result_base/mlp_results/uci_diabetes/all_train_baseline_uci.json")
+mlp_train_criteo = os.path.join(base_dir, "result_base/mlp_results/criteo/all_train_baseline_criteo_only_8k.json")
 
-mlp_score_frappe = os.path.join(base_dir, "result_base/mlp_results/frappe/score_frappe_batch_size_32.json")
-mlp_score_uci_diabetes = os.path.join(base_dir, "result_base/mlp_results/frappe/uci_diabetes_train.json")
-mlp_score_criteo = os.path.join(base_dir, "result_base/mlp_results/frappe/criteo_train.json")
+mlp_score_frappe = os.path.join(base_dir, "result_base/mlp_results/frappe/score_frappe_batch_size_32_nawot_synflow.json")
+mlp_score_uci_diabetes = os.path.join(base_dir, "result_base/mlp_results/uci_diabetes/score_uci_diabetes_batch_size_32_all_metrics.json")
+mlp_score_criteo = os.path.join(base_dir, "result_base/mlp_results/criteo/score_criteo_batch_size_32.json")
 
 
 def guess_score_time(search_space_m, dataset):
@@ -206,24 +206,63 @@ class Gt101(Singleton):
 class GTMLP(Singleton):
     # multiple instance share the class variables.
     _instance_lock = threading.Lock()
+
+    default_alg_name_list = ["nas_wot", "synflow"]
+
     mlp_frappe_train = None
     mlp_frappe_score = None
     mlp_frappe_global_rank = {}
-    mlp_uci = None
-    mlp_criteo = None
+
+    mlp_criteo_train = None
+    mlp_criteo_score = None
+    mlp_criteo_global_rank = {}
+
+    mlp_uci_train = None
+    mlp_uci_score = None
+    mlp_uci_global_rank = {}
 
     def load_mlp_train(self, dataset):
-        if self.mlp_frappe_train is None:
-            self.mlp_frappe_train = read_json(mlp_train_frappe)
+        if dataset == Config.Frappe:
+            if self.mlp_frappe_train is None:
+                self.mlp_frappe_train = read_json(mlp_train_frappe)
+
+        if dataset == Config.Criteo:
+            if self.mlp_criteo_train is None:
+                self.mlp_criteo_train = read_json(mlp_train_criteo)
+
+        if dataset == Config.UCIDataset:
+            if self.mlp_uci_train is None:
+                self.mlp_uci_train = read_json(mlp_train_uci_diabetes)
 
     def load_mlp_score(self, dataset):
-        if self.mlp_frappe_score is None:
-            self.mlp_frappe_score = read_json(mlp_score_frappe)
+        if dataset == Config.Frappe:
+            if self.mlp_frappe_score is None:
+                self.mlp_frappe_score = read_json(mlp_score_frappe)
+
+        if dataset == Config.Criteo:
+            if self.mlp_criteo_score is None:
+                self.mlp_criteo_score = read_json(mlp_score_criteo)
+
+        if dataset == Config.UCIDataset:
+            if self.mlp_uci_score is None:
+                self.mlp_uci_score = read_json(mlp_score_uci_diabetes)
 
     def load_mlp_global_score_rank(self, dataset):
-        self.load_mlp_score(dataset)
-        if self.mlp_frappe_global_rank == {}:
-            self.mlp_frappe_global_rank = load_global_rank(self.mlp_frappe_score)
+
+        if dataset == Config.Frappe:
+            self.load_mlp_score(dataset)
+            if self.mlp_frappe_global_rank == {}:
+                self.mlp_frappe_global_rank = load_global_rank(self.mlp_frappe_score, self.default_alg_name_list)
+
+        if dataset == Config.Criteo:
+            self.load_mlp_score(dataset)
+            if self.mlp_criteo_global_rank == {}:
+                self.mlp_criteo_global_rank = load_global_rank(self.mlp_criteo_score, self.default_alg_name_list)
+
+        if dataset == Config.UCIDataset:
+            self.load_mlp_score(dataset)
+            if self.mlp_uci_global_rank == {}:
+                self.mlp_uci_global_rank = load_global_rank(self.mlp_uci_score, self.default_alg_name_list)
 
     def get_valid_auc(self, arch_id: str, dataset, epoch_num: int):
         self.load_mlp_train(dataset)
@@ -231,6 +270,16 @@ class GTMLP(Singleton):
             if epoch_num is None: epoch_num = 19
             t_acc = self.mlp_frappe_train[dataset][arch_id][str(epoch_num)]["valid_auc"]
             time_usage = self.mlp_frappe_train[dataset][arch_id][str(epoch_num)]["train_val_total_time"]
+            return t_acc, time_usage
+        elif dataset == Config.Criteo:
+            if epoch_num is None: epoch_num = 9
+            t_acc = self.mlp_criteo_train[dataset][arch_id][str(epoch_num)]["valid_auc"]
+            time_usage = self.mlp_criteo_train[dataset][arch_id][str(epoch_num)]["train_val_total_time"]
+            return t_acc, time_usage
+        elif dataset == Config.UCIDataset:
+            if epoch_num is None: epoch_num = 39
+            t_acc = self.mlp_uci_train[dataset][arch_id][str(epoch_num)]["valid_auc"]
+            time_usage = self.mlp_uci_train[dataset][arch_id][str(epoch_num)]["train_val_total_time"]
             return t_acc, time_usage
         else:
             raise NotImplementedError
@@ -240,6 +289,12 @@ class GTMLP(Singleton):
         if dataset == Config.Frappe:
             score_dic = self.mlp_frappe_score[arch_id]
             return score_dic
+        elif dataset == Config.Criteo:
+            score_dic = self.mlp_criteo_score[arch_id]
+            return score_dic
+        elif dataset == Config.UCIDataset:
+            score_dic = self.mlp_uci_score[arch_id]
+            return score_dic
         else:
             raise NotImplementedError
 
@@ -247,6 +302,10 @@ class GTMLP(Singleton):
         self.load_mlp_global_score_rank(dataset)
         if dataset == Config.Frappe:
             return self.mlp_frappe_global_rank[arch_id]
+        elif dataset == Config.Criteo:
+            return self.mlp_criteo_global_rank[arch_id]
+        elif dataset == Config.UCIDataset:
+            return self.mlp_uci_global_rank[arch_id]
         else:
             raise NotImplementedError
 

@@ -5,10 +5,11 @@ import scipy.stats as ss
 import numpy as np
 from os.path import exists
 from matplotlib import pyplot as plt
+
+from exps.main_ijcai.statistic_lib import sort_update_with_batch_average, get_rank_after_sort, \
+    sort_update_with_batch_average_hlm, sort_update
 from utilslibs.measure_tools import CorCoefficient
 from query_api.query_model_gt_acc_api import Gt101
-from statistic_lib import get_rank_after_sort, sort_update, sort_update_with_batch_average, \
-    sort_update_with_batch_average_hlm
 
 
 def union_best_bn_cfg(bn_input_file_path, noBn_input_file_path, output_file_path):

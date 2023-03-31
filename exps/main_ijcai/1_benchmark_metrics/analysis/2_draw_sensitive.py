@@ -1,14 +1,37 @@
 
 
 from matplotlib import pyplot as plt
-
+import numpy as np
+from matplotlib import pyplot as plt
+import matplotlib
+import matplotlib.ticker as ticker
 
 def revserList(a):
     return list(reversed(a))
 
 
+# lines' mark size
+marksizeall = 10
+# points' mark size
+set_marker_point = 14
+# points' mark size
 frontsizeall = 20
-marksizeall = 30
+set_lgend_size = 20
+set_tick_size = 15
+
+frontinsidebox = 20
+
+# update tick size
+matplotlib.rc('xtick', labelsize=set_tick_size)
+matplotlib.rc('ytick', labelsize=set_tick_size)
+
+plt.rcParams['axes.labelsize'] = set_tick_size
+
+mark_list = ["o", "*", "<", "^", "s", "d", "D", ">", "h"]
+line_shape_list = ['-.', '--', '-', ':']
+shade_degree = 0.2
+
+
 bar_w = 0.4
 def plot_channel(axcost):
     axs = axcost.twinx()
@@ -37,15 +60,15 @@ def plot_channel(axcost):
 
     axcost.bar(x, fix32B_params, width=bar_w, fill=False, hatch='.', edgecolor="black")
 
-    axs.plot(x, ntk_app, label="NTKTraceAppx", marker=".", markersize=marksizeall)
-    axs.plot(x, ntk, label="NTKTrace", marker=".", markersize=marksizeall)
-    axs.plot(x, fisher, label="Fisher", marker=".", markersize=marksizeall)
-    axs.plot(x, snip, label="SNIP", marker=".", markersize=marksizeall)
-    axs.plot(x, grasp, label="GraSP", marker=".", markersize=marksizeall)
-    axs.plot(x, synflow, label="SynFlow", marker=".", markersize=marksizeall)
-    axs.plot(x, grad_norm, label="GradNorm", marker=".", markersize=marksizeall)
-    axs.plot(x, nas_wot, label="NASWOT", marker=".", markersize=marksizeall)
-    axs.plot(x, ntk_app, label="NTKTraceAppx", marker=".", markersize=marksizeall)
+    axs.plot(x, ntk_app, mark_list[1 % len(mark_list)] + line_shape_list[1 % len(line_shape_list)],  label="NTKTraceAppx",  markersize=marksizeall)
+    axs.plot(x, ntk, mark_list[2 % len(mark_list)] + line_shape_list[2 % len(line_shape_list)],  label="NTKTrace",  markersize=marksizeall)
+    axs.plot(x, fisher, mark_list[3 % len(mark_list)] + line_shape_list[3 % len(line_shape_list)],  label="Fisher",  markersize=marksizeall)
+    axs.plot(x, snip, mark_list[4 % len(mark_list)] + line_shape_list[4 % len(line_shape_list)],  label="SNIP",  markersize=marksizeall)
+    axs.plot(x, grasp, mark_list[5 % len(mark_list)] + line_shape_list[5 % len(line_shape_list)],  label="GraSP",  markersize=marksizeall)
+    axs.plot(x, synflow, mark_list[6 % len(mark_list)] + line_shape_list[6 % len(line_shape_list)],  label="SynFlow",  markersize=marksizeall)
+    axs.plot(x, grad_norm,mark_list[7 % len(mark_list)] + line_shape_list[7 % len(line_shape_list)],   label="GradNorm",  markersize=marksizeall)
+    axs.plot(x, nas_wot,mark_list[8 % len(mark_list)] + line_shape_list[8 % len(line_shape_list)],   label="NASWOT",  markersize=marksizeall)
+    axs.plot(x, ntk_app, mark_list[9 % len(mark_list)] + line_shape_list[9 % len(line_shape_list)],  label="NTKTraceAppx",  markersize=marksizeall)
     axs.grid()
 
     # axs.legend(loc='upper right', fontsize=frontsizeall)
@@ -85,14 +108,16 @@ def plot_batchsize(axcost):
 
     axcost.bar(x, fix16C_flops, width=bar_w, fill=False, hatch='/',)
 
-    axs.plot(x, revserList(ntk_app), label="NTKTraceAppx", marker=".", markersize=marksizeall)
-    axs.plot(x, revserList(ntk), label="NTKTrace", marker=".", markersize=marksizeall)
-    axs.plot(x, revserList(fisher), label="Fisher", marker=".", markersize=marksizeall)
-    axs.plot(x, revserList(snip), label="SNIP", marker=".", markersize=marksizeall)
-    axs.plot(x, revserList(grasp), label="GraSP", marker=".", markersize=marksizeall)
-    axs.plot(x, revserList(synflow), label="SynFlow", marker=".", markersize=marksizeall)
-    axs.plot(x, revserList(grad_norm), label="GradNorm", marker=".", markersize=marksizeall)
-    axs.plot(x, revserList(nas_wot), label="NASWOT", marker=".", markersize=marksizeall)
+    axs.plot(x, revserList(ntk_app),
+             mark_list[1 % len(mark_list)] + line_shape_list[1 % len(line_shape_list)],
+             label="NTKTraceAppx",  markersize=marksizeall)
+    axs.plot(x, revserList(ntk), mark_list[1 % len(mark_list)] + line_shape_list[1 % len(line_shape_list)], label="NTKTrace",  markersize=marksizeall)
+    axs.plot(x, revserList(fisher), mark_list[2 % len(mark_list)] + line_shape_list[2 % len(line_shape_list)], label="Fisher",  markersize=marksizeall)
+    axs.plot(x, revserList(snip), mark_list[3 % len(mark_list)] + line_shape_list[3 % len(line_shape_list)], label="SNIP",  markersize=marksizeall)
+    axs.plot(x, revserList(grasp), mark_list[4 % len(mark_list)] + line_shape_list[4 % len(line_shape_list)], label="GraSP",  markersize=marksizeall)
+    axs.plot(x, revserList(synflow), mark_list[5 % len(mark_list)] + line_shape_list[5 % len(line_shape_list)], label="SynFlow",  markersize=marksizeall)
+    axs.plot(x, revserList(grad_norm), mark_list[6 % len(mark_list)] + line_shape_list[6 % len(line_shape_list)], label="GradNorm",  markersize=marksizeall)
+    axs.plot(x, revserList(nas_wot), mark_list[7 % len(mark_list)] + line_shape_list[7 % len(line_shape_list)], label="NASWOT",  markersize=marksizeall)
 
     axs.grid()
     # axs.legend(loc='upper right', fontsize=frontsizeall)
@@ -128,7 +153,7 @@ f.legend(unique_lines, unique_labels, loc='upper center', bbox_to_anchor=(0.5, 1
          ncol=9, fancybox=True, shadow=True, scatterpoints=1, fontsize=frontsizeall)
 
 plt.tight_layout()
-plt.show()
+# plt.show()
 
 f.savefig("sen.pdf", bbox_inches='tight')
 

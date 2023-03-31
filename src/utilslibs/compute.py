@@ -40,27 +40,26 @@ def search_position(rank_list_m: list, new_item: List):
         return left
 
 
-def load_global_rank(ml_data_score_dic: dict) -> dict:
+def load_global_rank(ml_data_score_dic: dict, alg_name_list: List) -> dict:
     """
     ml_data_score_dic: { model_id: {alg: score1, alg2: score2} }
     return: { model_id: {alg1_alg2: rank_score} }
     """
 
     history = {}
-    alg_list = set()
+    for alg in alg_name_list:
+            history[alg] = []
+
     for arch_id, arch_score in ml_data_score_dic.items():
-        for alg in arch_score:
-            if alg not in history:
-                history[alg] = []
         # add model and score to local list
         for alg, score in arch_score.items():
-            alg_list.add(alg)
-            binary_insert_get_rank(history[alg], [arch_id, score])
+            if alg in alg_name_list:
+                binary_insert_get_rank(history[alg], [arch_id, score])
 
     # convert multiple scores into rank value
     model_new_rank_score = {}
     current_explored_models = 0
-    for alg in alg_list:
+    for alg in alg_name_list:
         current_explored_models = len(history[alg])
         for rank_index in range(len(history[alg])):
             ms_ins = history[alg][rank_index]
@@ -72,7 +71,7 @@ def load_global_rank(ml_data_score_dic: dict) -> dict:
 
     for ele in model_new_rank_score.keys():
         model_new_rank_score[ele] = \
-            {"_".join(list(alg_list)): model_new_rank_score[ele] / current_explored_models}
+            {"_".join(list(alg_name_list)): model_new_rank_score[ele] / current_explored_models}
 
     return model_new_rank_score
 
@@ -94,3 +93,18 @@ def log_scale_x_array(num_points, max_minute, base=10) -> list:
     # Print the log scale values in minutes
 
     return log_vals_min.tolist()
+
+
+def sample_in_log_scale(lst: List, num_points: int) -> List:
+    indices = np.logspace(0, np.log10(len(lst) - 1), num_points + num_points // 2, dtype=int)
+    # Remove any duplicate indices
+    indices = np.unique(indices)
+    return list(indices)
+
+
+def sample_in_line_scale(lst: List, num_points: int) -> List:
+    indices = np.linspace(0, len(lst) - 1, num_points, dtype=int)
+    # Remove any duplicate indices
+    indices = np.unique(indices)
+    return list(indices)
+

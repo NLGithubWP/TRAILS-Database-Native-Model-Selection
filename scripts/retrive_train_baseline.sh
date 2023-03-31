@@ -27,3 +27,28 @@ sshpass -p "naili" scp -r naili@pandax1.d2.comp.nus.edu.sg:/home/naili/FIRMEST/L
 sshpass -p "naili" scp -r naili@pandax1.d2.comp.nus.edu.sg:/home/naili/FIRMEST/base_line_res_uci_diabetes ./
 
 sshpass -p "naili" scp -r naili@pandax1.d2.comp.nus.edu.sg:/home/naili/FIRMEST/score_uci_diabetes_batch_size_32.json ./
+
+
+# UCI score
+
+sshpass -p "naili" scp -r naili@pandax1.d2.comp.nus.edu.sg:/home/naili/FIRMEST/score_frappe_batch_size_32.json .
+sshpass -p "naili" scp -r naili@pandax1.d2.comp.nus.edu.sg:/home/naili/FIRMEST/score_uci_diabetes_batch_size_32.json .
+sshpass -p "naili" scp -r naili@pandax1.d2.comp.nus.edu.sg:/home/naili/FIRMEST/score_criteo_batch_size_32.json .
+
+
+sshpass -p "naili" scp -r naili@pandax1.d2.comp.nus.edu.sg:/home/naili/FIRMEST/LogUci8k ./A_structure_dataexp_res/uci/20230331_8k_checkpoint
+sshpass -p "naili" scp -r naili@pandax1.d2.comp.nus.edu.sg:/home/naili/FIRMEST/base_line_res_uci_diabetes   ./A_structure_dataexp_res/uci/20230331_8k_checkpoint
+
+# Criteo training result
+
+sshpass -p "naili" scp -r naili@xai.d2.comp.nus.edu.sg:/home/naili/FIRMEST/LogCriteo   ./A_structure_dataexp_res/criteo/FromXAI
+sshpass -p "naili" scp -r naili@xai.d2.comp.nus.edu.sg:/home/naili/FIRMEST/base_line_res_criteo   ./A_structure_dataexp_res/criteo/FromXAI
+
+sshpass -p "naili" scp -r naili@pandax1.d2.comp.nus.edu.sg:/home/naili/FIRMEST/LogCriteo   ./A_structure_dataexp_res/criteo/FromPandaX1
+sshpass -p "naili" scp -r naili@pandax1.d2.comp.nus.edu.sg:/home/naili/FIRMEST/base_line_res_criteo   ./A_structure_dataexp_res/criteo/FromPandaX1
+
+
+sshpass -p "xingnaili" scp -r xingnaili@panda.d2.comp.nus.edu.sg:/home/xingnaili/FIRMEST/LogCriteo   ./A_structure_dataexp_res/criteo/FromPanda
+sshpass -p "xingnaili" scp -r xingnaili@panda.d2.comp.nus.edu.sg:/home/xingnaili/FIRMEST/base_line_res_criteo   ./A_structure_dataexp_res/criteo/FromPanda
+
+#sshpass -p "xingnaili" ssh xingnaili@panda.d2.comp.nus.edu.sg
