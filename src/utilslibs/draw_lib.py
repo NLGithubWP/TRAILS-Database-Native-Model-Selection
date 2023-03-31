@@ -6,7 +6,7 @@ import matplotlib
 import matplotlib.ticker as ticker
 
 # lines' mark size
-set_marker_size = 10
+set_marker_size = 20
 # points' mark size
 set_marker_point = 14
 # points' mark size
@@ -44,8 +44,8 @@ def Add_one_line(x_time_array: list, y_twod_budget: List[List], namespace: str, 
     y_l = np.quantile(exp, .25, axis=0)
 
     ax.plot(x_m, y_m,
-             mark_list[index%len(mark_list)]+line_shape_list[index%len(line_shape_list)],
-             label=namespace, markersize=set_marker_size)
+            mark_list[index % len(mark_list)] + line_shape_list[index % len(line_shape_list)],
+            label=namespace, markersize=set_marker_size)
     ax.fill_between(x_m, y_l, y_h, alpha=shade_degree)
 
 
@@ -53,7 +53,6 @@ def draw_structure_data_anytime(
         all_lines: List,
         dataset: str, name_img: str,
         x_ticks=None, y_ticks=None):
-
     fig, ax = plt.subplots()
 
     # draw all lines
@@ -111,3 +110,48 @@ def export_legend(ori_fig, filename="any_time_legend", colnum=9, unique_labels=N
     fig2.savefig(f"{filename}.pdf", bbox_inches='tight')
 
 
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+
+def plot_heatmap(data: List, fontsize: int, x_array_name: str, y_array_name: str, title: str, output_file: str, decimal_places: int):
+    labelsize = fontsize
+    # Convert the data to a NumPy array
+    data_array = np.array(data)
+
+    # Custom annotation function
+    def custom_annot(val):
+        return "{:.{}f}".format(val, decimal_places) if val > 0 else ""
+
+    # Convert the custom annotations to a 2D array
+    annot_array = np.vectorize(custom_annot)(data_array)
+
+    # Create a masked array to hide the cells with values less than or equal to 0
+    masked_data = np.ma.masked_array(data_array, data_array <= 0)
+
+    # Set the figure size (width, height) in inches
+    fig, ax = plt.subplots(figsize=(6, 4))
+
+    # Use the "viridis" colormap
+    cmap = "viridis"
+
+    # Create a heatmap
+    sns.heatmap(masked_data, annot=annot_array, fmt='', cmap=cmap, mask=masked_data.mask, ax=ax,
+                annot_kws={"size": fontsize, "ha": "center", "va": "center"},
+                xticklabels=np.arange(1, masked_data.shape[1] + 1), yticklabels=np.arange(1, masked_data.shape[0] + 1))
+
+    # Set axis labels
+    ax.set_xlabel(x_array_name, fontsize=fontsize)
+    ax.set_ylabel(y_array_name, fontsize=fontsize)
+
+    # Set x/y-axis tick size
+    ax.tick_params(axis='both', which='major', labelsize=labelsize)
+
+    # Set the title
+    # ax.set_title(title, fontsize=fontsize)
+
+    # Set tight layout
+    plt.tight_layout()
+
+    # Save the plot to a PDF file
+    plt.savefig(output_file)

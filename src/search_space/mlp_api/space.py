@@ -22,9 +22,9 @@ import query_api.query_model_gt_acc_api as gt_api
 DEFAULT_LAYER_CHOICES_20 = [8, 16, 24, 32, # 8
                             48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, # 16
                             384, 512]
-DEFAULT_LAYER_CHOICES_10 = [8, 
-                            16, 32, 48, 
-                            96, 112, 144, 176, 240, 384]
+DEFAULT_LAYER_CHOICES_10 = [8, 16, 32,
+                            48,  96, 112, 144, 176, 240,
+                            384]
 
 
 class MlpMicroCfg(ModelMicroCfg):
@@ -245,11 +245,9 @@ class MlpSpace(SpaceWrapper):
         del super_net
 
         if is_simulate:
+            # todo, find a ideal server, and use 512 model to profile.
             # those are from the pre-calculator
-            if dataset == Config.Frappe:
-                _train_time_per_epoch = 160
-            else:
-                raise NotImplementedError
+            _train_time_per_epoch = gt_api.GTMLP.get_train_one_epoch_time(dataset)
 
         else:
             super_net = DNNModel(
@@ -329,7 +327,7 @@ class MlpSpace(SpaceWrapper):
             result = result * ele
         return result
 
-    def sample_all_models(self) -> Generator[str, None, None]:
+    def sample_all_models(self) -> Generator[str, ModelMicroCfg, None]:
         assert isinstance(self.model_cfg, MlpMacroCfg)
         # 2-dimensional matrix for the search spcae
         space = []
@@ -344,7 +342,7 @@ class MlpSpace(SpaceWrapper):
             ele = combinations.__next__()
             model_micro = MlpMicroCfg(list(ele))
             model_encoding = str(model_micro)
-            yield model_encoding
+            yield model_encoding, model_micro
 
     def random_architecture_id(self) -> (str, ModelMicroCfg):
         assert isinstance(self.model_cfg, MlpMacroCfg)

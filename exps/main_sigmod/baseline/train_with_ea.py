@@ -77,7 +77,7 @@ if __name__ == "__main__":
 
     total_explore = 2500
     total_run = 100
-    train_epoch = 19
+    train_epoch = 0
 
     checkpoint_file = f"./exps/main_sigmod/analysis/res_train_base_line_{args.dataset}_epoch_{train_epoch}.json"
 
@@ -110,8 +110,6 @@ if __name__ == "__main__":
             arch_id, arch_micro = sampler.sample_next_arch()
             model_encoding = search_space_ins.serialize_model_encoding(arch_micro)
 
-            explored_n += 1
-
             # run the model selection
             model_acquire_data = ModelAcquireData(model_id=str(arch_id),
                                                   model_encoding=model_encoding,
@@ -120,9 +118,15 @@ if __name__ == "__main__":
 
             # update the shared model eval res
             model_eva.model_id = str(arch_id)
-            auc, time_usage = _evaluator.p2_evaluate(str(arch_id), train_epoch)
+            try:
+                auc, time_usage = _evaluator.p2_evaluate(str(arch_id), train_epoch)
+            except Exception as e:
+                print(e)
+                continue
             model_eva.model_score = {"AUC": auc}
             sampler.fit_sampler(model_eva.model_id, model_eva.model_score, use_prue_score=False)
+
+            explored_n += 1
 
             if train_epoch == args.epoch:
                 full_train_auc = auc

@@ -2,12 +2,12 @@
 
 import random
 
-from eva_engine.phase2.run_phase2 import P2Evaluator
+from eva_engine.phase2.evaluator import P2Evaluator
+from eva_engine.phase2.run_sh import BudgetAwareControllerSH
 from utilslibs.draw_tools import draw_grid_graph_with_budget
 from query_api.db_base import fetch_from_db
 from utilslibs.parse_pre_res import SimulateTrain
 from common.constant import Config
-from eva_engine.phase2.algo.sh import BudgetAwareControllerSH
 import os
 import numpy as np
 import query_api.query_model_gt_acc_api as gt_api
@@ -44,10 +44,13 @@ if __name__ == "__main__":
 
     time_per_epoch = gt_api.guess_train_one_epoch_time(used_space, used_dataset)
 
-    fgt = SimulateTrain(used_space, 200)
+    fgt = SimulateTrain(used_space)
     evaluator = P2Evaluator(used_space, used_dataset)
     eta = 3
-    sh = BudgetAwareControllerSH(evaluator, eta, time_per_epoch)
+    sh = BudgetAwareControllerSH(search_space_ins=used_space,
+                                 dataset_name=used_dataset,
+                                 eta=eta,
+                                 time_per_epoch=time_per_epoch)
 
     y_k_array = [5, 10, 20, 50, 100]
     x_epoch_array = [1, 5, 10, 50]
@@ -92,7 +95,7 @@ if __name__ == "__main__":
                     else:
                         p1_time, B1 = time_to_B1(T - p2_time)  # how many to score in p1
                         arch_id, candidates_all, curr_time = fetch_from_db(used_space, used_dataset, run_id, B1)
-                        best_arch, B2_used = run(U, candidates_all[-k:])
+                        best_arch, B2_used = run_phase2(U, candidates_all[-k:])
                         assert B2_used == B2_planed
                         acc_sh_v, _ = fgt.get_ground_truth(best_arch)
                         # record for drawing

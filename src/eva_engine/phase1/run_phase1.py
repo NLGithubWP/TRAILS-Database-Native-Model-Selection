@@ -3,6 +3,7 @@ import json
 from common.constant import Config
 from common.structure import ModelAcquireData, ModelEvaData
 from controller.controler import SampleController
+from controller.sampler_all.seq_sampler import SequenceSampler
 
 from eva_engine.phase1.evaluator import P1Evaluator
 from logger import logger
@@ -32,11 +33,17 @@ class RunPhase1:
     def __init__(self, args, K: int, N: int, search_space_ins: SpaceWrapper,
                  train_loader: DataLoader, is_simulate: bool):
         """
+        Each model selection job will init one class here.
         :param args: space, population_size, sample_size
         :param K: K models return in 1st phase
         :param N: N models eval in total
         :param search_space_ins:
         """
+
+        # return K models
+        self.K = K
+        # explore N models
+        self.N = N
 
         self.args = args
         if self.args.search_space == Config.NB201:
@@ -47,10 +54,15 @@ class RunPhase1:
         self.search_space_ins = search_space_ins
 
         # seq: init the search strategy and controller,
-        strategy = RegularizedEASampler(self.search_space_ins,
-                                        population_size=self.args.population_size,
-                                        sample_size=self.args.sample_size)
 
+        if self.N == len(self.search_space_ins):
+            print("Explore all models")
+            strategy = SequenceSampler(self.search_space_ins)
+        else:
+            print("Explore with ea")
+            strategy = RegularizedEASampler(self.search_space_ins,
+                                            population_size=self.args.population_size,
+                                            sample_size=self.args.sample_size)
         self.sampler = SampleController(strategy)
 
         # seq: init the phase 1 evaluator,
@@ -61,12 +73,7 @@ class RunPhase1:
                                       train_loader=train_loader,
                                       is_simulate=is_simulate)
 
-        # return K models
-        self.K = K
-        # explore N models
-        self.N = N
-
-    def run_phase1_seq(self) -> list:
+    def run_phase1(self) -> list:
         """
         Controller explore n models, and return the top K models.
         :return:
@@ -75,9 +82,12 @@ class RunPhase1:
         explored_n = 1
         model_eva = ModelEvaData()
 
-        while explored_n < self.N:
+        while explored_n <= self.N:
             # generate new model
             arch_id, arch_micro = self.sampler.sample_next_arch()
+            # this is for sequence sampler.
+            if arch_id is None:
+                break
             model_encoding = self.search_space_ins.serialize_model_encoding(arch_micro)
 
             explored_n += 1

@@ -129,7 +129,7 @@ class RunModelSelection:
             train_loader=train_loader,
             is_simulate=self.is_simulate)
 
-        K_models = p1_runner.run_phase1_seq()
+        K_models = p1_runner.run_phase1()
 
         logger.info("4. [FIRMEST] Begin to run phase2: refinement phase")
 

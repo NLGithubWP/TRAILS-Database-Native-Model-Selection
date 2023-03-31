@@ -22,7 +22,8 @@ class SequenceSampler(Sampler):
         """
         # random.seed(20)
         try:
-            return self.arch_gene.__next__(), None
+            arch_id, arch_micro = self.arch_gene.__next__()
+            return arch_id, arch_micro
         except Exception as e:
             if "StopIteration" in str(e):
                 print("the end")
@@ -32,8 +33,3 @@ class SequenceSampler(Sampler):
 
     def fit_sampler(self, score: float):
         pass
-
-
-
-
-

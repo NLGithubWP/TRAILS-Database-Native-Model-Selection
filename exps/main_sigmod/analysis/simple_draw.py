@@ -23,6 +23,7 @@ def sample_few_points_from_fully_train(x_array, y_2d_array, remove_n_points=1) -
         start_exp = np.log10(1)
         end_exp = np.log10(len(time_list))
         indices = np.logspace(start_exp, end_exp, factor, endpoint=False, base=10).astype(int) - 1
+        indices = np.unique(indices)
 
         # Sample the list using the calculated indices
         each_run_x_array = [time_list[i] for i in indices]
@@ -34,16 +35,38 @@ def sample_few_points_from_fully_train(x_array, y_2d_array, remove_n_points=1) -
     return result_x_array, result_y_array
 
 
-print(f"reading from {args.saved_result}")
-
 # 'frappe, criteo, uci_diabetes'
-dataset = "frappe"
 
-train_result19 = read_json(f"./exps/main_sigmod/analysis/result/res_train_base_line_{dataset}_epoch_19.json")
-sampled_train_x, sampled_train_y = sample_few_points_from_fully_train(train_result19["baseline_time_budget"],
-                                                                      train_result19["baseline_acc"])
+# dataset = "uci_diabetes"
+# epoch = 0
+# img_save_path = "./exps/main_sigmod/analysis/"
+# sys_end2end_res = "./exps/main_sigmod/analysis/result/res_end_2_end_uci_diabetes_100_10.json"
 
-system_result = read_json(args.saved_result)
+# dataset = "frappe"
+# epoch = 0
+# img_save_path = "./exps/main_sigmod/analysis/"
+# sys_end2end_res = "./exps/main_sigmod/analysis/result/res_end_2_end_uci_diabetes_100_10.json"
+#
+
+dataset = "criteo"
+epoch = 9
+img_save_path = "./exps/main_sigmod/analysis/"
+sys_end2end_res = "./exps/main_sigmod/analysis/result/res_end_2_end_criteo_100_12.json"
+
+
+# dataset = args.dataset
+# epoch = args.epoch
+# img_save_path = args.img_save_path
+# sys_end2end_res = args.sys_end2end_res
+
+print(f"reading from {sys_end2end_res}")
+
+train_result19 = read_json(f"./exps/main_sigmod/analysis/result/res_train_base_line_{dataset}_epoch_{epoch}.json")
+sampled_train_x, sampled_train_y = sample_few_points_from_fully_train(x_array=train_result19["baseline_time_budget"],
+                                                                      y_2d_array=train_result19["baseline_acc"],
+                                                                      remove_n_points=4)
+
+system_result = read_json(sys_end2end_res)
 
 
 all_lines = [
@@ -51,16 +74,13 @@ all_lines = [
     [system_result["sys_time_budget"], system_result["sys_acc"], "FIRMEST"],
 ]
 
-# draw_structure_data_anytime(all_lines, "frappe", f"{args.saved_result[:-4]}")
+# draw_structure_data_anytime(all_lines, "frappe", f"{args.sys_end2end_res[:-4]}")
+
 draw_structure_data_anytime(
     all_lines=all_lines,
-    dataset="frappe",
-    name_img=f"{args.img_save_path}/anytime_{args.dataset}.pdf",
+    dataset=dataset,
+    name_img=f"{img_save_path}/anytime_{dataset}",
     y_ticks=None,
     x_ticks=None
 )
-
-
-
-
 
