@@ -37,7 +37,9 @@ def nb201_args(parser):
 
 def mlp_args(parser):
     parser.add_argument('--num_layers', default=4, type=int, help='# hidden layers')
-    parser.add_argument('--hidden_choice_len', default=20, type=int, help='number of hidden layer choices, 10 or 20')
+    parser.add_argument('--hidden_choice_len', default=10, type=int, help=
+                        'number of hidden layer choices, '
+                        '10 for criteo, 20 for others')
 
 
 def trainner_args(parser):
@@ -57,12 +59,12 @@ def trainner_args(parser):
                              "2000 for criteo")
 
     # MLP model config
-    parser.add_argument('--nfeat', type=int, default=5500,
+    parser.add_argument('--nfeat', type=int, default=369,
                         help='the number of features, '
                              'frappe: 5500, '
                              'uci_diabetes: 369,'
                              'criteo: 2100000')
-    parser.add_argument('--nfield', type=int, default=10,
+    parser.add_argument('--nfield', type=int, default=43,
                         help='the number of fields, '
                              'frappe: 10, '
                              'uci_diabetes: 43,'
@@ -79,7 +81,7 @@ def data_set_config(parser):
     parser.add_argument('--base_dir', type=str, default="../firmest_data/",
                         help='path of data and result parent folder')
     # define search space,
-    parser.add_argument('--dataset', type=str, default='criteo',
+    parser.add_argument('--dataset', type=str, default='uci_diabetes',
                         help='cifar10, cifar100, ImageNet16-120, '
                              'frappe, '
                              'criteo, '

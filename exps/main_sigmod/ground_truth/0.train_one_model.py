@@ -44,7 +44,7 @@ if __name__ == "__main__":
 
     try:
         # read the checkpoint
-        checkpoint_file_name = f"./criteo_train_cfg_exp/train_config_tune_{args.dataset}_epo_{args.epoch}.json"
+        checkpoint_file_name = f"./{args.dataset}_train_cfg_exp/train_config_tune_{args.dataset}_epo_{args.epoch}.json"
 
         # 1. data loader
         train_loader, val_loader, test_loader = libsvm_dataloader(
@@ -53,7 +53,7 @@ if __name__ == "__main__":
             nfield=args.nfield,
             batch_size=args.batch_size)
 
-        arch_id = "256-256-256-256"
+        arch_id = "512-512-512-512"
         print(f"begin to train the {arch_id}")
 
         model = search_space_ins.new_architecture(arch_id).to(args.device)

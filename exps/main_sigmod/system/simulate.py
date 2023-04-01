@@ -70,7 +70,7 @@ if __name__ == "__main__":
 
     # configurable settings for benchmarking
     only_phase1 = False
-    total_run = 50
+    total_run = 15
     max_minute = 1e3
     budget_array = log_scale_x_array(num_points=args.num_points, max_minute=max_minute)
     print(budget_array)

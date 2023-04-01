@@ -52,3 +52,11 @@ sshpass -p "xingnaili" scp -r xingnaili@panda.d2.comp.nus.edu.sg:/home/xingnaili
 sshpass -p "xingnaili" scp -r xingnaili@panda.d2.comp.nus.edu.sg:/home/xingnaili/FIRMEST/base_line_res_criteo   ./A_structure_dataexp_res/criteo0401/FromPanda
 
 #sshpass -p "xingnaili" ssh xingnaili@panda.d2.comp.nus.edu.sg
+
+
+sshpass -p "naili" scp -r naili@pandax1.d2.comp.nus.edu.sg:/home/naili/FIRMEST/uci_diabetes_train_cfg_exp   ./A_structure_dataexp_res/uci_tune_params/512-512-512-512
+sshpass -p "naili" scp -r naili@pandax1.d2.comp.nus.edu.sg:/home/naili/FIRMEST/LogUCITrainTune   ./A_structure_dataexp_res/uci_tune_params/512-512-512-512
+
+
+
+

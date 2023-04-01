@@ -22,9 +22,9 @@ import query_api.query_model_gt_acc_api as gt_api
 DEFAULT_LAYER_CHOICES_20 = [8, 16, 24, 32, # 8
                             48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, # 16
                             384, 512]
-DEFAULT_LAYER_CHOICES_10 = [8, 
-                            16, 32, 48, 
-                            96, 112, 144, 176, 240, 384]
+DEFAULT_LAYER_CHOICES_10 = [8, 16, 32,
+                            48,  96, 112, 144, 176, 240,
+                            384]
 
 
 class MlpMicroCfg(ModelMicroCfg):
@@ -248,6 +248,8 @@ class MlpSpace(SpaceWrapper):
             # those are from the pre-calculator
             if dataset == Config.Frappe or Config.UCIDataset:
                 _train_time_per_epoch = 160
+            elif dataset == Config.Criteo:
+                _train_time_per_epoch = 1241.2498679161072
             else:
                 raise NotImplementedError
 
