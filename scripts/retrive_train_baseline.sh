@@ -41,14 +41,14 @@ sshpass -p "naili" scp -r naili@pandax1.d2.comp.nus.edu.sg:/home/naili/FIRMEST/b
 
 # Criteo training result
 
-sshpass -p "naili" scp -r naili@xai.d2.comp.nus.edu.sg:/home/naili/FIRMEST/LogCriteo   ./A_structure_dataexp_res/criteo/FromXAI
-sshpass -p "naili" scp -r naili@xai.d2.comp.nus.edu.sg:/home/naili/FIRMEST/base_line_res_criteo   ./A_structure_dataexp_res/criteo/FromXAI
+sshpass -p "naili" scp -r naili@xai.d2.comp.nus.edu.sg:/home/naili/FIRMEST/LogCriteo   ./A_structure_dataexp_res/criteo0401/FromXAI
+sshpass -p "naili" scp -r naili@xai.d2.comp.nus.edu.sg:/home/naili/FIRMEST/base_line_res_criteo   ./A_structure_dataexp_res/criteo0401/FromXAI
 
-sshpass -p "naili" scp -r naili@pandax1.d2.comp.nus.edu.sg:/home/naili/FIRMEST/LogCriteo   ./A_structure_dataexp_res/criteo/FromPandaX1
-sshpass -p "naili" scp -r naili@pandax1.d2.comp.nus.edu.sg:/home/naili/FIRMEST/base_line_res_criteo   ./A_structure_dataexp_res/criteo/FromPandaX1
+sshpass -p "naili" scp -r naili@pandax1.d2.comp.nus.edu.sg:/home/naili/FIRMEST/LogCriteo   ./A_structure_dataexp_res/criteo0401/FromPandaX1
+sshpass -p "naili" scp -r naili@pandax1.d2.comp.nus.edu.sg:/home/naili/FIRMEST/base_line_res_criteo   ./A_structure_dataexp_res/criteo0401/FromPandaX1
 
 
-sshpass -p "xingnaili" scp -r xingnaili@panda.d2.comp.nus.edu.sg:/home/xingnaili/FIRMEST/LogCriteo   ./A_structure_dataexp_res/criteo/FromPanda
-sshpass -p "xingnaili" scp -r xingnaili@panda.d2.comp.nus.edu.sg:/home/xingnaili/FIRMEST/base_line_res_criteo   ./A_structure_dataexp_res/criteo/FromPanda
+sshpass -p "xingnaili" scp -r xingnaili@panda.d2.comp.nus.edu.sg:/home/xingnaili/FIRMEST/LogCriteo   ./A_structure_dataexp_res/criteo0401/FromPanda
+sshpass -p "xingnaili" scp -r xingnaili@panda.d2.comp.nus.edu.sg:/home/xingnaili/FIRMEST/base_line_res_criteo   ./A_structure_dataexp_res/criteo0401/FromPanda
 
 #sshpass -p "xingnaili" ssh xingnaili@panda.d2.comp.nus.edu.sg

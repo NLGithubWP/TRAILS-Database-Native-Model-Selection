@@ -38,9 +38,9 @@ def sample_few_points_from_fully_train(x_array, y_2d_array, remove_n_points=1) -
 print(f"reading from {args.saved_result}")
 
 # 'frappe, criteo, uci_diabetes'
-dataset = "frappe"
+dataset = "criteo"
 
-train_result19 = read_json(f"./exps/main_sigmod/analysis/result/res_train_base_line_{dataset}_epoch_19.json")
+train_result19 = read_json(f"./exps/main_sigmod/analysis/result/res_train_base_line_{dataset}_epoch_{args.epoch}.json")
 sampled_train_x, sampled_train_y = sample_few_points_from_fully_train(train_result19["baseline_time_budget"],
                                                                       train_result19["baseline_acc"])
 
@@ -49,14 +49,14 @@ system_result = read_json(args.saved_result)
 
 all_lines = [
     [sampled_train_x, sampled_train_y, "Train-Based-FullyTrain"],
-    [system_result["sys_time_budget"], system_result["sys_acc"], "FIRMEST"],
+    # [system_result["sys_time_budget"], system_result["sys_acc"], "FIRMEST"],
 ]
 
 # draw_structure_data_anytime(all_lines, "frappe", f"{args.saved_result[:-4]}")
 draw_structure_data_anytime(
     all_lines=all_lines,
-    dataset="frappe",
-    name_img=f"{args.img_save_path}/anytime_{args.dataset}.pdf",
+    dataset=dataset,
+    name_img=f"{args.img_save_path}/anytime_{args.dataset}",
     y_ticks=None,
     x_ticks=None
 )

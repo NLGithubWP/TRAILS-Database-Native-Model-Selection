@@ -6,7 +6,7 @@ import matplotlib
 import matplotlib.ticker as ticker
 
 # lines' mark size
-set_marker_size = 10
+set_marker_size = 20
 # points' mark size
 set_marker_point = 14
 # points' mark size

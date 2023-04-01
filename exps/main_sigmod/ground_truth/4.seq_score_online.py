@@ -65,7 +65,7 @@ if __name__ == "__main__":
     from logger import logger
     from search_space.init_search_space import init_search_space
     from storage.structure_data_loader import libsvm_dataloader
-    from utilslibs.io_tools import write_json
+    from utilslibs.io_tools import write_json, read_json
     from eva_engine.run_ms import RunModelSelection
     from storage import dataset
 
@@ -82,15 +82,16 @@ if __name__ == "__main__":
 
     sampler = SequenceSampler(search_space_ins)
 
-    result = {}
     explored_n = 0
     output_file = f"./score_{args.dataset}_batch_size_{args.batch_size}.json"
+    result = read_json(output_file)
     print("begin to score all ")
     while True:
         arch_micro, _ = sampler.sample_next_arch()
         if arch_micro is None:
             break
-
+        if arch_micro in result:
+            continue
         # run the model selection
         model_acquire_data = ModelAcquireData(model_id=str(arch_micro),
                                               model_encoding=arch_micro,
@@ -99,9 +100,10 @@ if __name__ == "__main__":
         model_score = _evaluator.p1_evaluate(data_str)
         explored_n += 1
         result[arch_micro] = model_score
-        print(f" {datetime.now()}finish arch = {arch_micro}")
+        # print(f" {datetime.now()}finish arch = {arch_micro}")
         if explored_n % 500 == 0:
-            print("3. [FIRMEST] Phase 1: filter phase explored " + str(explored_n) +
+            print("3. [FIRMEST] Phase 1: filter phase explored " + str(explored_n)
+                        + "Total explored" + str(len(result)) +
                         " model, model_id = " + str(arch_micro) +
                         " model_scores = " + json.dumps(model_score))
             logger.info("3. [FIRMEST] Phase 1: filter phase explored " + str(explored_n) +

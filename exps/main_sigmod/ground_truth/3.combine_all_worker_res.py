@@ -25,7 +25,7 @@ def combine_json_files(folder_path):
     return combined_data
 
 
-parent_folder = "./A_structure_dataexp_res/criteo/"
+parent_folder = "./A_structure_dataexp_res/criteo0401/"
 output_folder = os.path.dirname(parent_folder)
 combined_json = combine_json_files(parent_folder)
 print(len(combined_json["criteo"].keys()))

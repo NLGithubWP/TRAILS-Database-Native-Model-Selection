@@ -7,16 +7,16 @@ import numpy as np
 
 
 # Criteo
-# train_dir = "../firmest_data/result_base/mlp_results/criteo/all_train_baseline_criteo_only_8k.json"
-# score_dir = "../firmest_data/result_base/mlp_results/criteo/score_criteo_batch_size_32.json"
+train_dir = "../firmest_data/result_base/mlp_results/criteo/all_train_baseline_criteo_only_8k.json"
+score_dir = "../firmest_data/result_base/mlp_results/criteo/score_criteo_batch_size_32.json"
 
 # Frappe
 # train_dir = "../firmest_data/result_base/mlp_results/frappe/all_train_baseline_frappe.json"
 # score_dir = "../firmest_data/result_base/mlp_results/frappe/score_frappe_batch_size_32_all_metrics.json"
 
 # UCI
-train_dir = "../firmest_data/result_base/mlp_results/uci_diabetes/all_train_baseline_uci.json"
-score_dir = "../firmest_data/result_base/mlp_results/uci_diabetes/score_uci_diabetes_batch_size_32_all_metrics.json"
+# train_dir = "../firmest_data/result_base/mlp_results/uci_diabetes/all_train_baseline_uci.json"
+# score_dir = "../firmest_data/result_base/mlp_results/uci_diabetes/score_uci_diabetes_batch_size_32_all_metrics.json"
 
 train_res = read_json(train_dir)
 score_res = read_json(score_dir)
@@ -35,22 +35,25 @@ else:
 epoch_train = str(sorted([int(ele) for ele in list(train_res[dataset][all_models_ids[0]].keys())])[-1])
 print(f"1. epoch train max is {epoch_train}")
 
-all_alg_score_lst = {}
+all_alg_score_dic = {}
 for alg, _ in score_res[all_models_ids[0]].items():
-    all_alg_score_lst[alg] = []
+    all_alg_score_dic[alg] = []
 
-print(f"2. all alg list {all_alg_score_lst}")
+all_alg_score_dic["nas_wot_syn_flow"] = []
+
+print(f"2. all alg list {all_alg_score_dic}")
 
 model_train_res_lst = []
 for model_id in all_models_ids:
     score_value = score_res[model_id]
     for alg, value in score_value.items():
-        all_alg_score_lst[alg].append(value)
+        all_alg_score_dic[alg].append(value)
+    all_alg_score_dic["nas_wot_syn_flow"].append(score_value["nas_wot"] + score_value["synflow"])
     model_train_res_lst.append(train_res[dataset][model_id][epoch_train]["valid_auc"])
 
 
-for alg in all_alg_score_lst.keys():
-    scores = all_alg_score_lst[alg]
+for alg in all_alg_score_dic.keys():
+    scores = all_alg_score_dic[alg]
     ground_truth = model_train_res_lst
     # Get the sorted indices of the algorithm scores
     sorted_indices = np.argsort(scores)
@@ -68,6 +71,7 @@ os.environ.setdefault("base_dir", "../firmest_data")
 from query_api.query_model_gt_acc_api import GTMLP
 gt_mlp = GTMLP()
 global_rank = []
+# those are to get the rank
 for model_id in all_models_ids:
     global_rank.append(gt_mlp.get_global_rank_score(model_id, dataset)["nas_wot_synflow"])
 

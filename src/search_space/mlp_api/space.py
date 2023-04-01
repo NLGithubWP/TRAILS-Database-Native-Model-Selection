@@ -246,7 +246,7 @@ class MlpSpace(SpaceWrapper):
 
         if is_simulate:
             # those are from the pre-calculator
-            if dataset == Config.Frappe:
+            if dataset == Config.Frappe or Config.UCIDataset:
                 _train_time_per_epoch = 160
             else:
                 raise NotImplementedError

@@ -41,26 +41,32 @@ def mlp_args(parser):
 
 
 def trainner_args(parser):
-    parser.add_argument('--epoch', type=int, default=19,
+    parser.add_argument('--epoch', type=int, default=9,
                         help='number of maximum epochs, '
-                             'frappe: 20, uci_diabetes: 20, criteo: 100'
+                             'frappe: 20, uci_diabetes: 40, criteo: 10'
                              'nb101: 108, nb201: 200')
 
-    parser.add_argument('--batch_size', type=int, default=512, help='batch size')
+    parser.add_argument('--batch_size', type=int, default=32, help='batch size')
     parser.add_argument('--lr', type=float, default=0.002, help="learning reate")
     parser.add_argument('--patience', type=int, default=1, help='number of epochs for stopping training')
     # parser.add_argument('--eval_freq', type=int, default=10000, help='max number of batches to train per epoch')
 
-    parser.add_argument('--iter_per_epoch', type=int, default=200,
+    parser.add_argument('--iter_per_epoch', type=int, default=2000,
                         help="None, "
                              "200 for frappe, uci_diabetes, "
                              "2000 for criteo")
 
     # MLP model config
     parser.add_argument('--nfeat', type=int, default=5500,
-                        help='the number of features, frappe: 5500, uci_diabetes: 369, criteo: 2100000')
+                        help='the number of features, '
+                             'frappe: 5500, '
+                             'uci_diabetes: 369,'
+                             'criteo: 2100000')
     parser.add_argument('--nfield', type=int, default=10,
-                        help='the number of fields, frappe: 10, uci_diabetes: 43, criteo: 39')
+                        help='the number of fields, '
+                             'frappe: 10, '
+                             'uci_diabetes: 43,'
+                             'criteo: 39')
     parser.add_argument('--nemb', type=int, default=10,
                         help='embedding size')
 
@@ -70,12 +76,14 @@ def trainner_args(parser):
 
 
 def data_set_config(parser):
-    parser.add_argument('--base_dir', type=str, default="/Users/kevin/project_python/firmest_data/",
+    parser.add_argument('--base_dir', type=str, default="../firmest_data/",
                         help='path of data and result parent folder')
     # define search space,
-    parser.add_argument('--dataset', type=str, default='frappe',
+    parser.add_argument('--dataset', type=str, default='criteo',
                         help='cifar10, cifar100, ImageNet16-120, '
-                             'frappe, criteo, uci_diabetes')
+                             'frappe, '
+                             'criteo, '
+                             'uci_diabetes')
 
     parser.add_argument('--num_labels', type=int, default=2,
                         help='[10, 100, 120],'
@@ -101,7 +109,7 @@ def tune_interval_NK_rate(parser):
     parser.add_argument('--kn_rate', default=100, type=int, help='num worker each gpu')
     parser.add_argument('--num_points', default=12, type=int, help='num GPus')
     parser.add_argument('--saved_result',
-        default="./exps/main_sigmod/analysis/result/res_end_2_end_frappe_100_12.json",
+        default="./exps/main_sigmod/analysis/result/res_end_2_end_criteo_100_12.json",
         type=str, help='num GPus')
     parser.add_argument('--img_save_path',
         default="./exps/main_sigmod/analysis/",
