@@ -2,7 +2,6 @@
 import os.path
 from utilslibs.io_tools import write_json, read_json
 import os.path
-# fetch result from server. rename base_line_res to base_line_res_2k5
 import os
 import json
 

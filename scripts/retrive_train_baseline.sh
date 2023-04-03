@@ -56,6 +56,8 @@ sshpass -p "xingnaili" scp -r xingnaili@panda.d2.comp.nus.edu.sg:/home/xingnaili
 
 sshpass -p "xingnaili" scp -r xingnaili@panda.d2.comp.nus.edu.sg:/home/xingnaili/FIRMEST/base_line_res_criteo   ./A_structure_dataexp_res/criteo0403/base_line_res_criteo_700/
 sshpass -p "xingnaili" scp -r xingnaili@panda.d2.comp.nus.edu.sg:/home/xingnaili/FIRMEST/LogCriteo700Left   ./A_structure_dataexp_res/criteo0403/700/
+sshpass -p "naili" scp -r naili@pandax1.d2.comp.nus.edu.sg:/home/naili/FIRMEST/uci_diabetes_train_cfg_exp   ./A_structure_dataexp_res/uci_tune_params/512-512-512-512
+sshpass -p "naili" scp -r naili@pandax1.d2.comp.nus.edu.sg:/home/naili/FIRMEST/LogUCITrainTune   ./A_structure_dataexp_res/uci_tune_params/512-512-512-512
 
 
 

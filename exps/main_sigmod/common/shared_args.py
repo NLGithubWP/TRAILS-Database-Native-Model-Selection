@@ -53,7 +53,7 @@ def trainner_args(parser):
     parser.add_argument('--patience', type=int, default=1, help='number of epochs for stopping training')
     # parser.add_argument('--eval_freq', type=int, default=10000, help='max number of batches to train per epoch')
 
-    parser.add_argument('--iter_per_epoch', type=int, default=200,
+    parser.add_argument('--iter_per_epoch', type=int, default=2000,
                         help="None, "
                              "200 for frappe, uci_diabetes, "
                              "2000 for criteo")

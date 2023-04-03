@@ -220,7 +220,6 @@ class GTMLP(Singleton):
     mlp_uci_train = None
     mlp_uci_score = None
     mlp_uci_global_rank = {}
-
     @staticmethod
     def get_train_one_epoch_time(dataset):
         if dataset == Config.Frappe:
@@ -232,6 +231,7 @@ class GTMLP(Singleton):
         else:
             raise NotImplementedError
         return _train_time_per_epoch
+
 
     def load_mlp_train(self, dataset):
         if dataset == Config.Frappe:
@@ -294,6 +294,16 @@ class GTMLP(Singleton):
             if epoch_num is None: epoch_num = 39
             t_acc = self.mlp_uci_train[dataset][arch_id][str(epoch_num)]["valid_auc"]
             # time_usage = self.mlp_uci_train[dataset][arch_id][str(epoch_num)]["train_val_total_time"]
+            return t_acc, time_usage
+        elif dataset == Config.Criteo:
+            if epoch_num is None: epoch_num = 9
+            t_acc = self.mlp_criteo_train[dataset][arch_id][str(epoch_num)]["valid_auc"]
+            time_usage = self.mlp_criteo_train[dataset][arch_id][str(epoch_num)]["train_val_total_time"]
+            return t_acc, time_usage
+        elif dataset == Config.UCIDataset:
+            if epoch_num is None: epoch_num = 39
+            t_acc = self.mlp_uci_train[dataset][arch_id][str(epoch_num)]["valid_auc"]
+            time_usage = self.mlp_uci_train[dataset][arch_id][str(epoch_num)]["train_val_total_time"]
             return t_acc, time_usage
         else:
             raise NotImplementedError
