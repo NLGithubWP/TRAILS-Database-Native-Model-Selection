@@ -97,13 +97,18 @@ class MLP(nn.Module):
         """
         return self.mlp(x)
 
-    def _initialize_weights(self):
+    def _initialize_weights(self, method='xavier'):
         for m in self.modules():
             if isinstance(m, nn.BatchNorm2d):
                 m.weight.data.fill_(1)
                 m.bias.data.zero_()
             elif isinstance(m, nn.Linear):
-                nn.init.xavier_uniform_(m.weight)
+                if method == 'lecun':
+                    nn.init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='linear')
+                elif method == 'xavier':
+                    nn.init.xavier_uniform_(m.weight)
+                elif method == 'he':
+                    nn.init.kaiming_uniform_(m.weight)
                 # m.weight.data.normal_(0, 0.01)
                 # m.bias.data.zero_()
 
@@ -194,61 +199,66 @@ class MlpSpace(SpaceWrapper):
                   args=None, is_simulate: bool = False) -> (float, float, int):
 
         assert isinstance(self.model_cfg, MlpMacroCfg)
-
         device = args.device
 
-        # get a random batch.
-        batch = iter(train_loader).__next__()
-        target = batch['y'].type(torch.LongTensor)
-        batch['id'] = batch['id'].to(device)
-        batch['value'] = batch['value'].to(device)
-        target = target.to(device)
-        # .reshape(target.shape[0], self.model_cfg.num_labels).
+        if is_simulate:
+            # todo, we use hybird here.
+            # those are from the pre-calculator
+            _train_time_per_epoch = gt_api.GTMLP.get_score_one_model_time(dataset, "cpu")
+            score_time = _train_time_per_epoch
+        else:
 
-        # pick the largest net to train
-        super_net = DNNModel(
-            nfield=args.nfield,
-            nfeat=args.nfeat,
-            nemb=args.nemb,
-            hidden_layer_list=[DEFAULT_LAYER_CHOICES_20[-1]] * self.model_cfg.num_layers,
-            dropout_rate=0,
-            noutput=self.model_cfg.num_labels).to(device)
+            # get a random batch.
+            batch = iter(train_loader).__next__()
+            target = batch['y'].type(torch.LongTensor)
+            batch['id'] = batch['id'].to(device)
+            batch['value'] = batch['value'].to(device)
+            target = target.to(device)
+            # .reshape(target.shape[0], self.model_cfg.num_labels).
 
-        # measure score time,
-        score_time_begin = time.time()
-        naswot_score, _ = evaluator_register[CommonVars.NAS_WOT].evaluate_wrapper(
-            arch=super_net,
-            device=device,
-            batch_data=batch,
-            batch_labels=target)
+            # pick the largest net to train
+            super_net = DNNModel(
+                nfield=args.nfield,
+                nfeat=args.nfeat,
+                nemb=args.nemb,
+                hidden_layer_list=[DEFAULT_LAYER_CHOICES_20[-1]] * self.model_cfg.num_layers,
+                dropout_rate=0,
+                noutput=self.model_cfg.num_labels).to(device)
 
-        # re-init hte net
-        del super_net
-        super_net = DNNModel(
-            nfield=args.nfield,
-            nfeat=args.nfeat,
-            nemb=args.nemb,
-            hidden_layer_list=[DEFAULT_LAYER_CHOICES_20[-1]] * self.model_cfg.num_layers,
-            dropout_rate=0,
-            noutput=self.model_cfg.num_labels,
-            use_bn=False).to(device)
+            # measure score time,
+            score_time_begin = time.time()
+            naswot_score, _ = evaluator_register[CommonVars.NAS_WOT].evaluate_wrapper(
+                arch=super_net,
+                device=device,
+                batch_data=batch,
+                batch_labels=target)
 
-        synflow_score, _ = evaluator_register[CommonVars.PRUNE_SYNFLOW].evaluate_wrapper(
-            arch=super_net,
-            device=device,
-            batch_data=batch,
-            batch_labels=target)
+            # re-init hte net
+            del super_net
+            super_net = DNNModel(
+                nfield=args.nfield,
+                nfeat=args.nfeat,
+                nemb=args.nemb,
+                hidden_layer_list=[DEFAULT_LAYER_CHOICES_20[-1]] * self.model_cfg.num_layers,
+                dropout_rate=0,
+                noutput=self.model_cfg.num_labels,
+                use_bn=False).to(device)
 
-        score_time = time.time() - score_time_begin
+            synflow_score, _ = evaluator_register[CommonVars.PRUNE_SYNFLOW].evaluate_wrapper(
+                arch=super_net,
+                device=device,
+                batch_data=batch,
+                batch_labels=target)
 
-        # re-init hte net
-        del super_net
+            score_time = time.time() - score_time_begin
+
+            # re-init hte net
+            del super_net
 
         if is_simulate:
             # todo, find a ideal server, and use 512 model to profile.
             # those are from the pre-calculator
-            _train_time_per_epoch = gt_api.GTMLP.get_train_one_epoch_time(dataset)
-
+            _train_time_per_epoch = gt_api.GTMLP.get_train_one_epoch_time(dataset, device)
         else:
             super_net = DNNModel(
                 nfield=args.nfield,
@@ -274,8 +284,8 @@ class MlpSpace(SpaceWrapper):
         # todo: this is pre-defined by using img Dataset, suppose each epoch only train 200 iterations
         score_time_per_model = score_time
         train_time_per_epoch = _train_time_per_epoch
-        # N_K_ratio = gt_api.profile_NK_trade_off(dataset)
-        N_K_ratio = args.kn_rate
+        N_K_ratio = gt_api.profile_NK_trade_off(dataset)
+        # N_K_ratio = args.kn_rate
         print(f"Profiling results:  score_time_per_model={score_time_per_model},"
                     f" train_time_per_epoch={train_time_per_epoch}")
         logger.info(f"Profiling results:  score_time_per_model={score_time_per_model},"

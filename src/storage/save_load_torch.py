@@ -72,7 +72,7 @@ def load_data(data_dir, namespace):
 if __name__ == "__main__":
     args = parse_arguments()
 
-    _data_dir = os.path.join("../firmest_data/data/structure_data", args.dataset)
+    _data_dir = os.path.join("../exp_data/data/structure_data", args.dataset)
 
     train_name_space = "decoded_train"
     valid_name_space = "decoded_valid"

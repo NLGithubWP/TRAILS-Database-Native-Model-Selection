@@ -102,6 +102,17 @@ def sample_in_log_scale(lst: List, num_points: int) -> List:
     return list(indices)
 
 
+def sample_in_log_scale_new(lstM: List, num_points: int) -> List:
+    lst = np.array(lstM)
+    # Create an evenly spaced array in the log scale domain
+    evenly_spaced_log_x = np.linspace(np.log10(lst.min()), np.log10(lst.max()), num_points)
+    # Convert the new array back to the original scale
+    evenly_spaced_x = 10 ** evenly_spaced_log_x
+    # Find the indices of the sampled points in the original x-array
+    indices = [np.abs(lst - point).argmin() for point in evenly_spaced_x]
+    return indices
+
+
 def sample_in_line_scale(lst: List, num_points: int) -> List:
     indices = np.linspace(0, len(lst) - 1, num_points, dtype=int)
     # Remove any duplicate indices

@@ -3,18 +3,19 @@ from typing import List
 import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib
-import matplotlib.ticker as ticker
+# import matplotlib.ticker as ticker
+from matplotlib.ticker import MaxNLocator
 
 # lines' mark size
-set_marker_size = 20
+set_marker_size = 15
 # points' mark size
 set_marker_point = 14
 # points' mark size
 set_font_size = 20
-set_lgend_size = 20
-set_tick_size = 15
+set_lgend_size = 15
+set_tick_size = 20
 
-frontinsidebox = 20
+frontinsidebox = 23
 
 # update tick size
 matplotlib.rc('xtick', labelsize=set_tick_size)
@@ -23,6 +24,8 @@ matplotlib.rc('ytick', labelsize=set_tick_size)
 plt.rcParams['axes.labelsize'] = set_tick_size
 
 mark_list = ["o", "*", "<", "^", "s", "d", "D", ">", "h"]
+mark_size_list = [set_marker_size, set_marker_size+1, set_marker_size+1, set_marker_size,
+                  set_marker_size, set_marker_size, set_marker_size, set_marker_size+1, set_marker_size+2]
 line_shape_list = ['-.', '--', '-', ':']
 shade_degree = 0.2
 
@@ -44,46 +47,70 @@ def Add_one_line(x_time_array: list, y_twod_budget: List[List], namespace: str, 
     y_l = np.quantile(exp, .25, axis=0)
 
     ax.plot(x_m, y_m,
-            mark_list[index % len(mark_list)] + line_shape_list[index % len(line_shape_list)],
-            label=namespace, markersize=set_marker_size)
+            mark_list[index-3] + line_shape_list[index],
+            label=namespace, markersize=mark_size_list[index-3])
     ax.fill_between(x_m, y_l, y_h, alpha=shade_degree)
+    return x_m
 
 
 def draw_structure_data_anytime(
         all_lines: List,
-        dataset: str, name_img: str,
+        dataset: str, name_img: str, max_value,
+        figure_size=(6.4, 4.5),
+        annotations=[],
         x_ticks=None, y_ticks=None):
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=figure_size)
 
     # draw all lines
+    time_usage = []
     for i, each_line_info in enumerate(all_lines):
         _x_array = each_line_info[0]
         _y_2d_array = each_line_info[1]
         _name_space = each_line_info[2]
-        Add_one_line(_x_array, _y_2d_array, _name_space, i, ax)
+        time_arr = Add_one_line(_x_array, _y_2d_array, _name_space, i, ax)
+        time_usage.append(time_arr)
+
+    # print(f"speed-up on {dataset} = {time_usage[0][-1] / time_usage[2][-2]}, "
+    #       f"t_train = {time_usage[0][-1]}, t_f = {time_usage[2][-2]}")
 
     # plt.xscale("log")
     # plt.grid()
     # plt.xlabel(r"Time Budget $T$ (min)", fontsize=set_font_size)
     # plt.ylabel(f"AUC on {dataset.upper()}", fontsize=set_font_size)
 
+    plt.xscale("log")
     ax.grid()
-    ax.set_xlabel(r"Time Budget $T$ (min)", fontsize=set_font_size)
+    ax.set_xlabel(r"Response Time Threshold $T_{max}$ (min)", fontsize=set_font_size)
     ax.set_ylabel(f"AUC on {dataset.upper()}", fontsize=set_font_size)
-    ax.set_xscale("log")
+    # ax.set_xscale("log")
     # ax.set_xlim(0.001, 10e4)
     # ax.set_ylim(x1_lim[0], x1_lim[1])
 
     if y_ticks is not None:
-        ax.set_yticks(y_ticks)
-        ax.set_yticklabels(y_ticks)
+        if y_ticks[0] is not None:
+            ax.set_ylim(bottom=y_ticks[0])
+        if y_ticks[1] is not None:
+            ax.set_ylim(top=y_ticks[1])
+        # ax.set_ylim(y_ticks[0], y_ticks[1])
+        # ax.set_yticks(y_ticks)
+        # ax.set_yticklabels(y_ticks)
     if x_ticks is not None:
-        ax.set_xticks(x_ticks)
-        ax.set_xticklabels(x_ticks)
+        if x_ticks[0] is not None:
+            ax.set_xlim(left=x_ticks[0])
+        if x_ticks[1] is not None:
+            ax.set_xlim(right=x_ticks[1])
 
-    ax.xaxis.set_major_locator(ticker.LogLocator(base=10, numticks=5))
+    ax.yaxis.set_major_locator(MaxNLocator(nbins=6, integer=False))
 
-    export_legend(ori_fig=fig, colnum=5)
+    if max_value > 0:
+        plt.axhline(max_value, color='r', linestyle='-', label='Global Best AUC')
+
+    for i in range(len(annotations)):
+        ele = annotations[i]
+        ax.plot(ele[2], ele[1], mark_list[i], label=ele[0], markersize=set_marker_point)
+
+    export_legend(fig, filename="any_time_legend", unique_labels=["Training-Based MS", "Training-Free MS", "2Phase-MS", 'Global Best AUC'])
+    # export_legend(ori_fig=fig, colnum=5)
     plt.tight_layout()
 
     fig.savefig(f"{name_img}.pdf", bbox_inches='tight')

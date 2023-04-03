@@ -51,7 +51,7 @@ class LibsvmDatasetReadOnce(Dataset):
 
 class LibsvmDataset(Dataset):
     """ Dataset loader for Libsvm data format """
-    def __init__(self, fname, nfields):
+    def __init__(self, fname, nfields, max_load=-1):
 
         def decode_libsvm(line):
             columns = line.split(' ')
@@ -74,6 +74,8 @@ class LibsvmDataset(Dataset):
             with open(fname) as fp:
                 line = fp.readline()
                 while line:
+                    if max_load > 0 and self.nsamples > max_load:
+                        break
                     try:
                         sample = decode_libsvm(line)
                         self.feat_id[self.nsamples] = sample['id']
@@ -127,24 +129,24 @@ def libsvm_dataloader(args, data_dir, nfield, batch_size):
     return train_loader, val_loader, val_loader
 
 
-
 def libsvm_dataloader_ori(args):
-    data_dir = args.data_dir + args.dataset
+    data_dir = args.base_dir + args.dataset
+    print(data_dir)
     train_file = glob.glob("%s/tr*libsvm" % data_dir)[0]
     val_file = glob.glob("%s/va*libsvm" % data_dir)[0]
     test_file = glob.glob("%s/te*libsvm" % data_dir)[0]
 
-    train_loader = DataLoader(LibsvmDataset(train_file, args.nfield),
+    train_loader = DataLoader(LibsvmDataset(train_file, args.nfield, args.max_load),
                               batch_size=args.batch_size, shuffle=True,
                               num_workers=args.workers, pin_memory=True)
-    val_loader = DataLoader(LibsvmDataset(val_file, args.nfield),
+    val_loader = DataLoader(LibsvmDataset(val_file, args.nfield, args.max_load),
                             batch_size=args.batch_size, shuffle=False,
                             num_workers=args.workers, pin_memory=True)
-    test_loader = DataLoader(LibsvmDataset(test_file, args.nfield),
-                            batch_size=args.batch_size, shuffle=False,
-                            num_workers=args.workers, pin_memory=True)
+    # test_loader = DataLoader(LibsvmDataset(test_file, args.nfield),
+    #                         batch_size=args.batch_size, shuffle=False,
+    #                         num_workers=args.workers, pin_memory=True)
 
-    return train_loader, val_loader, test_loader
+    return train_loader, val_loader, val_loader
 
 
 class UCILibsvmDataset(Dataset):

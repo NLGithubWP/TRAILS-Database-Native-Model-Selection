@@ -228,7 +228,7 @@ class NasBench101Space(SpaceWrapper):
 
 if __name__ == '__main__':
     pass
-    # api_loc = "/Users/kevin/project_python/FIRMEST/data/nasbench_only108.pkl"
+    # api_loc = ".//data/nasbench_only108.pkl"
     # model_cfg = NB101MacroCfg(16,3,3,10,True)
     #
     # a = NasBench101Space(api_loc, model_cfg, None)

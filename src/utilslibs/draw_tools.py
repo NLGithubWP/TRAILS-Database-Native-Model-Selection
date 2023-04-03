@@ -7,18 +7,20 @@ from matplotlib import pyplot as plt
 import seaborn as sns
 import numpy as np
 import palettable
+from matplotlib.ticker import MaxNLocator
+
 from common.constant import Config
 
 import matplotlib
 
 # lines' mark size
-set_marker_size = 10
+set_marker_size = 15
 # points' mark size
 set_marker_point = 14
 # points' mark size
-set_font_size = 30
+set_font_size = 40
 set_lgend_size = 15
-set_tick_size = 15
+set_tick_size = 20
 
 frontinsidebox = 23
 
@@ -29,7 +31,8 @@ matplotlib.rc('ytick', labelsize=set_tick_size)
 plt.rcParams['axes.labelsize'] = set_tick_size
 
 mark_list = ["o", "*", "<", "^", "s", "d", "D", ">", "h"]
-
+mark_size_list = [set_marker_size, set_marker_size+1, set_marker_size+1, set_marker_size,
+                  set_marker_size, set_marker_size, set_marker_size, set_marker_size+1, set_marker_size+2]
 line_shape_list = ['-.', '--', '-', ':']
 
 
@@ -45,20 +48,20 @@ def get_plot_compare_with_base_line_cfg(search_space, dataset, if_with_phase1=Fa
         if dataset == Config.c10:
             # C10 array
             budget_array = [0.017, 0.083] + list(range(1, 350, 4))
-            sub_graph_y1 = [90, 95]
+            sub_graph_y1 = [91, 94.5]
             sub_graph_y2 = [53.5, 55]
             sub_graph_split = 60
         elif dataset == Config.c100:
             # C10 array
             budget_array = [0.017, 0.083] + list(range(1, 650, 4))
 
-            sub_graph_y1 = [64, 74]
+            sub_graph_y1 = [64, 73.5]
             sub_graph_y2 = [15, 16]
             sub_graph_split = 20
         else:
             # ImgNet X array
             budget_array = [0.017, 0.083] + list(range(1, 2000, 8))
-            sub_graph_y1 = [33, 49]
+            sub_graph_y1 = [33, 48]
             sub_graph_y2 = [15.5, 17]
             sub_graph_split = 34
     else:
@@ -98,7 +101,7 @@ def draw_anytime_result(y_acc_list_arr, x_T_list,
 
     # plot simulate result of system
     ax1.fill_between(x_T_list, sys_acc_l, sys_acc_h, alpha=0.1)
-    ax1.plot(x_T_list, sys_acc_m, mark_list[-1], label="FIRMEST")
+    ax1.plot(x_T_list, sys_acc_m, mark_list[-1], label="TRAILS")
     ax2.fill_between(x_T_list, sys_acc_l, sys_acc_h, alpha=0.1)
 
     # plot simulate result of train-based line
@@ -161,8 +164,8 @@ def draw_anytime_result_one_graph(y_acc_list_arr, x_T_list,
 
     # plot simulate result of system
     plt.fill_between(time_mean, sys_acc_l, sys_acc_h, alpha=0.1)
-    plt.plot(time_mean, sys_acc_m, "o-", label="FIRMEST")
-    # plt.plot(time_mean, sys_acc_m, label="FIRMEST")
+    plt.plot(time_mean, sys_acc_m, "o-", label="TRAILS")
+    # plt.plot(time_mean, sys_acc_m, label="TRAILS")
 
     # plot simulate result of train-based line
     plt.fill_between(x_acc_train, y_acc_train_l, y_acc_train_h, alpha=0.3)
@@ -193,7 +196,7 @@ def draw_anytime_result_one_graph(y_acc_list_arr, x_T_list,
 def draw_anytime_result_with_p1(y_acc_list_arr, x_T_list, y_acc_list_arr_p1, x_T_list_p1,
                         x_acc_train, y_acc_train_l, y_acc_train_m, y_acc_train_h,
                         annotations, lv,
-                        name_img,dataset,
+                        name_img,dataset,max_value,
                         x1_lim=[], x2_lim=[],
                         ):
     fig, (ax1, ax2) = plt.subplots(
@@ -205,7 +208,7 @@ def draw_anytime_result_with_p1(y_acc_list_arr, x_T_list, y_acc_list_arr_p1, x_T
     shade_degree = 0.2
 
     # plot simulate result of train-based line
-    ax1.plot(x_acc_train, y_acc_train_m, mark_list[-3]+line_shape_list[0], label="Training-based MS", markersize=set_marker_size)
+    ax1.plot(x_acc_train, y_acc_train_m, mark_list[-3]+line_shape_list[0], label="Training-Based MS", markersize=mark_size_list[-3])
     ax1.fill_between(x_acc_train, y_acc_train_l, y_acc_train_h, alpha=shade_degree)
     ax2.fill_between(x_acc_train, y_acc_train_l, y_acc_train_h, alpha=shade_degree)
 
@@ -214,7 +217,7 @@ def draw_anytime_result_with_p1(y_acc_list_arr, x_T_list, y_acc_list_arr_p1, x_T
     sys_acc_p1_h = np.quantile(exp, .75, axis=0)
     sys_acc_p1_m = np.quantile(exp, .5, axis=0)
     sys_acc_p1_l = np.quantile(exp, .25, axis=0)
-    ax1.plot(x_T_list_p1, sys_acc_p1_m, mark_list[-2]+line_shape_list[1], label="FIRMEST-P1", markersize=set_marker_size)
+    ax1.plot(x_T_list_p1, sys_acc_p1_m, mark_list[-2]+line_shape_list[1], label="Training-Free MS", markersize=mark_size_list[-2])
     ax1.fill_between(x_T_list_p1, sys_acc_p1_l, sys_acc_p1_h, alpha=shade_degree)
     ax2.fill_between(x_T_list_p1, sys_acc_p1_l, sys_acc_p1_h, alpha=shade_degree)
 
@@ -223,9 +226,12 @@ def draw_anytime_result_with_p1(y_acc_list_arr, x_T_list, y_acc_list_arr_p1, x_T
     sys_acc_h = np.quantile(exp, .75, axis=0)
     sys_acc_m = np.quantile(exp, .5, axis=0)
     sys_acc_l = np.quantile(exp, .25, axis=0)
-    ax1.plot(x_T_list, sys_acc_m, mark_list[-1]+line_shape_list[2], label="FIRMEST", markersize=set_marker_size)
+    ax1.plot(x_T_list, sys_acc_m, mark_list[-1]+line_shape_list[2], label="2Phase-MS", markersize=mark_size_list[-1])
     ax1.fill_between(x_T_list, sys_acc_l, sys_acc_h, alpha=shade_degree)
     ax2.fill_between(x_T_list, sys_acc_l, sys_acc_h, alpha=shade_degree)
+
+    print(f"speed-up on {dataset} = {x_acc_train[-1] / x_T_list[-2]}, "
+          f"t_train = {x_acc_train[-1]}, t_f = {x_T_list[-2]}")
 
     for i in range(len(annotations)):
         ele = annotations[i]
@@ -252,27 +258,36 @@ def draw_anytime_result_with_p1(y_acc_list_arr, x_T_list, y_acc_list_arr_p1, x_T
     ax1.plot([0, 1], [0, 0], transform=ax1.transAxes, **kwargs)
     ax2.plot([0, 1], [1, 1], transform=ax2.transAxes, **kwargs)
 
-    plt.xscale("symlog")
+    plt.xscale("log")
     ax1.grid()
     ax2.grid()
-    plt.xlabel(r"Time Budget $T$ (min)", fontsize=set_font_size)
-    ax1.set_ylabel(f"Test Accuracy on {dataset.upper()}", fontsize=set_font_size)
+    plt.xlabel(r"Response Time Threshold $T_{max}$ (min)", fontsize=set_font_size)
+    ax1.set_ylabel(f"Test Acc on {'In-16'}", fontsize=set_font_size)
     # ax1.legend(ncol=1, fontsize=set_lgend_size)
     # ax2.legend(fontsize=set_lgend_size)
 
     ax1.xaxis.label.set_size(set_tick_size)
     ax1.yaxis.label.set_size(set_tick_size)
+    # ax1.set_xticks([])
 
     ax2.xaxis.label.set_size(set_tick_size)
     ax2.yaxis.label.set_size(set_tick_size)
 
+    ax1.yaxis.set_major_locator(MaxNLocator(nbins=4, integer=True))
+
+    ax1.axhline(max_value, color='r', linestyle='-', label='Global Best Accuracy')
+
+    tick_values = [0.01, 0.1, 1, 10, 100, 1000]
+    ax2.set_xticks(tick_values)
+    ax2.set_xticklabels([f'$10^{{{int(np.log10(val))}}}$' for val in tick_values])
+
     # this is for unique hash
     export_legend(
         fig,
-        colnum=5,
-        unique_labels=['NASWOT (Training-Free)', 'TE-NAS (Training-Free)', 'ENAS (Weight sharing)',
+        colnum=3,
+        unique_labels=['TE-NAS (Training-Free)', 'ENAS (Weight sharing)',
                        'KNAS (Training-Free)', 'DARTS-V1 (Weight sharing)', 'DARTS-V2 (Weight sharing)',
-                       'Training-based MS', 'FIRMEST-P1', 'FIRMEST'])
+                       'Training-Based MS', 'Training-Free MS', '2Phase-MS', 'Global Best Accuracy'])
     plt.tight_layout()
     fig.savefig(f"any_time_{name_img}_p1_from_0.1_sec.pdf", bbox_inches='tight')
 
@@ -311,7 +326,7 @@ def draw_anytime_result_one_graph_with_p1(y_acc_list_arr, x_T_list, y_acc_list_a
     sys_acc_p1_l = np.quantile(exp, .25, axis=0)
 
     plt.fill_between(x_T_list_p1, sys_acc_p1_l, sys_acc_p1_h, alpha=0.1)
-    plt.plot(x_T_list_p1, sys_acc_p1_m, "o-", label="FIRMEST-P1")
+    plt.plot(x_T_list_p1, sys_acc_p1_m, "o-", label="TRAILS-P1")
     # plt.fill_between(x_T_list_p1, sys_acc_p1_l, sys_acc_p1_h, alpha=0.1)
 
     exp = np.array(y_acc_list_arr) * 100
@@ -325,8 +340,8 @@ def draw_anytime_result_one_graph_with_p1(y_acc_list_arr, x_T_list, y_acc_list_a
 
     # plot simulate result of system
     plt.fill_between(time_mean, sys_acc_l, sys_acc_h, alpha=0.1)
-    plt.plot(time_mean, sys_acc_m, "o-", label="FIRMEST")
-    # plt.plot(time_mean, sys_acc_m, label="FIRMEST")
+    plt.plot(time_mean, sys_acc_m, "o-", label="TRAILS")
+    # plt.plot(time_mean, sys_acc_m, label="TRAILS")
 
     # plot simulate result of train-based line
     plt.fill_between(x_acc_train, y_acc_train_l, y_acc_train_h, alpha=0.3)

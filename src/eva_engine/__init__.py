@@ -9,10 +9,13 @@ from eva_engine.phase1.algo.prune_fisher import FisherEvaluator
 from eva_engine.phase1.algo.prune_grasp import GraspEvaluator
 from eva_engine.phase1.algo.prune_snip import SnipEvaluator
 from eva_engine.phase1.algo.prune_synflow import SynFlowEvaluator
+from eva_engine.phase1.algo.express_flow import ExpressFlowEvaluator
 from eva_engine.phase1.weight_norm import WeightNormEvaluator
 
 # evaluator mapper to register many existing evaluation algorithms
 evaluator_register = {
+
+    CommonVars.ExpressFlow: ExpressFlowEvaluator(),
 
     # # sum on gradient
     CommonVars.GRAD_NORM: GradNormEvaluator(),

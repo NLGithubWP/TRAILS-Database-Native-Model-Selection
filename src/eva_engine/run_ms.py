@@ -83,10 +83,10 @@ class RunModelSelection:
         train_loader, valid_loader, test_loader = data_loader
         self.search_space_ins.load()
 
-        logger.info("0. [FIRMEST] Begin model selection ... ")
+        logger.info("0. [trails] Begin model selection ... ")
         begin_time = time.time()
 
-        logger.info("1. [FIRMEST] Begin profiling.")
+        logger.info("1. [trails] Begin profiling.")
         # 0. profiling dataset and search space, get t1 and t2
         score_time_per_model, train_time_per_epoch, N_K_ratio = self.search_space_ins.profiling(
             self.dataset,
@@ -106,7 +106,7 @@ class RunModelSelection:
              args=self.args)
 
         # 1. run coordinator to schedule
-        logger.info("2. [FIRMEST] Begin scheduling...")
+        logger.info("2. [trails] Begin scheduling...")
         K, U, N, B1_planed_time, B2_planed_time, B2_all_epoch = coordinator.schedule(self.dataset, self.sh, budget,
                                                                                      score_time_per_model,
                                                                                      train_time_per_epoch,
@@ -118,7 +118,7 @@ class RunModelSelection:
         print(f"Budget = {budget}, N={N}, K={K}")
 
         # 2. run phase 1 to score N models
-        logger.info("3. [FIRMEST] Begin to run phase1: filter phase")
+        logger.info("3. [trails] Begin to run phase1: filter phase")
         # lazy loading the search space if needed.
 
         # run phase-1 to get the K models.
@@ -129,21 +129,21 @@ class RunModelSelection:
             train_loader=train_loader,
             is_simulate=self.is_simulate)
 
-        K_models = p1_runner.run_phase1()
+        K_models, score_his = p1_runner.run_phase1()
 
-        logger.info("4. [FIRMEST] Begin to run phase2: refinement phase")
+        logger.info("4. [trails] Begin to run phase2: refinement phase")
 
         # 3. run phase-2 to determine the final model
         best_arch, best_arch_performance, B2_actual_epoch_use = self.sh.run_phase2(U, K_models)
         # print("best model returned from Phase2 = ", K_models)
         end_time = time.time()
 
-        logger.info("5.  [FIRMEST] Real time Usage = " + str(end_time - begin_time)
+        logger.info("5.  [trails] Real time Usage = " + str(end_time - begin_time)
                     + ", Final selected model = " + str(best_arch)
                     + ", planned time usage = " + str(B1_planed_time + B2_planed_time)
                     )
 
-        return best_arch, best_arch_performance, end_time - begin_time, B1_planed_time + B2_planed_time, B2_all_epoch
+        return best_arch, best_arch_performance, end_time - begin_time, B1_planed_time + B2_planed_time, B2_all_epoch, score_his
 
     def schedule_only(self, budget: float, data_loader: List[DataLoader],
                             only_phase1: bool = False, run_workers: int = 1):
@@ -159,10 +159,10 @@ class RunModelSelection:
         train_loader, valid_loader, test_loader = data_loader
         self.search_space_ins.load()
 
-        logger.info("0. [FIRMEST] Begin model selection ... ")
+        logger.info("0. [trails] Begin model selection ... ")
         begin_time = time.time()
 
-        logger.info("1. [FIRMEST] Begin profiling.")
+        logger.info("1. [trails] Begin profiling.")
         # 0. profiling dataset and search space, get t1 and t2
         score_time_per_model, train_time_per_epoch, N_K_ratio = self.search_space_ins.profiling(
             self.dataset,
@@ -182,7 +182,7 @@ class RunModelSelection:
              args=self.args)
 
         # 1. run coordinator to schedule
-        logger.info("2. [FIRMEST] Begin scheduling...")
+        logger.info("2. [trails] Begin scheduling...")
         K, U, N, B1_planed_time, B2_planed_time, B2_all_epoch = coordinator.schedule(self.dataset, self.sh, budget,
                                                                                      score_time_per_model,
                                                                                      train_time_per_epoch,

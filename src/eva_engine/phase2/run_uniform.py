@@ -73,6 +73,6 @@ class UniformAllocation:
         # sort from min to max
         scored_cand = sorted(total_score, key=lambda x: x[1])
         candidate = scored_cand[-1][0]
-        return candidate, min_budget_required
+        return candidate, None, min_budget_required
 
 

@@ -73,12 +73,13 @@ class RunPhase1:
                                       train_loader=train_loader,
                                       is_simulate=is_simulate)
 
-    def run_phase1(self) -> list:
+    def run_phase1(self) -> (list, list):
         """
         Controller explore n models, and return the top K models.
         :return:
         """
-
+        current_models_perforamnces = []
+        current_highest_score = []
         explored_n = 1
         model_eva = ModelEvaData()
 
@@ -101,13 +102,26 @@ class RunPhase1:
             # update the shared model eval res
             model_eva.model_id = str(arch_id)
             model_eva.model_score = self._evaluator.p1_evaluate(data_str)
-            logger.info("3. [FIRMEST] Phase 1: filter phase explored " + str(explored_n) +
+            logger.info("3. [trails] Phase 1: filter phase explored " + str(explored_n) +
                         " model, model_id = " + model_eva.model_id +
                         " model_scores = " + json.dumps(model_eva.model_score))
 
             self.sampler.fit_sampler(model_eva.model_id, model_eva.model_score, use_prue_score=self.args.use_prue_score)
 
+            # this is to measure the value of metrix
+            score_value = list(model_eva.model_score.values())[0] + list(model_eva.model_score.values())[1]
+            if len(current_highest_score) == 0:
+                current_highest_score.append(score_value)
+                current_models_perforamnces.append(str(arch_id))
+            else:
+                if score_value > current_highest_score[-1]:
+                    current_highest_score.append(score_value)
+                    current_models_perforamnces.append(str(arch_id))
+                else:
+                    current_highest_score.append(current_highest_score[-1])
+                    current_models_perforamnces.append(current_models_perforamnces[-1])
+
         # return the top K models
-        return self.sampler.get_current_top_k_models(self.K)
+        return self.sampler.get_current_top_k_models(self.K), current_highest_score, current_models_perforamnces
 
 

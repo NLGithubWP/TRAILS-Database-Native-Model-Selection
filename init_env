@@ -6,19 +6,19 @@ export PYTHONPATH=$PYTHONPATH:./src
 export PATH="$PATH:./src"
 export PYTHONPATH=$PYTHONPATH:./third_party
 export PATH="$PATH:./third_party"
-export PYTHONPATH=$PYTHONPATH:./exps/main_ijcai/
-export PATH="$PATH:./exps/main_ijcai/"
-export PYTHONPATH=$PYTHONPATH:./exps/main_ijcai/0_local_api/
-export PATH="$PATH:./exps/main_ijcai/0_local_api/"
-export PYTHONPATH=$PYTHONPATH:./exps/main_ijcai/2_verify_sampler/
-export PATH="$PATH:./exps/main_ijcai/2_verify_sampler/"
-export PYTHONPATH=$PYTHONPATH:./exps/main_ijcai/3_benchmark_sampler/
-export PATH="$PATH:./exps/main_ijcai/3_benchmark_sampler/"
-export PYTHONPATH=$PYTHONPATH:./exps/main_ijcai/statistic_lib/
-export PATH="$PATH:./exps/main_ijcai/statistic_lib/"
-export PYTHONPATH=$PYTHONPATH:./exps/main_ijcai/apiserver/
-export PATH="$PATH:./exps/main_ijcai/apiserver/"
-export PYTHONPATH=$PYTHONPATH:./exps/main_sigmod/common/
-export PATH="$PATH:./exps/main_sigmod/common/"
+export PYTHONPATH=$PYTHONPATH:./exps/main_v1/
+export PATH="$PATH:./exps/main_v1/"
+export PYTHONPATH=$PYTHONPATH:./exps/main_v1/0_local_api/
+export PATH="$PATH:./exps/main_v1/0_local_api/"
+export PYTHONPATH=$PYTHONPATH:./exps/main_v1/2_verify_sampler/
+export PATH="$PATH:./exps/main_v1/2_verify_sampler/"
+export PYTHONPATH=$PYTHONPATH:./exps/main_v1/3_benchmark_sampler/
+export PATH="$PATH:./exps/main_v1/3_benchmark_sampler/"
+export PYTHONPATH=$PYTHONPATH:./exps/main_v1/statistic_lib/
+export PATH="$PATH:./exps/main_v1/statistic_lib/"
+export PYTHONPATH=$PYTHONPATH:./exps/main_v1/apiserver/
+export PATH="$PATH:./exps/main_v1/apiserver/"
+export PYTHONPATH=$PYTHONPATH:./exps/main_v2/common/
+export PATH="$PATH:./exps/main_v2/common/"
 
-conda activate firmest
+#conda activate trails

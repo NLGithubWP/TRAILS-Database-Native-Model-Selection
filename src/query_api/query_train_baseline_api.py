@@ -110,7 +110,7 @@ def get_base_annotations(dataset_name):
             ["DARTS-V1 (Weight sharing)", 54.30, 16281],
             ["DARTS-V2 (Weight sharing)", 54.30, 43277],
 
-            ["NASWOT (Training-Free)", 92.96, 306],
+            # ["NASWOT (Training-Free)", 92.96, 306],
             ["TE-NAS (Training-Free)", 93.90, 1558],
             ["KNAS (Training-Free)", 93.05, 4200],
         ]
@@ -125,7 +125,7 @@ def get_base_annotations(dataset_name):
             ["DARTS-V1 (Weight sharing)", 15.61, 16281],
             ["DARTS-V2 (Weight sharing)", 15.61, 43277],
 
-            ["NASWOT (Training-Free)", 69.98, 306],
+            # ["NASWOT (Training-Free)", 69.98, 306],
             ["TE-NAS (Training-Free)", 71.24, 1558],
             ["KNAS (Training-Free)", 68.91, 4200],
         ]
@@ -140,7 +140,7 @@ def get_base_annotations(dataset_name):
             ["DARTS-V1 (Weight sharing)", 16.32, 16281],
             ["DARTS-V2 (Weight sharing)", 16.32, 43277],
 
-            ["NASWOT (Training-Free)", 44.44, 306],
+            # ["NASWOT (Training-Free)", 44.44, 306],
             ["TE-NAS (Training-Free)", 42.38, 1558],
             ["KNAS (Training-Free)", 34.11, 4200],
         ]

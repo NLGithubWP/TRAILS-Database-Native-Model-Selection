@@ -1,5 +1,6 @@
 from copy import copy
 from random import randint
+from common.constant import Config
 
 class SR:
     def __init__(self, evaluator, time_per_epoch, max_unit=200):
@@ -120,11 +121,10 @@ class SR:
                 num_keep = cur_cand_num - 1
                 candidates = [ele[0] for ele in scored_cand[-num_keep:]]
 
-        return candidates[0], min_budget_required
+        return candidates[0], None, min_budget_required
 
 
 if __name__ == "__main__":
-    from common.constant import Config
     from utilslibs.parse_pre_res import SimulateTrain
     # successive reject
     from eva_engine.phase2.evaluator import P2Evaluator

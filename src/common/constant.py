@@ -10,6 +10,8 @@ class CommonVars:
     BOHB_SAMPLER = "bohb"
 
     # EVALUATOR
+    ExpressFlow = "express_flow"
+
     GRAD_NORM = "grad_norm"
     GRAD_PLAIN = "grad_plain"
 

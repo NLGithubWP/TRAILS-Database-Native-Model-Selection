@@ -78,7 +78,9 @@ class SimulateScore:
             if self.api is None:
                 self.api = GTMLP()
             # todo: here we directly return the rank_score, instead of the mutilpel_algs score
-            # return self.api.get_metrics_score(arch_id, dataset)
+            # return {"nas_wot": self.api.get_metrics_score(arch_id, dataset)["nas_wot"],
+            #         "synflow": self.api.get_metrics_score(arch_id, dataset)["synflow"],
+            #         }
             return self.api.get_global_rank_score(arch_id, dataset)
         else:
             raise NotImplementedError

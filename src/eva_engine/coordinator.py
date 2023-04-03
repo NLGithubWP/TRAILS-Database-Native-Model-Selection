@@ -70,7 +70,7 @@ def schedule(dataset, sh: BudgetAwareControllerSH, T_,
 
         if len(history) == 0:
             logger.info(
-                f" [FIRMEST] Only p1, Budget {T_} is too small, it's at least >= {time_used} "
+                f" [trails] Only p1, Budget {T_} is too small, it's at least >= {time_used} "
                 f"with current worker, {t1_}, {t2_}, eta")
             raise
 
@@ -88,7 +88,7 @@ def schedule(dataset, sh: BudgetAwareControllerSH, T_,
 
         if len(history) == 0:
             logger.info(
-                f" [FIRMEST] Budget {T_} is too small, it's at least >= {min_budget_required_both_phase} "
+                f" [trails] Budget {T_} is too small, it's at least >= {min_budget_required_both_phase} "
                 f"with current worker, {t1_}, {t2_}, eta")
             raise
 
@@ -97,5 +97,5 @@ def schedule(dataset, sh: BudgetAwareControllerSH, T_,
     B1_time_used = N_scored * t1_
     B2_all_epoch, B2_time_used = sh.pre_calculate_time_required(K=best_K, U=best_U)
     logger.info(
-        f" [FIRMEST] The schedule result: when T = {T_} second, N = {N_scored}, K = {best_K}, best_U = {best_U}, time_used = {B1_time_used + B2_time_used}")
+        f" [trails] The schedule result: when T = {T_} second, N = {N_scored}, K = {best_K}, best_U = {best_U}, time_used = {B1_time_used + B2_time_used}")
     return best_K, best_U, N_scored, B1_time_used, B2_time_used, B2_all_epoch

@@ -58,8 +58,8 @@ class BudgetAwareControllerSH:
         return history[-1]
 
     def pre_calculate_time_required(self, K, U):
-        all_budget = self.pre_calculate_epoch_required(K, U)
-        return all_budget, all_budget * self.time_per_epoch
+        all_epoch = self.pre_calculate_epoch_required(K, U)
+        return all_epoch, all_epoch * self.time_per_epoch
 
     def pre_calculate_epoch_required(self, K, U):
         """
@@ -120,7 +120,7 @@ class BudgetAwareControllerSH:
             # number of each res given to each cand, pick lower bound
             epoch_per_model = int(total_epoch_each_rounds / cur_cand_num)
 
-            logger.info("4. [FIRMEST] Phase 2: refinement phase, evaluating "
+            logger.info("4. [trails] Phase 2: refinement phase, evaluating "
                         + str(cur_cand_num) + " models, with each using "
                         + str(epoch_per_model) + " epochs.")
 
