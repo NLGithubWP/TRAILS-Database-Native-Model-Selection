@@ -43,7 +43,7 @@ def mlp_args(parser):
 
 
 def trainner_args(parser):
-    parser.add_argument('--epoch', type=int, default=9,
+    parser.add_argument('--epoch', type=int, default=0,
                         help='number of maximum epochs, '
                              'frappe: 20, uci_diabetes: 40, criteo: 10'
                              'nb101: 108, nb201: 200')
@@ -53,18 +53,18 @@ def trainner_args(parser):
     parser.add_argument('--patience', type=int, default=1, help='number of epochs for stopping training')
     # parser.add_argument('--eval_freq', type=int, default=10000, help='max number of batches to train per epoch')
 
-    parser.add_argument('--iter_per_epoch', type=int, default=2000,
+    parser.add_argument('--iter_per_epoch', type=int, default=200,
                         help="None, "
                              "200 for frappe, uci_diabetes, "
                              "2000 for criteo")
 
     # MLP model config
-    parser.add_argument('--nfeat', type=int, default=2100000,
+    parser.add_argument('--nfeat', type=int, default=369,
                         help='the number of features, '
                              'frappe: 5500, '
                              'uci_diabetes: 369,'
                              'criteo: 2100000')
-    parser.add_argument('--nfield', type=int, default=39,
+    parser.add_argument('--nfield', type=int, default=43,
                         help='the number of fields, '
                              'frappe: 10, '
                              'uci_diabetes: 43,'
@@ -81,7 +81,7 @@ def data_set_config(parser):
     parser.add_argument('--base_dir', type=str, default="../firmest_data/",
                         help='path of data and result parent folder')
     # define search space,
-    parser.add_argument('--dataset', type=str, default='criteo',
+    parser.add_argument('--dataset', type=str, default='uci_diabetes',
                         help='cifar10, cifar100, ImageNet16-120, '
                              'frappe, '
                              'criteo, '

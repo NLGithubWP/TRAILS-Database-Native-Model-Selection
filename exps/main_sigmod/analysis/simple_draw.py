@@ -37,10 +37,10 @@ def sample_few_points_from_fully_train(x_array, y_2d_array, remove_n_points=1) -
 
 # 'frappe, criteo, uci_diabetes'
 
-# dataset = "uci_diabetes"
-# epoch = 0
-# img_save_path = "./exps/main_sigmod/analysis/"
-# sys_end2end_res = "./exps/main_sigmod/analysis/result/res_end_2_end_uci_diabetes_100_10.json"
+dataset = "uci_diabetes"
+epoch = 0
+img_save_path = "./exps/main_sigmod/analysis/"
+sys_end2end_res = "./exps/main_sigmod/analysis/result/res_end_2_end_uci_diabetes_100_12.json"
 
 # dataset = "frappe"
 # epoch = 0
@@ -48,10 +48,10 @@ def sample_few_points_from_fully_train(x_array, y_2d_array, remove_n_points=1) -
 # sys_end2end_res = "./exps/main_sigmod/analysis/result/res_end_2_end_uci_diabetes_100_10.json"
 #
 
-dataset = "criteo"
-epoch = 9
-img_save_path = "./exps/main_sigmod/analysis/"
-sys_end2end_res = "./exps/main_sigmod/analysis/result/res_end_2_end_criteo_100_12.json"
+# dataset = "criteo"
+# epoch = 9
+# img_save_path = "./exps/main_sigmod/analysis/"
+# sys_end2end_res = "./exps/main_sigmod/analysis/result/res_end_2_end_criteo_100_12.json"
 
 
 # dataset = args.dataset
@@ -64,7 +64,7 @@ print(f"reading from {sys_end2end_res}")
 train_result19 = read_json(f"./exps/main_sigmod/analysis/result/res_train_base_line_{dataset}_epoch_{epoch}.json")
 sampled_train_x, sampled_train_y = sample_few_points_from_fully_train(x_array=train_result19["baseline_time_budget"],
                                                                       y_2d_array=train_result19["baseline_acc"],
-                                                                      remove_n_points=4)
+                                                                      remove_n_points=1)
 
 system_result = read_json(sys_end2end_res)
 

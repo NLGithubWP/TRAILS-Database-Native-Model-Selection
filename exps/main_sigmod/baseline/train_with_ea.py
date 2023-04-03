@@ -75,7 +75,7 @@ if __name__ == "__main__":
         "baseline_acc": []
     }
 
-    total_explore = 2500
+    total_explore = 5000
     total_run = 100
     train_epoch = 0
 

@@ -21,7 +21,7 @@ id_to_hash_path = os.path.join(base_dir, "result_base/ground_truth/nb101_id_to_h
 
 # MLP related ground truth
 mlp_train_frappe = os.path.join(base_dir, "result_base/mlp_results/frappe/all_train_baseline_frappe.json")
-mlp_train_uci_diabetes = os.path.join(base_dir, "result_base/mlp_results/uci_diabetes/all_train_baseline_uci_160k_40epoch.json")
+mlp_train_uci_diabetes = os.path.join(base_dir, "result_base/mlp_results/uci_diabetes/all_train_baseline_uci_diabetes_10k.json")
 mlp_train_criteo = os.path.join(base_dir, "result_base/mlp_results/criteo/all_train_baseline_criteo.json")
 
 mlp_score_frappe = os.path.join(base_dir, "result_base/mlp_results/frappe/score_frappe_batch_size_32_nawot_synflow.json")

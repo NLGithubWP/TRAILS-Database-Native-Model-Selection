@@ -15,7 +15,7 @@ import numpy as np
 # score_dir = "../firmest_data/result_base/mlp_results/frappe/score_frappe_batch_size_32_local_finish_all_models.json"
 
 # UCI
-train_dir = "../firmest_data/result_base/mlp_results/uci_diabetes/all_train_baseline_uci_160k_40epoch.json"
+train_dir = "../firmest_data/result_base/mlp_results/uci_diabetes/all_train_baseline_uci_diabetes_10k.json"
 score_dir = "../firmest_data/result_base/mlp_results/uci_diabetes/score_uci_diabetes_batch_size_32_all_metrics.json"
 
 train_res = read_json(train_dir)
@@ -32,7 +32,8 @@ if num_train_models > num_scored_models:
 else:
     all_models_ids = list(train_res[dataset].keys())
 
-epoch_train = str(sorted([int(ele) for ele in list(train_res[dataset][all_models_ids[0]].keys())])[0])
+epoch_train = "0"
+# epoch_train = str(sorted([int(ele) for ele in list(train_res[dataset][all_models_ids[0]].keys())])[0])
 print(f"1. epoch train max is {epoch_train}")
 
 all_alg_score_dic = {}
