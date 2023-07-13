@@ -1,27 +1,34 @@
-# Use PostgreSQL 15
-FROM postgres:15
+FROM ubuntu:20.04
 
-# Update the system and install necessary components
-RUN apt-get update && apt-get install -y \
-    python3 \
-    python3-pip \
-    python3-venv \
-    postgresql-plpython3-15
+# Install Python
+RUN apt-get update && \
+    apt-get install -y software-properties-common \
+    wget \
+    gnupg2 \
+    lsb-release && \
+    add-apt-repository ppa:deadsnakes/ppa && \
+    apt-get install -y python3.6 python3-pip && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Set up a virtual environment and activate it
-RUN python3 -m venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
+# Install PostgreSQL
+RUN apt-get update && \
+    apt-get install -y wget \
+    gnupg2 \
+    lsb-release && \
+    wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
+    echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list && \
+    apt-get update && \
+    apt-get install -y postgresql-14 \
+    postgresql-plpython3-14 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Install any Python libraries you need for your UDFs
-RUN pip3 install --no-cache-dir numpy pandas
+# Set environment variables for PostgreSQL
+ENV PGDATA /var/lib/postgresql/data
 
-# Add setup script
-COPY ./setup.sh /docker-entrypoint-initdb.d/
+# Initialize PostgreSQL data directory
+RUN service postgresql start && su postgres -c "/usr/lib/postgresql/14/bin/initdb -D ${PGDATA}"
 
-# CMD statement to run PostgreSQL when the container starts
-CMD ["postgres"]
-
-# docker build -t trails .
-# docker run -d --name trails -v $(pwd)/TRAILS:/TRAILS -v $(pwd)/postgresdata/data:/var/lib/postgresql/data -e POSTGRES_USER=trails -e POSTGRES_PASSWORD=trails trails
-
-
+# CMD statement to start PostgreSQL when the container starts
+CMD service postgresql start && tail -F /var/log/postgresql/postgresql-14-main.log
