@@ -1,0 +1,24 @@
+[package]
+name = "pg-extension"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+
+[features]
+default = ["python"]
+python = ["pyo3"]
+#pg11 = ["pgrx/pg11", "pgrx-tests/pg11" ]
+#pg12 = ["pgrx/pg12", "pgrx-tests/pg12" ]
+#pg13 = ["pgrx/pg13", "pgrx-tests/pg13" ]
+#pg14 = ["pgrx/pg14", "pgrx-tests/pg14" ]
+#pg15 = ["pgrx/pg15", "pgrx-tests/pg15" ]
+
+[dependencies]
+#pgrx = "=0.9.7"
+#pgrx-pg-sys = "=0.9.7"
+serde_json = { version = "1.0.85", features = ["preserve_order"] }
+pyo3 = { version = "0.17", features = ["auto-initialize"], optional = true }
+once_cell = "1.8.0"
+log = "0.4.14"

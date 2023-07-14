@@ -1,6 +1,8 @@
 #third_party/*
 result_base/*
 
+internal/pg-extension/target
+
 .idea/*
 logs_uci
 Logs
