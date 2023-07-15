@@ -12,6 +12,16 @@ conda config --set ssl_verify false
 conda create -n "trails" python=3.6.13
 conda activate trails
 
+
+# Create virtual env
+conda config --set ssl_verify false
+conda create -n "firmest38" python=3.8.10
+pip install  tqdm==4.47.0 --trusted-host pypi.org --trusted-host files.pythonhosted.org
+pip install torch==1.8.1 sklearn==0.0 torchvision==0.9.1
+conda activate firmest38
+
+
+
 # Install
 pip install -r requirements.txt  --trusted-host pypi.org --trusted-host files.pythonhosted.org
 pip install  tqdm==4.47.0 --trusted-host pypi.org --trusted-host files.pythonhosted.org

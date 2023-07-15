@@ -36,6 +36,7 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && \
 USER root
 RUN mkdir /project && \
     adduser postgres sudo && \
+    chown -R postgres:postgres /project && \
     chown -R postgres:postgres /usr/share/postgresql/ && \
     chown -R postgres:postgres /usr/lib/postgresql/ && \
     chown -R postgres:postgres /var/lib/postgresql/
@@ -44,6 +45,9 @@ RUN mkdir /project && \
 USER postgres
 ENV PATH="/root/.cargo/bin:${PATH}"
 WORKDIR /project
+
+COPY ./requirement.txt ./requirement.txt
+RUN pip install -r requirement.txt
 
 # Set environment variables for PostgreSQL
 ENV PGDATA /var/lib/postgresql/data
