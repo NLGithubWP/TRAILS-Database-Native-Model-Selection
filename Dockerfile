@@ -25,26 +25,25 @@ RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-k
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+# Install Rust and init the cargo
+USER postgres
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && \
+    echo 'source $HOME/.cargo/env' >> $HOME/.bashrc && \
+    /bin/bash -c "source $HOME/.cargo/env && cargo install cargo-pgrx --version '0.9.7' --locked" && \
+    /bin/bash -c "source $HOME/.cargo/env && cargo pgrx init --pg14 /usr/bin/pg_config"
+
 # Run as root
-RUN mkdir /project && \
-    chown postgres:postgres /project && \
-    chown -R postgres:postgres /usr/share/postgresql/14/ && \
-    chown -R postgres:postgres /usr/lib/postgresql/14/
-
-# Switch to the postgres user and install Rust and pgrx
-USER postgres
-WORKDIR /project
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-RUN echo 'source $HOME/.cargo/env' >> $HOME/.bashrc
-RUN /bin/bash -c "source $HOME/.cargo/env && cargo install cargo-pgrx --version '0.9.7' --locked"
-RUN /bin/bash -c "source $HOME/.cargo/env && cargo pgrx init --pg14 /usr/bin/pg_config && cargo pgrx new my_extension"
-
-# Switch back to root to copy Cargo.toml.dev to the container
 USER root
-COPY ./Cargo.toml.dev /project/my_extension/Cargo.toml
+RUN mkdir /project && \
+    adduser postgres sudo && \
+    chown -R postgres:postgres /usr/share/postgresql/ && \
+    chown -R postgres:postgres /usr/lib/postgresql/ && \
+    chown -R postgres:postgres /var/lib/postgresql/
 
-# Switch back to postgres user
+# Switch to the postgres user and run rdbms
 USER postgres
+ENV PATH="/root/.cargo/bin:${PATH}"
+WORKDIR /project
 
 # Set environment variables for PostgreSQL
 ENV PGDATA /var/lib/postgresql/data
