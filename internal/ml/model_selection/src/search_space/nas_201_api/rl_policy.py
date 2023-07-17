@@ -1,9 +1,8 @@
-
 from src.search_space.core.rl_policy import RLPolicyBase
 from copy import deepcopy
 import torch
 import torch.nn as nn
-from third_party.models import CellStructure
+from src.third_pkg.models import CellStructure
 from torch.distributions import Categorical
 
 
