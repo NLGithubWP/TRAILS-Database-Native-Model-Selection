@@ -48,13 +48,13 @@ class ModelTrainer:
 
         # assign new values
         args.epoch_num = epoch_num
-        # optimizer
-        # print("loading opt_metric to GPU...")
-        # for multiple classification
-        # opt_metric = nn.CrossEntropyLoss(reduction='mean').to(device)
-        # opt_metric = nn.BCELoss(reduction='mean').to(device)
-        opt_metric = nn.BCEWithLogitsLoss(reduction='mean').to(device)
 
+        # for multiple classification
+        opt_metric = nn.CrossEntropyLoss(reduction='mean').to(device)
+        # this is only sutiable when output is dimension 1,
+        # opt_metric = nn.BCEWithLogitsLoss(reduction='mean').to(device)
+
+        # optimizer
         optimizer = optim.Adam(model.parameters(), lr=lr)
         scheduler = optim.lr_scheduler.CosineAnnealingLR(
             optimizer,
@@ -120,7 +120,7 @@ class ModelTrainer:
             if namespace == 'train' and iter_per_epoch is not None and batch_idx >= iter_per_epoch:
                 break
 
-            target = batch['y'].to(args.device)
+            target = batch['y'].type(torch.LongTensor).to(args.device)
             batch['id'] = batch['id'].to(args.device)
             batch['value'] = batch['value'].to(args.device)
 
