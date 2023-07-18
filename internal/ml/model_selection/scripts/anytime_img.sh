@@ -5,7 +5,7 @@ export PYTHONPATH=$PYTHONPATH:./internal/ml/model_selection
 
 ############## c10 dataset ##############
 # run both 2phase-MS and training-free MS
-python internal/ml/model_selection/exps/system/anytime_img.py \
+python internal/ml/model_selection/exps/macro/anytime_img.py \
       --search_space nasbench201 \
       --api_loc NAS-Bench-201-v1_1-096897.pth \
       --epoch 200 \
@@ -16,7 +16,7 @@ python internal/ml/model_selection/exps/system/anytime_img.py \
 
 
 ############## c100 dataset ##############
-python internal/ml/model_selection/exps/system/anytime_img.py \
+python internal/ml/model_selection/exps/macro/anytime_img.py \
       --search_space nasbench201 \
       --api_loc NAS-Bench-201-v1_1-096897.pth \
       --epoch 200 \
@@ -27,7 +27,7 @@ python internal/ml/model_selection/exps/system/anytime_img.py \
 
 
 ############## imageNet dataset ##############
-python internal/ml/model_selection/exps/system/anytime_img.py \
+python internal/ml/model_selection/exps/macro/anytime_img.py \
       --search_space nasbench201 \
       --api_loc NAS-Bench-201-v1_1-096897.pth \
       --epoch 200 \

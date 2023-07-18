@@ -5,7 +5,7 @@ from utilslibs.compute import sample_in_log_scale_new
 from utilslibs.io_tools import read_json
 from exps.draw_img_lib import get_plot_compare_with_base_line_cfg
 
-dataset = Config.imgNet
+dataset = Config.c100
 search_space = Config.NB201
 
 img_in_graph = "ImageNet" if dataset == Config.imgNet else dataset

@@ -6,7 +6,7 @@ export PYTHONPATH=$PYTHONPATH:./internal/ml/model_selection
 ############## frappe dataset ##############
 
 # run the 2phase-MS
-python internal/ml/model_selection/exps/system/anytime_simulate.py \
+python internal/ml/model_selection/exps/macro/anytime_simulate.py \
       --search_space mlp_sp \
       --num_layers 4 \
       --hidden_choice_len 20 \
@@ -25,7 +25,7 @@ python internal/ml/model_selection/exps/system/anytime_simulate.py \
 
 
 # run the training-free MS
-python internal/ml/model_selection/exps/system/anytime_simulate.py \
+python internal/ml/model_selection/exps/macro/anytime_simulate.py \
       --search_space mlp_sp \
       --num_layers 4 \
       --hidden_choice_len 20 \
@@ -46,7 +46,7 @@ python internal/ml/model_selection/exps/system/anytime_simulate.py \
 ############## uci dataset ##############
 
 # run the 2phase-MS
-python internal/ml/model_selection/exps/system/anytime_simulate.py \
+python internal/ml/model_selection/exps/macro/anytime_simulate.py \
       --search_space mlp_sp \
       --num_layers 4 \
       --hidden_choice_len 20 \
@@ -65,7 +65,7 @@ python internal/ml/model_selection/exps/system/anytime_simulate.py \
 
 
 # run the training-free MS
-python internal/ml/model_selection/exps/system/anytime_simulate.py \
+python internal/ml/model_selection/exps/macro/anytime_simulate.py \
       --search_space mlp_sp \
       --num_layers 4 \
       --hidden_choice_len 20 \
@@ -86,7 +86,7 @@ python internal/ml/model_selection/exps/system/anytime_simulate.py \
 ############## criteo dataset ##############
 
 # run the 2phase-MS
-python internal/ml/model_selection/exps/system/anytime_simulate.py \
+python internal/ml/model_selection/exps/macro/anytime_simulate.py \
       --search_space mlp_sp \
       --num_layers 4 \
       --hidden_choice_len 10 \
@@ -105,7 +105,7 @@ python internal/ml/model_selection/exps/system/anytime_simulate.py \
 
 
 # run the training-free MS
-python internal/ml/model_selection/exps/system/anytime_simulate.py \
+python internal/ml/model_selection/exps/macro/anytime_simulate.py \
       --search_space mlp_sp \
       --num_layers 4 \
       --hidden_choice_len 10 \

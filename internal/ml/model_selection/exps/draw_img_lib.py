@@ -1,5 +1,3 @@
-
-
 import os
 
 from matplotlib import pyplot as plt
@@ -29,16 +27,15 @@ matplotlib.rc('ytick', labelsize=set_tick_size)
 plt.rcParams['axes.labelsize'] = set_tick_size
 
 mark_list = ["o", "*", "<", "^", "s", "d", "D", ">", "h"]
-mark_size_list = [set_marker_size, set_marker_size+1, set_marker_size+1, set_marker_size,
-                  set_marker_size, set_marker_size, set_marker_size, set_marker_size+1, set_marker_size+2]
+mark_size_list = [set_marker_size, set_marker_size + 1, set_marker_size + 1, set_marker_size,
+                  set_marker_size, set_marker_size, set_marker_size, set_marker_size + 1, set_marker_size + 2]
 line_shape_list = ['-.', '--', '-', ':']
-
 
 
 # this is for draw figure3 only
 def get_plot_compare_with_base_line_cfg(search_space, dataset, if_with_phase1=False):
     if search_space == Config.NB201:
-        run_range_ = range(0, 5, 1)
+        run_range_ = range(0, 100, 1)
         if if_with_phase1:
             draw_graph = draw_anytime_result_with_p1
         else:
@@ -46,23 +43,20 @@ def get_plot_compare_with_base_line_cfg(search_space, dataset, if_with_phase1=Fa
         # min, this is for plot only
         if dataset == Config.c10:
             # C10 array
-            budget_array = [10, 50]
-            # budget_array = [0.017, 0.083] + list(range(1, 350, 4))
+            budget_array = [0.017, 0.083] + list(range(1, 350, 4))
             sub_graph_y1 = [91, 94.5]
             sub_graph_y2 = [53.5, 55]
             sub_graph_split = 60
         elif dataset == Config.c100:
             # C10 array
-            budget_array = [10, 50]
-            # budget_array = [0.017, 0.083] + list(range(1, 350, 4))
+            budget_array = [0.017, 0.083] + list(range(1, 350, 4))
 
             sub_graph_y1 = [64, 73.5]
             sub_graph_y2 = [15, 16]
             sub_graph_split = 20
         else:
             # ImgNet X array
-            budget_array = [10, 50]
-            # budget_array = [0.017, 0.083] + list(range(1, 350, 4))
+            budget_array = [0.017, 0.083] + list(range(1, 350, 4))
             sub_graph_y1 = [33, 48]
             sub_graph_y2 = [15.5, 17]
             sub_graph_split = 34
@@ -125,12 +119,12 @@ def draw_anytime_result(result_dir, y_acc_list_arr, x_T_list,
         ax1.set_ylim(x1_lim[0], x1_lim[1])  # 子图1设置y轴范围，只显示部分图
         ax2.set_ylim(x2_lim[0], x2_lim[1])  # 子图2设置y轴范围，只显示部分图
 
-    ax1.spines['bottom'].set_visible(False)#关闭子图1中底部脊
-    ax2.spines['top'].set_visible(False)##关闭子图2中顶部脊
-    ax2.set_xticks(range(0,31,1))
+    ax1.spines['bottom'].set_visible(False)  # 关闭子图1中底部脊
+    ax2.spines['top'].set_visible(False)  ##关闭子图2中顶部脊
+    ax2.set_xticks(range(0, 31, 1))
 
-    d = .85  #设置倾斜度
-    #绘制断裂处的标记
+    d = .85  # 设置倾斜度
+    # 绘制断裂处的标记
     kwargs = dict(marker=[(-1, -d), (1, d)], markersize=set_marker_size,
                   linestyle='none', color='r', mec='r', mew=1, clip_on=False)
     ax1.plot([0, 1], [0, 0], transform=ax1.transAxes, **kwargs)
@@ -149,11 +143,11 @@ def draw_anytime_result(result_dir, y_acc_list_arr, x_T_list,
 
 
 def draw_anytime_result_one_graph(y_acc_list_arr, x_T_list,
-                        x_acc_train, y_acc_train_l, y_acc_train_m, y_acc_train_h,
-                        annotations, lv,
-                        name_img, dataset,
-                        x1_lim=[], x2_lim=[],
-                        ):
+                                  x_acc_train, y_acc_train_l, y_acc_train_m, y_acc_train_h,
+                                  annotations, lv,
+                                  name_img, dataset,
+                                  x1_lim=[], x2_lim=[],
+                                  ):
     # fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True, dpi=100, gridspec_kw={'height_ratios': [5, 1]})
     exp = np.array(y_acc_list_arr) * 100
     sys_acc_h = np.quantile(exp, .75, axis=0)
@@ -174,11 +168,11 @@ def draw_anytime_result_one_graph(y_acc_list_arr, x_T_list,
     plt.plot(x_acc_train, y_acc_train_m, "o-", label="Training-based MS")
     # plt.plot(x_acc_train, y_acc_train_m,  label="Training-based MS")
 
-    if len(x1_lim) > 0 :
+    if len(x1_lim) > 0:
         plt.ylim(x1_lim[0], x1_lim[1])  # 子图1设置y轴范围，只显示部分图
 
-    d = .85  #设置倾斜度
-    #绘制断裂处的标记
+    d = .85  # 设置倾斜度
+    # 绘制断裂处的标记
     kwargs = dict(marker=[(-1, -d), (1, d)], markersize=set_marker_size,
                   linestyle='none', color='r', mec='r', mew=1, clip_on=False)
     # plt.plot([0, 1], [0, 0], transform=ax1.transAxes, **kwargs)
@@ -196,21 +190,22 @@ def draw_anytime_result_one_graph(y_acc_list_arr, x_T_list,
 
 # those two function will plot phase 1 and phase 2
 def draw_anytime_result_with_p1(result_dir, y_acc_list_arr, x_T_list, y_acc_list_arr_p1, x_T_list_p1,
-                        x_acc_train, y_acc_train_l, y_acc_train_m, y_acc_train_h,
-                        annotations, lv,
-                        name_img,dataset,max_value,
-                        x1_lim=[], x2_lim=[],
-                        ):
+                                x_acc_train, y_acc_train_l, y_acc_train_m, y_acc_train_h,
+                                annotations, lv,
+                                name_img, dataset, max_value,
+                                x1_lim=[], x2_lim=[],
+                                ):
     fig, (ax1, ax2) = plt.subplots(
         2, 1,
-       sharex=True,
-       dpi=100,
-       gridspec_kw={'height_ratios': [6, 1]})
+        sharex=True,
+        dpi=100,
+        gridspec_kw={'height_ratios': [6, 1]})
 
     shade_degree = 0.2
 
     # plot simulate result of train-based line
-    ax1.plot(x_acc_train, y_acc_train_m, mark_list[-3]+line_shape_list[0], label="Training-Based MS", markersize=mark_size_list[-3])
+    ax1.plot(x_acc_train, y_acc_train_m, mark_list[-3] + line_shape_list[0], label="Training-Based MS",
+             markersize=mark_size_list[-3])
     ax1.fill_between(x_acc_train, y_acc_train_l, y_acc_train_h, alpha=shade_degree)
     ax2.fill_between(x_acc_train, y_acc_train_l, y_acc_train_h, alpha=shade_degree)
 
@@ -219,7 +214,8 @@ def draw_anytime_result_with_p1(result_dir, y_acc_list_arr, x_T_list, y_acc_list
     sys_acc_p1_h = np.quantile(exp, .75, axis=0)
     sys_acc_p1_m = np.quantile(exp, .5, axis=0)
     sys_acc_p1_l = np.quantile(exp, .25, axis=0)
-    ax1.plot(x_T_list_p1, sys_acc_p1_m, mark_list[-2]+line_shape_list[1], label="Training-Free MS", markersize=mark_size_list[-2])
+    ax1.plot(x_T_list_p1, sys_acc_p1_m, mark_list[-2] + line_shape_list[1], label="Training-Free MS",
+             markersize=mark_size_list[-2])
     ax1.fill_between(x_T_list_p1, sys_acc_p1_l, sys_acc_p1_h, alpha=shade_degree)
     ax2.fill_between(x_T_list_p1, sys_acc_p1_l, sys_acc_p1_h, alpha=shade_degree)
 
@@ -228,7 +224,7 @@ def draw_anytime_result_with_p1(result_dir, y_acc_list_arr, x_T_list, y_acc_list
     sys_acc_h = np.quantile(exp, .75, axis=0)
     sys_acc_m = np.quantile(exp, .5, axis=0)
     sys_acc_l = np.quantile(exp, .25, axis=0)
-    ax1.plot(x_T_list, sys_acc_m, mark_list[-1]+line_shape_list[2], label="2Phase-MS", markersize=mark_size_list[-1])
+    ax1.plot(x_T_list, sys_acc_m, mark_list[-1] + line_shape_list[2], label="2Phase-MS", markersize=mark_size_list[-1])
     ax1.fill_between(x_T_list, sys_acc_l, sys_acc_h, alpha=shade_degree)
     ax2.fill_between(x_T_list, sys_acc_l, sys_acc_h, alpha=shade_degree)
 
@@ -249,12 +245,12 @@ def draw_anytime_result_with_p1(result_dir, y_acc_list_arr, x_T_list, y_acc_list
         ax1.set_ylim(x1_lim[0], x1_lim[1])  # 子图1设置y轴范围，只显示部分图
         ax2.set_ylim(x2_lim[0], x2_lim[1])  # 子图2设置y轴范围，只显示部分图
 
-    ax1.spines['bottom'].set_visible(False)#关闭子图1中底部脊
-    ax2.spines['top'].set_visible(False)##关闭子图2中顶部脊
-    ax2.set_xticks(range(0,31,1))
+    ax1.spines['bottom'].set_visible(False)  # 关闭子图1中底部脊
+    ax2.spines['top'].set_visible(False)  ##关闭子图2中顶部脊
+    ax2.set_xticks(range(0, 31, 1))
 
-    d = .85  #设置倾斜度
-    #绘制断裂处的标记
+    d = .85  # 设置倾斜度
+    # 绘制断裂处的标记
     kwargs = dict(marker=[(-1, -d), (1, d)], markersize=set_marker_size,
                   linestyle='none', color='r', mec='r', mew=1, clip_on=False)
     ax1.plot([0, 1], [0, 0], transform=ax1.transAxes, **kwargs)
@@ -306,7 +302,7 @@ def export_legend(ori_fig, filename="any_time_legend", colnum=9, unique_labels=[
     # query dict based on unique labels
     unique_lines = [legend_dict[x] for x in unique_labels]
     fig2.legend(unique_lines, unique_labels, loc='center',
-             ncol=colnum,
+                ncol=colnum,
                 fancybox=True,
                 shadow=True, scatterpoints=1, fontsize=set_lgend_size)
     fig2.tight_layout()
@@ -314,11 +310,11 @@ def export_legend(ori_fig, filename="any_time_legend", colnum=9, unique_labels=[
 
 
 def draw_anytime_result_one_graph_with_p1(y_acc_list_arr, x_T_list, y_acc_list_arr_p1, x_T_list_p1,
-                        x_acc_train, y_acc_train_l, y_acc_train_m, y_acc_train_h,
-                        annotations, lv,
-                        name_img,dataset,
-                        x1_lim=[], x2_lim=[],
-                        ):
+                                          x_acc_train, y_acc_train_l, y_acc_train_m, y_acc_train_h,
+                                          annotations, lv,
+                                          name_img, dataset,
+                                          x1_lim=[], x2_lim=[],
+                                          ):
     # fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True, dpi=100, gridspec_kw={'height_ratios': [5, 1]})
 
     # plot simulate result of system
@@ -350,11 +346,11 @@ def draw_anytime_result_one_graph_with_p1(y_acc_list_arr, x_T_list, y_acc_list_a
     plt.plot(x_acc_train, y_acc_train_m, "o-", label="Training-based MS")
     # plt.plot(x_acc_train, y_acc_train_m,  label="Training-based MS")
 
-    if len(x1_lim) > 0 :
+    if len(x1_lim) > 0:
         plt.ylim(x1_lim[0], x1_lim[1])  # 子图1设置y轴范围，只显示部分图
 
-    d = .85  #设置倾斜度
-    #绘制断裂处的标记
+    d = .85  # 设置倾斜度
+    # 绘制断裂处的标记
     kwargs = dict(marker=[(-1, -d), (1, d)], markersize=set_marker_size,
                   linestyle='none', color='r', mec='r', mew=1, clip_on=False)
     # plt.plot([0, 1], [0, 0], transform=ax1.transAxes, **kwargs)
@@ -708,6 +704,3 @@ def draw_grid_graph_with_budget_only_T(
     base_dr = os.getcwd()
     path_gra = os.path.join(base_dr, f"{img_name}.pdf")
     fig.savefig(path_gra, bbox_inches='tight')
-
-
-

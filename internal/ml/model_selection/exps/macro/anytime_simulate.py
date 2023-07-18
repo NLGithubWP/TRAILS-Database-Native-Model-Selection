@@ -72,17 +72,15 @@ if __name__ == "__main__":
     # configurable settings for benchmarking
     is_simulate = args.is_simulate
     only_phase1 = args.only_phase1
-    print(only_phase1)
     # for this exp, we repeat 100 times and set max to 1000 mins
-    total_run = 2
-    max_minute = 100
+    total_run = 50
+    max_minute = 1000
     budget_array = log_scale_x_array(num_points=args.num_points, max_minute=max_minute)
-    print(budget_array)
 
     if only_phase1.lower() == "true":
         checkpoint_name = f"./internal/ml/model_selection/exp_result/" \
                           f"res_end_2_end_{args.dataset}_{args.kn_rate}_{args.num_points}_p1.json"
-    elif only_phase1.lower() == "false" :
+    elif only_phase1.lower() == "false":
         checkpoint_name = f"./internal/ml/model_selection/exp_result/" \
                           f"res_end_2_end_{args.dataset}_{args.kn_rate}_{args.num_points}.json"
     else:
