@@ -55,6 +55,7 @@ if __name__ == "__main__":
             y_each_run_p1.append(acc_sh_v_p1)
         y_acc_list_arr_p1.append(y_each_run_p1)
 
+    # traing-based ms
     x_acc_train, y_acc_train_l, y_acc_train_m, y_acc_train_h = post_processing_train_base_result(
         search_space=args.search_space, dataset=args.dataset)
 
