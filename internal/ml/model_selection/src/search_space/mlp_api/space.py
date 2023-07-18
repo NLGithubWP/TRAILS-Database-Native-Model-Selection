@@ -92,6 +92,7 @@ class MLP(nn.Module):
 
     def forward(self, x):
         """
+        each element represents the probability of the positive class.
         :param x:   FloatTensor B*ninput
         :return:    FloatTensor B*nouput
         """
@@ -145,6 +146,9 @@ class DNNModel(torch.nn.Module):
         return batch_data
 
     def forward_wo_embedding(self, x):
+        """
+        Only used when embedding is generated outside, eg, all 1 embedding.
+        """
         y = self.mlp(x)  # B*label
         return y.squeeze(1)
 
@@ -155,7 +159,7 @@ class DNNModel(torch.nn.Module):
         """
         x_emb = self.embedding(x)                           # B*F*E
         y = self.mlp(x_emb.view(-1, self.mlp_ninput))       # B*label
-        # y = self.sigmoid(y)
+        # this is for binary classification
         return y.squeeze(1)
 
 

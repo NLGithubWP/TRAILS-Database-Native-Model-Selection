@@ -4,7 +4,7 @@ import calendar
 import os
 import time
 
-from exps.common.shared_args import parse_arguments
+from exps.shared_args import parse_arguments
 from src.utilslibs.compute import log_scale_x_array
 
 
@@ -72,21 +72,23 @@ if __name__ == "__main__":
     # configurable settings for benchmarking
     is_simulate = args.is_simulate
     only_phase1 = args.only_phase1
-
+    print(only_phase1)
     # for this exp, we repeat 100 times and set max to 1000 mins
-    total_run = 100
-    max_minute = 1000
+    total_run = 2
+    max_minute = 100
     budget_array = log_scale_x_array(num_points=args.num_points, max_minute=max_minute)
     print(budget_array)
 
-    checkpoint_name = f"./internal/ml/model_selection/exps/result/" \
-                      f"res_end_2_end_{args.dataset}_{args.kn_rate}_{args.num_points}.json"
-    if only_phase1:
-        checkpoint_name = f"./internal/ml/model_selection/exps/result/" \
+    if only_phase1.lower() == "true":
+        checkpoint_name = f"./internal/ml/model_selection/exp_result/" \
                           f"res_end_2_end_{args.dataset}_{args.kn_rate}_{args.num_points}_p1.json"
-        # if it's reach 201, already explored all models.
-        # budget_array = [ele for ele in budget_array if ele < 210]
+    elif only_phase1.lower() == "false" :
+        checkpoint_name = f"./internal/ml/model_selection/exp_result/" \
+                          f"res_end_2_end_{args.dataset}_{args.kn_rate}_{args.num_points}.json"
+    else:
+        raise "only_phase1 must be true or false"
 
+    print(checkpoint_name)
     result = {
         "sys_time_budget": budget_array,
         "sys_acc": []

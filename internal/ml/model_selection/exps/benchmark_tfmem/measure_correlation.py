@@ -11,14 +11,14 @@ import numpy as np
 # epoch_train = "9"
 
 # Frappe
-# train_dir = "../exp_data/result_base/mlp_results/frappe/all_train_baseline_frappe.json"
-# score_dir = "../exp_data/result_base/mlp_results/frappe/score_frappe_batch_size_32_local_finish_all_models.json"
-# epoch_train = "19"
+train_dir = "../exp_data/result_base/mlp_results/frappe/all_train_baseline_frappe.json"
+score_dir = "../exp_data/result_base/mlp_results/frappe/score_frappe_batch_size_32_local_finish_all_models.json"
+epoch_train = "19"
 
 # UCI
-train_dir = "../exp_data/result_base/mlp_results/uci_diabetes/all_train_baseline_uci_160k_40epoch.json"
-score_dir = "../exp_data/result_base/mlp_results/uci_diabetes/score_uci_diabetes_batch_size_32_all_metrics.json"
-epoch_train = "0"
+# train_dir = "../exp_data/result_base/mlp_results/uci_diabetes/all_train_baseline_uci_160k_40epoch.json"
+# score_dir = "../exp_data/result_base/mlp_results/uci_diabetes/score_uci_diabetes_batch_size_32_all_metrics.json"
+# epoch_train = "0"
 
 train_res = read_json(train_dir)
 score_res = read_json(score_dir)

@@ -1,7 +1,5 @@
-
-
 from scipy import stats
-from common.constant import CommonVars
+from src.common.constant import CommonVars
 import numpy as np
 from src.logger import logger
 from sklearn import metrics
@@ -37,13 +35,13 @@ class CorCoefficient:
             correlation1, p_value = stats.kendalltau(x1, x2, nan_policy='omit')
             correlation2, p_value = stats.spearmanr(x1, x2, nan_policy='omit')
             correlation3, p_value = stats.pearsonr(x1, x2)
-            correlation = (correlation1+correlation2+correlation3) / 3
+            correlation = (correlation1 + correlation2 + correlation3) / 3
             result[CommonVars.AvgCorrelation] = correlation
         elif measure_metrics == CommonVars.AllCorrelation:
             correlation1, p_value = stats.kendalltau(x1, x2, nan_policy='omit')
             correlation2, p_value = stats.spearmanr(x1, x2, nan_policy='omit')
             correlation3, p_value = stats.pearsonr(x1, x2)
-            correlation4 = (correlation1+correlation2+correlation3) / 3
+            correlation4 = (correlation1 + correlation2 + correlation3) / 3
             result[CommonVars.KendallTau] = correlation1
             result[CommonVars.Spearman] = correlation2
             result[CommonVars.Pearson] = correlation3
@@ -115,4 +113,3 @@ class CorCoefficient:
             logger.info(test_pred)
 
         return metrics_dict
-

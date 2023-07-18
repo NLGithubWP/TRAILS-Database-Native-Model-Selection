@@ -87,7 +87,7 @@ def get_plot_compare_with_base_line_cfg(search_space, dataset, if_with_phase1=Fa
     return run_range_, budget_array, sub_graph_y1, sub_graph_y2, sub_graph_split, draw_graph
 
 
-def draw_anytime_result(y_acc_list_arr, x_T_list,
+def draw_anytime_result(result_dir, y_acc_list_arr, x_T_list,
                         x_acc_train, y_acc_train_l, y_acc_train_m, y_acc_train_h,
                         annotations, lv,
                         name_img, dataset,
@@ -143,7 +143,7 @@ def draw_anytime_result(y_acc_list_arr, x_T_list,
     ax1.legend(ncol=1, fontsize=set_lgend_size)
     ax2.legend(fontsize=set_lgend_size)
     # plt.show()
-    plt.savefig(f"amy_time_{name_img}.pdf", bbox_inches='tight')
+    plt.savefig(f"{result_dir}/any_time_{name_img}.pdf", bbox_inches='tight')
 
 
 def draw_anytime_result_one_graph(y_acc_list_arr, x_T_list,
@@ -193,7 +193,7 @@ def draw_anytime_result_one_graph(y_acc_list_arr, x_T_list,
 
 
 # those two function will plot phase 1 and phase 2
-def draw_anytime_result_with_p1(y_acc_list_arr, x_T_list, y_acc_list_arr_p1, x_T_list_p1,
+def draw_anytime_result_with_p1(result_dir, y_acc_list_arr, x_T_list, y_acc_list_arr_p1, x_T_list_p1,
                         x_acc_train, y_acc_train_l, y_acc_train_m, y_acc_train_h,
                         annotations, lv,
                         name_img,dataset,max_value,
@@ -289,7 +289,7 @@ def draw_anytime_result_with_p1(y_acc_list_arr, x_T_list, y_acc_list_arr_p1, x_T
                        'KNAS (Training-Free)', 'DARTS-V1 (Weight sharing)', 'DARTS-V2 (Weight sharing)',
                        'Training-Based MS', 'Training-Free MS', '2Phase-MS', 'Global Best Accuracy'])
     plt.tight_layout()
-    fig.savefig(f"any_time_{name_img}_p1_from_0.1_sec.pdf", bbox_inches='tight')
+    fig.savefig(f"{result_dir}/any_time_{name_img}_p1_from_0.1_sec.pdf", bbox_inches='tight')
 
 
 def export_legend(ori_fig, filename="any_time_legend", colnum=9, unique_labels=[]):

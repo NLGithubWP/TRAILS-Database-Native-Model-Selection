@@ -18,9 +18,8 @@ def init_search_space(args, loapi=None) -> SpaceWrapper:
             args.num_modules_per_stack,
             args.num_labels)
 
-        base_dir_folder = os.environ.get("base_dir")
-        if base_dir_folder is None: base_dir_folder = os.getcwd()
-        return NasBench101Space(os.path.join(base_dir_folder, "data", args.api_loc), model_cfg, loapi)
+        base_dir_folder = args.base_dir
+        return NasBench101Space(os.path.join(base_dir_folder, args.api_loc), model_cfg, loapi)
 
     elif args.search_space == Config.NB201:
         from .nas_201_api.model_params import NB201MacroCfg
@@ -32,9 +31,8 @@ def init_search_space(args, loapi=None) -> SpaceWrapper:
             args.arch_size,
             args.num_labels)
 
-        base_dir_folder = os.environ.get("base_dir")
-        if base_dir_folder is None: base_dir_folder = os.getcwd()
-        return NasBench201Space(os.path.join(base_dir_folder, "data", args.api_loc), model_cfg)
+        base_dir_folder = args.base_dir
+        return NasBench201Space(os.path.join(base_dir_folder, args.api_loc), model_cfg)
 
     elif args.search_space == Config.MLPSP:
         from .mlp_api.space import MlpSpace

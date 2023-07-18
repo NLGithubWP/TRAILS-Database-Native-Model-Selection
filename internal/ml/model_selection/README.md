@@ -33,13 +33,14 @@ https://drive.google.com/file/d/1fpKAqvvVooiJh2EIfz18UMsBE4demHL2/view?usp=shari
 Update the dataset_name and then run.
 
 ```bash
-# generate the running results of image data
-python exps/main_v1/4_system/analysis/2_benchmarking/0_macro_com_with_base.py --dataset cifar10
---search_space nasbench201
-# image data
-python exps/main_v1/4_system/analysis/2_benchmarking/0_draw_compare_with_base.py
-# structure data
-python exps/main_v2/analysis/1.\ anytime_draw.py
+# generate pre-calculated results.
+
+# generate the results for draw the figure
+bash internal/ml/model_selection/scripts/anytime_tab.sh
+bash internal/ml/model_selection/scripts/anytime_img.sh
+# draw figure
+python internal/ml/model_selection/exps/macro/anytime_tab_draw.py
+python internal/ml/model_selection/exps/macro/anytime_img_draw.py
 ```
 
 ![image-20230702035554579](documents/imgs/image-20230702035554579.png)

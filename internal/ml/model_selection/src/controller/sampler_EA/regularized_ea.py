@@ -29,7 +29,7 @@ class RegularizedEASampler(Sampler):
 
         # use the visited to reduce the collapse
         self.visited = {}
-        self.max_mutate_time = 40
+        self.max_mutate_time = 10
         self.max_mutate_sampler_time = 5
 
     def sample_next_arch(self, sorted_model: list) -> (str, ModelMicroCfg):
@@ -67,7 +67,7 @@ class RegularizedEASampler(Sampler):
                 parent = max(sample, key=lambda i: sorted_model.index(str(i.arch)))
                 # parent = max(sample, key=lambda i: i.score)
 
-                # 2. try 200 times, until find a non-visited model
+                # 2. try 10 times, until find a non-visited model
                 while cur_mutate_time < self.max_mutate_time:
                     arch_id, arch_micro = self.space.mutate_architecture(parent.arch)
                     if arch_id not in self.visited or len(self.space) == len(self.visited):
@@ -81,7 +81,7 @@ class RegularizedEASampler(Sampler):
                 cur_mutate_sampler_time += 1
 
             if cur_mutate_time * cur_mutate_sampler_time == self.max_mutate_time * self.max_mutate_sampler_time:
-                print("==================== meet fuck !! ====================")
+                pass
             self.current_arch_micro = arch_micro
             return arch_id, arch_micro
 
