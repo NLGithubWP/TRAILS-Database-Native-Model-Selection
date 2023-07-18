@@ -2,7 +2,7 @@
 
 export PYTHONPATH=$PYTHONPATH:./internal/ml/model_selection
 
-nohup  python exps/main_sigmod/ground_truth/4.seq_score_online.py \
+nohup  python ./internal/ml/model_selection/exps/nas_bench_tabular/4.seq_score_online.py \
   --log_name=score_based \
   --search_space=mlp_sp \
   --num_layers=4 \
