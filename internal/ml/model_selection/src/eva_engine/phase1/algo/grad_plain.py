@@ -19,10 +19,6 @@ class GradPlainEvaluator(Evaluator):
             3. Sum up all weights' grad and get the overall architecture score.
         """
 
-        # if isinstance(batch_data, dict):
-        #     loss_fn = nn.BCEWithLogitsLoss(reduction='mean').to(device)
-        # else:
-        #     loss_fn = F.cross_entropy
         loss_fn = F.cross_entropy
         outputs = arch(batch_data)
         loss = loss_fn(outputs, batch_labels)

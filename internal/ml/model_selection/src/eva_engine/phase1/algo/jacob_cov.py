@@ -1,6 +1,7 @@
 
 import numpy as np
 
+from src.eva_engine.phase1.algo.alg_base import Evaluator
 from src.eva_engine.phase1.utils.autograd_hacks import *
 from torch import nn
 from src.logger import logger

@@ -4,9 +4,6 @@
 from src.eva_engine.phase1.algo.alg_base import Evaluator
 from src.eva_engine.phase1.utils.autograd_hacks import *
 from torch import nn
-import pandas as pd
-import numpy as np
-import types
 
 
 class ExpressFlowEvaluator(Evaluator):
