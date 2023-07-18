@@ -69,7 +69,7 @@ def trainner_args(parser):
 
     # MLP train config
     parser.add_argument('--report_freq', type=int, default=30, help='report frequency')
-    parser.add_argument('--workers', default=4, type=int, help='data loading workers')
+    parser.add_argument('--workers', default=1, type=int, help='data loading workers')
 
 
 def data_set_config(parser):
@@ -82,7 +82,7 @@ def data_set_config(parser):
                              'criteo, '
                              'uci_diabetes')
 
-    parser.add_argument('--num_labels', type=int, default=1,
+    parser.add_argument('--num_labels', type=int, default=2,
                         help='[10, 100, 120],'
                              '[2, 2, 2]')
 
@@ -121,6 +121,12 @@ def db4nas(parser):
     parser.add_argument('--batch_data', default="[]", type=str)
 
 
+def anytime_exp_set(parser):
+    parser.add_argument('--only_phase1', default=False, type=bool)
+    parser.add_argument('--is_simulate', default=True, type=bool,
+                        help='Use the pre-computed result or run online. ')
+
+
 def parse_arguments():
     parser = argparse.ArgumentParser(description='system')
 
@@ -155,6 +161,7 @@ def parse_arguments():
     tune_interval_NK_rate(parser)
 
     db4nas(parser)
+    anytime_exp_set(parser)
 
     # tmp
     parser.add_argument('--max_load', type=int, default=-1, help="Max Loading time")

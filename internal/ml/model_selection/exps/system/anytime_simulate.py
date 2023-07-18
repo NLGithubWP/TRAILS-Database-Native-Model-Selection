@@ -70,10 +70,12 @@ if __name__ == "__main__":
     args.num_labels = class_num
 
     # configurable settings for benchmarking
-    is_simulate = False
-    only_phase1 = True
+    is_simulate = args.is_simulate
+    only_phase1 = args.only_phase1
+
+    # for this exp, we repeat 100 times and set max to 1000 mins
     total_run = 100
-    max_minute = 20
+    max_minute = 1000
     budget_array = log_scale_x_array(num_points=args.num_points, max_minute=max_minute)
     print(budget_array)
 
@@ -93,7 +95,7 @@ if __name__ == "__main__":
         run_begin_time = time.time()
         run_acc_list = []
         for time_budget in budget_array:
-            time_budget_sec = time_budget * 600
+            time_budget_sec = time_budget * 60
             logger.info(f"\n Running job with budget={time_budget} min \n")
             best_arch, best_arch_performance, time_usage, p1_trace_highest_score, p1_trace_models_perforamnces = \
                 run_with_time_budget(time_budget_sec, is_simulate=is_simulate)
