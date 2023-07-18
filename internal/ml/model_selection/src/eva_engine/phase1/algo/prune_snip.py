@@ -23,13 +23,7 @@ class SnipEvaluator(Evaluator):
         # Compute gradients (but don't apply them)
         # run a forward + backward on mini-batch， spit data if it cannot fit into one GPU
 
-        if isinstance(batch_data, dict):
-            outputs = arch.forward_wo_embedding(batch_data)
-        elif isinstance(batch_data, torch.Tensor):
-            outputs = arch.forward(batch_data)
-        else:
-            raise
-
+        outputs = arch.forward(batch_data)
         loss = F.cross_entropy(outputs, batch_labels)
         loss.backward()
 

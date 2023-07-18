@@ -19,21 +19,11 @@ class GradNormEvaluator(Evaluator):
             3. Sum up all weights' grad norm and get the overall architecture score.
         """
 
-        # if isinstance(batch_data, dict):
-        #     loss_fn = nn.BCEWithLogitsLoss(reduction='mean').to(device)
-        # else:
-        #     loss_fn = F.cross_entropy
         loss_fn = F.cross_entropy
-        # opt_metric = nn.BCEWithLogitsLoss(reduction='mean').to(device)
         grad_norm_arr = []
         # 1. forward on mini-batch
         # logger.info("min-batch is in cuda2 = " + str(batch_data.is_cuda))
-        # this is for the structure data,
-        if isinstance(batch_data, torch.Tensor):
-            outputs = arch.forward(batch_data)
-        else:
-            outputs = arch.forward_wo_embedding(batch_data)
-
+        outputs = arch(batch_data)
         loss = loss_fn(outputs, batch_labels)
         loss.backward()
 
