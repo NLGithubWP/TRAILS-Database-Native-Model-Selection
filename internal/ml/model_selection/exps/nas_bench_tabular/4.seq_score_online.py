@@ -64,7 +64,7 @@ if __name__ == "__main__":
     sampler = SequenceSampler(search_space_ins)
 
     explored_n = 0
-    output_file = f"{args.result_dir}/score_{args.dataset}_batch_size_{args.batch_size}.json"
+    output_file = f"{args.result_dir}/score_{args.search_space}_{args.dataset}_batch_size_{args.batch_size}.json"
     result = read_json(output_file)
     print(f"begin to score all, currently we already explored {len(result.keys())}")
     while True:
@@ -82,7 +82,7 @@ if __name__ == "__main__":
         model_score = _evaluator.p1_evaluate(data_str)
         explored_n += 1
         result[arch_id] = model_score
-        print(f" {datetime.now()}finish arch = {arch_id}")
+        print(f" {datetime.now()} finish arch = {arch_id}")
         if explored_n % 100 == 0:
             print("3. [trails] Phase 1: filter phase explored " + str(explored_n)
                   + "Total explored" + str(len(result)) +
