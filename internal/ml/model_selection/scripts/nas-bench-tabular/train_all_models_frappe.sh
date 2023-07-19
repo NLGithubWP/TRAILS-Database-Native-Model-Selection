@@ -16,7 +16,7 @@ for((gpu_id=0; gpu_id < GPU_NUM; ++gpu_id)); do
     --num_layers=4 \
     --hidden_choice_len=20 \
     --base_dir=/home/shaofeng/naili/firmest_data/ \
-    --num_labels=1 \
+    --num_labels=2 \
     --device=cuda:$gpu_id \
     --batch_size=512 \
     --lr=0.001 \
@@ -27,10 +27,11 @@ for((gpu_id=0; gpu_id < GPU_NUM; ++gpu_id)); do
     --nfield=10 \
     --nemb=10 \
     --worker_id=$worker_id \
-    --total_workers=$total_workers & \
+    --total_workers=$total_workers  \
     --workers=0 \
     --log_folder=LogFrappe \
     --total_models_per_worker=-1 \
+    --result_dir=./internal/ml/model_selection/exp_result/ \
     --pre_partitioned_file=./internal/ml/model_selection/exps/nas_bench_tabular/sampled_models_all.json & ">> train_all_models_frappe_seq.sh
 
     sleep 1

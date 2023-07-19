@@ -8,7 +8,7 @@ import os
 import time
 import torch.multiprocessing as mp
 
-from exps.main_v2.common.shared_args import parse_arguments
+from exps.shared_args import parse_arguments
 
 
 def partition_list_by_worker_id(lst, num_workers=15):
@@ -35,7 +35,7 @@ def start_one_worker(queue, args, worker_id, my_partition, search_space_ins, res
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
     handler.setFormatter(formatter)
     logger.addHandler(handler)
-    from eva_engine.phase2.algo.trainer import ModelTrainer
+    from src.eva_engine.phase2.algo.trainer import ModelTrainer
 
     if args.total_models_per_worker is None:
         logger.info(

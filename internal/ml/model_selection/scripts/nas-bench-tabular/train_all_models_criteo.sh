@@ -15,8 +15,8 @@ for((gpu_id=0; gpu_id < GPU_NUM; ++gpu_id)); do
     --search_space=mlp_sp \
     --num_layers=4 \
     --hidden_choice_len=10 \
-    --base_dir=../firmest_data/ \
-    --num_labels=1 \
+    --base_dir=../exp_data/ \
+    --num_labels=2 \
     --device=cuda:$gpu_id \
     --batch_size=1024 \
     --lr=0.001 \
@@ -31,6 +31,7 @@ for((gpu_id=0; gpu_id < GPU_NUM; ++gpu_id)); do
     --workers=0 \
     --log_folder=LogCriteo \
     --total_models_per_worker=-1 \
+    --result_dir=./internal/ml/model_selection/exp_result/ \
     --pre_partitioned_file=./internal/ml/model_selection/exps/nas_bench_tabular/sampled_models_10000_models.json & ">> train_all_models_criteo_seq.sh
 
 #    sleep 1

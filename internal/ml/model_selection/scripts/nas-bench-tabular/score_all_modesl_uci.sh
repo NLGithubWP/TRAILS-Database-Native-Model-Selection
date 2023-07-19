@@ -7,7 +7,7 @@ nohup  python ./internal/ml/model_selection/exps/nas_bench_tabular/4.seq_score_o
   --search_space=mlp_sp \
   --num_layers=4 \
   --hidden_choice_len=20 \
-  --base_dir=../firmest_data/ \
+  --base_dir=../exp_data/ \
   --num_labels=2 \
   --device=cuda:2 \
   --batch_size=32 \
@@ -16,6 +16,7 @@ nohup  python ./internal/ml/model_selection/exps/nas_bench_tabular/4.seq_score_o
   --nfield=43 \
   --nemb=10 \
   --workers=0 \
+  --result_dir=./internal/ml/model_selection/exp_result/ \
   --log_folder=LogMeasureStoreTime  > outputUciScoreALl.log&
 
 

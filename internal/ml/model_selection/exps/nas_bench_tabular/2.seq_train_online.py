@@ -1,11 +1,9 @@
-
-
 import calendar
 import json
 import os
 import time
 
-from exps.main_v2.common.shared_args import parse_arguments
+from exps.shared_args import parse_arguments
 
 
 def partition_list_by_worker_id(lst, num_workers=15):
@@ -30,10 +28,10 @@ if __name__ == "__main__":
     os.environ.setdefault("log_file_name", f"{args.log_name}_{args.dataset}_wkid_{args.worker_id}_{ts}.log")
     os.environ.setdefault("base_dir", args.base_dir)
 
-    from logger import logger
-    from eva_engine.phase2.algo.trainer import ModelTrainer
-    from search_space.init_search_space import init_search_space
-    from storage.structure_data_loader import libsvm_dataloader
+    from src.logger import logger
+    from src.eva_engine.phase2.algo.trainer import ModelTrainer
+    from src.search_space.init_search_space import init_search_space
+    from src.storage.structure_data_loader import libsvm_dataloader
     from utilslibs.io_tools import write_json, read_json
 
     search_space_ins = init_search_space(args)
@@ -60,7 +58,7 @@ if __name__ == "__main__":
                     f"{len(all_partition[args.worker_id])} models. but explore {args.total_models_per_worker} models ")
 
     # read the checkpoint
-    checkpoint_file_name = f"./base_line_res_{args.dataset}/train_baseline_{args.dataset}_wkid_{args.worker_id}.json"
+    checkpoint_file_name = f"{args.result_dir}/train_baseline_{args.dataset}_wkid_{args.worker_id}.json"
     visited = read_json(checkpoint_file_name)
     if visited == {}:
         visited = {args.dataset: {}}
@@ -89,10 +87,10 @@ if __name__ == "__main__":
 
         # update the shared model eval res
         logger.info(f" ---- exploring {explored_arch_num} model. ")
-        logger.info(f" ---- info: {json.dumps({res[arch_index]:train_log})}")
+        logger.info(f" ---- info: {json.dumps({res[arch_index]: train_log})}")
         visited[args.dataset][res[arch_index]] = train_log
         explored_arch_num += 1
-        
+
         if args.total_models_per_worker != -1 and explored_arch_num > args.total_models_per_worker:
             break
 

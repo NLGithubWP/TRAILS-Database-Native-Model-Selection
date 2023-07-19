@@ -1,14 +1,12 @@
 
 
-import argparse
 import calendar
 import json
 import os
 import time
 import traceback
-import sys
 
-from exps.main_v2.common.shared_args import parse_arguments
+from exps.shared_args import parse_arguments
 
 
 def partition_list_by_worker_id(lst, num_workers=15):
@@ -33,10 +31,10 @@ if __name__ == "__main__":
     os.environ.setdefault("log_file_name", f"{args.log_name}_{args.dataset}_ep{args.epoch}_{ts}.log")
     os.environ.setdefault("base_dir", args.base_dir)
 
-    from logger import logger
-    from eva_engine.phase2.algo.trainer import ModelTrainer
-    from search_space.init_search_space import init_search_space
-    from storage.structure_data_loader import libsvm_dataloader
+    from src.logger import logger
+    from src.eva_engine.phase2.algo.trainer import ModelTrainer
+    from src.search_space.init_search_space import init_search_space
+    from src.storage.structure_data_loader import libsvm_dataloader
     from utilslibs.io_tools import write_json, read_json
 
     search_space_ins = init_search_space(args)
@@ -44,7 +42,7 @@ if __name__ == "__main__":
 
     try:
         # read the checkpoint
-        checkpoint_file_name = f"./{args.dataset}_train_cfg_exp/train_config_tune_{args.dataset}_epo_{args.epoch}.json"
+        checkpoint_file_name = f"{args.result_dir}/train_config_tune_{args.dataset}_epo_{args.epoch}.json"
 
         # 1. data loader
         train_loader, val_loader, test_loader = libsvm_dataloader(
@@ -75,5 +73,6 @@ if __name__ == "__main__":
         logger.info(f" Saving result to: {checkpoint_file_name}")
         write_json(checkpoint_file_name, train_log)
     except:
+        print(traceback.format_exc())
         logger.info(traceback.format_exc())
 

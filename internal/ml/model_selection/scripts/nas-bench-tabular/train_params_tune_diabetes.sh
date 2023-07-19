@@ -7,8 +7,8 @@ nohup python ./internal/ml/model_selection/exps/nas_bench_tabular/0.train_one_mo
   --search_space=mlp_sp \
   --num_layers=4 \
   --hidden_choice_len=20 \
-  --base_dir=../firmest_data/ \
-  --num_labels=1 \
+  --base_dir=../exp_data/ \
+  --num_labels=2 \
   --device=cuda:0 \
   --batch_size=1024 \
   --lr=0.001 \
@@ -19,6 +19,7 @@ nohup python ./internal/ml/model_selection/exps/nas_bench_tabular/0.train_one_mo
   --nfield=43 \
   --nemb=10 \
   --workers=0 \
+  --result_dir=./internal/ml/model_selection/exp_result/ \
   --log_folder=LogUCITrainTune >uci_3.log &
 
 
@@ -28,8 +29,8 @@ nohup  python ./internal/ml/model_selection/exps/nas_bench_tabular/0.train_one_m
   --search_space=mlp_sp \
   --num_layers=4 \
   --hidden_choice_len=20 \
-  --base_dir=../firmest_data/ \
-  --num_labels=1 \
+  --base_dir=../exp_data/ \
+  --num_labels=2 \
   --device=cuda:1 \
   --batch_size=1024 \
   --lr=0.001 \
@@ -40,6 +41,7 @@ nohup  python ./internal/ml/model_selection/exps/nas_bench_tabular/0.train_one_m
   --nfield=43 \
   --nemb=10 \
   --workers=0 \
+  --result_dir=./internal/ml/model_selection/exp_result/ \
   --log_folder=LogUCITrainTune >uci_5.log &
 
 
@@ -49,8 +51,8 @@ nohup  python ./internal/ml/model_selection/exps/nas_bench_tabular/0.train_one_m
   --search_space=mlp_sp \
   --num_layers=4 \
   --hidden_choice_len=20 \
-  --base_dir=../firmest_data/ \
-  --num_labels=1 \
+  --base_dir=../exp_data/ \
+  --num_labels=2 \
   --device=cuda:2 \
   --batch_size=1024 \
   --lr=0.001 \
@@ -61,5 +63,6 @@ nohup  python ./internal/ml/model_selection/exps/nas_bench_tabular/0.train_one_m
   --nfield=43 \
   --nemb=10 \
   --workers=0 \
+  --result_dir=./internal/ml/model_selection/exp_result/ \
   --log_folder=LogUCITrainTune >uci_7.log &
 

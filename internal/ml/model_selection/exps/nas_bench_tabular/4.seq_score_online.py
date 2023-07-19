@@ -1,12 +1,9 @@
-
-
-
 import calendar
 import json
 import os
 import random
 import time
-from exps.main_v2.common.shared_args import parse_arguments
+from exps.shared_args import parse_arguments
 from datetime import datetime
 
 
@@ -41,7 +38,7 @@ def run_with_time_budget(time_budget: float):
     args.num_labels = class_num
     data_loader = [train_loader, val_loader, test_loader]
 
-    rms = RunModelSelection(args.search_space,  args, is_simulate=True)
+    rms = RunModelSelection(args.search_space, args, is_simulate=True)
     best_arch, best_arch_performance, _, _, _ = rms.select_model_online(time_budget, data_loader)
 
     return best_arch, best_arch_performance
@@ -58,16 +55,16 @@ if __name__ == "__main__":
     os.environ.setdefault("log_file_name", args.log_name + "_" + str(ts) + ".log")
     os.environ.setdefault("base_dir", args.base_dir)
 
-    from common.constant import Config
-    from common.structure import ModelAcquireData
-    from controller.sampler_all.seq_sampler import SequenceSampler
-    from eva_engine.phase1.evaluator import P1Evaluator
-    from logger import logger
-    from search_space.init_search_space import init_search_space
-    from storage.structure_data_loader import libsvm_dataloader
-    from utilslibs.io_tools import write_json, read_json
-    from eva_engine.run_ms import RunModelSelection
-    from storage import dataset
+    from src.common.constant import Config
+    from src.common.structure import ModelAcquireData
+    from src.controller.sampler_all.seq_sampler import SequenceSampler
+    from src.eva_engine.phase1.evaluator import P1Evaluator
+    from src.logger import logger
+    from src.search_space.init_search_space import init_search_space
+    from src.storage.structure_data_loader import libsvm_dataloader
+    from src.utilslibs.io_tools import write_json, read_json
+    from src.eva_engine.run_ms import RunModelSelection
+    from src.storage import dataset
 
     search_space_ins = init_search_space(args)
     search_space_ins.load()
@@ -83,7 +80,7 @@ if __name__ == "__main__":
     sampler = SequenceSampler(search_space_ins)
 
     explored_n = 0
-    output_file = f"./score_{args.dataset}_batch_size_{args.batch_size}.json"
+    output_file = f"{args.result_dir}/score_{args.dataset}_batch_size_{args.batch_size}.json"
     result = read_json(output_file)
     print(f"begin to score all, currently we already explored {len(result.keys())}")
     while True:
@@ -103,12 +100,11 @@ if __name__ == "__main__":
         print(f" {datetime.now()}finish arch = {arch_micro}")
         if explored_n % 100 == 0:
             print("3. [trails] Phase 1: filter phase explored " + str(explored_n)
-                        + "Total explored" + str(len(result)) +
-                        " model, model_id = " + str(arch_micro) +
-                        " model_scores = " + json.dumps(model_score))
+                  + "Total explored" + str(len(result)) +
+                  " model, model_id = " + str(arch_micro) +
+                  " model_scores = " + json.dumps(model_score))
             logger.info("3. [trails] Phase 1: filter phase explored " + str(explored_n) +
                         " model, model_id = " + str(arch_micro) +
                         " model_scores = " + json.dumps(model_score))
             write_json(output_file, result)
     write_json(output_file, result)
-

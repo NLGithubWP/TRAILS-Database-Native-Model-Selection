@@ -88,11 +88,11 @@ def data_set_config(parser):
 
 def seq_train_all_params(parser):
     parser.add_argument('--worker_id', type=int, default=0, help='start from 0')
-    parser.add_argument('--total_workers', type=int, default=120, help='total number of workers')
+    parser.add_argument('--total_workers', type=int, default=120, help='total number of workers, each train some models')
     parser.add_argument('--total_models_per_worker', type=int, default=-1, help='How many models to evaluate')
     parser.add_argument('--pre_partitioned_file',
-                        default="./internal/ml/model_selection/exps/sampled_data/sampled_models_10000_models.json",
-                        type=str, help='num GPus')
+                        default="./internal/ml/model_selection/exps/sampled_data/sampled_models_all.json",
+                        type=str, help='all models with id')
 
 
 def dis_train_all_models(parser):
