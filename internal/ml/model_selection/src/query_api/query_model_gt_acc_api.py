@@ -10,23 +10,23 @@ from src.utilslibs.io_tools import read_json, read_pickle
 base_dir = os.environ.get("base_dir")
 if base_dir is None: base_dir = os.getcwd()
 print("base_dir is {}".format(base_dir))
-gt201 = os.path.join(base_dir, "result_base/ground_truth/201_allEpoch_info")
+gt201 = os.path.join(base_dir, "img_data/ground_truth/201_allEpoch_info")
 
-gt101 = os.path.join(base_dir, "result_base/ground_truth/101_allEpoch_info_json")
-gt101P = os.path.join(base_dir, "result_base/ground_truth/nasbench1_accuracy.p")
-id_to_hash_path = os.path.join(base_dir, "result_base/ground_truth/nb101_id_to_hash.json")
+gt101 = os.path.join(base_dir, "img_data/ground_truth/101_allEpoch_info_json")
+gt101P = os.path.join(base_dir, "img_data/ground_truth/nasbench1_accuracy.p")
+id_to_hash_path = os.path.join(base_dir, "img_data/ground_truth/nb101_id_to_hash.json")
 
 # MLP related ground truth
-mlp_train_frappe = os.path.join(base_dir, "result_base/mlp_results/frappe/all_train_baseline_frappe.json")
-mlp_train_uci_diabetes = os.path.join(base_dir, "result_base/mlp_results/uci_diabetes/"
+mlp_train_frappe = os.path.join(base_dir, "tab_data/frappe/all_train_baseline_frappe.json")
+mlp_train_uci_diabetes = os.path.join(base_dir, "tab_data/uci_diabetes/"
                                                 "all_train_baseline_uci_160k_40epoch.json")
-mlp_train_criteo = os.path.join(base_dir, "result_base/mlp_results/criteo/all_train_baseline_criteo.json")
+mlp_train_criteo = os.path.join(base_dir, "tab_data/criteo/all_train_baseline_criteo.json")
 
-mlp_score_frappe = os.path.join(base_dir, "result_base/mlp_results/frappe/"
+mlp_score_frappe = os.path.join(base_dir, "tab_data/frappe/"
                                           "score_frappe_batch_size_32_nawot_synflow.json")
-mlp_score_uci_diabetes = os.path.join(base_dir, "result_base/mlp_results/uci_diabetes/"
+mlp_score_uci_diabetes = os.path.join(base_dir, "tab_data/uci_diabetes/"
                                                 "score_uci_diabetes_batch_size_32_all_metrics.json")
-mlp_score_criteo = os.path.join(base_dir, "result_base/mlp_results/criteo/score_criteo_batch_size_32.json")
+mlp_score_criteo = os.path.join(base_dir, "tab_data/criteo/score_criteo_batch_size_32.json")
 
 
 def guess_score_time(search_space_m, dataset):

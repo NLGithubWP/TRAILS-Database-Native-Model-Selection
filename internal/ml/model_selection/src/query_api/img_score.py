@@ -59,39 +59,12 @@ def api_simulate_evaluate(acc_list, score_list, k):
     return result
 
 
-def convert2pos_(m_name, score):
-    if m_name == "grad_norm":
-        return score
-    if m_name == "grad_plain":
-        return -score
-    if m_name == "ntk_cond_num":
-        return -score
-    if m_name == "ntk_trace":
-        return score
-    if m_name == "ntk_trace_approx":
-        return score
-    if m_name == "fisher":
-        return score
-    if m_name == "grasp":
-        return score
-    if m_name == "snip":
-        return score
-    if m_name == "synflow":
-        return score
-    if m_name == "nas_wot":
-        return score
-    if m_name == "jacob_conv":
-        return score
-    if m_name == "weight_norm":
-        return score
-
-    return score
-
-
 class LocalApi:
 
-    def __init__(self, search_space_name, dataset):
+    def __init__(self, search_space_name: str, dataset: str):
         self.data = None
+
+        # read pre-scored file path
         if search_space_name == Config.NB201:
             if dataset == Config.c10:
                 self.pre_score_path = pre_score_path_201C10
@@ -103,11 +76,11 @@ class LocalApi:
         if search_space_name == Config.NB101:
             self.pre_score_path = pre_score_path_101C10
 
-    def api_get_score(self, arch_id, algName_m):
+    def api_get_score(self, arch_id: str, tfmem: str):
         # retrieve score from pre-scored file
         self.lazy_load_data()
-        ori_score = float(self.data[arch_id][algName_m])
-        return convert2pos_(algName_m, ori_score)
+        ori_score = float(self.data[arch_id][tfmem])
+        return ori_score
 
     def update_existing_data(self, arch_id, alg_name, score_str):
         """
