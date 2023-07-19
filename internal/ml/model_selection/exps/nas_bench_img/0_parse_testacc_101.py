@@ -1,9 +1,7 @@
 import itertools
-import json
 import os
 import random
 
-from api import NASBench
 from src.third_pkg.sp101_lib import nb101_api
 from utilslibs.io_tools import write_json, write_pickle
 
@@ -68,7 +66,7 @@ def save_id_to_hash_dict(api_used):
 if __name__ == "__main__":
     base_dir = os.getcwd()
     api_loc = os.path.join(base_dir, "data/nasbench_full.tfrecord")
-    apifull = NASBench(api_loc)
+    apifull = nb101_api.NASBench(api_loc)
     save_best_score(apifull)
 
     # api_loc = os.path.join(base_dir, "data/nasbench_only108.pkl")

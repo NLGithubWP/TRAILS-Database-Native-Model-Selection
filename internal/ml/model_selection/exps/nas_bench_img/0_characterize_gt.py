@@ -47,7 +47,7 @@ def get_distribution_gt_101():
 
 def measure_if_overfitting():
     from matplotlib import pyplot as plt
-    from search_space.nas_201_api.lib import NASBench201API
+    from src.third_pkg.sp201_lib import NASBench201API
 
     api_loc = os.path.join(base_dir, "data/NAS-Bench-201-v1_1-096897.pth")
     api = NASBench201API(api_loc)
@@ -55,7 +55,7 @@ def measure_if_overfitting():
     train_acc = []
     test_acc = []
 
-    # this is measure if the 200 epoch is voer fitting ornot
+    # this is measure if the 200 epoch is over fitting or not
     for archid in random.sample(range(15624), 400):
         for iepoch in range(200):
             info = api.get_more_info(archid, "cifar10-valid", iepoch=iepoch, hp="200", is_random=False)
