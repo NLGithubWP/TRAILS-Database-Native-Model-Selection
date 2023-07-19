@@ -7,7 +7,7 @@ import ConfigSpace
 import numpy as np
 
 from src.common.constant import Config
-from src.query_api.query_p1_score_api import LocalApi
+from src.query_api.img_score import LocalApi
 from src.search_space.core.model_params import ModelMicroCfg, ModelMacroCfg
 from src.search_space.core.space import SpaceWrapper
 from src.third_pkg.sp101_lib import nb101_api
@@ -17,6 +17,8 @@ from src.search_space.nas_101_api.model_params import NB101MacroCfg
 from src.search_space.nas_101_api.rl_policy import RLPolicy101Topology
 import src.query_api.query_model_gt_acc_api as gt_api
 from torch.utils.data import DataLoader
+from typing import Generator
+
 
 # Useful constants
 INPUT = 'input'
@@ -45,7 +47,7 @@ class NB101MicroCfg(ModelMicroCfg):
         self.spec = spec
 
     def __str__(self):
-        return json.dumps({"matrix": self.spec.original_matrix,
+        return json.dumps({"matrix": self.spec.original_matrix.tolist(),
                            "operations": self.spec.original_ops})
 
 
@@ -57,9 +59,11 @@ class NasBench101Space(SpaceWrapper):
         self.api = None
 
     def load(self):
-        self.api = nb101_api.NASBench(api_loc)
+        if self.api is None:
+            self.api = nb101_api.NASBench(self.api_loc)
 
     def _is_valid(self, new_spec: ModelSpec):
+        self.load()
         return self.api.is_valid(new_spec) and self._is_scored(new_spec)
 
     def _is_scored(self, new_spec: ModelSpec):
@@ -68,6 +72,7 @@ class NasBench101Space(SpaceWrapper):
 
     def _arch_to_id(self, arch_spec: object) -> str:
         assert isinstance(arch_spec, ModelSpec)
+        self.load()
         if self.api.is_valid(arch_spec):
             arch_hash = arch_spec.hash_spec(ALLOWED_OPS)
             arch_id = list(self.api.hash_iterator()).index(arch_hash)
@@ -115,6 +120,7 @@ class NasBench101Space(SpaceWrapper):
         return str(arch_id)
 
     def new_architecture(self, arch_id: str):
+        self.load()
         # id -> hash
         arch_hash = next(itertools.islice(self.api.hash_iterator(), int(arch_id), None))
         # arch_id = list(self.api.hash_iterator()).index(arch_hash)
@@ -151,10 +157,18 @@ class NasBench101Space(SpaceWrapper):
         assert isinstance(arch_micro, NB101MicroCfg)
         return len(arch_micro.spec.matrix)
 
-    def sample_all_models(self) -> list:
+    def sample_all_models(self) -> Generator[str, ModelMicroCfg, None]:
+        self.load()
         total_num_arch = len(self.api.hash_iterator())
         arch_id_list = random.sample(range(total_num_arch), total_num_arch)
-        return arch_id_list
+
+        for arch_id in arch_id_list:
+            arch_hash = next(itertools.islice(self.api.hash_iterator(), int(arch_id), None))
+            matrix = self.api.fixed_statistics[arch_hash]['module_adjacency']
+            operations = self.api.fixed_statistics[arch_hash]['module_operations']
+            spec = ModelSpec(matrix, operations)
+            model_micro = NB101MicroCfg(spec)
+            yield str(arch_id), model_micro
 
     def random_architecture_id(self) -> (str, ModelMicroCfg):
         """Returns a random valid spec."""
@@ -174,6 +188,7 @@ class NasBench101Space(SpaceWrapper):
     def mutate_architecture(self, parent_arch: ModelMicroCfg) -> (str, ModelMicroCfg):
         mutation_rate = 1.0
         assert isinstance(parent_arch, NB101MicroCfg)
+        self.load()
         """Computes a valid mutated spec from the old_spec."""
         while True:
             new_matrix = copy.deepcopy(parent_arch.spec.original_matrix)
@@ -195,7 +210,7 @@ class NasBench101Space(SpaceWrapper):
 
             new_spec = ModelSpec(new_matrix, new_ops)
             if self._is_valid(new_spec) and self._is_scored(new_spec):
-                arch_id = self._arch_to_id(spec)
+                arch_id = self._arch_to_id(new_spec)
                 return arch_id, NB101MicroCfg(new_spec)
 
     '''Below is for RL and BOHB'''
@@ -227,14 +242,3 @@ class NasBench101Space(SpaceWrapper):
         model_spec = ModelSpec(matrix, labeling)
         return model_spec
 
-
-if __name__ == '__main__':
-    pass
-    # api_loc = ".//data/nasbench_only108.pkl"
-    # model_cfg = NB101MacroCfg(16,3,3,10,True)
-    #
-    # a = NasBench101Space(api_loc, model_cfg, None)
-    #
-    # aid, spec = a.random_architecture_id(4)
-    # a.mutate_architecture(spec)
-    #
