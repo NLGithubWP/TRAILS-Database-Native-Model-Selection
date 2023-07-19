@@ -1,4 +1,3 @@
-
 import os
 import numpy as np
 
@@ -6,15 +5,14 @@ from src.common.constant import Config
 from src.utilslibs.io_tools import read_json, write_json
 
 base_dir_folder = os.environ.get("base_dir")
-if base_dir_folder is None:base_dir_folder = os.getcwd()
-base_dir = os.path.join(base_dir_folder, "result_base/result_append")
+if base_dir_folder is None: base_dir_folder = os.getcwd()
+base_dir = os.path.join(base_dir_folder, "img_data")
 print("local api running at {}".format(base_dir))
 
-pre_score_path_101C10 = os.path.join(base_dir, "CIFAR10_15625/union/101_15k_c10_bs32_ic16_unionBest.json")
-
-pre_score_path_201C10 = os.path.join(base_dir, "CIFAR10_15625/union/201_15625_c10_bs32_ic16_unionBest.json")
-pre_score_path_201C100 = os.path.join(base_dir, "CIFAR100_15625/union/201_15k_c100_bs32_ic16_unionBest.json")
-pre_score_path_201IMG = os.path.join(base_dir, "IMAGENET/union/201_15k_imgNet_bs32_ic16_unionBest.json")
+pre_score_path_101C10 = os.path.join(base_dir, "score_101_15k_c10_128.json")
+pre_score_path_201C10 = os.path.join(base_dir, "score_201_15k_c10_bs32_ic16.json")
+pre_score_path_201C100 = os.path.join(base_dir, "score_201_15k_c100_bs32_ic16.json")
+pre_score_path_201IMG = os.path.join(base_dir, "score_201_15k_imgNet_bs32_ic16.json")
 
 
 def api_get_current_best_acc(acc_list):
@@ -48,8 +46,8 @@ def api_simulate_evaluate(acc_list, score_list, k):
             result.append(acc_list[i])
         else:
             # get top or lower
-            topk_index = np.argpartition(score_list[:i+1], -k)[-k:]
-            lowerk_index = np.argpartition(score_list[:i+1], k)[:k]
+            topk_index = np.argpartition(score_list[:i + 1], -k)[-k:]
+            lowerk_index = np.argpartition(score_list[:i + 1], k)[:k]
 
             selected_index = topk_index
             selected_acc = []
@@ -57,21 +55,19 @@ def api_simulate_evaluate(acc_list, score_list, k):
             # train top k networks
             for index in selected_index:
                 selected_acc.append(acc_list[index])
-            result.append( max(selected_acc))
+            result.append(max(selected_acc))
     return result
 
 
 def convert2pos_(m_name, score):
     if m_name == "grad_norm":
         return score
-
     if m_name == "grad_plain":
         return -score
     if m_name == "ntk_cond_num":
         return -score
     if m_name == "ntk_trace":
         return score
-
     if m_name == "ntk_trace_approx":
         return score
     if m_name == "fisher":
