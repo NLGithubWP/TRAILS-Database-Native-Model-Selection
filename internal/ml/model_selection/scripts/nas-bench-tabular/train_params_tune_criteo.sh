@@ -18,7 +18,7 @@ python ./internal/ml/model_selection/exps/nas_bench_tabular/0.train_one_model.py
   --nemb=10 \
   --workers=0 \
   --result_dir=./internal/ml/model_selection/exp_result/ \
-  --log_folder=LogCriteoTrainTune >criteo_5.log &
+  --log_folder=log_criteo_train_tune >criteo_5.log &
 
 
 python ./internal/ml/model_selection/exps/nas_bench_tabular/0.train_one_model.py  \
@@ -37,7 +37,7 @@ python ./internal/ml/model_selection/exps/nas_bench_tabular/0.train_one_model.py
   --nemb=10 \
   --workers=0 \
   --result_dir=./internal/ml/model_selection/exp_result/ \
-  --log_folder=LogCriteoTrainTune >criteo_10.log &
+  --log_folder=log_criteo_train_tune >criteo_10.log &
 
 
 
@@ -57,7 +57,7 @@ python ./internal/ml/model_selection/exps/nas_bench_tabular/0.train_one_model.py
   --nemb=10 \
   --workers=0 \
   --result_dir=./internal/ml/model_selection/exp_result/ \
-  --log_folder=LogCriteoTrainTune >criteo_20.log &
+  --log_folder=log_criteo_train_tune >criteo_20.log &
 
 
 
@@ -78,7 +78,7 @@ python ./internal/ml/model_selection/exps/nas_bench_tabular/0.train_one_model.py
   --nemb=10 \
   --workers=0 \
   --result_dir=./internal/ml/model_selection/exp_result/ \
-  --log_folder=LogCriteoTrainTune >criteo_40.log &
+  --log_folder=log_criteo_train_tune >criteo_40.log &
 
 
 
@@ -98,7 +98,7 @@ python ./internal/ml/model_selection/exps/nas_bench_tabular/0.train_one_model.py
   --nemb=10 \
   --workers=0 \
   --result_dir=./internal/ml/model_selection/exp_result/ \
-  --log_folder=LogCriteoTrainTune >criteo_60.log &
+  --log_folder=log_criteo_train_tune >criteo_60.log &
 
 
 
@@ -118,7 +118,7 @@ python ./internal/ml/model_selection/exps/nas_bench_tabular/0.train_one_model.py
   --nemb=10 \
   --workers=0 \
   --result_dir=./internal/ml/model_selection/exp_result/ \
-  --log_folder=LogCriteoTrainTune >criteo_80.log &
+  --log_folder=log_criteo_train_tune >criteo_80.log &
 
 
 
@@ -138,5 +138,5 @@ python ./internal/ml/model_selection/exps/nas_bench_tabular/0.train_one_model.py
   --nemb=10 \
   --workers=0 \
   --result_dir=./internal/ml/model_selection/exp_result/ \
-  --log_folder=LogCriteoTrainTune >criteo_100.log &
+  --log_folder=log_criteo_train_tune >criteo_100.log &
 

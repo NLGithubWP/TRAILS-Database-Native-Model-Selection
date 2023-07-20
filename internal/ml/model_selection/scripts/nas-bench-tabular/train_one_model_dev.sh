@@ -20,5 +20,5 @@ python ./internal/ml/model_selection/exps/nas_bench_tabular/0.train_one_model.py
     --total_workers=1 \
     --workers=1 \
     --result_dir=./internal/ml/model_selection/exp_result/ \
-    --log_folder=LogFrappe \
+    --log_folder=log_frappe \
     --total_models_per_worker=-1

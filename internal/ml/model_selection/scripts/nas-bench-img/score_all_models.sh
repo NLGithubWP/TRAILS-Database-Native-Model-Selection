@@ -13,7 +13,7 @@ python ./internal/ml/model_selection/exps/nas_bench_tabular/4.seq_score_online.p
   --batch_size=32 \
   --num_labels=10 \
   --device=cpu \
-  --log_folder=score_all_img10_101 \
+  --log_folder=log_score_all_img10_101 \
   --result_dir=./internal/ml/model_selection/exp_result/
 
 
@@ -26,7 +26,7 @@ python ./internal/ml/model_selection/exps/nas_bench_tabular/4.seq_score_online.p
   --batch_size=32 \
   --num_labels=10 \
   --device=cpu \
-  --log_folder=score_all_img10 \
+  --log_folder=log_score_all_img10 \
   --result_dir=./internal/ml/model_selection/exp_result/
 
 # cifar100 + nb201
@@ -38,7 +38,7 @@ python ./internal/ml/model_selection/exps/nas_bench_tabular/4.seq_score_online.p
   --batch_size=32 \
   --num_labels=100 \
   --device=cpu \
-  --log_folder=score_all_img100 \
+  --log_folder=log_score_all_img100 \
   --result_dir=./internal/ml/model_selection/exp_result/
 
 # imgnet + nb201
@@ -50,5 +50,5 @@ python ./internal/ml/model_selection/exps/nas_bench_tabular/4.seq_score_online.p
   --batch_size=32 \
   --num_labels=120 \
   --device=cpu \
-  --log_folder=score_all_img_imgnet \
+  --log_folder=log_score_all_img_imgnet \
   --result_dir=./internal/ml/model_selection/exp_result/

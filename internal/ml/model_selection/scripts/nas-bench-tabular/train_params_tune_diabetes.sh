@@ -20,7 +20,7 @@ nohup python ./internal/ml/model_selection/exps/nas_bench_tabular/0.train_one_mo
   --nemb=10 \
   --workers=0 \
   --result_dir=./internal/ml/model_selection/exp_result/ \
-  --log_folder=LogUCITrainTune >uci_3.log &
+  --log_folder=log_uci_train_tune >uci_3.log &
 
 
 
@@ -42,7 +42,7 @@ nohup  python ./internal/ml/model_selection/exps/nas_bench_tabular/0.train_one_m
   --nemb=10 \
   --workers=0 \
   --result_dir=./internal/ml/model_selection/exp_result/ \
-  --log_folder=LogUCITrainTune >uci_5.log &
+  --log_folder=log_uci_train_tune >uci_5.log &
 
 
 # default setting.
@@ -64,5 +64,5 @@ nohup  python ./internal/ml/model_selection/exps/nas_bench_tabular/0.train_one_m
   --nemb=10 \
   --workers=0 \
   --result_dir=./internal/ml/model_selection/exp_result/ \
-  --log_folder=LogUCITrainTune >uci_7.log &
+  --log_folder=log_uci_train_tune >uci_7.log &
 

@@ -17,7 +17,7 @@ nohup  python ./internal/ml/model_selection/exps/nas_bench_tabular/4.seq_score_o
   --nemb=10 \
   --workers=0 \
   --result_dir=./internal/ml/model_selection/exp_result/ \
-  --log_folder=LogMeasureStoreTime  > outputUciScoreALl.log&
+  --log_folder=log_score_time_uci  > outputUciScoreALl.log&
 
 
 
