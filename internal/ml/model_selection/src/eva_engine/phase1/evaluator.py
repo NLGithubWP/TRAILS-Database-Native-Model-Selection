@@ -68,6 +68,19 @@ class P1Evaluator:
         else:
             return self._p1_evaluate_online(model_acquire)
 
+    def measure_model_flops(self, data_str: str, batch_size: int, channel_size: int):
+        # todo: check the package
+        model_acquire = ModelAcquireData.deserialize(data_str)
+        model_encoding = model_acquire.model_encoding
+        new_model = self.search_space_ins.new_arch_scratch_with_default_setting(model_encoding, bn=True)
+        new_model = new_model.to(self.device)
+        from thop import clever_format, profile
+        flops, params = profile(new_model, inputs=(self.mini_batch,))
+        flops2, params2 = clever_format([flops, params], "%.3f")
+        print('FLOPs = ' + str(flops / 1000 ** 3) + 'G')
+        print('Params = ' + str(params / 1000 ** 2) + 'M')
+        print("origin: ", f"arch_id={3380}, B={batch_size},C={channel_size}, flops2={flops2}，params2={params2}")
+
     def _p1_evaluate_online(self, model_acquire: ModelAcquireData) -> dict:
 
         # # 1. Score NasWot
@@ -145,13 +158,3 @@ class P1Evaluator:
         model_score = self.score_getter.query_tfmem_rank_score(arch_id=model_acquire.model_id)
 
         return model_score
-
-    def measure_flops(self):
-        pass
-        # from thop import clever_format,profile
-        # flops, params = profile(new_arch, inputs=(mini_batch,))
-        # flops2, params2 = clever_format([flops, params], "%.3f")
-        # print('FLOPs = ' + str(flops / 1000 ** 3) + 'G')
-        # print('Params = ' + str(params / 1000 ** 2) + 'M')
-        # print("origin: ", f"arch_id={3380}, B={args.batch_size},C={args.init_channels}, flops2={flops2}，
-        # params2={params2}")
