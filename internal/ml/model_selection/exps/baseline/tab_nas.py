@@ -32,17 +32,17 @@ epoch_sampled = {"frappe": 19, "uci_diabetes": 0, "criteo": 9}
 if dataset_used == "frappe":
     mlp_train_frappe = os.path.join(
         "../exp_data/",
-        "result_base/mlp_results/frappe/all_train_baseline_frappe.json")
+        "tab_data/frappe/all_train_baseline_frappe.json")
     data_dict = read_json(mlp_train_frappe)
 elif dataset_used == "criteo":
     mlp_train_criteo = os.path.join(
         "../exp_data/",
-        "result_base/mlp_results/criteo/all_train_baseline_criteo.json")
+        "tab_data/criteo/all_train_baseline_criteo.json")
     data_dict = read_json(mlp_train_criteo)
 elif dataset_used == "uci_diabetes":
     mlp_train_uci_diabetes = os.path.join(
         "../exp_data/",
-        "result_base/mlp_results/uci_diabetes/all_train_baseline_uci_160k_40epoch.json")
+        "tab_data/uci_diabetes/all_train_baseline_uci_160k_40epoch.json")
     data_dict = read_json(mlp_train_uci_diabetes)
 
 rewards = {}
