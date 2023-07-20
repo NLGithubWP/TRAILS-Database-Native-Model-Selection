@@ -1,9 +1,20 @@
 import argparse
+import distutils.util
+
+def str2bool(v):
+    if isinstance(v, bool):
+        return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
 
 
 def sampler_args(parser):
     # define search space,
-    parser.add_argument('--search_space', type=str, default="nasbench201",
+    parser.add_argument('--search_space', type=str, default="mlp_sp",
                         help='[nasbench101, nasbench201, mlp_sp]')
     # EA sampler's parameters,
     parser.add_argument('--population_size', type=int, default=10, help="The learning rate for REINFORCE.")
@@ -80,11 +91,11 @@ def data_set_config(parser):
     parser.add_argument('--base_dir', type=str, default="../exp_data/",
                         help='path of data and result parent folder')
     # define search space,
-    parser.add_argument('--dataset', type=str, default='cifar10',
+    parser.add_argument('--dataset', type=str, default='frappe',
                         help='cifar10, cifar100, ImageNet16-120, '
                              'frappe, criteo, uci_diabetes')
 
-    parser.add_argument('--num_labels', type=int, default=10,
+    parser.add_argument('--num_labels', type=int, default=2,
                         help='[10, 100, 120],'
                              '[2, 2, 2]')
 
@@ -123,9 +134,8 @@ def db4nas(parser):
 
 
 def anytime_exp_set(parser):
-    parser.add_argument('--only_phase1', default='False', type=str)
-    parser.add_argument('--is_simulate', default='True', type=str,
-                        help='Use the pre-computed result or run online. ')
+    parser.add_argument('--only_phase1', default='False', type=str2bool)
+    parser.add_argument('--is_simulate', default='True', type=str2bool, help='Use pre-computed result or run online')
 
 
 def parse_arguments():
