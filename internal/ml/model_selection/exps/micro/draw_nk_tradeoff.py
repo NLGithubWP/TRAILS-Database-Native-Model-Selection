@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib
 
-from common.constant import Config
-from utilslibs.compute import sample_in_log_scale
-from utilslibs.draw_tools import export_legend
+from src.common.constant import Config
+from src.tools.compute import sample_in_log_scale_new
+from exps.draw_tab_lib import export_legend
 
 set_line_width = 3
 # lines' mark size
@@ -33,7 +33,6 @@ shade_degree = 0.2
 used_dataset = Config.imgNet
 used_space = Config.NB201
 Fig_y_name = None
-
 
 if used_dataset == Config.c10:
     y_lim = [92.75, 94.3]
@@ -553,7 +552,7 @@ for i in range(1, len(k_div_n) - 2):
 
     # sample in log scale way, use 10 points at the most
     if len(x) > num_points:
-        indices = sample_in_log_scale(x, num_points)
+        indices = sample_in_log_scale_new(x, num_points)
         #
         # Sample the list using the calculated indices
         x = [x[i] for i in indices]
@@ -578,4 +577,4 @@ export_legend(fig2, "trade_off_nk_legend", 4)
 
 # plt.legend(ncol=3, prop={'size': 12})
 # plt.show()
-fig2.savefig(f"trade_off_nk_{used_dataset}.pdf", bbox_inches='tight')
+fig2.savefig(f"./internal/ml/model_selection/exp_result/trade_off_nk_{used_dataset}.pdf", bbox_inches='tight')

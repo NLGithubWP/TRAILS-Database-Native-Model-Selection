@@ -1,8 +1,5 @@
 
-import numpy as np
-
-from utilslibs.draw_lib import plot_heatmap
-from utilslibs.draw_tools import draw_grid_graph_with_budget, draw_grid_graph_with_budget_only_Acc
+from exps.draw_tab_lib import plot_heatmap
 
 if __name__ == "__main__":
 
@@ -34,7 +31,7 @@ if __name__ == "__main__":
                  x_array_name="U ( # Training Epoch)",
                  y_array_name="K ( # Explored Models)",
                  title="Accuracy Achieved",
-                 output_file="300b1b2_ACC.pdf",
+                 output_file="./internal/ml/model_selection/exp_result/300b1b2_ACC.pdf",
                  decimal_places=2)
 
     plot_heatmap(data=two_D_run_BT,
@@ -42,7 +39,7 @@ if __name__ == "__main__":
                  x_array_name="U ( # Training Epoch)",
                  y_array_name="K ( # Explored Models)",
                  title="Time Usage",
-                 output_file="300b1b2_T.pdf",
+                 output_file="./internal/ml/model_selection/exp_result/300b1b2_T.pdf",
                  decimal_places=1
                  )
 
