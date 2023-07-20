@@ -16,6 +16,7 @@ class ModelMicroCfg:
     """
     Micro space cfg
     Identifier for each model, connection patter, operations etc.
+    encoding = serialized(ModelMicroCfg)
     """
 
     def __init__(self):
