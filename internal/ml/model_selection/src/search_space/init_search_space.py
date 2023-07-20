@@ -1,14 +1,16 @@
 import os
 from src.common.constant import Config
-from .core.space import SpaceWrapper
+from src.search_space.core.space import SpaceWrapper
+from src.query_api.img_score import LocalApi
 
 
-def init_search_space(args, loapi=None) -> SpaceWrapper:
+def init_search_space(args) -> SpaceWrapper:
     """
     :param args:
     :param loapi: Local score API, records all scored arch, 101 use it to detect which arch is scored.
     :return:
     """
+
     if args.search_space == Config.NB101:
         from .nas_101_api.model_params import NB101MacroCfg
         from .nas_101_api.space import NasBench101Space
@@ -19,7 +21,11 @@ def init_search_space(args, loapi=None) -> SpaceWrapper:
             args.num_labels)
 
         base_dir_folder = args.base_dir
-        return NasBench101Space(os.path.join(base_dir_folder, args.api_loc), model_cfg, loapi)
+        local_api = LocalApi(Config.NB101, args.dataset)
+        return NasBench101Space(
+            api_loc=os.path.join(base_dir_folder, "data", args.api_loc),
+            modelCfg=model_cfg,
+            loapi=local_api)
 
     elif args.search_space == Config.NB201:
         from .nas_201_api.model_params import NB201MacroCfg
@@ -32,7 +38,7 @@ def init_search_space(args, loapi=None) -> SpaceWrapper:
             args.num_labels)
 
         base_dir_folder = args.base_dir
-        return NasBench201Space(os.path.join(base_dir_folder, args.api_loc), model_cfg)
+        return NasBench201Space(os.path.join(base_dir_folder, "data", args.api_loc), model_cfg)
 
     elif args.search_space == Config.MLPSP:
         from .mlp_api.space import MlpSpace
