@@ -49,11 +49,11 @@ class ExpressFlowEvaluator(Evaluator):
         if isinstance(batch_data, torch.Tensor):
             feature_dim = list(batch_data[0, :].shape)
             # add one dimension to feature dim, [1] + [3, 32, 32] = [1, 3, 32, 32]
-            batch_data = torch.ones([1] + feature_dim).double().to(device)
+            batch_data = torch.ones([1] + feature_dim).float().to(device)
             out = arch.forward(batch_data)
         else:
             # this is for the embedding data,
-            batch_data = arch.generate_all_ones_embedding().to(device).float()
+            batch_data = arch.generate_all_ones_embedding().float().to(device)
             out = arch.forward_wo_embedding(batch_data)
 
         # directly sum

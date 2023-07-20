@@ -18,14 +18,16 @@ id_to_hash_path = os.path.join(base_dir, "img_data/ground_truth/nb101_id_to_hash
 
 # MLP related ground truth
 mlp_train_frappe = os.path.join(base_dir, "tab_data/frappe/all_train_baseline_frappe.json")
-mlp_train_uci_diabetes = os.path.join(base_dir, "tab_data/uci_diabetes/"
-                                                "all_train_baseline_uci_160k_40epoch.json")
+
+mlp_train_uci_diabetes = os.path.join(base_dir,
+                                      "tab_data/uci_diabetes/all_train_baseline_uci_160k_40epoch.json")
+
 mlp_train_criteo = os.path.join(base_dir, "tab_data/criteo/all_train_baseline_criteo.json")
 
-mlp_score_frappe = os.path.join(base_dir, "tab_data/frappe/"
-                                          "score_frappe_batch_size_32_nawot_synflow.json")
-mlp_score_uci_diabetes = os.path.join(base_dir, "tab_data/uci_diabetes/"
-                                                "score_uci_diabetes_batch_size_32_all_metrics.json")
+# score result
+mlp_score_frappe = os.path.join(base_dir, "tab_data/frappe/score_frappe_batch_size_32_local_finish_all_models.json")
+# mlp_score_frappe = os.path.join(base_dir, "tab_data/frappe/score_frappe_batch_size_32_nawot_synflow.json")
+mlp_score_uci = os.path.join(base_dir, "tab_data/uci_diabetes/score_uci_diabetes_batch_size_32_all_metrics.json")
 mlp_score_criteo = os.path.join(base_dir, "tab_data/criteo/score_criteo_batch_size_32.json")
 
 
@@ -54,20 +56,19 @@ def profile_NK_trade_off(dataset):
         return 100
 
 
-class Singleton(object):
-    _instance_lock = threading.Lock()
+class Singleton(type):
+    _instances = {}
+    _lock = threading.Lock()
 
-    def __new__(cls, *args, **kwargs):
-        if not hasattr(Singleton, "_instance"):
-            with Singleton._instance_lock:
-                if not hasattr(Singleton, "_instance"):
-                    Singleton._instance = object.__new__(cls)
-        return Singleton._instance
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            with cls._lock:
+                if cls not in cls._instances:
+                    cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
 
 
-class Gt201(Singleton):
-    # multiple instance share the class variables.
-    _instance_lock = threading.Lock()
+class Gt201(metaclass=Singleton):
     data201 = None
 
     def load_201(self):
@@ -135,8 +136,13 @@ class Gt201(Singleton):
         # return res
         return 40
 
+    def get_all_trained_model_ids(self, dataset):
+        self.load_201()
+        # 201 all data has the same model set.
+        return list(self.data201.keys())
 
-class Gt101(Singleton):
+
+class Gt101(metaclass=Singleton):
     # multiple instance share the class variables.
     data101_from_zerocost = None
     id_to_hash_map = None
@@ -202,10 +208,12 @@ class Gt101(Singleton):
                 res = time_usage
         return res
 
+    def get_all_trained_model_ids(self, dataset):
+        self.load_101()
+        return list(self.data101_full.keys())
 
-class GTMLP(Singleton):
-    # multiple instance share the class variables.
-    _instance_lock = threading.Lock()
+
+class GTMLP(metaclass=Singleton):
 
     default_alg_name_list = ["nas_wot", "synflow"]
     device = "cpu"
@@ -221,6 +229,24 @@ class GTMLP(Singleton):
     mlp_uci_train = None
     mlp_uci_score = None
     mlp_uci_global_rank = {}
+
+    def get_all_trained_model_ids(self, dataset: str):
+        self.load_mlp_train(dataset)
+        if dataset == Config.Frappe:
+            return list(self.mlp_frappe_train[dataset].keys())
+        if dataset == Config.Criteo:
+            return list(self.mlp_criteo_train[dataset].keys())
+        if dataset == Config.UCIDataset:
+            return list(self.mlp_uci_train[dataset].keys())
+
+    def get_all_scored_model_ids(self, dataset: str):
+        self.load_mlp_score(dataset)
+        if dataset == Config.Frappe:
+            return list(self.mlp_frappe_score.keys())
+        if dataset == Config.Criteo:
+            return list(self.mlp_criteo_score.keys())
+        if dataset == Config.UCIDataset:
+            return list(self.mlp_uci_score.keys())
 
     @staticmethod
     def get_score_one_model_time(dataset: str, device: str):
@@ -292,7 +318,7 @@ class GTMLP(Singleton):
 
         if dataset == Config.UCIDataset:
             if self.mlp_uci_score is None:
-                self.mlp_uci_score = read_json(mlp_score_uci_diabetes)
+                self.mlp_uci_score = read_json(mlp_score_uci)
 
     def load_mlp_global_score_rank(self, dataset):
 

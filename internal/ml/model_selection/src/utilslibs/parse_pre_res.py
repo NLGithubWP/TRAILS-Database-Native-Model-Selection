@@ -1,5 +1,5 @@
 
-from src.eva_engine.phase2.algo.api_query import SimulateTrain
+from src.query_api.api_query import SimulateTrain
 from src.utilslibs.io_tools import read_json
 
 

@@ -1,87 +1,92 @@
+# Imports
+
+import numpy as np
 import os
 
-from src.common.constant import CommonVars
-from utilslibs.io_tools import read_json
-from utilslibs.measure_tools import CorCoefficient
-import numpy as np
 
-# Criteo
-# train_dir = "../exp_data/result_base/mlp_results/criteo/all_train_baseline_criteo_only_8k.json"
-# score_dir = "../exp_data/result_base/mlp_results/criteo/score_criteo_batch_size_32.json"
-# epoch_train = "9"
+# Initialize function to calculate correlation
+def calculate_correlation(dataset, search_space, epoch_train):
+    print("================================================================")
+    print(f"Measure the SRCC using {dataset} on {search_space}")
+    print("================================================================")
+    # Initialize query objects
+    acc_query = SimulateTrain(space_name=search_space)
+    score_query = SimulateScore(space_name=search_space)
 
-# Frappe
-train_dir = "../exp_data/result_base/mlp_results/frappe/all_train_baseline_frappe.json"
-score_dir = "../exp_data/result_base/mlp_results/frappe/score_frappe_batch_size_32_local_finish_all_models.json"
-epoch_train = "19"
+    # Get list of all model IDs that have been trained and scored
+    trained_models = acc_query.get_all_model_ids(dataset)
+    scored_models = score_query.get_all_model_ids(dataset)
 
-# UCI
-# train_dir = "../exp_data/result_base/mlp_results/uci_diabetes/all_train_baseline_uci_160k_40epoch.json"
-# score_dir = "../exp_data/result_base/mlp_results/uci_diabetes/score_uci_diabetes_batch_size_32_all_metrics.json"
-# epoch_train = "0"
+    # Find the intersection between trained_models and scored_models
+    trained_scored_models = list(set(trained_models) & set(scored_models))
 
-train_res = read_json(train_dir)
-score_res = read_json(score_dir)
+    # Initialize storage for algorithm scores and training results
+    model_train_res_lst = []
+    all_alg_score_dic = {"nas_wot_add_syn_flow": []}
 
-dataset = list(train_res.keys())[0]
+    # Populate algorithm scores and training results
+    for model_id in trained_scored_models:
+        score_value = score_query.get_all_tfmem_score_res(model_id, dataset)
+        acc, _ = acc_query.get_ground_truth(arch_id=model_id, dataset=dataset, epoch_num=epoch_train)
 
-# score and train may don't exact same, one is probably smaller than another at this stage.
-num_train_models = len(list(train_res[dataset].keys()))
-num_scored_models = len(list(score_res.keys()))
-print(f"num_train_models={num_train_models}, num_scored_models={num_scored_models}")
-if num_train_models > num_scored_models:
-    all_models_ids = list(score_res.keys())
-else:
-    all_models_ids = list(train_res[dataset].keys())
+        for alg, value in score_value.items():
+            # If the algorithm is not in the dict, initialize its list
+            if alg not in all_alg_score_dic:
+                all_alg_score_dic[alg] = []
 
-# epoch_train = str(sorted([int(ele) for ele in list(train_res[dataset][all_models_ids[0]].keys())])[0])
-print(f"1. epoch train max is {epoch_train}")
+            all_alg_score_dic[alg].append(float(value))
 
-all_alg_score_dic = {}
-for alg, _ in score_res[all_models_ids[0]].items():
-    all_alg_score_dic[alg] = []
+        all_alg_score_dic["nas_wot_add_syn_flow"].append(float(score_value["nas_wot"]) + float(score_value["synflow"]))
+        model_train_res_lst.append(acc)
 
-all_alg_score_dic["nas_wot_syn_flow"] = []
+    # Measure the correlation for each algorithm and print the result
+    for alg in all_alg_score_dic.keys():
+        scores = all_alg_score_dic[alg]
+        sorted_indices = np.argsort(scores)
 
-print(f"2. all alg list {all_alg_score_dic}")
+        sorted_ground_truth = [model_train_res_lst[i] for i in sorted_indices]
+        sorted_scores = [scores[i] for i in sorted_indices]
 
-model_train_res_lst = []
-for model_id in all_models_ids:
-    score_value = score_res[model_id]
-    for alg, value in score_value.items():
-        all_alg_score_dic[alg].append(value)
-    all_alg_score_dic["nas_wot_syn_flow"].append(score_value["nas_wot"] + score_value["synflow"])
-    model_train_res_lst.append(train_res[dataset][model_id][epoch_train]["valid_auc"])
+        res = CorCoefficient.measure(sorted_scores, sorted_ground_truth)
+        print(alg, res[CommonVars.Spearman])
 
-for alg in all_alg_score_dic.keys():
-    scores = all_alg_score_dic[alg]
-    ground_truth = model_train_res_lst
-    # Get the sorted indices of the algorithm scores
-    sorted_indices = np.argsort(scores)
-    # Sort both lists using the sorted indices
-    sorted_ground_truth = [ground_truth[i] for i in sorted_indices]
-    sorted_scores = [scores[i] for i in sorted_indices]
+    # Get global ranks, measure correlation and print result for JACFLOW
+    if dataset in [Config.Frappe, Config.UCIDataset, Config.UCIDataset]:
+        global_rank_score = [score_query.get_score_res(model_id, dataset)['nas_wot_synflow']
+                             for model_id in trained_scored_models]
 
-    print(f"3. measure the correlation between {alg} and training_result ")
-    res = CorCoefficient.measure(sorted_scores, sorted_ground_truth)
-    print(alg, res[CommonVars.Spearman])
+        sorted_indices = np.argsort(global_rank_score)
+        sorted_ground_truth = [model_train_res_lst[i] for i in sorted_indices]
+        sorted_scores = [global_rank_score[i] for i in sorted_indices]
 
-# only measure JACFLOW
-os.environ.setdefault("base_dir", "../exp_data")
-from src.query_api.query_model_gt_acc_api import GTMLP
+        res = CorCoefficient.measure(sorted_scores, sorted_ground_truth)
+        print("JACFLOW", res[CommonVars.Spearman])
 
-gt_mlp = GTMLP()
-global_rank = []
-# those are to get the rank
-for model_id in all_models_ids:
-    global_rank.append(gt_mlp.get_global_rank_score(model_id, dataset)["nas_wot_synflow"])
 
-# Get the sorted indices of the algorithm scores
-sorted_indices = np.argsort(global_rank)
-# Sort both lists using the sorted indices
-sorted_ground_truth = [model_train_res_lst[i] for i in sorted_indices]
-sorted_scores = [global_rank[i] for i in sorted_indices]
+# Call the main function
+if __name__ == "__main__":
+    os.environ.setdefault("base_dir", "../exp_data")
+    from src.query_api.api_query import SimulateTrain, SimulateScore
+    from utilslibs.measure_tools import CorCoefficient
+    from src.common.constant import CommonVars, Config
+    # Criteo configuration
+    calculate_correlation(Config.Criteo, Config.MLPSP, 9)
 
-print(f"3. measure the correlation between JACFLOW and training_result ")
-res = CorCoefficient.measure(sorted_scores, sorted_ground_truth)
-print("JACFLOW", res[CommonVars.Spearman])
+    # Frappe configuration
+    calculate_correlation(Config.Frappe, Config.MLPSP, 19)
+
+    # UCI configuration
+    calculate_correlation(Config.UCIDataset, Config.MLPSP, 0)
+
+    # NB201 + C10
+    calculate_correlation(Config.c10, Config.NB201, None)
+
+    # NB201 + C100
+    calculate_correlation(Config.c100, Config.NB201, None)
+
+    # NB201 + imageNet
+    calculate_correlation(Config.imgNet, Config.NB201, None)
+
+    # NB101 + C10
+    calculate_correlation(Config.c10, Config.NB101, None)
+

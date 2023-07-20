@@ -132,6 +132,10 @@ class LocalApi:
             self.data = read_json(self.pre_score_path)
             print("localApi init, len(data) = ", len(list(self.data.keys())))
 
+    def get_all_scored_model_ids(self, dataset):
+        self.lazy_load_data()
+        return list(self.data.keys())
+
 
 if __name__ == "__main__":
     lapi = LocalApi(Config.NB101, Config.c10)

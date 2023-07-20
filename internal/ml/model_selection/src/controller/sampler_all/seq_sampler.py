@@ -17,7 +17,7 @@ class SequenceSampler(Sampler):
         Sample one random architecture, can sample max 10k architectures.
         :return: arch_id, architecture
         """
-        # random.seed(20)
+
         try:
             arch_id, arch_micro = self.arch_gene.__next__()
             return arch_id, arch_micro

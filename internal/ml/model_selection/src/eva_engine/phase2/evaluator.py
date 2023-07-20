@@ -1,7 +1,7 @@
 from src.common.constant import Config
 from src.eva_engine.phase2.algo.trainer import ModelTrainer
 from src.logger import logger
-from src.utilslibs.parse_pre_res import SimulateTrain
+from src.query_api.api_query import SimulateTrain
 from src.search_space.core.space import SpaceWrapper
 from torch.utils.data import DataLoader
 

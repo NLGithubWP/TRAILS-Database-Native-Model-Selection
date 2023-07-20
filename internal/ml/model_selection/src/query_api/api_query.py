@@ -21,23 +21,23 @@ class SimulateTrain:
         if self.space_name == Config.NB101:
             if self.api is None:
                 self.api = Gt101()
-            score_, time_usage = self.api.get_c10_test_info(arch_id, dataset, epoch_num)
-            return score_, time_usage
+            acc, time_usage = self.api.get_c10_test_info(arch_id, dataset, epoch_num)
+            return acc, time_usage
 
         elif self.space_name == Config.NB201:
             if self.api is None:
                 self.api = Gt201()
             if total_epoch == 200:
-                score_, time_usage = self.api.query_200_epoch(arch_id, dataset, epoch_num)
+                acc, time_usage = self.api.query_200_epoch(arch_id, dataset, epoch_num)
             else:  # 12
-                score_, time_usage = self.api.query_12_epoch(arch_id, dataset, epoch_num)
-            return score_, time_usage
+                acc, time_usage = self.api.query_12_epoch(arch_id, dataset, epoch_num)
+            return acc, time_usage
 
         elif self.space_name == Config.MLPSP:
             if self.api is None:
                 self.api = GTMLP()
-            score_, time_usage = self.api.get_valid_auc(arch_id, dataset, epoch_num)
-            return score_, time_usage
+            acc, time_usage = self.api.get_valid_auc(arch_id, dataset, epoch_num)
+            return acc, time_usage
 
         else:
             raise NotImplementedError
@@ -56,11 +56,23 @@ class SimulateTrain:
         cur_best = 0
         res = None
         for arch_id in top10:
-            score_, _ = self.get_ground_truth(arch_id)
-            if score_ > cur_best:
-                cur_best = score_
+            acc, _ = self.get_ground_truth(arch_id)
+            if acc > cur_best:
+                cur_best = acc
                 res = arch_id
         return res
+
+    def get_all_model_ids(self, dataset):
+        if self.space_name == Config.NB101:
+            if self.api is None:
+                self.api = Gt101()
+        elif self.space_name == Config.NB201:
+            if self.api is None:
+                self.api = Gt201()
+        elif self.space_name == Config.MLPSP:
+            if self.api is None:
+                self.api = GTMLP()
+        return self.api.get_all_trained_model_ids(dataset)
 
 
 class SimulateScore:
@@ -85,3 +97,25 @@ class SimulateScore:
             if self.api is None:
                 self.api = LocalApi(self.space_name, dataset)
             return self.api.api_get_score(arch_id, CommonVars.PRUNE_SYNFLOW)
+
+    def get_all_tfmem_score_res(self, arch_id, dataset=Config.c10):
+        """
+        return {alg_name: score}
+        """
+        if self.space_name == Config.MLPSP:
+            if self.api is None:
+                self.api = GTMLP()
+            return self.api.get_metrics_score(arch_id, dataset)
+        else:
+            if self.api is None:
+                self.api = LocalApi(self.space_name, dataset)
+            return self.api.api_get_score(arch_id)
+
+    def get_all_model_ids(self, dataset):
+        if self.space_name == Config.MLPSP:
+            if self.api is None:
+                self.api = GTMLP()
+        else:
+            if self.api is None:
+                self.api = LocalApi(self.space_name, dataset)
+        return self.api.get_all_scored_model_ids(dataset)
