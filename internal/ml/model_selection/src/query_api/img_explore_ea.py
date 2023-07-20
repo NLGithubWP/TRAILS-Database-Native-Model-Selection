@@ -72,3 +72,7 @@ def fetch_from_db(space_name, dataset, run_id_m, N_m):
         raise f"res is None when using run_id ={run_id_m} and bm = {N_m}"
 
     return arch_id, candidates, current_time
+
+
+if __name__ == '__main__':
+    print(fetch_from_db(Config.NB201, Config.c10, 3, 10))
