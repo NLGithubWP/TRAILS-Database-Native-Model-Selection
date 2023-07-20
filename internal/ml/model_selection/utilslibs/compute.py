@@ -40,7 +40,7 @@ def search_position(rank_list_m: list, new_item: List):
         return left
 
 
-def load_global_rank(ml_data_score_dic: dict, alg_name_list: List) -> dict:
+def generate_global_rank(ml_data_score_dic: dict, alg_name_list: List) -> dict:
     """
     ml_data_score_dic: { model_id: {alg: score1, alg2: score2} }
     return: { model_id: {alg1_alg2: rank_score} }
