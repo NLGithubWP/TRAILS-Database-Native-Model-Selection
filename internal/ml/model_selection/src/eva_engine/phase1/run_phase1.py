@@ -8,7 +8,7 @@ from src.controller.sampler_all.seq_sampler import SequenceSampler
 from src.eva_engine.phase1.evaluator import P1Evaluator
 from src.logger import logger
 from src.query_api.img_explore_ea import fetch_from_db
-from src.query_api.query_model_gt_acc_api import Gt201, Gt101
+from src.query_api.query_model_performance import Gt201, Gt101
 from torch.utils.data import DataLoader
 from src.controller.sampler_EA.regularized_ea import RegularizedEASampler
 from src.search_space.core.space import SpaceWrapper

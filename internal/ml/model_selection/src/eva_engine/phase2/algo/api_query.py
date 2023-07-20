@@ -1,6 +1,7 @@
 # query ground truth
-from src.common.constant import Config
-from src.query_api.query_model_gt_acc_api import Gt201, Gt101, GTMLP
+from src.common.constant import Config, CommonVars
+from src.query_api.query_model_performance import Gt201, Gt101, GTMLP
+from src.query_api.img_score import LocalApi
 
 
 class SimulateTrain:
@@ -81,4 +82,6 @@ class SimulateScore:
             #         }
             return self.api.get_global_rank_score(arch_id, dataset)
         else:
-            raise NotImplementedError
+            if self.api is None:
+                self.api = LocalApi(self.space_name, dataset)
+            return self.api.api_get_score(arch_id, CommonVars.PRUNE_SYNFLOW)
