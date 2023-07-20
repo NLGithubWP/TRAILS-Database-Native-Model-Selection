@@ -136,6 +136,7 @@ if __name__ == "__main__":
             time_usage_array.append(all_time_usage / 60)
             auc_array.append(max(performance_his))
 
+        # todo: update the postprocessing in the anytime_img.py
         result["baseline_time_budget"].append(time_usage_array)
         result["baseline_acc"].append(auc_array)
 
