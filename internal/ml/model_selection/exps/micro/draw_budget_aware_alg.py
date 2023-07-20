@@ -8,13 +8,16 @@ from exps.draw_tab_lib import draw_structure_data_anytime
 from src.tools.io_tools import read_json
 
 search_space = "nasbench201"
-dataset = "cifar10"
+# dataset = "cifar10"
+dataset = "cifar100"
 # dataset = "ImageNet16-120"
 
 if dataset == Config.imgNet:
     img_in_graph = "ImageNet"
 elif dataset == Config.c10:
     img_in_graph = "CIFAR10"
+elif dataset == Config.c100:
+    img_in_graph = "CIFAR100"
 else:
     exit(1)
 
@@ -26,7 +29,7 @@ if dataset == Config.c10:
     # C10 array
     sub_graph_y1 = [93.4, 94.2]
 elif dataset == Config.c100:
-    # C10 array
+    # C100 array
     sub_graph_y1 = [64, 74]
 else:
     # ImgNet X array
