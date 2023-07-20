@@ -11,7 +11,8 @@ from src.search_space.nas_201_api.model_params import NB201MacroCfg
 from src.search_space.utils.weight_initializers import init_net
 import random
 import ConfigSpace
-import src.query_api.query_model_performance as gt_api
+from src.query_api.interface import profile_NK_trade_off
+from src.query_api.query_api_img import guess_score_time, guess_train_one_epoch_time
 from torch.utils.data import DataLoader
 from typing import Generator
 
@@ -87,9 +88,9 @@ class NasBench201Space(SpaceWrapper):
     def profiling(self, dataset: str,
                   train_loader: DataLoader = None, val_loader: DataLoader = None,
                   args=None, is_simulate: bool = False) -> (float, float, int):
-        score_time_per_model = gt_api.guess_score_time(self.name, dataset)
-        train_time_per_epoch = gt_api.guess_train_one_epoch_time(self.name, dataset)
-        N_K_ratio = gt_api.profile_NK_trade_off(dataset)
+        score_time_per_model = guess_score_time(self.name, dataset)
+        train_time_per_epoch = guess_train_one_epoch_time(self.name, dataset)
+        N_K_ratio = profile_NK_trade_off(dataset)
         return score_time_per_model, train_time_per_epoch, N_K_ratio
 
     def new_architecture(self, arch_id: str):
