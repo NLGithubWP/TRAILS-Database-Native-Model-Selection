@@ -350,8 +350,8 @@ class MlpSpace(SpaceWrapper):
 
         # generate all possible combinations
         combinations = itertools.product(*space)
-        # encoding each of them
 
+        # encoding each of them
         while True:
             ele = combinations.__next__()
             model_micro = MlpMicroCfg(list(ele))
@@ -366,6 +366,7 @@ class MlpSpace(SpaceWrapper):
             arch_encod.append(layer_size)
 
         model_micro = MlpMicroCfg(arch_encod)
+        # this is the model id == str(model micro)
         model_encoding = str(model_micro)
         return model_encoding, model_micro
 

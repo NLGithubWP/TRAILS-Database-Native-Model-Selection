@@ -40,15 +40,16 @@ class NB201MicroCfg(ModelMicroCfg):
 
 class NasBench201Space(SpaceWrapper):
 
+    api = None
+
     def __init__(self, api_loc: str, modelCfg: NB201MacroCfg):
         super().__init__(modelCfg, Config.NB201)
         self.api_loc = api_loc
-        self.api = None
 
     def load(self):
-        if self.api is None:
+        if NasBench201Space.api is None:
             print("NasBench201Space load begin")
-            self.api = NASBench201API(self.api_loc)
+            NasBench201Space.api = NASBench201API(self.api_loc)
             print("NasBench201Space load done")
 
     @classmethod
@@ -121,6 +122,7 @@ class NasBench201Space(SpaceWrapper):
         return architecture
 
     def __len__(self):
+        self.load()
         return len(self.api)
 
     def get_arch_size(self, arch_micro) -> int:
