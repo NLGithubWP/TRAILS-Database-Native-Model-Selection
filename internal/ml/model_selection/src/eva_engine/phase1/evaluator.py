@@ -1,11 +1,15 @@
-from thop import profile
-import torch
+# this is for checking the flops and params
+try:
+    from thop import profile
+except:
+    pass
 from src.common.constant import Config, CommonVars
 from src.common.structure import ModelAcquireData
 from src.eva_engine import evaluator_register
 from src.query_api.interface import SimulateScore
 from src.dataset_utils import dataset
 from torch.utils.data import DataLoader
+import torch
 
 
 class P1Evaluator:
@@ -75,7 +79,6 @@ class P1Evaluator:
         model_encoding = model_acquire.model_encoding
         new_model = self.search_space_ins.new_arch_scratch_with_default_setting(model_encoding, bn=True)
         new_model = new_model.to(self.device)
-
         flops, params = profile(new_model, inputs=(self.mini_batch,))
         print('FLOPs = ' + str(flops / 1000 ** 3) + 'G')
         print('Params = ' + str(params / 1000 ** 2) + 'M')
