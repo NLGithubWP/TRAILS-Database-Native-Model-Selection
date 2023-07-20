@@ -139,11 +139,10 @@ class P1Evaluator:
 
     def _p1_evaluate_simu(self, model_acquire: ModelAcquireData) -> dict:
         if self.score_getter is None:
-            self.score_getter = SimulateScore(space_name=self.search_space_ins.name)
+            self.score_getter = SimulateScore(space_name=self.search_space_ins.name,
+                                              dataset_name=self.dataset_name)
 
-        model_score = self.score_getter.get_score_res(
-            arch_id=model_acquire.model_id,
-            dataset=self.dataset_name)
+        model_score = self.score_getter.get_score_res(arch_id=model_acquire.model_id)
 
         return model_score
 

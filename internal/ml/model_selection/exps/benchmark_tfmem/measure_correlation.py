@@ -11,7 +11,7 @@ def calculate_correlation(dataset, search_space, epoch_train):
     print("================================================================")
     # Initialize query objects
     acc_query = SimulateTrain(space_name=search_space)
-    score_query = SimulateScore(space_name=search_space)
+    score_query = SimulateScore(space_name=search_space, dataset_name=dataset)
 
     # Get list of all model IDs that have been trained and scored
     trained_models = acc_query.get_all_model_ids(dataset)
@@ -26,7 +26,7 @@ def calculate_correlation(dataset, search_space, epoch_train):
 
     # Populate algorithm scores and training results
     for model_id in trained_scored_models:
-        score_value = score_query.get_all_tfmem_score_res(model_id, dataset)
+        score_value = score_query.get_all_tfmem_score_res(model_id)
         acc, _ = acc_query.get_ground_truth(arch_id=model_id, dataset=dataset, epoch_num=epoch_train)
 
         for alg, value in score_value.items():
@@ -52,7 +52,7 @@ def calculate_correlation(dataset, search_space, epoch_train):
 
     # Get global ranks, measure correlation and print result for JACFLOW
     if dataset in [Config.Frappe, Config.UCIDataset, Config.UCIDataset]:
-        global_rank_score = [score_query.get_score_res(model_id, dataset)['nas_wot_synflow']
+        global_rank_score = [score_query.get_score_res(model_id)['nas_wot_synflow']
                              for model_id in trained_scored_models]
 
         sorted_indices = np.argsort(global_rank_score)

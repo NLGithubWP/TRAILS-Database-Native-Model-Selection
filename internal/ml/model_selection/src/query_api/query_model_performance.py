@@ -30,6 +30,32 @@ mlp_score_frappe = os.path.join(base_dir, "tab_data/frappe/score_frappe_batch_si
 mlp_score_uci = os.path.join(base_dir, "tab_data/uci_diabetes/score_uci_diabetes_batch_size_32_all_metrics.json")
 mlp_score_criteo = os.path.join(base_dir, "tab_data/criteo/score_criteo_batch_size_32.json")
 
+score_one_model_time_dict = {
+    "cpu": {
+        Config.Frappe: 0.0211558125,
+        Config.UCIDataset: 0.015039052631578948,
+        Config.Criteo: 0.6824370454545454
+    },
+    "gpu": {
+        Config.Frappe: 0.013744457142857143,
+        Config.UCIDataset: 0.008209692307692308,
+        Config.Criteo: 0.6095493157894737
+    }
+}
+
+train_one_epoch_time_dict = {
+    "cpu": {
+        Config.Frappe: 5.122203075885773,
+        Config.UCIDataset: 4.16297769,
+        Config.Criteo: 422
+    },
+    "gpu": {
+        Config.Frappe: 2.8,
+        Config.UCIDataset: 1.4,
+        Config.Criteo: 125
+    }
+}
+
 
 def guess_score_time(search_space_m, dataset):
     if search_space_m == Config.NB101:
@@ -69,7 +95,9 @@ class Singleton(type):
 
 
 class Gt201(metaclass=Singleton):
-    data201 = None
+
+    def __init__(self):
+        self.data201 = None
 
     def load_201(self):
         if self.data201 is None:
@@ -136,7 +164,7 @@ class Gt201(metaclass=Singleton):
         # return res
         return 40
 
-    def get_all_trained_model_ids(self, dataset):
+    def get_all_trained_model_ids(self):
         self.load_201()
         # 201 all data has the same model set.
         return list(self.data201.keys())
@@ -208,191 +236,260 @@ class Gt101(metaclass=Singleton):
                 res = time_usage
         return res
 
-    def get_all_trained_model_ids(self, dataset):
+    def get_all_trained_model_ids(self):
         self.load_101()
         return list(self.data101_full.keys())
 
 
-class GTMLP(metaclass=Singleton):
-
+class GTMLP:
+    _instances = {}
     default_alg_name_list = ["nas_wot", "synflow"]
     device = "cpu"
 
-    mlp_frappe_train = None
-    mlp_frappe_score = None
-    mlp_frappe_global_rank = {}
-
-    mlp_criteo_train = None
-    mlp_criteo_score = None
-    mlp_criteo_global_rank = {}
-
-    mlp_uci_train = None
-    mlp_uci_score = None
-    mlp_uci_global_rank = {}
-
-    def get_all_trained_model_ids(self, dataset: str):
-        self.load_mlp_train(dataset)
-        if dataset == Config.Frappe:
-            return list(self.mlp_frappe_train[dataset].keys())
-        if dataset == Config.Criteo:
-            return list(self.mlp_criteo_train[dataset].keys())
-        if dataset == Config.UCIDataset:
-            return list(self.mlp_uci_train[dataset].keys())
-
-    def get_all_scored_model_ids(self, dataset: str):
-        self.load_mlp_score(dataset)
-        if dataset == Config.Frappe:
-            return list(self.mlp_frappe_score.keys())
-        if dataset == Config.Criteo:
-            return list(self.mlp_criteo_score.keys())
-        if dataset == Config.UCIDataset:
-            return list(self.mlp_uci_score.keys())
-
-    @staticmethod
-    def get_score_one_model_time(dataset: str, device: str):
-        # those are got from offline training, CPU only, GPU only, second
-        if device == "cpu":
+    def __new__(cls, dataset: str):
+        if dataset not in cls._instances:
+            instance = super(GTMLP, cls).__new__(cls)
+            instance.dataset = dataset
             if dataset == Config.Frappe:
-                _train_time_per_epoch = 0.0211558125
-            elif dataset == Config.UCIDataset:
-                _train_time_per_epoch = 0.015039052631578948
+                instance.mlp_train_path = mlp_train_frappe
+                instance.mlp_score_path = mlp_score_frappe
             elif dataset == Config.Criteo:
-                _train_time_per_epoch = 0.6824370454545454
-            else:
-                raise NotImplementedError
-        else:
-            if dataset == Config.Frappe:
-                _train_time_per_epoch = 0.013744457142857143
+                instance.mlp_train_path = mlp_train_criteo
+                instance.mlp_score_path = mlp_score_criteo
             elif dataset == Config.UCIDataset:
-                _train_time_per_epoch = 0.008209692307692308
-            elif dataset == Config.Criteo:
-                _train_time_per_epoch = 0.6095493157894737
-            else:
-                raise NotImplementedError
+                instance.mlp_train_path = mlp_train_uci_diabetes
+                instance.mlp_score_path = mlp_score_uci
+            instance.mlp_train = read_json(instance.mlp_train_path)
+            instance.mlp_score = read_json(instance.mlp_score_path)
+            instance.mlp_global_rank = load_global_rank(
+                instance.mlp_score, instance.default_alg_name_list)
+
+            cls._instances[dataset] = instance
+        return cls._instances[dataset]
+
+    def get_all_trained_model_ids(self):
+        return list(self.mlp_train[self.dataset].keys())
+
+    def get_all_scored_model_ids(self):
+        return list(self.mlp_score.keys())
+
+    def get_score_one_model_time(self, device: str):
+        _train_time_per_epoch = score_one_model_time_dict[device].get(self.dataset)
+        if _train_time_per_epoch is None:
+            raise NotImplementedError
         return _train_time_per_epoch
 
-    @staticmethod
-    def get_train_one_epoch_time(dataset: str, device: str):
-        # those are got from offline training, CPU only, GPU only
-        if device == "cpu":
-            if dataset == Config.Frappe:
-                _train_time_per_epoch = 5.122203075885773
-            elif dataset == Config.UCIDataset:
-                _train_time_per_epoch = 4.16297769
-            elif dataset == Config.Criteo:
-                _train_time_per_epoch = 422
-            else:
-                raise NotImplementedError
-        else:
-            if dataset == Config.Frappe:
-                _train_time_per_epoch = 2.8
-            elif dataset == Config.UCIDataset:
-                _train_time_per_epoch = 1.4
-            elif dataset == Config.Criteo:
-                _train_time_per_epoch = 125
-            else:
-                raise NotImplementedError
+    def get_train_one_epoch_time(self, device: str):
+        _train_time_per_epoch = train_one_epoch_time_dict[device].get(self.dataset)
+        if _train_time_per_epoch is None:
+            raise NotImplementedError
         return _train_time_per_epoch
 
-    def load_mlp_train(self, dataset):
-        if dataset == Config.Frappe:
-            if self.mlp_frappe_train is None:
-                self.mlp_frappe_train = read_json(mlp_train_frappe)
-
-        if dataset == Config.Criteo:
-            if self.mlp_criteo_train is None:
-                self.mlp_criteo_train = read_json(mlp_train_criteo)
-
-        if dataset == Config.UCIDataset:
-            if self.mlp_uci_train is None:
-                self.mlp_uci_train = read_json(mlp_train_uci_diabetes)
-
-    def load_mlp_score(self, dataset):
-        if dataset == Config.Frappe:
-            if self.mlp_frappe_score is None:
-                self.mlp_frappe_score = read_json(mlp_score_frappe)
-
-        if dataset == Config.Criteo:
-            if self.mlp_criteo_score is None:
-                self.mlp_criteo_score = read_json(mlp_score_criteo)
-
-        if dataset == Config.UCIDataset:
-            if self.mlp_uci_score is None:
-                self.mlp_uci_score = read_json(mlp_score_uci)
-
-    def load_mlp_global_score_rank(self, dataset):
-
-        if dataset == Config.Frappe:
-            self.load_mlp_score(dataset)
-            if self.mlp_frappe_global_rank == {}:
-                self.mlp_frappe_global_rank = load_global_rank(self.mlp_frappe_score, self.default_alg_name_list)
-
-        if dataset == Config.Criteo:
-            self.load_mlp_score(dataset)
-            if self.mlp_criteo_global_rank == {}:
-                self.mlp_criteo_global_rank = load_global_rank(self.mlp_criteo_score, self.default_alg_name_list)
-
-        if dataset == Config.UCIDataset:
-            self.load_mlp_score(dataset)
-            if self.mlp_uci_global_rank == {}:
-                self.mlp_uci_global_rank = load_global_rank(self.mlp_uci_score, self.default_alg_name_list)
-
-    def get_valid_auc(self, arch_id: str, dataset, epoch_num: int):
-        self.load_mlp_train(dataset)
+    def get_valid_auc(self, arch_id: str, epoch_num: int):
         # todo: due to the too many job contention on server, the time usage may not valid.
-        time_usage = (int(epoch_num) + 1) * self.get_train_one_epoch_time(dataset, self.device)
-        if dataset == Config.Frappe:
+        time_usage = (int(epoch_num) + 1) * self.get_train_one_epoch_time(self.device)
+        if self.dataset == Config.Frappe:
             if epoch_num is None or epoch_num >= 20: epoch_num = 19
-            t_acc = self.mlp_frappe_train[dataset][arch_id][str(epoch_num)]["valid_auc"]
-            # time_usage = self.mlp_frappe_train[dataset][arch_id][str(epoch_num)]["train_val_total_time"]
+            t_acc = self.mlp_train[self.dataset][arch_id][str(epoch_num)]["valid_auc"]
             return t_acc, time_usage
-        elif dataset == Config.Criteo:
+        elif self.dataset == Config.Criteo:
             if epoch_num is None or epoch_num >= 10: epoch_num = 9
-            t_acc = self.mlp_criteo_train[dataset][arch_id][str(epoch_num)]["valid_auc"]
-            # time_usage = self.mlp_criteo_train[dataset][arch_id][str(epoch_num)]["train_val_total_time"]
+            t_acc = self.mlp_train[self.dataset][arch_id][str(epoch_num)]["valid_auc"]
             return t_acc, time_usage
-        elif dataset == Config.UCIDataset:
+        elif self.dataset == Config.UCIDataset:
             if epoch_num is None or epoch_num >= 40: epoch_num = 39
-            t_acc = self.mlp_uci_train[dataset][arch_id][str(epoch_num)]["valid_auc"]
-            # time_usage = self.mlp_uci_train[dataset][arch_id][str(epoch_num)]["train_val_total_time"]
-            return t_acc, time_usage
-        elif dataset == Config.Criteo:
-            if epoch_num is None: epoch_num = 9
-            t_acc = self.mlp_criteo_train[dataset][arch_id][str(epoch_num)]["valid_auc"]
-            time_usage = self.mlp_criteo_train[dataset][arch_id][str(epoch_num)]["train_val_total_time"]
-            return t_acc, time_usage
-        elif dataset == Config.UCIDataset:
-            if epoch_num is None: epoch_num = 39
-            t_acc = self.mlp_uci_train[dataset][arch_id][str(epoch_num)]["valid_auc"]
-            time_usage = self.mlp_uci_train[dataset][arch_id][str(epoch_num)]["train_val_total_time"]
+            t_acc = self.mlp_train[self.dataset][arch_id][str(epoch_num)]["valid_auc"]
             return t_acc, time_usage
         else:
             raise NotImplementedError
 
-    def get_metrics_score(self, arch_id: str, dataset) -> dict:
-        self.load_mlp_score(dataset)
-        if dataset == Config.Frappe:
-            score_dic = self.mlp_frappe_score[arch_id]
-            return score_dic
-        elif dataset == Config.Criteo:
-            score_dic = self.mlp_criteo_score[arch_id]
-            return score_dic
-        elif dataset == Config.UCIDataset:
-            score_dic = self.mlp_uci_score[arch_id]
-            return score_dic
-        else:
-            raise NotImplementedError
+    def api_get_score(self, arch_id: str) -> dict:
+        score_dic = self.mlp_score[arch_id]
+        return score_dic
 
-    def get_global_rank_score(self, arch_id, dataset):
-        self.load_mlp_global_score_rank(dataset)
-        if dataset == Config.Frappe:
-            return self.mlp_frappe_global_rank[arch_id]
-        elif dataset == Config.Criteo:
-            return self.mlp_criteo_global_rank[arch_id]
-        elif dataset == Config.UCIDataset:
-            return self.mlp_uci_global_rank[arch_id]
-        else:
-            raise NotImplementedError
+    def get_global_rank_score(self, arch_id):
+        return self.mlp_global_rank[arch_id]
+
+
+# class GTMLP(metaclass=Singleton):
+#     default_alg_name_list = ["nas_wot", "synflow"]
+#     device = "cpu"
+#
+#     mlp_frappe_train = None
+#     mlp_frappe_score = None
+#     mlp_frappe_global_rank = {}
+#
+#     mlp_criteo_train = None
+#     mlp_criteo_score = None
+#     mlp_criteo_global_rank = {}
+#
+#     mlp_uci_train = None
+#     mlp_uci_score = None
+#     mlp_uci_global_rank = {}
+#
+#     def get_all_trained_model_ids(self, dataset: str):
+#         self.load_mlp_train(dataset)
+#         if dataset == Config.Frappe:
+#             return list(self.mlp_frappe_train[dataset].keys())
+#         if dataset == Config.Criteo:
+#             return list(self.mlp_criteo_train[dataset].keys())
+#         if dataset == Config.UCIDataset:
+#             return list(self.mlp_uci_train[dataset].keys())
+#
+#     def get_all_scored_model_ids(self, dataset: str):
+#         self.load_mlp_score(dataset)
+#         if dataset == Config.Frappe:
+#             return list(self.mlp_frappe_score.keys())
+#         if dataset == Config.Criteo:
+#             return list(self.mlp_criteo_score.keys())
+#         if dataset == Config.UCIDataset:
+#             return list(self.mlp_uci_score.keys())
+#
+#     @staticmethod
+#     def get_score_one_model_time(dataset: str, device: str):
+#         # those are got from offline training, CPU only, GPU only, second
+#         if device == "cpu":
+#             if dataset == Config.Frappe:
+#                 _train_time_per_epoch = 0.0211558125
+#             elif dataset == Config.UCIDataset:
+#                 _train_time_per_epoch = 0.015039052631578948
+#             elif dataset == Config.Criteo:
+#                 _train_time_per_epoch = 0.6824370454545454
+#             else:
+#                 raise NotImplementedError
+#         else:
+#             if dataset == Config.Frappe:
+#                 _train_time_per_epoch = 0.013744457142857143
+#             elif dataset == Config.UCIDataset:
+#                 _train_time_per_epoch = 0.008209692307692308
+#             elif dataset == Config.Criteo:
+#                 _train_time_per_epoch = 0.6095493157894737
+#             else:
+#                 raise NotImplementedError
+#         return _train_time_per_epoch
+#
+#     @staticmethod
+#     def get_train_one_epoch_time(dataset: str, device: str):
+#         # those are got from offline training, CPU only, GPU only
+#         if device == "cpu":
+#             if dataset == Config.Frappe:
+#                 _train_time_per_epoch = 5.122203075885773
+#             elif dataset == Config.UCIDataset:
+#                 _train_time_per_epoch = 4.16297769
+#             elif dataset == Config.Criteo:
+#                 _train_time_per_epoch = 422
+#             else:
+#                 raise NotImplementedError
+#         else:
+#             if dataset == Config.Frappe:
+#                 _train_time_per_epoch = 2.8
+#             elif dataset == Config.UCIDataset:
+#                 _train_time_per_epoch = 1.4
+#             elif dataset == Config.Criteo:
+#                 _train_time_per_epoch = 125
+#             else:
+#                 raise NotImplementedError
+#         return _train_time_per_epoch
+#
+#     def load_mlp_train(self, dataset):
+#         if dataset == Config.Frappe:
+#             if self.mlp_frappe_train is None:
+#                 self.mlp_frappe_train = read_json(mlp_train_frappe)
+#
+#         if dataset == Config.Criteo:
+#             if self.mlp_criteo_train is None:
+#                 self.mlp_criteo_train = read_json(mlp_train_criteo)
+#
+#         if dataset == Config.UCIDataset:
+#             if self.mlp_uci_train is None:
+#                 self.mlp_uci_train = read_json(mlp_train_uci_diabetes)
+#
+#     def load_mlp_score(self, dataset):
+#         if dataset == Config.Frappe:
+#             if self.mlp_frappe_score is None:
+#                 self.mlp_frappe_score = read_json(mlp_score_frappe)
+#
+#         if dataset == Config.Criteo:
+#             if self.mlp_criteo_score is None:
+#                 self.mlp_criteo_score = read_json(mlp_score_criteo)
+#
+#         if dataset == Config.UCIDataset:
+#             if self.mlp_uci_score is None:
+#                 self.mlp_uci_score = read_json(mlp_score_uci)
+#
+#     def load_mlp_global_score_rank(self, dataset):
+#
+#         if dataset == Config.Frappe:
+#             self.load_mlp_score(dataset)
+#             if self.mlp_frappe_global_rank == {}:
+#                 self.mlp_frappe_global_rank = load_global_rank(self.mlp_frappe_score, self.default_alg_name_list)
+#
+#         if dataset == Config.Criteo:
+#             self.load_mlp_score(dataset)
+#             if self.mlp_criteo_global_rank == {}:
+#                 self.mlp_criteo_global_rank = load_global_rank(self.mlp_criteo_score, self.default_alg_name_list)
+#
+#         if dataset == Config.UCIDataset:
+#             self.load_mlp_score(dataset)
+#             if self.mlp_uci_global_rank == {}:
+#                 self.mlp_uci_global_rank = load_global_rank(self.mlp_uci_score, self.default_alg_name_list)
+#
+#     def get_valid_auc(self, arch_id: str, dataset, epoch_num: int):
+#         self.load_mlp_train(dataset)
+#         # todo: due to the too many job contention on server, the time usage may not valid.
+#         time_usage = (int(epoch_num) + 1) * self.get_train_one_epoch_time(dataset, self.device)
+#         if dataset == Config.Frappe:
+#             if epoch_num is None or epoch_num >= 20: epoch_num = 19
+#             t_acc = self.mlp_frappe_train[dataset][arch_id][str(epoch_num)]["valid_auc"]
+#             # time_usage = self.mlp_frappe_train[dataset][arch_id][str(epoch_num)]["train_val_total_time"]
+#             return t_acc, time_usage
+#         elif dataset == Config.Criteo:
+#             if epoch_num is None or epoch_num >= 10: epoch_num = 9
+#             t_acc = self.mlp_criteo_train[dataset][arch_id][str(epoch_num)]["valid_auc"]
+#             # time_usage = self.mlp_criteo_train[dataset][arch_id][str(epoch_num)]["train_val_total_time"]
+#             return t_acc, time_usage
+#         elif dataset == Config.UCIDataset:
+#             if epoch_num is None or epoch_num >= 40: epoch_num = 39
+#             t_acc = self.mlp_uci_train[dataset][arch_id][str(epoch_num)]["valid_auc"]
+#             # time_usage = self.mlp_uci_train[dataset][arch_id][str(epoch_num)]["train_val_total_time"]
+#             return t_acc, time_usage
+#         elif dataset == Config.Criteo:
+#             if epoch_num is None: epoch_num = 9
+#             t_acc = self.mlp_criteo_train[dataset][arch_id][str(epoch_num)]["valid_auc"]
+#             time_usage = self.mlp_criteo_train[dataset][arch_id][str(epoch_num)]["train_val_total_time"]
+#             return t_acc, time_usage
+#         elif dataset == Config.UCIDataset:
+#             if epoch_num is None: epoch_num = 39
+#             t_acc = self.mlp_uci_train[dataset][arch_id][str(epoch_num)]["valid_auc"]
+#             time_usage = self.mlp_uci_train[dataset][arch_id][str(epoch_num)]["train_val_total_time"]
+#             return t_acc, time_usage
+#         else:
+#             raise NotImplementedError
+#
+#     def get_metrics_score(self, arch_id: str, dataset) -> dict:
+#         self.load_mlp_score(dataset)
+#         if dataset == Config.Frappe:
+#             score_dic = self.mlp_frappe_score[arch_id]
+#             return score_dic
+#         elif dataset == Config.Criteo:
+#             score_dic = self.mlp_criteo_score[arch_id]
+#             return score_dic
+#         elif dataset == Config.UCIDataset:
+#             score_dic = self.mlp_uci_score[arch_id]
+#             return score_dic
+#         else:
+#             raise NotImplementedError
+#
+#     def get_global_rank_score(self, arch_id, dataset):
+#         self.load_mlp_global_score_rank(dataset)
+#         if dataset == Config.Frappe:
+#             return self.mlp_frappe_global_rank[arch_id]
+#         elif dataset == Config.Criteo:
+#             return self.mlp_criteo_global_rank[arch_id]
+#         elif dataset == Config.UCIDataset:
+#             return self.mlp_uci_global_rank[arch_id]
+#         else:
+#             raise NotImplementedError
 
 
 if __name__ == "__main__":

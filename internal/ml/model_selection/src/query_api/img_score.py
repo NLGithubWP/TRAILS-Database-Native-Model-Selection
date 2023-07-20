@@ -60,25 +60,31 @@ def api_simulate_evaluate(acc_list, score_list, k):
 
 
 class LocalApi:
+    # Multiton pattern
+    _instances = {}
 
-    def __init__(self, search_space_name: str, dataset: str):
-        self.data = None
+    def __new__(cls, search_space_name: str, dataset: str):
+        if (search_space_name, dataset) not in cls._instances:
+            instance = super(LocalApi, cls).__new__(cls)
+            instance.search_space_name, instance.dataset = search_space_name, dataset
 
-        # read pre-scored file path
-        if search_space_name == Config.NB201:
-            if dataset == Config.c10:
-                self.pre_score_path = pre_score_path_201C10
-            elif dataset == Config.c100:
-                self.pre_score_path = pre_score_path_201C100
-            elif dataset == Config.imgNet:
-                self.pre_score_path = pre_score_path_201IMG
+            # read pre-scored file path
+            if search_space_name == Config.NB201:
+                if dataset == Config.c10:
+                    instance.pre_score_path = pre_score_path_201C10
+                elif dataset == Config.c100:
+                    instance.pre_score_path = pre_score_path_201C100
+                elif dataset == Config.imgNet:
+                    instance.pre_score_path = pre_score_path_201IMG
+            if search_space_name == Config.NB101:
+                instance.pre_score_path = pre_score_path_101C10
 
-        if search_space_name == Config.NB101:
-            self.pre_score_path = pre_score_path_101C10
+            instance.data = read_json(instance.pre_score_path)
+            cls._instances[(search_space_name, dataset)] = instance
+        return cls._instances[(search_space_name, dataset)]
 
     def api_get_score(self, arch_id: str, tfmem: str = None):
         # retrieve score from pre-scored file
-        self.lazy_load_data()
         if tfmem is None:
             return self.data[arch_id]
         else:
@@ -92,7 +98,6 @@ class LocalApi:
         :param score_str:
         :return:
         """
-        self.lazy_load_data()
         if str(arch_id) not in self.data:
             self.data[str(arch_id)] = {}
         else:
@@ -100,21 +105,18 @@ class LocalApi:
         self.data[str(arch_id)][alg_name] = '{:f}'.format(score_str)
 
     def is_arch_and_alg_inside_data(self, arch_id, alg_name):
-        self.lazy_load_data()
         if arch_id in self.data and alg_name in self.data[arch_id]:
             return True
         else:
             return False
 
     def is_arch_inside_data(self, arch_id):
-        self.lazy_load_data()
         if arch_id in self.data:
             return True
         else:
             return False
 
     def get_len_data(self):
-        self.lazy_load_data()
         return len(self.data)
 
     def save_latest_data(self):
@@ -123,17 +125,7 @@ class LocalApi:
         """
         write_json(self.pre_score_path, self.data)
 
-    def lazy_load_data(self):
-        """
-        Read the pre-score-data
-        :return:
-        """
-        if self.data is None:
-            self.data = read_json(self.pre_score_path)
-            print("localApi init, len(data) = ", len(list(self.data.keys())))
-
-    def get_all_scored_model_ids(self, dataset):
-        self.lazy_load_data()
+    def get_all_scored_model_ids(self):
         return list(self.data.keys())
 
 
