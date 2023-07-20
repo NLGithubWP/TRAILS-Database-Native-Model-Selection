@@ -13,4 +13,6 @@ z_dev/*
 internal/pg_extension/target
 result_base/*
 log_*/
+exp_result/*.json
+exp_result/*.pdf
 
