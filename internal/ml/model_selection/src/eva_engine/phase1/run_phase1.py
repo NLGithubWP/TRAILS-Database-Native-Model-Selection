@@ -1,6 +1,5 @@
 import json
 
-from src.common.constant import Config
 from src.common.structure import ModelAcquireData, ModelEvaData
 from src.controller.controler import SampleController
 from src.controller.sampler_all.seq_sampler import SequenceSampler
@@ -8,9 +7,8 @@ from src.controller.sampler_all.seq_sampler import SequenceSampler
 from src.eva_engine.phase1.evaluator import P1Evaluator
 from src.logger import logger
 from src.query_api.img_explore_ea import fetch_from_db
-from src.query_api.query_model_performance import Gt201, Gt101
 from torch.utils.data import DataLoader
-from src.controller.sampler_EA.regularized_ea import RegularizedEASampler
+from src.controller.sampler_ea.regularized_ea import RegularizedEASampler
 from src.search_space.core.space import SpaceWrapper
 
 
@@ -46,15 +44,10 @@ class RunPhase1:
         self.N = N
 
         self.args = args
-        if self.args.search_space == Config.NB201:
-            self.gt_api = Gt201()
-        elif self.args.search_space == Config.NB101:
-            self.gt_api = Gt101()
 
         self.search_space_ins = search_space_ins
 
         # seq: init the search strategy and controller,
-
         if self.N == len(self.search_space_ins):
             print("Explore all models")
             strategy = SequenceSampler(self.search_space_ins)

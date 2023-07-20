@@ -1,6 +1,7 @@
+import torch
+from torch import nn
 from src.eva_engine.phase1.algo.alg_base import Evaluator
-from .utils.autograd_hacks import *
-from .utils.p_utils import get_layer_metric_array
+from src.eva_engine.phase1.utils.p_utils import get_layer_metric_array
 
 
 class WeightNormEvaluator(Evaluator):
