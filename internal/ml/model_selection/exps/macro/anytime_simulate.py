@@ -5,7 +5,7 @@ import os
 import time
 from distutils.util import strtobool
 from exps.shared_args import parse_arguments
-from src.utilslibs.compute import log_scale_x_array
+from src.tools.compute import log_scale_x_array
 
 
 def generate_data_loader():
@@ -64,7 +64,7 @@ if __name__ == "__main__":
     from src.common.constant import Config
     from src.logger import logger
     from src.storage.structure_data_loader import libsvm_dataloader
-    from src.utilslibs.io_tools import write_json
+    from src.tools.io_tools import write_json
 
     train_loader, val_loader, test_loader, class_num = generate_data_loader()
     args.num_labels = class_num

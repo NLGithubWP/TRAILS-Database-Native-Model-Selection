@@ -146,7 +146,7 @@ if __name__ == '__main__':
 
     from src.common.constant import CommonVars
     from src.controller.controler import SampleController
-    from src.controller.sampler_EA.regularized_ea import RegularizedEASampler
+    from src.controller.sampler_ea.regularized_ea import RegularizedEASampler
     from src.logger import logger
     from src.query_api.query_api_img import guess_score_time, ImgScoreQueryApi
     from src.search_space.init_search_space import init_search_space

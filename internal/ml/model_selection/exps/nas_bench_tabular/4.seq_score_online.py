@@ -45,7 +45,7 @@ if __name__ == "__main__":
     from src.logger import logger
     from src.search_space.init_search_space import init_search_space
     from src.storage.structure_data_loader import libsvm_dataloader
-    from src.utilslibs.io_tools import write_json, read_json
+    from src.tools.io_tools import write_json, read_json
     from src.storage import dataset
     from src.common.constant import Config, CommonVars
 

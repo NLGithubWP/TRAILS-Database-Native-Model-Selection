@@ -1,5 +1,5 @@
 import argparse
-import distutils.util
+
 
 def str2bool(v):
     if isinstance(v, bool):

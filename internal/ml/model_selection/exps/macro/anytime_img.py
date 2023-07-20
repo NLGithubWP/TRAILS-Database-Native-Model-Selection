@@ -15,7 +15,7 @@ if __name__ == "__main__":
     from src.eva_engine.run_ms import RunModelSelection
     from src.query_api.interface import SimulateTrain
     from src.query_api.img_train_baseline import post_processing_train_base_result
-    from src.utilslibs.io_tools import write_json
+    from src.tools.io_tools import write_json
 
     # this is for acquire the final acc
     fgt = SimulateTrain(space_name=args.search_space)
