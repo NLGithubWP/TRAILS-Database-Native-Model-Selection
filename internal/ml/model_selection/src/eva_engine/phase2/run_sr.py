@@ -125,7 +125,7 @@ class SR:
 
 
 if __name__ == "__main__":
-    from src.query_api.api_query import SimulateTrain
+    from src.query_api.interface import SimulateTrain
     # successive reject
     from src.eva_engine.phase2.evaluator import P2Evaluator
 

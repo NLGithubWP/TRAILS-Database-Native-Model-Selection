@@ -1,8 +1,24 @@
 # query ground truth
 from src.common.constant import Config, CommonVars
-from src.query_api.query_model_performance import Gt201, Gt101, GTMLP
-from src.query_api.img_score import ImgScoreQueryApi
+from src.query_api.query_api_img import Gt201, Gt101
+from src.query_api.query_api_mlp import GTMLP
+from src.query_api.query_api_img import ImgScoreQueryApi
 from typing import *
+
+
+def profile_NK_trade_off(dataset):
+    """
+    This is get from the profling result.  
+    We try various N/K combinations, and find this is better.
+    """
+    if dataset == Config.c10:
+        return 85
+    elif dataset == Config.c100:
+        return 85
+    elif dataset == Config.imgNet:
+        return 130
+    else:
+        return 100
 
 
 class SimulateTrain:
@@ -15,9 +31,12 @@ class SimulateTrain:
         self.api = None
 
     # get the test_acc and time usage to train of this arch_id
-    def get_ground_truth(self, arch_id, dataset=Config.c10, epoch_num=None, total_epoch: int = 200):
+    def get_ground_truth(self, arch_id: str, dataset: str, epoch_num: int = None, total_epoch: int = 200):
         """
-        :param total_epoch: only 201 use it, 201 will query from 200 epoch in total.
+        :param arch_id: 
+        :param dataset: 
+        :param epoch_num: which epoch's performance to return
+        :param total_epoch: 
         """
         if self.space_name == Config.NB101:
             self.api = Gt101()
@@ -60,7 +79,7 @@ class SimulateTrain:
                 res = arch_id
         return res
 
-    def get_all_model_ids(self, dataset):
+    def query_all_model_ids(self, dataset):
         if self.space_name == Config.NB101:
             self.api = Gt101()
         elif self.space_name == Config.NB201:
@@ -83,23 +102,21 @@ class SimulateScore:
             self.api = ImgScoreQueryApi(self.space_name, dataset_name)
 
     # get the test_acc and time usage to train of this arch_id
-    def get_score_res(self, arch_id) -> Dict:
-        if self.space_name == Config.MLPSP:
-            # todo: here we directly return the rank_score, instead of the mutilpel_algs score
-            # return {"nas_wot": self.api.get_metrics_score(arch_id, dataset)["nas_wot"],
-            #         "synflow": self.api.get_metrics_score(arch_id, dataset)["synflow"],
-            #         }
-            return self.api.get_global_rank_score(arch_id)
-        else:
-            return self.api.api_get_score(arch_id, CommonVars.PRUNE_SYNFLOW)
+    def query_tfmem_rank_score(self, arch_id) -> Dict:
+        # todo: here we use the global rank, other than dymalically update the rank
+        # todo: so, we directly return the rank_score, instead of the mutilpel_algs score
+        # return {"nas_wot": self.api.get_metrics_score(arch_id, dataset)["nas_wot"],
+        #         "synflow": self.api.get_metrics_score(arch_id, dataset)["synflow"],
+        #         }
+        return self.api.get_global_rank_score(arch_id)
 
-    def get_all_tfmem_score_res(self, arch_id) -> Dict:
+    def query_all_tfmem_score(self, arch_id) -> Dict:
         """
         return {alg_name: score}
         """
         return self.api.api_get_score(arch_id)
 
-    def get_all_model_ids(self, dataset) -> List:
+    def query_all_model_ids(self, dataset) -> List:
         """
         return all models_ids as a list
         """

@@ -2,7 +2,7 @@ import torch
 from src.common.constant import Config, CommonVars
 from src.common.structure import ModelAcquireData
 from src.eva_engine import evaluator_register
-from src.query_api.api_query import SimulateScore
+from src.query_api.interface import SimulateScore
 from src.storage import dataset
 from torch.utils.data import DataLoader
 
@@ -142,7 +142,7 @@ class P1Evaluator:
             self.score_getter = SimulateScore(space_name=self.search_space_ins.name,
                                               dataset_name=self.dataset_name)
 
-        model_score = self.score_getter.get_score_res(arch_id=model_acquire.model_id)
+        model_score = self.score_getter.query_tfmem_rank_score(arch_id=model_acquire.model_id)
 
         return model_score
 
