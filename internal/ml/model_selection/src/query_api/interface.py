@@ -18,7 +18,7 @@ def profile_NK_trade_off(dataset):
     elif dataset == Config.imgNet:
         return 130
     else:
-        return 100
+        return 30
 
 
 class SimulateTrain:
