@@ -3,7 +3,7 @@
 import calendar
 import os
 import time
-
+from distutils.util import strtobool
 from exps.shared_args import parse_arguments
 from src.utilslibs.compute import log_scale_x_array
 
@@ -28,7 +28,7 @@ def generate_data_loader():
     return train_loader, val_loader, test_loader, class_num
 
 
-def run_with_time_budget(time_budget: float, is_simulate: bool):
+def run_with_time_budget(time_budget: float, is_simulate: bool, only_phase1: bool):
     """
     :param time_budget: the given time budget, in second
     :return:
@@ -77,14 +77,12 @@ if __name__ == "__main__":
     max_minute = 100
     budget_array = log_scale_x_array(num_points=args.num_points, max_minute=max_minute)
 
-    if only_phase1.lower() == "true":
+    if only_phase1:
         checkpoint_name = f"./internal/ml/model_selection/exp_result/" \
                           f"res_end_2_end_{args.search_space}_{args.dataset}_{args.kn_rate}_{args.num_points}_p1.json"
-    elif only_phase1.lower() == "false":
+    else:
         checkpoint_name = f"./internal/ml/model_selection/exp_result/" \
                           f"res_end_2_end_{args.search_space}_{args.dataset}_{args.kn_rate}_{args.num_points}.json"
-    else:
-        raise "only_phase1 must be true or false"
 
     print(checkpoint_name)
     result = {
@@ -98,7 +96,10 @@ if __name__ == "__main__":
             time_budget_sec = time_budget * 60
             logger.info(f"\n Running job with budget={time_budget} min \n")
             best_arch, best_arch_performance, time_usage, p1_trace_highest_score, p1_trace_models_perforamnces = \
-                run_with_time_budget(time_budget_sec, is_simulate=is_simulate)
+                run_with_time_budget(time_budget_sec,
+                                     is_simulate=is_simulate,
+                                     only_phase1=only_phase1)
+
             run_acc_list.append(best_arch_performance)
         result["sys_acc"].append(run_acc_list)
 
