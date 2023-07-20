@@ -12,3 +12,5 @@ logs_*
 z_dev/*
 internal/pg_extension/target
 result_base/*
+log_*/
+
