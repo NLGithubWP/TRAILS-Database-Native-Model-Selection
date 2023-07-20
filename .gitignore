@@ -9,5 +9,6 @@
 logs_*
 *.log
 
+z_dev
 internal/pg_extension/target
 result_base/*
