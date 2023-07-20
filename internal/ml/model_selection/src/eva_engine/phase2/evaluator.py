@@ -8,7 +8,8 @@ from torch.utils.data import DataLoader
 
 class P2Evaluator:
 
-    def __init__(self, search_space_ins: SpaceWrapper,
+    def __init__(self,
+                 search_space_ins: SpaceWrapper,
                  dataset: str,
                  is_simulate: bool = True,
                  train_loader: DataLoader = None,

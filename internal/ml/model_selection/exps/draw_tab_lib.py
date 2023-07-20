@@ -41,7 +41,9 @@ def Add_one_line(x_time_array: list, y_twod_budget: List[List], namespace: str, 
     else:
         x_m = x_
 
-    exp = np.array(y_) * 100
+    exp = np.array(y_)
+    exp = np.where(exp > 10, exp, exp * 100)
+
     y_h = np.quantile(exp, .75, axis=0)
     y_m = np.quantile(exp, .5, axis=0)
     y_l = np.quantile(exp, .25, axis=0)
@@ -109,8 +111,8 @@ def draw_structure_data_anytime(
         ele = annotations[i]
         ax.plot(ele[2], ele[1], mark_list[i], label=ele[0], markersize=set_marker_point)
 
-    export_legend(fig, filename="any_time_legend", unique_labels=["Training-Based MS", "Training-Free MS", "2Phase-MS", 'Global Best AUC'])
-    # export_legend(ori_fig=fig, colnum=5)
+    # export_legend(fig, filename="any_time_legend", unique_labels=["Training-Based MS", "Training-Free MS", "2Phase-MS", 'Global Best AUC'])
+    export_legend(ori_fig=fig, colnum=5)
     plt.tight_layout()
 
     fig.savefig(f"{name_img}.pdf", bbox_inches='tight')

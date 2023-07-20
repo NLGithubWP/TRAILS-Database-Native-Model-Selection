@@ -1,8 +1,8 @@
 from copy import copy
-from random import randint
 from src.common.constant import Config
 
-class SR:
+
+class BudgetAwareControllerSR:
     def __init__(self, evaluator, time_per_epoch, max_unit=200):
         """
         :param evaluator:
@@ -78,7 +78,7 @@ class SR:
         :param U: min resource each candidate needs
         :return:
         """
-        # print(f" *********** begin SR with U={U}, K={len(candidates_m)} ***********")
+        # print(f" *********** begin BudgetAwareControllerSR with U={U}, K={len(candidates_m)} ***********")
         candidates = copy(candidates_m)
         total_epoch_each_rounds = len(candidates) * U
         min_budget_required = 0
@@ -124,19 +124,3 @@ class SR:
         return candidates[0], None, min_budget_required
 
 
-if __name__ == "__main__":
-    from src.query_api.interface import SimulateTrain
-    # successive reject
-    from src.eva_engine.phase2.evaluator import P2Evaluator
-
-    fgt = SimulateTrain(Config.NB201)
-    evaluator = P2Evaluator(Config.NB201, Config.c10)
-    sh = SR(evaluator, 200)
-    K = 200
-    U = 4
-    candidates_ts = [randint(1, 15600) for i in range(K)]
-    best_arch, min_budget_required = sh.successive_reject(U, candidates_ts)
-    min_budget_required_planed = sh.pre_calculate_epoch_required(K, U)
-    print(f"best arch id = {best_arch} and min-budget-used = {min_budget_required}, "
-          f"min_budget_required_planed = {min_budget_required_planed}")
-    acc_sh_v, _ = fgt.get_ground_truth(best_arch)

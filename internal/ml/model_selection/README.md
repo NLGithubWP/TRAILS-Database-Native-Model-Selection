@@ -70,6 +70,9 @@ bash internal/ml/model_selection/scripts/nas_bench_img/score_all_models.sh
 
 # 3. Explore with EA ans score result and store exploring process into SQLLite
 bash internal/ml/model_selection/scripts/nas_bench_img/explore_all_models.sh
+
+# 4. Generate the baseline. 
+bash internal/ml/model_selection/scripts/baseline_system_img.sh
 ```
 
 The following experiment could then query filtering phase results based on `run_id`.
@@ -105,7 +108,7 @@ python ./internal/ml/model_selection/exps/micro/measure_correlation.py
 
 ## System Motivation Experiments
 
-asdf
+
 
 ## Reproduce Figure7
 
@@ -148,6 +151,11 @@ python main/4_system/analysis/1_sys_design/plot_2.py
 
 ![image-20230421214807878](./documents/imgs/image-20230421214807878.png)
 
+# Baselines
+
+We compare with Training-Based MS, TabNAS, and Training-Free ms etc. 
+
+For image data, it already generated at the NAS-Bench-Img part, see above.
 
 # Run end2end model selection
 

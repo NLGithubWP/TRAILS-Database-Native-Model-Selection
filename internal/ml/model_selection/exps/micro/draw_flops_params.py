@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.ticker import MaxNLocator
 
-from utilslibs.draw_lib import export_legend
+from src.tools.draw_lib import export_legend
 
 
 def plot_graph(lines, bars, x, filename, bar_name,

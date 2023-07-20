@@ -106,7 +106,7 @@ def data_set_config(parser):
                         help='path of data and result parent folder')
     # define search space,
     parser.add_argument('--dataset', type=str, default='frappe',
-                        help='cifar10, cifar100, ImageNet16-120, '
+                        help='cifar10, cifar100, ImageNet16-120 '
                              'frappe, criteo, uci_diabetes')
 
     parser.add_argument('--num_labels', type=int, default=2,

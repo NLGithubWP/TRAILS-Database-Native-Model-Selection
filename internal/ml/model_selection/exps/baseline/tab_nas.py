@@ -1,7 +1,7 @@
 
 import numpy as np
 import torch
-from utilslibs.io_tools import read_json, write_json
+from src.tools.io_tools import read_json, write_json
 import os
 
 DEFAULT_LAYER_CHOICES_20 = [8, 16, 24, 32,  # 8

@@ -1,8 +1,8 @@
 import numpy as np
 from src.common.constant import Config
 from exps.baseline.nas_alg import get_base_annotations
-from utilslibs.compute import sample_in_log_scale_new
-from utilslibs.io_tools import read_json
+from src.tools.compute import sample_in_log_scale_new
+from src.tools.io_tools import read_json
 from exps.draw_img_lib import get_plot_compare_with_base_line_cfg
 
 dataset = Config.c100

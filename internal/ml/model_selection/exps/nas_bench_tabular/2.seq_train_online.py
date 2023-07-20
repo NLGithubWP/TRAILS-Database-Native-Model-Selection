@@ -32,7 +32,7 @@ if __name__ == "__main__":
     from src.eva_engine.phase2.algo.trainer import ModelTrainer
     from src.search_space.init_search_space import init_search_space
     from src.dataset_utils.structure_data_loader import libsvm_dataloader
-    from utilslibs.io_tools import write_json, read_json
+    from src.tools.io_tools import write_json, read_json
 
     search_space_ins = init_search_space(args)
     search_space_ins.load()

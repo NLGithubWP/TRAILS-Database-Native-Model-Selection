@@ -22,7 +22,7 @@ def partition_list_by_worker_id(lst, num_workers=15):
 
 
 def start_one_worker(queue, args, worker_id, my_partition, search_space_ins, res):
-    from utilslibs.io_tools import write_json, read_json
+    from src.tools.io_tools import write_json, read_json
     gmt = time.gmtime()
     ts = calendar.timegm(gmt)
 
@@ -97,7 +97,7 @@ if __name__ == "__main__":
 
     from search_space.init_search_space import init_search_space
     from storage.structure_data_loader import libsvm_dataloader
-    from utilslibs.io_tools import write_json, read_json
+    from src.tools.io_tools import write_json, read_json
 
     search_space_ins = init_search_space(args)
     search_space_ins.load()

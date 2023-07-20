@@ -3,7 +3,7 @@ import os
 import random
 
 from src.third_pkg.sp101_lib import nb101_api
-from utilslibs.io_tools import write_json, write_pickle
+from src.tools.io_tools import write_json, write_pickle
 
 
 def _get_spec(api, arch_hash: str):

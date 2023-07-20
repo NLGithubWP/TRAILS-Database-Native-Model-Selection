@@ -68,7 +68,7 @@ if __name__ == "__main__":
     from src.controller.controler import SampleController
     from src.eva_engine.phase2.evaluator import P2Evaluator
     from src.search_space.init_search_space import init_search_space
-    from utilslibs.io_tools import write_json
+    from src.tools.io_tools import write_json
 
     result = {
         "baseline_time_budget": [],
