@@ -1,35 +1,14 @@
-#third_party/*
-result_base/*
 
-internal/pg_extension/target
 
 .idea/*
-logs_uci
-Logs
-LogCriteoTrainTune
-base_line_res_criteo_debiug
-criteo_train_cfg_exp
 .DS_Store
-
-data/*
-*.pdf
-
 */__pycache__/*
-
 **/__pycache__/
 
-*.deploy
-
-A_structure_dataexp_res/
-base_line_res_uci_diabetes/
-
+*.pdf
+logs_*
 *.log
-score_frappe_batch_size_32.json
-train_base_line_frappe.json
-end_2_end_frappe.json
 
-exps/main_v2/analysis/result
-
-/AAAA-backups/
-
-/scripts/
+internal/pg_extension/target
+internal/ml/model_selection/exp_result
+result_base/*
