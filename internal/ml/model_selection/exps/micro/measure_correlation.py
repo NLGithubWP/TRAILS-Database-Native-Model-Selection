@@ -1,4 +1,4 @@
-# Imports
+
 
 import numpy as np
 import os
@@ -6,7 +6,7 @@ import os
 
 # Initialize function to calculate correlation
 def calculate_correlation(dataset, search_space, epoch_train):
-    print("================================================================")
+    print("\n================================================================")
     print(f" {dataset} + {search_space}")
     print("================================================================")
     # Initialize query objects
@@ -40,13 +40,13 @@ def calculate_correlation(dataset, search_space, epoch_train):
         model_train_res_lst.append(acc)
 
     # Measure the correlation for each algorithm and print the result
+    print("--------------------------------------------------")
     for alg in all_alg_score_dic.keys():
         scores = all_alg_score_dic[alg]
         sorted_indices = np.argsort(scores)
 
         sorted_ground_truth = [model_train_res_lst[i] for i in sorted_indices]
         sorted_scores = [scores[i] for i in sorted_indices]
-
         res = CorCoefficient.measure(sorted_scores, sorted_ground_truth)
         print(alg, res[CommonVars.Spearman])
 
@@ -69,14 +69,9 @@ if __name__ == "__main__":
     from src.query_api.interface import SimulateTrain, SimulateScore
     from utilslibs.measure_tools import CorCoefficient
     from src.common.constant import CommonVars, Config
-    # Criteo configuration
-    calculate_correlation(Config.Criteo, Config.MLPSP, 9)
 
-    # Frappe configuration
-    calculate_correlation(Config.Frappe, Config.MLPSP, 19)
-
-    # UCI configuration
-    calculate_correlation(Config.UCIDataset, Config.MLPSP, 0)
+    # NB101 + C10
+    calculate_correlation(Config.c10, Config.NB101, None)
 
     # NB201 + C10
     calculate_correlation(Config.c10, Config.NB201, None)
@@ -87,6 +82,13 @@ if __name__ == "__main__":
     # NB201 + imageNet
     calculate_correlation(Config.imgNet, Config.NB201, None)
 
-    # NB101 + C10
-    calculate_correlation(Config.c10, Config.NB101, None)
+    # Frappe configuration
+    calculate_correlation(Config.Frappe, Config.MLPSP, 19)
+
+    # UCI configuration
+    calculate_correlation(Config.UCIDataset, Config.MLPSP, 0)
+
+    # Criteo configuration
+    calculate_correlation(Config.Criteo, Config.MLPSP, 9)
+
 
