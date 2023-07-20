@@ -76,11 +76,13 @@ class LocalApi:
         if search_space_name == Config.NB101:
             self.pre_score_path = pre_score_path_101C10
 
-    def api_get_score(self, arch_id: str, tfmem: str):
+    def api_get_score(self, arch_id: str, tfmem: str = None):
         # retrieve score from pre-scored file
         self.lazy_load_data()
-        ori_score = float(self.data[arch_id][tfmem])
-        return ori_score
+        if tfmem is None:
+            return self.data[arch_id]
+        else:
+            return {tfmem: float(self.data[arch_id][tfmem])}
 
     def update_existing_data(self, arch_id, alg_name, score_str):
         """
