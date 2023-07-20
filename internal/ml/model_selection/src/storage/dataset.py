@@ -138,8 +138,7 @@ def _get_some_data(train_dataloader: DataLoader, batch_size: int) -> (torch.tens
     traindata = []
 
     dataloader_iter = iter(train_dataloader)
-    for _ in range(batch_size):
-        traindata.append(next(dataloader_iter))
+    traindata.append(next(dataloader_iter))
 
     inputs = torch.cat([a for a, _ in traindata])
     targets = torch.cat([b for _, b in traindata])
