@@ -95,8 +95,8 @@ if __name__ == "__main__":
     os.environ.setdefault("log_file_name", f"{args.log_name}_{args.dataset}_main_{ts}.log")
     os.environ.setdefault("base_dir", args.base_dir)
 
-    from search_space.init_search_space import init_search_space
-    from storage.structure_data_loader import libsvm_dataloader
+    from src.search_space.init_search_space import init_search_space
+    from src.dataset_utils.structure_data_loader import libsvm_dataloader
     from src.tools.io_tools import write_json, read_json
 
     search_space_ins = init_search_space(args)

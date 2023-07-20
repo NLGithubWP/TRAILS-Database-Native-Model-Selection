@@ -1,6 +1,5 @@
 import calendar
 import os
-import random
 import time
 from exps.shared_args import parse_arguments
 
