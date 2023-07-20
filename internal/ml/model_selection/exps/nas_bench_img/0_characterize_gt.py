@@ -1,10 +1,11 @@
 import random
 import numpy as np
 import os
-from src.query_api.query_model_performance import Gt201, Gt101
-from src.tools.io_tools import write_json
 
-base_dir = os.getcwd()
+os.environ.setdefault("base_dir", "../exp_data")
+base_dir = os.path.join(os.getcwd(), "../exp_data")
+from src.query_api.query_api_img import Gt201, Gt101
+from src.tools.io_tools import write_json
 
 
 def get_distribution_gt_201():
@@ -23,7 +24,7 @@ def get_distribution_gt_201():
 
     res = {"best": best_model, "q_95": q_95, "q_85": q_85, "q_75": q_75, "q_65": q_65}
     print(res)
-    write_json(os.path.join(base_dir, "result_base/ground_truth/201_target"), res)
+    write_json(os.path.join(base_dir, "img_data/ground_truth/201_target"), res)
 
 
 def get_distribution_gt_101():
@@ -42,7 +43,7 @@ def get_distribution_gt_101():
 
     res = {"best": best_model, "q_95": q_95, "q_85": q_85, "q_75": q_75, "q_65": q_65}
     print(res)
-    write_json(os.path.join(base_dir, "result_base/ground_truth/101_target"), res)
+    write_json(os.path.join(base_dir, "img_data/ground_truth/101_target"), res)
 
 
 def measure_if_overfitting():
@@ -72,4 +73,3 @@ def measure_if_overfitting():
 # get the distribution of the ground truth, this is also the search target.
 get_distribution_gt_101()
 get_distribution_gt_201()
-
