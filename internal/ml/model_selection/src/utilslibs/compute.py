@@ -40,7 +40,7 @@ def search_position(rank_list_m: list, new_item: List):
         return left
 
 
-def load_global_rank(ml_data_score_dic: dict, alg_name_list: List) -> dict:
+def generate_global_rank(ml_data_score_dic: dict, alg_name_list: List) -> dict:
     """
     ml_data_score_dic: { model_id: {alg: score1, alg2: score2} }
     return: { model_id: {alg1_alg2: rank_score} }
@@ -54,7 +54,7 @@ def load_global_rank(ml_data_score_dic: dict, alg_name_list: List) -> dict:
         # add model and score to local list
         for alg, score in arch_score.items():
             if alg in alg_name_list:
-                binary_insert_get_rank(history[alg], [arch_id, score])
+                binary_insert_get_rank(history[alg], [str(arch_id), float(score)])
 
     # convert multiple scores into rank value
     model_new_rank_score = {}
