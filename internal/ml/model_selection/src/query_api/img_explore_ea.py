@@ -7,7 +7,7 @@ from src.common.constant import Config
 
 base_folder_dir = os.environ.get("base_dir")
 if base_folder_dir is None: base_folder_dir = os.getcwd()
-base_dir = os.path.join(base_folder_dir, "img_data")
+base_dir = os.path.join(base_folder_dir, "img_data", "ground_truth")
 print("local api running at {}".format(base_dir))
 
 # sum score is better
