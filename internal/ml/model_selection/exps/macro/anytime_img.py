@@ -55,15 +55,21 @@ if __name__ == "__main__":
         y_acc_list_arr_p1.append(y_each_run_p1)
 
     # traing-based ms
+    # todo: update the parse result with result["baseline_acc"] and result["baseline_time_budget"] as in train_with_ea
     x_acc_train, y_acc_train_l, y_acc_train_m, y_acc_train_h = post_processing_train_base_result(
         search_space=args.search_space, dataset=args.dataset)
 
+    # 2 phase ms
     saved_dict["y_acc_list_arr"] = y_acc_list_arr
     saved_dict["x_T_list"] = budget_array
+
+    # training-based with ea
     saved_dict["x_acc_train"] = x_acc_train
     saved_dict["y_acc_train_l"] = y_acc_train_l
     saved_dict["y_acc_train_m"] = y_acc_train_m
     saved_dict["y_acc_train_h"] = y_acc_train_h
+
+    # training-free ms
     saved_dict["y_acc_list_arr_only_phase1"] = y_acc_list_arr_p1
     saved_dict["x_T_list_only_phase1"] = budget_array_p1
 
