@@ -10,5 +10,4 @@ logs_*
 *.log
 
 internal/pg_extension/target
-internal/ml/model_selection/exp_result
 result_base/*
