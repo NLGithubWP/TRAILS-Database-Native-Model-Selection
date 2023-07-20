@@ -5,7 +5,7 @@ import os
 import time
 from src.common.constant import Config
 from src.storage.structure_data_loader import libsvm_dataloader
-from exps.main_v2.common.shared_args import parse_arguments
+from exps.shared_args import parse_arguments
 
 
 def generate_data_loader():

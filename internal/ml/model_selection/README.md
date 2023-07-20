@@ -22,23 +22,73 @@ mkdir exp_data
 
 # Reproduce the results
 
-1. Download the dataset using the following link, and extract them to `result_base`
+## NAS-Bench-Tabular
+
+ NAS-Bench-Tabular can be either **download** or build from scratch.
+
+### Download NAS-Bench-Tabular
+
+1. **Download** the dataset using the following link, and extract them to `result_base`
 
 ```bash
 https://drive.google.com/file/d/1fpKAqvvVooiJh2EIfz18UMsBE4demHL2/view?usp=sharing
 ```
 
+### Build NAS-Bench-Tabular
+
+2. Build the **NAS-Bench-Tabular** from scratch
+
+```python
+# Construct NAS-Bench-Tabular: 
+## 1. Training all models.
+bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_frappe.sh
+bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_uci.sh
+bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_criteo.sh
+
+## 2. Scoring all models using all TFMEMs.
+bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_frappe.sh
+bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_uci.sh
+bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_criteo.sh
+```
+
+3. Build the **NAS-Bench-Img** from scratch
+
+   To facilitate the experiments and query speed (NASBENCH API is slow)
+
+   1. We retrieve all results from NASBENCH API and store them as a json file.
+   2. We score all models in NB201 and 28K models in NB101.
+   3. We search with  EA + Score and record the searching process in terms of
+       `run_id,  current_explored_model, top_400 highest scored model, time_usage` 
+    to SQLLite.
+
+```python
+# 1. Record NASBENCH API data into json file
+## This requires to install nats_bench: pip install nats_bench
+bash internal/ml/model_selection/scripts/nas_bench_img/convert_api_2_json.sh
+
+# 2. Scoring all models using all TFMEMs.
+bash internal/ml/model_selection/scripts/nas_bench_img/score_all_models.sh
+
+# 3. Explore with EA ans score result and store exploring process into SQLLite
+bash internal/ml/model_selection/scripts/nas_bench_img/explore_all_models.sh
+```
+
+The following experiment could then query filtering phase results based on `run_id`.
+
 ## Reproduce Figure6
 
-Update the dataset_name and then run.
+With the above **NAS-Bench-Tabular**, we could run various experiments. 
 
 ```bash
-# generate pre-calculated results.
-
-# generate the results for draw the figure
+# 1. Generate the results for drawing the figure
+## tabular data: training-base-ms
+bash internal/ml/model_selection/scripts/baseline_system_tab.sh
+## tabular data: training-free-ms, 2phase-ms
 bash internal/ml/model_selection/scripts/anytime_tab.sh
-bash internal/ml/model_selection/scripts/anytime_img.sh
-# draw figure
+## image data: training-base-ms, training-free-ms, 2phase-ms
+bash internal/ml/model_selection/scripts/anytime_img_w_baseline.sh
+
+# 2. Draw figure
 python internal/ml/model_selection/exps/macro/anytime_tab_draw.py
 python internal/ml/model_selection/exps/macro/anytime_img_draw.py
 ```
@@ -46,6 +96,10 @@ python internal/ml/model_selection/exps/macro/anytime_img_draw.py
 ![image-20230702035554579](documents/imgs/image-20230702035554579.png)
 
 ## Reproduce Table 2
+
+
+
+
 
 ```bash
 python exps/main_v2/analysis/4.\ measure_correlation.py
