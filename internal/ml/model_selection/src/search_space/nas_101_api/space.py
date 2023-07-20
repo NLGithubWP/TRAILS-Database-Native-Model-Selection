@@ -7,7 +7,7 @@ import ConfigSpace
 import numpy as np
 
 from src.common.constant import Config
-from src.query_api.img_score import LocalApi
+from src.query_api.img_score import ImgScoreQueryApi
 from src.search_space.core.model_params import ModelMicroCfg, ModelMacroCfg
 from src.search_space.core.space import SpaceWrapper
 from src.third_pkg.sp101_lib import nb101_api
@@ -55,7 +55,7 @@ class NasBench101Space(SpaceWrapper):
 
     api = None
 
-    def __init__(self, api_loc: str, modelCfg: NB101MacroCfg, loapi: LocalApi):
+    def __init__(self, api_loc: str, modelCfg: NB101MacroCfg, loapi: ImgScoreQueryApi):
         super().__init__(modelCfg, Config.NB101)
         self.api_loc = api_loc
         self.loapi = loapi

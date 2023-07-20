@@ -7,7 +7,7 @@ import os
 # Initialize function to calculate correlation
 def calculate_correlation(dataset, search_space, epoch_train):
     print("================================================================")
-    print(f"Measure the SRCC using {dataset} on {search_space}")
+    print(f" {dataset} + {search_space}")
     print("================================================================")
     # Initialize query objects
     acc_query = SimulateTrain(space_name=search_space)

@@ -31,7 +31,7 @@ def initialize_experiment(args):
     logger.info("running with params: :" + json.dumps(args.__dict__, indent=2))
     logger.info("cuda available = " + str(torch.cuda.is_available()))
 
-    local_api = LocalApi(args.search_space, args.dataset)
+    local_api = ImgScoreQueryApi(args.search_space, args.dataset)
     search_space_ins = init_search_space(args)
     return local_api, search_space_ins
 
@@ -149,7 +149,7 @@ if __name__ == '__main__':
     from src.controller.sampler_EA.regularized_ea import RegularizedEASampler
     from src.logger import logger
     from src.query_api.query_model_performance import guess_score_time
-    from src.query_api.img_score import LocalApi
+    from src.query_api.img_score import ImgScoreQueryApi
     from src.search_space.init_search_space import init_search_space
 
     set_random_seed()

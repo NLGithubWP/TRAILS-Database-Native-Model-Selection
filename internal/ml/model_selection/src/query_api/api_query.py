@@ -1,7 +1,7 @@
 # query ground truth
 from src.common.constant import Config, CommonVars
 from src.query_api.query_model_performance import Gt201, Gt101, GTMLP
-from src.query_api.img_score import LocalApi
+from src.query_api.img_score import ImgScoreQueryApi
 from typing import *
 
 
@@ -80,7 +80,7 @@ class SimulateScore:
         if self.space_name == Config.MLPSP:
             self.api = GTMLP(dataset_name)
         else:
-            self.api = LocalApi(self.space_name, dataset_name)
+            self.api = ImgScoreQueryApi(self.space_name, dataset_name)
 
     # get the test_acc and time usage to train of this arch_id
     def get_score_res(self, arch_id) -> Dict:

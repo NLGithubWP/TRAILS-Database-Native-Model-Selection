@@ -1,7 +1,7 @@
 import os
 from src.common.constant import Config
 from src.search_space.core.space import SpaceWrapper
-from src.query_api.img_score import LocalApi
+from src.query_api.img_score import ImgScoreQueryApi
 
 
 def init_search_space(args) -> SpaceWrapper:
@@ -21,7 +21,7 @@ def init_search_space(args) -> SpaceWrapper:
             args.num_labels)
 
         base_dir_folder = args.base_dir
-        local_api = LocalApi(Config.NB101, args.dataset)
+        local_api = ImgScoreQueryApi(Config.NB101, args.dataset)
         return NasBench101Space(
             api_loc=os.path.join(base_dir_folder, "data", args.api_loc),
             modelCfg=model_cfg,

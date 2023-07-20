@@ -15,57 +15,13 @@ pre_score_path_201C100 = os.path.join(base_dir, "score_201_15k_c100_bs32_ic16.js
 pre_score_path_201IMG = os.path.join(base_dir, "score_201_15k_imgNet_bs32_ic16.json")
 
 
-def api_get_current_best_acc(acc_list):
-    """
-    Get latest greatest accuracy
-    :param acc_list: a list of accuracy
-    :return:
-    """
-    result = [acc_list[0]]
-    for i in range(1, len(acc_list), 1):
-        if acc_list[i] > result[-1]:
-            result.append(acc_list[i])
-        else:
-            result.append(result[-1])
-
-    return result
-
-
-def api_simulate_evaluate(acc_list, score_list, k):
-    """
-    Get best acc among the top_k-score archs
-    :param acc_list:
-    :param score_list:
-    :param k:
-    :return:
-    """
-    result = []
-    for i in range(len(score_list)):
-        # if i < k, train_evaluate them
-        if i < k:
-            result.append(acc_list[i])
-        else:
-            # get top or lower
-            topk_index = np.argpartition(score_list[:i + 1], -k)[-k:]
-            lowerk_index = np.argpartition(score_list[:i + 1], k)[:k]
-
-            selected_index = topk_index
-            selected_acc = []
-
-            # train top k networks
-            for index in selected_index:
-                selected_acc.append(acc_list[index])
-            result.append(max(selected_acc))
-    return result
-
-
-class LocalApi:
+class ImgScoreQueryApi:
     # Multiton pattern
     _instances = {}
 
     def __new__(cls, search_space_name: str, dataset: str):
         if (search_space_name, dataset) not in cls._instances:
-            instance = super(LocalApi, cls).__new__(cls)
+            instance = super(ImgScoreQueryApi, cls).__new__(cls)
             instance.search_space_name, instance.dataset = search_space_name, dataset
 
             # read pre-scored file path
@@ -130,5 +86,5 @@ class LocalApi:
 
 
 if __name__ == "__main__":
-    lapi = LocalApi(Config.NB101, Config.c10)
+    lapi = ImgScoreQueryApi(Config.NB101, Config.c10)
     lapi.get_len_data()
