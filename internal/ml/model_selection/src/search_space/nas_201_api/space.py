@@ -13,14 +13,19 @@ import random
 import ConfigSpace
 import src.query_api.query_model_gt_acc_api as gt_api
 from torch.utils.data import DataLoader
+from typing import Generator
 
 
 class NB201MicroCfg(ModelMicroCfg):
 
     @classmethod
     def builder(cls, encoding: str):
+        # for sample_all_models, cell_str is noy used
         data = json.loads(encoding)
-        return NB201MicroCfg(CellStructure.str2structure(data["cell_str"]), data["arch_hash"])
+        if data["cell_str"] == CellStructure([]).tostr():
+            return NB201MicroCfg(CellStructure([]), data["arch_hash"])
+        else:
+            return NB201MicroCfg(CellStructure.str2structure(data["cell_str"]), data["arch_hash"])
 
     def __init__(self, cell_structure: CellStructure, arch_hash: str):
         super().__init__()
@@ -38,10 +43,13 @@ class NasBench201Space(SpaceWrapper):
     def __init__(self, api_loc: str, modelCfg: NB201MacroCfg):
         super().__init__(modelCfg, Config.NB201)
         self.api_loc = api_loc
-        # self.api = NASBench201API(api_loc)
+        self.api = None
 
     def load(self):
-        self.api = NASBench201API(self.api_loc)
+        if self.api is None:
+            print("NasBench201Space load begin")
+            self.api = NASBench201API(self.api_loc)
+            print("NasBench201Space load done")
 
     @classmethod
     def serialize_model_encoding(cls, arch_micro: ModelMicroCfg) -> str:
@@ -71,6 +79,7 @@ class NasBench201Space(SpaceWrapper):
 
     def micro_to_id(self, arch_struct: ModelMicroCfg) -> str:
         assert isinstance(arch_struct, NB201MicroCfg)
+        self.load()
         arch_id = self.api.query_index_by_arch(arch_struct.cell_struct)
         return str(arch_id)
 
@@ -83,6 +92,7 @@ class NasBench201Space(SpaceWrapper):
         return score_time_per_model, train_time_per_epoch, N_K_ratio
 
     def new_architecture(self, arch_id: str):
+        self.load()
         arch_hash = self.api[int(arch_id)]
 
         architecture = nasbench2.get_model_from_arch_str(
@@ -96,7 +106,7 @@ class NasBench201Space(SpaceWrapper):
 
     def new_architecture_with_micro_cfg(self, arch_micro: ModelMicroCfg):
         assert isinstance(arch_micro, NB201MicroCfg)
-
+        self.load()
         # micro => id => has => arch
         arch_id = self.api.query_index_by_arch(arch_micro.cell_struct)
         arch_hash = self.api[int(arch_id)]
@@ -111,18 +121,25 @@ class NasBench201Space(SpaceWrapper):
         return architecture
 
     def __len__(self):
-        return 15325
+        return len(self.api)
 
     def get_arch_size(self, arch_micro) -> int:
         arch_str = get_arch_str_from_model(arch_micro)
         return len([ele for ele in arch_str.split("|") if "none" not in ele])
 
-    def sample_all_models(self) -> list:
-        total_num_arch = len(self.api.hash_iterator())
+    def sample_all_models(self) -> Generator[str, None, None]:
+        self.load()
+        total_num_arch = len(self.api)
         arch_id_list = random.sample(range(total_num_arch), total_num_arch)
-        return arch_id_list
+
+        for arch_id in arch_id_list:
+            arch_hash = self.api[int(arch_id)]
+            # todo: if sample_all_models is called, then following will not arch_struc.
+            arch_struc = CellStructure([])
+            yield str(arch_id), NB201MicroCfg(arch_struc, arch_hash)
 
     def random_architecture_id(self) -> (str, ModelMicroCfg):
+        self.load()
         """
         default 4 nodes in 201
         :return:
@@ -148,6 +165,7 @@ class NasBench201Space(SpaceWrapper):
     '''Below is for EA'''
 
     def mutate_architecture(self, parent_arch: ModelMicroCfg) -> (str, ModelMicroCfg):
+        self.load()
         """Computes the architecture for a child of the given parent architecture.
         The parent architecture is cloned and mutated to produce the child architecture. The child architecture is mutated by randomly switch one operation to another.
         """
@@ -164,10 +182,10 @@ class NasBench201Space(SpaceWrapper):
         node_info[snode_id] = (xop, node_info[snode_id][1])
         child_arch.nodes[node_id] = tuple(node_info)
 
-        arch_struc = CellStructure(child_arch)
+        arch_struc = CellStructure(child_arch.nodes)
         arch_id = self.api.query_index_by_arch(arch_struc)
         arch_hash = self.api[int(arch_id)]
-        return arch_id, NB201MicroCfg(child_arch, arch_hash)
+        return str(arch_id), NB201MicroCfg(child_arch, arch_hash)
 
     '''Below is for RL and BOHB'''
 
