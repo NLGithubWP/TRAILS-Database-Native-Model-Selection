@@ -1,7 +1,7 @@
 import random
 import numpy as np
 import os
-from src.query_api.query_model_gt_acc_api import Gt201, Gt101
+from src.query_api.query_model_performance import Gt201, Gt101
 from src.utilslibs.io_tools import write_json
 
 base_dir = os.getcwd()

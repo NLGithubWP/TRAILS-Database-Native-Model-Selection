@@ -103,8 +103,8 @@ def execute_single_architecture(i, sampler, local_api, run_id, current_x_time, c
     ge_time = time.time() - begin_ge_model
 
     begin_get_score = time.time()
-    naswot_score = local_api.api_get_score(str(arch_id), CommonVars.NAS_WOT)
-    synflow_score = local_api.api_get_score(str(arch_id), CommonVars.PRUNE_SYNFLOW)
+    naswot_score = local_api.api_get_score(str(arch_id))[CommonVars.NAS_WOT]
+    synflow_score = local_api.api_get_score(str(arch_id))[CommonVars.PRUNE_SYNFLOW]
     compute_time = time.time() - begin_get_score
 
     begin_fit = time.time()
@@ -148,7 +148,7 @@ if __name__ == '__main__':
     from src.controller.controler import SampleController
     from src.controller.sampler_EA.regularized_ea import RegularizedEASampler
     from src.logger import logger
-    from src.query_api.query_model_gt_acc_api import guess_score_time
+    from src.query_api.query_model_performance import guess_score_time
     from src.query_api.img_score import LocalApi
     from src.search_space.init_search_space import init_search_space
 

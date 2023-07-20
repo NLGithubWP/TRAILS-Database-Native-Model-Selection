@@ -1,4 +1,3 @@
-
 import os
 import random
 from exps.shared_args import parse_arguments
@@ -15,7 +14,7 @@ if __name__ == "__main__":
     os.environ.setdefault("base_dir", args.base_dir)
     from src.eva_engine.run_ms import RunModelSelection
     from src.utilslibs.parse_pre_res import SimulateTrain
-    from src.query_api.query_train_baseline_api import post_processing_train_base_result
+    from src.query_api.img_train_baseline import post_processing_train_base_result
     from src.utilslibs.io_tools import write_json
 
     # this is for acquire the final acc
@@ -69,4 +68,3 @@ if __name__ == "__main__":
     saved_dict["x_T_list_only_phase1"] = budget_array_p1
 
     write_json(f"{args.result_dir}/0_macro_res_{args.search_space}_{args.dataset}", saved_dict)
-
