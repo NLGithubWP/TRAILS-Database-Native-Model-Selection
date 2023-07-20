@@ -15,7 +15,7 @@ from src.search_space.core.space import SpaceWrapper
 from src.search_space.mlp_api.model_params import MlpMacroCfg
 import torch.nn as nn
 from torch.utils.data import DataLoader
-import src.query_api.query_model_gt_acc_api as gt_api
+import src.query_api.query_model_performance as gt_api
 
 # Useful constants
 

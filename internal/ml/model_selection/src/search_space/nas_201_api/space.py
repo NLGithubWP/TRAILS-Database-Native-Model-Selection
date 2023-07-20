@@ -11,7 +11,7 @@ from src.search_space.nas_201_api.model_params import NB201MacroCfg
 from src.search_space.utils.weight_initializers import init_net
 import random
 import ConfigSpace
-import src.query_api.query_model_gt_acc_api as gt_api
+import src.query_api.query_model_performance as gt_api
 from torch.utils.data import DataLoader
 from typing import Generator
 

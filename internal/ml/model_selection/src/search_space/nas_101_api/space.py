@@ -15,7 +15,7 @@ from src.third_pkg.sp101_lib.model import NasBench101Network
 from src.third_pkg.sp101_lib.nb101_api import ModelSpec
 from src.search_space.nas_101_api.model_params import NB101MacroCfg
 from src.search_space.nas_101_api.rl_policy import RLPolicy101Topology
-import src.query_api.query_model_gt_acc_api as gt_api
+import src.query_api.query_model_performance as gt_api
 from torch.utils.data import DataLoader
 from typing import Generator
 
