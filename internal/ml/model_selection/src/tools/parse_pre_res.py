@@ -1,6 +1,6 @@
 
-from src.query_api.api_query import SimulateTrain
-from src.utilslibs.io_tools import read_json
+from src.query_api.interface import SimulateTrain
+from src.tools.io_tools import read_json
 
 
 def gen_list_run_infos( data):

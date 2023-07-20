@@ -12,7 +12,7 @@ import os, sys, time, random, argparse, collections
 from copy import deepcopy
 import torch
 
-from src.utilslibs.env_tools import prepare_seed
+from src.tools.env_tools import prepare_seed
 from src.logger import logger
 
 from models import CellStructure, get_search_spaces

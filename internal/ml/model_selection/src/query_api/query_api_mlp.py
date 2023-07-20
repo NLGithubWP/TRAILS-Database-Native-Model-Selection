@@ -1,7 +1,7 @@
 import os
 from src.common.constant import Config
-from src.utilslibs.compute import generate_global_rank
-from src.utilslibs.io_tools import read_json
+from src.tools.compute import generate_global_rank
+from src.tools.io_tools import read_json
 
 base_dir = os.environ.get("base_dir")
 if base_dir is None: base_dir = os.getcwd()

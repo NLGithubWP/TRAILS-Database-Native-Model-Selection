@@ -1,10 +1,10 @@
 import os
 import random
 from src.common.constant import Config
-from src.utilslibs.io_tools import read_json, write_json
+from src.tools.io_tools import read_json, write_json
 from src.query_api.singleton import Singleton
-from src.utilslibs.io_tools import read_pickle
-from src.utilslibs.compute import generate_global_rank
+from src.tools.io_tools import read_pickle
+from src.tools.compute import generate_global_rank
 
 
 base_dir_folder = os.environ.get("base_dir")

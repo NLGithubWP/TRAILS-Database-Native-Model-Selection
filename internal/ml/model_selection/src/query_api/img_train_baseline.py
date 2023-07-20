@@ -3,7 +3,7 @@
 import os
 import numpy as np
 from src.common.constant import Config
-from src.utilslibs.io_tools import read_json
+from src.tools.io_tools import read_json
 
 base_dir_folder = os.environ.get("base_dir")
 if base_dir_folder is None:base_dir_folder = os.getcwd()
