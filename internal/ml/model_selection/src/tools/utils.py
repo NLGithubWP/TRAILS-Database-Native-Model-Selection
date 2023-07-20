@@ -27,7 +27,7 @@ def timeSince(since=None, s=None):
     s %= 60
     h = math.floor(m / 60)
     m %= 60
-    return '%dh %dm %ds' %(h, m, s)
+    return '%dh %dm %ds' % (h, m, s)
 
 
 class AvgrageMeter(object):
@@ -50,12 +50,11 @@ class AvgrageMeter(object):
 
 
 def get_correct_num(y, target):
-
     pred_label = torch.argmax(y, dim=1)
     return (target == pred_label).sum().item()
 
 
-def accuracy(output, target, topk=(1, )):
+def accuracy(output, target, topk=(1,)):
     maxk = max(topk)
     batch_size = target.size(0)
 
@@ -111,6 +110,7 @@ def _data_transforms_cifar10(args):
     ])
     return train_transform, valid_transform
 
+
 def _get_cifar10(args):
     train_transform, valid_transform = _data_transforms_cifar10(args)
     train_data = dset.CIFAR10(
@@ -137,6 +137,7 @@ def _get_cifar10(args):
     )
     return train_queue, valid_queue
 
+
 def _get_dist_cifar10(args):
     train_transform, valid_transform = _data_transforms_cifar10(args)
     train_data = dset.CIFAR10(
@@ -151,7 +152,7 @@ def _get_dist_cifar10(args):
 
     train_queue = torch.utils.data.DataLoader(
         train_data,
-        batch_size=args.batch_size//args.gpu_num,
+        batch_size=args.batch_size // args.gpu_num,
         pin_memory=True,
         num_workers=4,
         drop_last=True,
@@ -166,6 +167,7 @@ def _get_dist_cifar10(args):
         num_workers=4,
     )
     return train_queue, valid_queue, sampler
+
 
 def _get_dist_imagenet(args):
     traindir = os.path.join(args.data_dir, 'train')
@@ -191,7 +193,7 @@ def _get_dist_imagenet(args):
         train_dataset, num_replicas=args.gpu_num, rank=args.local_rank)
 
     train_loader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=args.batch_size//args.gpu_num, num_workers=max(args.gpu_num*2,4),
+        train_dataset, batch_size=args.batch_size // args.gpu_num, num_workers=max(args.gpu_num * 2, 4),
         pin_memory=True, drop_last=True, sampler=sampler)
 
     val_loader = torch.utils.data.DataLoader(
@@ -205,6 +207,7 @@ def _get_dist_imagenet(args):
         num_workers=4, pin_memory=True)
 
     return train_loader, val_loader, sampler
+
 
 def _data_transforms_cifar100(args):
     CIFAR_MEAN = [0.5070751592371323, 0.48654887331495095, 0.4409178433670343]
@@ -224,6 +227,7 @@ def _data_transforms_cifar100(args):
         transforms.Normalize(CIFAR_MEAN, CIFAR_STD),
     ])
     return train_transform, valid_transform
+
 
 def _get_cifar100(args):
     train_transform, valid_transform = _data_transforms_cifar100(args)
@@ -251,11 +255,12 @@ def _get_cifar100(args):
     )
     return train_queue, valid_queue
 
+
 def _get_imagenet_tiny(args):
     traindir = os.path.join(args.data, 'train')
     validdir = os.path.join(args.data, 'val')
     normalize = transforms.Normalize(
-        mean=[0.4802, 0.4481, 0.3975], 
+        mean=[0.4802, 0.4481, 0.3975],
         std=[0.2302, 0.2265, 0.2262]
     )
     train_transform = transforms.Compose([
@@ -266,7 +271,7 @@ def _get_imagenet_tiny(args):
     ])
     if args.cutout:
         train_transform.transforms.append(Cutout(args.cutout_length))
-    
+
     train_data = dset.ImageFolder(
         traindir,
         train_transform
@@ -313,7 +318,8 @@ def load_ckpt(ckpt_path):
     try:
         checkpoint = torch.load(ckpt_path)
     except:
-        print(f"=> fail loading {ckpt_path}..."); exit()
+        print(f"=> fail loading {ckpt_path}...");
+        exit()
     return checkpoint
 
 
@@ -324,7 +330,7 @@ def save_ckpt(ckpt, file_dir, file_name='model.ckpt', is_best=False):
     if is_best: shutil.copyfile(ckpt_path, os.path.join(file_dir, f'best_{file_name}'))
 
 
-def drop_path(x, drop_prob, dims=(0, )):
+def drop_path(x, drop_prob, dims=(0,)):
     var_size = [1 for _ in range(x.dim())]
     for i in dims:
         var_size[i] = x.size(i)
@@ -390,18 +396,19 @@ def logger(log_dir, need_time=True, need_stdout=False):
 
 class CrossEntropyLabelSmooth(nn.Module):
 
-  def __init__(self, num_classes, epsilon):
-    super(CrossEntropyLabelSmooth, self).__init__()
-    self.num_classes = num_classes
-    self.epsilon = epsilon
-    self.logsoftmax = nn.LogSoftmax(dim=1)
+    def __init__(self, num_classes, epsilon):
+        super(CrossEntropyLabelSmooth, self).__init__()
+        self.num_classes = num_classes
+        self.epsilon = epsilon
+        self.logsoftmax = nn.LogSoftmax(dim=1)
 
-  def forward(self, inputs, targets):
-    log_probs = self.logsoftmax(inputs)
-    targets = torch.zeros_like(log_probs).scatter_(1, targets.unsqueeze(1), 1)
-    targets = (1 - self.epsilon) * targets + self.epsilon / self.num_classes
-    loss = (-targets * log_probs).mean(0).sum()
-    return loss
+    def forward(self, inputs, targets):
+        log_probs = self.logsoftmax(inputs)
+        targets = torch.zeros_like(log_probs).scatter_(1, targets.unsqueeze(1), 1)
+        targets = (1 - self.epsilon) * targets + self.epsilon / self.num_classes
+        loss = (-targets * log_probs).mean(0).sum()
+        return loss
+
 
 def roc_auc_compute_fn(y_pred, y_target):
     """ IGNITE.CONTRIB.METRICS.ROC_AUC """
@@ -439,7 +446,7 @@ def save_checkpoint(ckpt, is_best, file_dir, file_name='model.ckpt'):
         os.makedirs(file_dir)
     ckpt_name = "{0}{1}".format(file_dir, file_name)
     torch.save(ckpt, ckpt_name)
-    if is_best: shutil.copyfile(ckpt_name, "{0}{1}".format(file_dir, 'best_'+file_name))
+    if is_best: shutil.copyfile(ckpt_name, "{0}{1}".format(file_dir, 'best_' + file_name))
 
 
 def seed_everything(seed=2022):
@@ -450,4 +457,3 @@ def seed_everything(seed=2022):
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
     torch.backends.cudnn.deterministic = True
-
