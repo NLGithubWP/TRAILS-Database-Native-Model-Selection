@@ -88,7 +88,8 @@ batchsizeexps = [
 bars = [0.922310, 1.845, 3.689, 7.378, 14.756]
 x = [1, 2, 3, 4, 5]
 
-plot_graph(lines=batchsizeexps, bars=bars, x=x, filename='plot_batchsize.pdf',
+plot_graph(lines=batchsizeexps, bars=bars, x=x,
+           filename='./internal/ml/model_selection/exp_result/plot_batchsize.pdf',
            bar_name="GFLOPs Bar",
            marker_size=set_marker_size, line_width=set_line_width,
            font_size=set_font_size, tick_font_size=set_font_size)
@@ -109,7 +110,8 @@ channelexps = [
 bars = [ele/1000  for ele in [201.018, 800.746, 3273, 13076, 52288]]
 x = [1, 2, 3, 4, 5]
 
-plot_graph(lines=channelexps, bars=bars, x=x, filename='plot_channel.pdf',
+plot_graph(lines=channelexps, bars=bars, x=x,
+           filename='./internal/ml/model_selection/exp_result/plot_channel.pdf',
            bar_name = "Params Bar/Million",
            marker_size=set_marker_size, line_width=set_line_width,
            font_size=set_font_size, tick_font_size=set_font_size)

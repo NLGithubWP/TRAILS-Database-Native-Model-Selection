@@ -1,3 +1,4 @@
+from thop import profile
 import torch
 from src.common.constant import Config, CommonVars
 from src.common.structure import ModelAcquireData
@@ -74,12 +75,10 @@ class P1Evaluator:
         model_encoding = model_acquire.model_encoding
         new_model = self.search_space_ins.new_arch_scratch_with_default_setting(model_encoding, bn=True)
         new_model = new_model.to(self.device)
-        from thop import clever_format, profile
+
         flops, params = profile(new_model, inputs=(self.mini_batch,))
-        flops2, params2 = clever_format([flops, params], "%.3f")
         print('FLOPs = ' + str(flops / 1000 ** 3) + 'G')
         print('Params = ' + str(params / 1000 ** 2) + 'M')
-        print("origin: ", f"arch_id={3380}, B={batch_size},C={channel_size}, flops2={flops2}，params2={params2}")
 
     def _p1_evaluate_online(self, model_acquire: ModelAcquireData) -> dict:
 

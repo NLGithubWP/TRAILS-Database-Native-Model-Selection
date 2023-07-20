@@ -29,6 +29,7 @@ class ModelEvaData:
 class ModelAcquireData:
     """
     Eva worker get model from search strategy
+    The serialize/deserialize is for good scalability. The project can be decouple into multiple service
     """
 
     def __init__(self, model_id: str, model_encoding: str, is_last: bool = False):
