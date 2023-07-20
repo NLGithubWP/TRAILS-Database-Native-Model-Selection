@@ -2,6 +2,9 @@ import argparse
 
 
 def sampler_args(parser):
+    # define search space,
+    parser.add_argument('--search_space', type=str, default="nasbench201",
+                        help='[nasbench101, nasbench201, mlp_sp]')
     # EA sampler's parameters,
     parser.add_argument('--population_size', type=int, default=10, help="The learning rate for REINFORCE.")
     parser.add_argument('--sample_size', type=int, default=3, help="The momentum value for EMA.")
@@ -44,7 +47,7 @@ def mlp_trainner_args(parser):
                              'frappe: 20, uci_diabetes: 40, criteo: 10'
                              'nb101: 108, nb201: 200')
 
-    parser.add_argument('--batch_size', type=int, default=128, help='batch size')
+    parser.add_argument('--batch_size', type=int, default=32, help='batch size')
     parser.add_argument('--lr', type=float, default=0.002, help="learning reate")
     parser.add_argument('--patience', type=int, default=1, help='number of epochs for stopping training')
     # parser.add_argument('--eval_freq', type=int, default=10000, help='max number of batches to train per epoch')
@@ -132,14 +135,10 @@ def parse_arguments():
     parser.add_argument('--log_name', type=str, default="main_T_100s")
     parser.add_argument('--budget', type=int, default=100, help="in second")
 
-    # define search space,
-    parser.add_argument('--search_space', type=str, default="nasbench201",
-                        help='[nasbench101, nasbench201, mlp_sp]')
-
     # define base dir, where it stores apis, datasets, logs, etc,
     parser.add_argument('--device', type=str, default="cpu")
 
-    parser.add_argument('--log_folder', default="log_test", type=str, help='num GPus')
+    parser.add_argument('--log_folder', default="score_all_img", type=str)
 
     parser.add_argument('--result_dir', default="./internal/ml/model_selection/exp_result/", type=str,
                         help='path to store exp outputs')
