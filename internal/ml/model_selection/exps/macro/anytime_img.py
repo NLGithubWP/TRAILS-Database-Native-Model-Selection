@@ -13,7 +13,7 @@ if __name__ == "__main__":
     args = parse_arguments()
     os.environ.setdefault("base_dir", args.base_dir)
     from src.eva_engine.run_ms import RunModelSelection
-    from src.query_api.api_query import SimulateTrain
+    from src.query_api.interface import SimulateTrain
     from src.query_api.img_train_baseline import post_processing_train_base_result
     from src.utilslibs.io_tools import write_json
 

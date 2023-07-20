@@ -148,8 +148,7 @@ if __name__ == '__main__':
     from src.controller.controler import SampleController
     from src.controller.sampler_EA.regularized_ea import RegularizedEASampler
     from src.logger import logger
-    from src.query_api.query_model_performance import guess_score_time
-    from src.query_api.img_score import ImgScoreQueryApi
+    from src.query_api.query_api_img import guess_score_time, ImgScoreQueryApi
     from src.search_space.init_search_space import init_search_space
 
     set_random_seed()
