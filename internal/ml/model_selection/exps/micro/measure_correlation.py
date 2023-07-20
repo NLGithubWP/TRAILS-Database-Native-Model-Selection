@@ -14,8 +14,8 @@ def calculate_correlation(dataset, search_space, epoch_train):
     score_query = SimulateScore(space_name=search_space, dataset_name=dataset)
 
     # Get list of all model IDs that have been trained and scored
-    trained_models = acc_query.get_all_model_ids(dataset)
-    scored_models = score_query.get_all_model_ids(dataset)
+    trained_models = acc_query.query_all_model_ids(dataset)
+    scored_models = score_query.query_all_model_ids(dataset)
 
     # Find the intersection between trained_models and scored_models
     trained_scored_models = list(set(trained_models) & set(scored_models))
@@ -26,7 +26,7 @@ def calculate_correlation(dataset, search_space, epoch_train):
 
     # Populate algorithm scores and training results
     for model_id in trained_scored_models:
-        score_value = score_query.get_all_tfmem_score_res(model_id)
+        score_value = score_query.query_all_tfmem_score(model_id)
         acc, _ = acc_query.get_ground_truth(arch_id=model_id, dataset=dataset, epoch_num=epoch_train)
 
         for alg, value in score_value.items():
@@ -51,22 +51,22 @@ def calculate_correlation(dataset, search_space, epoch_train):
         print(alg, res[CommonVars.Spearman])
 
     # Get global ranks, measure correlation and print result for JACFLOW
-    if dataset in [Config.Frappe, Config.UCIDataset, Config.UCIDataset]:
-        global_rank_score = [score_query.get_score_res(model_id)['nas_wot_synflow']
-                             for model_id in trained_scored_models]
+    # if dataset in [Config.Frappe, Config.UCIDataset, Config.Criteo]:
+    global_rank_score = [score_query.query_tfmem_rank_score(model_id)['nas_wot_synflow']
+                         for model_id in trained_scored_models]
 
-        sorted_indices = np.argsort(global_rank_score)
-        sorted_ground_truth = [model_train_res_lst[i] for i in sorted_indices]
-        sorted_scores = [global_rank_score[i] for i in sorted_indices]
+    sorted_indices = np.argsort(global_rank_score)
+    sorted_ground_truth = [model_train_res_lst[i] for i in sorted_indices]
+    sorted_scores = [global_rank_score[i] for i in sorted_indices]
 
-        res = CorCoefficient.measure(sorted_scores, sorted_ground_truth)
-        print("JACFLOW", res[CommonVars.Spearman])
+    res = CorCoefficient.measure(sorted_scores, sorted_ground_truth)
+    print("JACFLOW", res[CommonVars.Spearman])
 
 
 # Call the main function
 if __name__ == "__main__":
     os.environ.setdefault("base_dir", "../exp_data")
-    from src.query_api.api_query import SimulateTrain, SimulateScore
+    from src.query_api.interface import SimulateTrain, SimulateScore
     from utilslibs.measure_tools import CorCoefficient
     from src.common.constant import CommonVars, Config
     # Criteo configuration
