@@ -44,9 +44,9 @@ if __name__ == "__main__":
     from src.eva_engine.phase1.evaluator import P1Evaluator
     from src.logger import logger
     from src.search_space.init_search_space import init_search_space
-    from src.storage.structure_data_loader import libsvm_dataloader
+    from src.dataset_utils.structure_data_loader import libsvm_dataloader
     from src.tools.io_tools import write_json, read_json
-    from src.storage import dataset
+    from src.dataset_utils import dataset
     from src.common.constant import Config, CommonVars
 
     search_space_ins = init_search_space(args)
@@ -82,7 +82,7 @@ if __name__ == "__main__":
         model_score = _evaluator.p1_evaluate(data_str)
         explored_n += 1
         result[arch_id] = model_score
-        print(f" {datetime.now()} finish arch = {arch_id}")
+        print(f" {datetime.now()} finish arch = {arch_id}, model_score = {model_score}")
         if explored_n % 100 == 0:
             print("3. [trails] Phase 1: filter phase explored " + str(explored_n)
                   + "Total explored" + str(len(result)) +

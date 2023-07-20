@@ -13,11 +13,10 @@ conda create -n "trails" python=3.8.10
 conda activate trails
 pip install -r requirement.txt 
 
-# Init env
-source init_env
+cd TRAILS
 
 # make a dir to store all results. 
-mkdir exp_data
+mkdir ../exp_data
 ```
 
 # Reproduce the results
@@ -75,7 +74,7 @@ bash internal/ml/model_selection/scripts/nas_bench_img/explore_all_models.sh
 
 The following experiment could then query filtering phase results based on `run_id`.
 
-## Reproduce Figure6
+## SLO-Aware 2Phase-MS
 
 With the above **NAS-Bench-Tabular**, we could run various experiments. 
 
@@ -95,17 +94,18 @@ python internal/ml/model_selection/exps/macro/anytime_img_draw.py
 
 ![image-20230702035554579](documents/imgs/image-20230702035554579.png)
 
-## Reproduce Table 2
-
-
-
-
+## Benchmark TFMEMs
 
 ```bash
-python exps/main_v2/analysis/4.\ measure_correlation.py
+export PYTHONPATH=$PYTHONPATH:./internal/ml/model_selection
+python ./internal/ml/model_selection/exps/micro/measure_correlation.py
 ```
 
 ![image-20230421214835152](./documents/imgs/image-20230421214835152.png)
+
+## System Motivation Experiments
+
+asdf
 
 ## Reproduce Figure7
 

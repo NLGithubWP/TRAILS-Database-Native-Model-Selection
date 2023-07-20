@@ -34,7 +34,7 @@ if __name__ == "__main__":
     from src.logger import logger
     from src.eva_engine.phase2.algo.trainer import ModelTrainer
     from src.search_space.init_search_space import init_search_space
-    from src.storage.structure_data_loader import libsvm_dataloader
+    from src.dataset_utils.structure_data_loader import libsvm_dataloader
     from utilslibs.io_tools import write_json, read_json
 
     search_space_ins = init_search_space(args)

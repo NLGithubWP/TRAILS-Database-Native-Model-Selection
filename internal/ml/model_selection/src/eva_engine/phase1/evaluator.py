@@ -3,7 +3,7 @@ from src.common.constant import Config, CommonVars
 from src.common.structure import ModelAcquireData
 from src.eva_engine import evaluator_register
 from src.query_api.interface import SimulateScore
-from src.storage import dataset
+from src.dataset_utils import dataset
 from torch.utils.data import DataLoader
 
 

@@ -15,7 +15,8 @@ from src.search_space.core.space import SpaceWrapper
 from src.search_space.mlp_api.model_params import MlpMacroCfg
 import torch.nn as nn
 from torch.utils.data import DataLoader
-import src.query_api.query_model_performance as gt_api
+from src.query_api.interface import profile_NK_trade_off
+from src.query_api.query_api_mlp import GTMLP
 
 # Useful constants
 
@@ -208,7 +209,7 @@ class MlpSpace(SpaceWrapper):
         if is_simulate:
             # todo, we use hybird here.
             # those are from the pre-calculator
-            _train_time_per_epoch = gt_api.GTMLP.get_score_one_model_time(dataset, "cpu")
+            _train_time_per_epoch = GTMLP.get_score_one_model_time(dataset, "cpu")
             score_time = _train_time_per_epoch
         else:
 
@@ -262,7 +263,7 @@ class MlpSpace(SpaceWrapper):
         if is_simulate:
             # todo, find a ideal server, and use 512 model to profile.
             # those are from the pre-calculator
-            _train_time_per_epoch = gt_api.GTMLP.get_train_one_epoch_time(dataset, device)
+            _train_time_per_epoch = GTMLP.get_train_one_epoch_time(dataset, device)
         else:
             super_net = DNNModel(
                 nfield=args.nfield,
@@ -288,7 +289,7 @@ class MlpSpace(SpaceWrapper):
         # todo: this is pre-defined by using img Dataset, suppose each epoch only train 200 iterations
         score_time_per_model = score_time
         train_time_per_epoch = _train_time_per_epoch
-        N_K_ratio = gt_api.profile_NK_trade_off(dataset)
+        N_K_ratio = profile_NK_trade_off(dataset)
         # N_K_ratio = args.kn_rate
         print(f"Profiling results:  score_time_per_model={score_time_per_model},"
                     f" train_time_per_epoch={train_time_per_epoch}")

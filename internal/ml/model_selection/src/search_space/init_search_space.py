@@ -1,7 +1,7 @@
 import os
 from src.common.constant import Config
 from src.search_space.core.space import SpaceWrapper
-from src.query_api.img_score import ImgScoreQueryApi
+from src.query_api.query_api_img import ImgScoreQueryApi
 
 
 def init_search_space(args) -> SpaceWrapper:

@@ -10,7 +10,7 @@ from src.eva_engine.phase1.algo.prune_grasp import GraspEvaluator
 from src.eva_engine.phase1.algo.prune_snip import SnipEvaluator
 from src.eva_engine.phase1.algo.prune_synflow import SynFlowEvaluator
 from src.eva_engine.phase1.algo.express_flow import ExpressFlowEvaluator
-from src.eva_engine.phase1.weight_norm import WeightNormEvaluator
+from src.eva_engine.phase1.algo.weight_norm import WeightNormEvaluator
 
 # evaluator mapper to register many existing evaluation algorithms
 evaluator_register = {

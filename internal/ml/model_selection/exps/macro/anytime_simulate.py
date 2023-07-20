@@ -60,10 +60,10 @@ if __name__ == "__main__":
     os.environ.setdefault("base_dir", args.base_dir)
 
     from src.eva_engine.run_ms import RunModelSelection
-    from src.storage import dataset
+    from src.dataset_utils import dataset
     from src.common.constant import Config
     from src.logger import logger
-    from src.storage.structure_data_loader import libsvm_dataloader
+    from src.dataset_utils.structure_data_loader import libsvm_dataloader
     from src.tools.io_tools import write_json
 
     train_loader, val_loader, test_loader, class_num = generate_data_loader()

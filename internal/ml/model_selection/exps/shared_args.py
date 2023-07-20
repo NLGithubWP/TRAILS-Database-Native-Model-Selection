@@ -1,4 +1,18 @@
 import argparse
+import os
+import random
+import numpy as np
+import torch
+
+
+def seed_everything(seed=2022):
+    ''' [reference] https://gist.github.com/KirillVladimirov/005ec7f762293d2321385580d3dbe335 '''
+    random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.backends.cudnn.deterministic = True
 
 
 def str2bool(v):
@@ -135,7 +149,7 @@ def db4nas(parser):
 
 def anytime_exp_set(parser):
     parser.add_argument('--only_phase1', default='False', type=str2bool)
-    parser.add_argument('--is_simulate', default='True', type=str2bool, help='Use pre-computed result or run online')
+    parser.add_argument('--is_simulate', default='False', type=str2bool, help='Use pre-computed result or run online')
 
 
 def parse_arguments():
@@ -173,5 +187,7 @@ def parse_arguments():
 
     # tmp
     parser.add_argument('--max_load', type=int, default=-1, help="Max Loading time")
+
+    seed_everything()
 
     return parser.parse_args()
