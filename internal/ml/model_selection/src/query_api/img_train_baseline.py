@@ -7,7 +7,7 @@ from src.utilslibs.io_tools import read_json
 
 base_dir_folder = os.environ.get("base_dir")
 if base_dir_folder is None:base_dir_folder = os.getcwd()
-base_dir = os.path.join(base_dir_folder, "result_base/result_system/simulate")
+base_dir = os.path.join(base_dir_folder, "img_data")
 
 print("gt_api running at {}".format(base_dir))
 train_base201_c10 = os.path.join(base_dir, "train_based_201_c10.json")
