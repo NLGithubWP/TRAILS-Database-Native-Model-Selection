@@ -76,7 +76,6 @@ class RunModelSelection:
         """
 
         train_loader, valid_loader, test_loader = data_loader
-        self.search_space_ins.load()
 
         logger.info("0. [trails] Begin model selection ... ")
         begin_time = time.time()
