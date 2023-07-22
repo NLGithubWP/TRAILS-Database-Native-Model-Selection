@@ -1,4 +1,3 @@
-
 from copy import copy
 
 from src.common.constant import Config
@@ -11,6 +10,29 @@ from torch.utils.data import DataLoader
 
 
 class BudgetAwareControllerSH:
+
+    @staticmethod
+    def pre_calculate_epoch_required(eta: int, max_unit_per_model: int, K: int, U: int):
+        if K == 1:
+            return U
+
+        cur_cand_num = K
+        cur_epoch = min(U, max_unit_per_model)  # Limit the current epoch to max_unit_per_model
+        total_epochs = 0
+
+        while cur_cand_num > 1 and cur_epoch < max_unit_per_model:
+            total_epochs += cur_cand_num * cur_epoch
+            # Prune models
+            cur_cand_num = int(cur_cand_num * (1 / eta))
+            # Increase the training epoch for the remaining models
+            cur_epoch = min(cur_epoch * eta, max_unit_per_model)
+
+        # If the models are fully trained and there is more than one candidate, add these final evaluations to the total
+        if cur_cand_num > 1 and cur_epoch >= max_unit_per_model:
+            total_epochs += cur_cand_num * max_unit_per_model
+
+        return total_epochs
+
     def __init__(self,
                  search_space_ins: SpaceWrapper, dataset_name: str,
                  eta, time_per_epoch,
@@ -48,7 +70,10 @@ class BudgetAwareControllerSH:
         history = []
 
         for U in U_options:
-            real_time_used = self.pre_calculate_epoch_required(K_, U) * self.time_per_epoch
+            real_time_used = \
+                BudgetAwareControllerSH.pre_calculate_epoch_required(
+                    self.eta, self.max_unit_per_model, K_, U) * self.time_per_epoch
+
             if real_time_used > fixed_time_budget:
                 break
             else:
@@ -58,106 +83,59 @@ class BudgetAwareControllerSH:
         return history[-1]
 
     def pre_calculate_time_required(self, K, U):
-        all_epoch = self.pre_calculate_epoch_required(K, U)
+        all_epoch = BudgetAwareControllerSH.pre_calculate_epoch_required(self.eta, self.max_unit_per_model, K, U)
         return all_epoch, all_epoch * self.time_per_epoch
 
-    def pre_calculate_epoch_required(self, K, U):
-        """
-        :param K: candidates lists
-        :param U: min resource each candidate needs
-        :return:
-        """
-        total_epoch_each_rounds = K * U
-        min_budget_required = 0
-        previous_epoch = None
-        while True:
-            cur_cand_num = K
-            if cur_cand_num == 1:
-                break
-            # number of each res given to each cand, pick lower bound
-            epoch_per_model = int(total_epoch_each_rounds / cur_cand_num)
-            if epoch_per_model >= self.max_unit_per_model:
-                epoch_per_model = self.max_unit_per_model
-            # evaluate each arch
-            min_budget_required += epoch_per_model * cur_cand_num
-
-            if previous_epoch is None:
-                previous_epoch = epoch_per_model
-            elif previous_epoch == epoch_per_model:
-                # which means the epoch don't increase, no need to re-evaluate each component
-                K = cur_cand_num - 1
-                continue
-
-            # sort from min to max
-            if epoch_per_model == self.max_unit_per_model:
-                # each model is fully evaluated, just return top 1
-                K = 1
-            else:
-                # only keep 1/eta, pick lower bound
-                num_keep = int(cur_cand_num * (1 / self.eta))
-                if num_keep == 0:
-                    num_keep = 1
-                K = num_keep
-        return min_budget_required
-
     def run_phase2(self, U: int, candidates_m: list) -> (str, float, float):
-        """
-        :param candidates_m: candidates lists
-        :param U: min resource each candidate needs
-        :return:
-        """
+        if len(candidates_m) == 1:
+            return candidates_m[0], U
 
-        # print(f" *********** begin BudgetAwareControllerSH with U={U}, K={len(candidates_m)} ***********")
-        candidates = copy(candidates_m)
-        total_epoch_each_rounds = len(candidates) * U
-        min_budget_required = 0
-        previous_epoch = None
-        scored_cand = None
-        while True:
-            total_score = []
+        eta = 3
+        max_unit_per_model = 20
 
-            cur_cand_num = len(candidates)
-            # number of each res given to each cand, pick lower bound
-            epoch_per_model = int(total_epoch_each_rounds / cur_cand_num)
+        cur_cand_num = len(candidates_m)
+        cur_epoch = min(U, max_unit_per_model)  # Limit the current epoch to max_unit_per_model
+        total_epochs = 0
 
-            logger.info("4. [trails] Phase 2: refinement phase, evaluating "
-                        + str(cur_cand_num) + " models, with each using "
-                        + str(epoch_per_model) + " epochs.")
+        while cur_cand_num > 1 and cur_epoch < max_unit_per_model:
+            scores = []
+            # Evaluate all models
+            for cand in candidates_m:
+                score, _ = self._evaluator.p2_evaluate(cand, cur_epoch)
+                scores.append((score, cand))
+                total_epochs += cur_epoch
 
-            if cur_cand_num == 1:
-                break
+            # Sort models based on score
+            scores.sort(reverse=True, key=lambda x: x[0])
 
-            if previous_epoch is None:
-                previous_epoch = epoch_per_model
-            elif previous_epoch == epoch_per_model:
-                # which means the epoch don't increase, no need to re-evaluate each component
-                num_keep = int(cur_cand_num * (1 / self.eta))
-                if num_keep == 0:
-                    num_keep = 1
-                candidates = [ele[0] for ele in scored_cand[-num_keep:]]
-                continue
+            # Prune models
+            cur_cand_num = int(cur_cand_num * (1 / eta))
+            candidates_m = [x[1] for x in scores[:cur_cand_num]]
 
-            if epoch_per_model >= self.max_unit_per_model:
-                epoch_per_model = self.max_unit_per_model
-            # print(f"[run]: {cur_cand_num} model left, "
-            #       f"and evaluate each model with {epoch_per_model} epoch")
-            # evaluate each arch
-            for cand in candidates:
-                score, _ = self._evaluator.p2_evaluate(cand, epoch_per_model)
-                total_score.append((cand, score))
-                min_budget_required += epoch_per_model
-            # sort from min to max
-            scored_cand = sorted(total_score, key=lambda x: x[1])
+            # Increase the training epoch for the remaining models
+            cur_epoch = min(cur_epoch * eta, max_unit_per_model)
 
-            if epoch_per_model == self.max_unit_per_model:
-                # each model is fully evaluated, just return top 1
-                candidates = [scored_cand[-1][0]]
-            else:
-                # only keep 1/eta, pick lower bound
-                num_keep = int(cur_cand_num * (1 / self.eta))
-                if num_keep == 0:
-                    num_keep = 1
-                candidates = [ele[0] for ele in scored_cand[-num_keep:]]
+        # If the models are fully trained and there is more than one candidate, select the top one
+        if cur_cand_num > 1 and cur_epoch >= max_unit_per_model:
+            scores = []
+            for cand in candidates_m:
+                score, _ = self._evaluator.p2_evaluate(cand, max_unit_per_model)
+                scores.append((score, cand))
+                total_epochs += cur_epoch
+            scores.sort(reverse=True, key=lambda x: x[0])
+            candidates_m = [scores[0][1]]
 
-        best_perform, _ = self._evaluator.p2_evaluate(candidates[0], self.max_unit_per_model)
-        return candidates[0], best_perform, min_budget_required
+        best_perform, _ = self._evaluator.p2_evaluate(candidates_m[0], self.max_unit_per_model)
+        # Return the best model and the total epochs used
+        return candidates_m[0], best_perform, total_epochs
+
+
+if __name__ == "__main__":
+    'frappe: 20, uci_diabetes: 40, criteo: 10'
+    'nb101: 108, nb201: 200'
+    k_options = [5, 10, 20, 50]
+    u_options = [1, 2, 4, 8, 16]
+    print(f"k={10}, u={8}, total_epoch = {BudgetAwareControllerSH.pre_calculate_epoch_required(3, 20, 10, 8)}")
+    for k in k_options:
+        for u in u_options:
+            print(f"k={k}, u={u}, total_epoch = {BudgetAwareControllerSH.pre_calculate_epoch_required(3, 20, k, u)}")
