@@ -3,7 +3,6 @@
 import calendar
 import os
 import time
-from distutils.util import strtobool
 from exps.shared_args import parse_arguments
 from src.tools.compute import log_scale_x_array
 
@@ -39,14 +38,14 @@ def run_with_time_budget(time_budget: float, is_simulate: bool, only_phase1: boo
     data_loader = [train_loader, val_loader, test_loader]
 
     rms = RunModelSelection(args.search_space, args, is_simulate=is_simulate)
-    best_arch, best_arch_performance, time_usage, _, _, p1_trace_highest_score, p1_trace_models_perforamnces = \
+    best_arch, best_arch_performance, time_usage, _, _, p1_trace_highest_score, p1_trace_highest_scored_models_id = \
         rms.select_model_online(
             budget=time_budget,
             data_loader=data_loader,
             only_phase1=only_phase1,
             run_workers=1)
 
-    return best_arch, best_arch_performance, time_usage, p1_trace_highest_score, p1_trace_models_perforamnces
+    return best_arch, best_arch_performance, time_usage, p1_trace_highest_score, p1_trace_highest_scored_models_id
 
 
 if __name__ == "__main__":
@@ -95,7 +94,7 @@ if __name__ == "__main__":
         for time_budget in budget_array:
             time_budget_sec = time_budget * 60
             logger.info(f"\n Running job with budget={time_budget} min \n")
-            best_arch, best_arch_performance, time_usage, p1_trace_highest_score, p1_trace_models_perforamnces = \
+            best_arch, best_arch_performance, time_usage, p1_trace_highest_score, p1_trace_highest_scored_models_id = \
                 run_with_time_budget(time_budget_sec,
                                      is_simulate=is_simulate,
                                      only_phase1=only_phase1)
