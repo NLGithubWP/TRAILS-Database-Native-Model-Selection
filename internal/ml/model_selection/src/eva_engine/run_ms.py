@@ -123,7 +123,7 @@ class RunModelSelection:
             train_loader=train_loader,
             is_simulate=self.is_simulate)
 
-        K_models, p1_trace_highest_score, p1_trace_models_perforamnces = p1_runner.run_phase1()
+        K_models, p1_trace_highest_score, p1_trace_highest_scored_models_id = p1_runner.run_phase1()
 
         logger.info("4. [trails] Begin to run phase2: refinement phase")
 
@@ -141,7 +141,7 @@ class RunModelSelection:
         # p1 ea trace
         return best_arch, best_arch_performance, \
                end_time - begin_time, B1_planed_time + B2_planed_time, B2_all_epoch, \
-               p1_trace_highest_score, p1_trace_models_perforamnces
+               p1_trace_highest_score, p1_trace_highest_scored_models_id
 
     def schedule_only(self, budget: float, data_loader: List[DataLoader],
                       only_phase1: bool = False, run_workers: int = 1):
