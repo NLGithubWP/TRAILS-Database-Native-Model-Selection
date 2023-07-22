@@ -14,7 +14,7 @@ class BudgetAwareControllerSH:
     @staticmethod
     def pre_calculate_epoch_required(eta: int, max_unit_per_model: int, K: int, U: int):
         if K == 1:
-            return U
+            return 0
 
         cur_cand_num = K
         cur_epoch = min(U, max_unit_per_model)  # Limit the current epoch to max_unit_per_model
@@ -88,10 +88,11 @@ class BudgetAwareControllerSH:
 
     def run_phase2(self, U: int, candidates_m: list) -> (str, float, float):
         if len(candidates_m) == 1:
-            return candidates_m[0], U
+            best_perform, _ = self._evaluator.p2_evaluate(candidates_m[0], self.max_unit_per_model)
+            return candidates_m[0], best_perform, 0
 
-        eta = 3
-        max_unit_per_model = 20
+        eta = self.eta
+        max_unit_per_model = self.max_unit_per_model
 
         cur_cand_num = len(candidates_m)
         cur_epoch = min(U, max_unit_per_model)  # Limit the current epoch to max_unit_per_model
@@ -108,8 +109,8 @@ class BudgetAwareControllerSH:
             # Sort models based on score
             scores.sort(reverse=True, key=lambda x: x[0])
 
-            # Prune models
-            cur_cand_num = int(cur_cand_num * (1 / eta))
+            # Prune models, at lease keep one model
+            cur_cand_num = max(int(cur_cand_num * (1 / eta)), 1)
             candidates_m = [x[1] for x in scores[:cur_cand_num]]
 
             # Increase the training epoch for the remaining models
@@ -133,7 +134,7 @@ class BudgetAwareControllerSH:
 if __name__ == "__main__":
     'frappe: 20, uci_diabetes: 40, criteo: 10'
     'nb101: 108, nb201: 200'
-    k_options = [5, 10, 20, 50]
+    k_options = [1, 2, 4, 8, 16]
     u_options = [1, 2, 4, 8, 16]
     print(f"k={10}, u={8}, total_epoch = {BudgetAwareControllerSH.pre_calculate_epoch_required(3, 20, 10, 8)}")
     for k in k_options:
