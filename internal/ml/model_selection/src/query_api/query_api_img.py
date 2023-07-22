@@ -16,7 +16,7 @@ print("local api running at {}".format(base_dir))
 # score result
 pre_score_path_101C10 = os.path.join(base_dir, "score_101_15k_c10_128.json")
 pre_score_path_201C10 = os.path.join(base_dir, "score_201_15k_c10_bs32_ic16.json")
-pre_score_path_201C100 = os.path.join(base_dir, "score_201_15k_c100_bs32_ic16.json")
+pre_score_path_201C100 = Aos.path.join(base_dir, "score_201_15k_c100_bs32_ic16.json")
 pre_score_path_201IMG = os.path.join(base_dir, "score_201_15k_imgNet_bs32_ic16.json")
 
 # training accuracy result.
@@ -26,6 +26,8 @@ gt101P = os.path.join(base_dir, "ground_truth/nasbench1_accuracy.p")
 id_to_hash_path = os.path.join(base_dir, "ground_truth/nb101_id_to_hash.json")
 
 
+# We pre-compute the time usage, and get a range,
+# Then we randomly pick one value from the range each time
 def guess_score_time(search_space_m, dataset):
     if search_space_m == Config.NB101:
         return Gt101.guess_score_time()
