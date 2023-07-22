@@ -74,7 +74,7 @@ class RunPhase1:
 
         # those two are used to track performance trace
         # current best model id
-        trace_models_perforamnces = []
+        trace_highest_scored_models_id = []
         # current highest score
         trace_highest_score = []
         explored_n = 1
@@ -97,8 +97,12 @@ class RunPhase1:
             data_str = model_acquire_data.serialize_model()
 
             # update the shared model eval res
-            model_eva.model_id = str(arch_id)
-            model_eva.model_score = self._evaluator.p1_evaluate(data_str)
+            try:
+                model_eva.model_id = str(arch_id)
+                model_eva.model_score = self._evaluator.p1_evaluate(data_str)
+            except KeyError:
+                # when it is simulate, it could be keyerror
+                continue
             logger.info("3. [trails] Phase 1: filter phase explored " + str(explored_n) +
                         " model, model_id = " + model_eva.model_id +
                         " model_scores = " + json.dumps(model_eva.model_score))
@@ -110,14 +114,14 @@ class RunPhase1:
             # this is to measure the value of metrix, sum of two value.
             if len(trace_highest_score) == 0:
                 trace_highest_score.append(ranked_score)
-                trace_models_perforamnces.append(str(arch_id))
+                trace_highest_scored_models_id.append(str(arch_id))
             else:
                 if ranked_score > trace_highest_score[-1]:
                     trace_highest_score.append(ranked_score)
-                    trace_models_perforamnces.append(str(arch_id))
+                    trace_highest_scored_models_id.append(str(arch_id))
                 else:
                     trace_highest_score.append(trace_highest_score[-1])
-                    trace_models_perforamnces.append(trace_models_perforamnces[-1])
+                    trace_highest_scored_models_id.append(trace_highest_scored_models_id[-1])
 
         # return the top K models
-        return self.sampler.get_current_top_k_models(self.K), trace_highest_score, trace_models_perforamnces
+        return self.sampler.get_current_top_k_models(self.K), trace_highest_score, trace_highest_scored_models_id
