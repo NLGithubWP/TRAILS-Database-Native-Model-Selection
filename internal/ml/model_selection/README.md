@@ -97,7 +97,7 @@ python internal/ml/model_selection/exps/macro/anytime_img_draw.py
 
 ![image-20230702035554579](documents/imgs/image-20230702035554579.png)
 
-## Micro: Benchmark TFMEMs => Which to use?
+## Micro: Benchmark TFMEMs
 
 ```bash
 export PYTHONPATH=$PYTHONPATH:./internal/ml/model_selection
@@ -106,7 +106,7 @@ python ./internal/ml/model_selection/exps/micro/benchmark_correlation.py
 
 ![image-20230421214835152](./documents/imgs/image-20230421214835152.png)
 
-## Micro: Benchmark Budge Aware Algorithm
+## Micro: Benchmark Budge-Aware Algorithm
 
 ```bash
 bash internal/ml/model_selection/scripts/micro_budget_aware_alg.sh
@@ -114,7 +114,7 @@ bash internal/ml/model_selection/scripts/micro_budget_aware_alg.sh
 
 ![image-20230421214753155](./documents/imgs/image-20230421214753155.png)
 
-## Micro: N, K, U TradeOff
+## Micro: Benchmark N, K, U 
 
 With ranking the models by ther TFMEM score in the filtering phase, we aim to determine
 
@@ -139,9 +139,13 @@ Clearly, K/N reaches 100 yields better scheduling result in both image and tabul
 
 ![image-20230722205244718](./documents/imgs/image-20230722205244718.png)
 
-
-
 ## System Motivation Experiments
+
+
+
+## Latency
+
+## Memory Usage
 
 
 
