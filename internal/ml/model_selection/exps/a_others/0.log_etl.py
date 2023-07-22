@@ -1,10 +1,10 @@
 import os
 import json
 
-from utilslibs.io_tools import write_json
+from src.tools.io_tools import write_json
 
 # this is to parse the log into the result.json
-dir = "./base_line_res_uci/Logs"
+dir = "./base_line_res_uci/logs_default"
 all_files = os.listdir(dir)
 
 

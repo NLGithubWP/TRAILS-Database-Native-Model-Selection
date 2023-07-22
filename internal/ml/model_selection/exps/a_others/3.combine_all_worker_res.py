@@ -1,6 +1,6 @@
 
 import os.path
-from utilslibs.io_tools import write_json, read_json
+from src.tools.io_tools import write_json, read_json
 import os.path
 import os
 import json

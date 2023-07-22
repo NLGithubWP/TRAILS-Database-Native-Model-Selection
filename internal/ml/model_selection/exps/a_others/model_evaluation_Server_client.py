@@ -166,7 +166,7 @@ if __name__ == "__main__":
     from third_party.sp101_lib import ModelSpec
     from third_party.sp201_lib import nasbench2
     from common.constant import Config
-    from utilslibs.io_tools import write_json
+    from src.tools.io_tools import write_json
 
     search_strategy_url = args.controller_url + "/get_model"
     mode_evaluation()
