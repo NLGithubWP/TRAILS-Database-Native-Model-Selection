@@ -109,7 +109,7 @@ def execute_single_architecture(i, sampler, local_api, run_id, current_x_time, c
 
     begin_fit = time.time()
     alg_score = {CommonVars.NAS_WOT: naswot_score, CommonVars.PRUNE_SYNFLOW: synflow_score}
-    sampler.fit_sampler(arch_id, alg_score, use_prue_score=True)
+    sampler.fit_sampler(arch_id, alg_score, simple_score_sum=True)
     fit_time = time.time() - begin_fit
 
     begin_record = time.time()

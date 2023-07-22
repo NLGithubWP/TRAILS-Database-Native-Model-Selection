@@ -65,10 +65,10 @@ def generate_and_draw_data(dataset):
         print(f"No parameters for the dataset: {dataset}")
         return
 
-    img_save_path = "./internal/ml/model_selection/exp_result/"
+    result_dir = "./internal/ml/model_selection/exp_result/"
 
     train_based_res = read_json(
-        f"{img_save_path}/res_train_base_line_{dataset}_epoch_{params['epoch']}.json")
+        f"{result_dir}/res_train_base_line_{dataset}_epoch_{params['epoch']}.json")
     sampled_train_x, sampled_train_y = sample_some_points(x_array=train_based_res["baseline_time_budget"],
                                                           y_2d_array=train_based_res["baseline_acc"],
                                                           save_points=9,
@@ -92,7 +92,7 @@ def generate_and_draw_data(dataset):
     draw_structure_data_anytime(
         all_lines=all_lines,
         dataset=params['datasetfg_name'],
-        name_img=f"{img_save_path}/anytime_{dataset}",
+        name_img=f"{result_dir}/anytime_{dataset}",
         max_value=params['mx_value'],
         figure_size=params['figure_size'],
         annotations=params['annotations'],

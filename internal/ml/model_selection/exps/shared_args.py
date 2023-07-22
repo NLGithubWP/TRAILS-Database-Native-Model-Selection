@@ -33,6 +33,8 @@ def sampler_args(parser):
     # EA sampler's parameters,
     parser.add_argument('--population_size', type=int, default=10, help="The learning rate for REINFORCE.")
     parser.add_argument('--sample_size', type=int, default=3, help="The momentum value for EMA.")
+    parser.add_argument('--simple_score_sum', default='True', type=str2bool,
+                        help="Sum multiple TFMEM score or use Global Rank")
 
 
 def space201_101_share_args(parser):
@@ -67,7 +69,7 @@ def mlp_args(parser):
 
 
 def mlp_trainner_args(parser):
-    parser.add_argument('--epoch', type=int, default=200,
+    parser.add_argument('--epoch', type=int, default=10,
                         help='number of maximum epochs, '
                              'frappe: 20, uci_diabetes: 40, criteo: 10'
                              'nb101: 108, nb201: 200')
@@ -105,7 +107,7 @@ def data_set_config(parser):
     parser.add_argument('--base_dir', type=str, default="../exp_data/",
                         help='path of data and result parent folder')
     # define search space,
-    parser.add_argument('--dataset', type=str, default='frappe',
+    parser.add_argument('--dataset', type=str, default='criteo',
                         help='cifar10, cifar100, ImageNet16-120 '
                              'frappe, criteo, uci_diabetes')
 
@@ -130,14 +132,7 @@ def dis_train_all_models(parser):
 
 # tune interval and schedule NK rate such that it can produce a good result
 def tune_interval_NK_rate(parser):
-    parser.add_argument('--kn_rate', default=100, type=int, help='num worker each gpu')
-    parser.add_argument('--saved_result',
-                        default="./internal/ml/model_selection/exp_result/res_end_2_end_criteo_100_12.json",
-                        type=str, help='num GPus')
-    parser.add_argument('--img_save_path',
-                        default="./internal/ml/model_selection/exp_result/",
-                        type=str, help='num GPus')
-    parser.add_argument('--use_prue_score', type=bool, help='num GPus')
+    parser.add_argument('--kn_rate', default=-1, type=int, help="default N/K = 100")
 
 
 # tune interval and schedule NK rate such that it can produce a good result
@@ -162,7 +157,7 @@ def parse_arguments():
     # define base dir, where it stores apis, datasets, logs, etc,
     parser.add_argument('--device', type=str, default="cpu")
 
-    parser.add_argument('--log_folder', default="score_all_img", type=str)
+    parser.add_argument('--log_folder', default="log_debug", type=str)
 
     parser.add_argument('--result_dir', default="./internal/ml/model_selection/exp_result/", type=str,
                         help='path to store exp outputs')

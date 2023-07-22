@@ -123,7 +123,7 @@ if __name__ == "__main__":
                 print(e)
                 continue
             model_eva.model_score = {"AUC": full_train_auc}
-            sampler.fit_sampler(model_eva.model_id, model_eva.model_score, use_prue_score=False)
+            sampler.fit_sampler(model_eva.model_id, model_eva.model_score, simple_score_sum=False)
 
             explored_n += 1
 
