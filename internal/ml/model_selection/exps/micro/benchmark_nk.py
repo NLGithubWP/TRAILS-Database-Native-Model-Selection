@@ -98,7 +98,7 @@ if __name__ == "__main__":
     from src.logger import logger
 
     # for this exp, we repeat 100 times and set max to 1000 mins
-    total_run = 3
+    total_run = 100
 
     rms = RunModelSelection(args.search_space, args, is_simulate=True)
 
