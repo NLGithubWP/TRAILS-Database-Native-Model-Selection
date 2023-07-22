@@ -2,9 +2,11 @@ from typing import List
 
 import numpy as np
 from matplotlib import pyplot as plt
-import matplotlib
-# import matplotlib.ticker as ticker
 from matplotlib.ticker import MaxNLocator
+import warnings
+import matplotlib.cbook
+
+warnings.filterwarnings("ignore", category=matplotlib.cbook.mplDeprecation)
 
 # lines' mark size
 set_marker_size = 15
@@ -24,8 +26,8 @@ matplotlib.rc('ytick', labelsize=set_tick_size)
 plt.rcParams['axes.labelsize'] = set_tick_size
 
 mark_list = ["o", "*", "<", "^", "s", "d", "D", ">", "h"]
-mark_size_list = [set_marker_size, set_marker_size+1, set_marker_size+1, set_marker_size,
-                  set_marker_size, set_marker_size, set_marker_size, set_marker_size+1, set_marker_size+2]
+mark_size_list = [set_marker_size, set_marker_size + 1, set_marker_size + 1, set_marker_size,
+                  set_marker_size, set_marker_size, set_marker_size, set_marker_size + 1, set_marker_size + 2]
 line_shape_list = ['-.', '--', '-', ':']
 shade_degree = 0.2
 
@@ -49,8 +51,8 @@ def Add_one_line(x_time_array: list, y_twod_budget: List[List], namespace: str, 
     y_l = np.quantile(exp, .25, axis=0)
 
     ax.plot(x_m, y_m,
-            mark_list[index-3] + line_shape_list[index],
-            label=namespace, markersize=mark_size_list[index-3])
+            mark_list[index - 3] + line_shape_list[index],
+            label=namespace, markersize=mark_size_list[index - 3])
     ax.fill_between(x_m, y_l, y_h, alpha=shade_degree)
     return x_m
 
@@ -143,7 +145,12 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 
-def plot_heatmap(data: List, fontsize: int, x_array_name: str, y_array_name: str, title: str, output_file: str, decimal_places: int):
+def plot_heatmap(data: List, fontsize: int,
+                 x_array_name: str, y_array_name: str,
+                 title: str, output_file: str,
+                 decimal_places: int,
+                 u_ticks, k_ticks,
+                 ):
     labelsize = fontsize
     # Convert the data to a NumPy array
     data_array = np.array(data)
@@ -159,7 +166,7 @@ def plot_heatmap(data: List, fontsize: int, x_array_name: str, y_array_name: str
     masked_data = np.ma.masked_array(data_array, data_array <= 0)
 
     # Set the figure size (width, height) in inches
-    fig, ax = plt.subplots(figsize=(6, 4))
+    fig, ax = plt.subplots(figsize=(8, 4))
 
     # Use the "viridis" colormap
     cmap = "viridis"
@@ -167,7 +174,7 @@ def plot_heatmap(data: List, fontsize: int, x_array_name: str, y_array_name: str
     # Create a heatmap
     sns.heatmap(masked_data, annot=annot_array, fmt='', cmap=cmap, mask=masked_data.mask, ax=ax,
                 annot_kws={"size": fontsize, "ha": "center", "va": "center"},
-                xticklabels=np.arange(1, masked_data.shape[1] + 1), yticklabels=np.arange(1, masked_data.shape[0] + 1))
+                xticklabels=u_ticks, yticklabels=k_ticks)
 
     # Set axis labels
     ax.set_xlabel(x_array_name, fontsize=fontsize)
