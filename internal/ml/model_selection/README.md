@@ -182,7 +182,7 @@ download the dataset and put it in the `exp_data/data/structure_data`
 python main.py --budget=100 --dataset=frappe
 ```
 
-Check the log at the `Logs`
+Check the log at the `logs_default`
 
 ![image-20230421220338391](./documents/imgs/image-20230421220338391.png)
 

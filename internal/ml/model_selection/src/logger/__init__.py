@@ -2,7 +2,7 @@ import logging
 import os
 
 if os.environ.get("log_logger_folder_name") == None:
-    log_logger_folder_name = "Logs"
+    log_logger_folder_name = "logs_default"
 else:
     log_logger_folder_name = os.environ.get("log_logger_folder_name")
 
