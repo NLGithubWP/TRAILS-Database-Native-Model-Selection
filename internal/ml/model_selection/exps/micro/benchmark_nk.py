@@ -106,7 +106,7 @@ if __name__ == "__main__":
     if args.dataset in [Config.c10, Config.c100, Config.imgNet]:
         budget_array = [1, 2, 4, 8, 16, 32, 64, 128]
     else:
-        budget_array = [1, 2, 4, 8, 32]
+        budget_array = [1, 2, 4, 8, 16]
     kn_rate_list = [1, 2, 4, 8, 16, 32, 64, 128, 256]
 
     # result of time_budget: value for each kn rate
