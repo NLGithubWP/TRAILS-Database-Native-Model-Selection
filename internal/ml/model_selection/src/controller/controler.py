@@ -62,8 +62,8 @@ class SampleController(object):
         # the large the index, the better the model
         self.ranked_models = []
 
-        # when use_prue_score=False, records the model's score of each algorithm,
-        # use when use_prue_score=True, record the model's sum score
+        # when simple_score_sum=False, records the model's score of each algorithm,
+        # use when simple_score_sum=True, record the model's sum score
         self.history = {}
 
     def sample_next_arch(self) -> (str, CellStructure):
@@ -73,15 +73,15 @@ class SampleController(object):
         """
         return self.search_strategy.sample_next_arch(self.ranked_models)
 
-    def fit_sampler(self, arch_id: str, alg_score: dict, use_prue_score: bool = False) -> float:
+    def fit_sampler(self, arch_id: str, alg_score: dict, simple_score_sum: bool = False) -> float:
         """
         :param arch_id:
         :param alg_score: {alg_name1: score1, alg_name2: score2}
-        :param use_prue_score: if simply sum multiple scores (good performing),
+        :param simple_score_sum: if simply sum multiple scores (good performing),
                              or sum over their rank (worse performing)
         :return:
         """
-        if use_prue_score or len(alg_score.keys()) == 1:
+        if simple_score_sum or len(alg_score.keys()) == 1:
             score = self._use_pure_score_as_final_res(arch_id, alg_score)
         else:
             score = self._use_vote_rank_as_final_res(arch_id, alg_score)

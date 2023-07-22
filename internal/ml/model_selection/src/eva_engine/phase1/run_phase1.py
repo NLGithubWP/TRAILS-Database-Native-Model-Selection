@@ -109,7 +109,7 @@ class RunPhase1:
 
             ranked_score = self.sampler.fit_sampler(model_eva.model_id,
                                                     model_eva.model_score,
-                                                    use_prue_score=self.args.use_prue_score)
+                                                    simple_score_sum=self.args.simple_score_sum)
 
             # this is to measure the value of metrix, sum of two value.
             if len(trace_highest_score) == 0:

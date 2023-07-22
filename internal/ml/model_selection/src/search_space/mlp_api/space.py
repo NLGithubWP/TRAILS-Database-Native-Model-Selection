@@ -207,9 +207,10 @@ class MlpSpace(SpaceWrapper):
         device = args.device
 
         if is_simulate:
+            gtmlp = GTMLP(dataset)
             # todo, we use hybird here.
             # those are from the pre-calculator
-            _train_time_per_epoch = GTMLP.get_score_one_model_time(dataset, "cpu")
+            _train_time_per_epoch = gtmlp.get_score_one_model_time("cpu")
             score_time = _train_time_per_epoch
         else:
 
@@ -261,9 +262,10 @@ class MlpSpace(SpaceWrapper):
             del super_net
 
         if is_simulate:
+            gtmlp = GTMLP(dataset)
             # todo, find a ideal server, and use 512 model to profile.
             # those are from the pre-calculator
-            _train_time_per_epoch = GTMLP.get_train_one_epoch_time(dataset, device)
+            _train_time_per_epoch = gtmlp.get_train_one_epoch_time(device)
         else:
             super_net = DNNModel(
                 nfield=args.nfield,
@@ -289,13 +291,15 @@ class MlpSpace(SpaceWrapper):
         # todo: this is pre-defined by using img Dataset, suppose each epoch only train 200 iterations
         score_time_per_model = score_time
         train_time_per_epoch = _train_time_per_epoch
-        N_K_ratio = profile_NK_trade_off(dataset)
-        # N_K_ratio = args.kn_rate
+        if args.kn_rate != -1:
+            n_k_ratio = args.kn_rate
+        else:
+            n_k_ratio = profile_NK_trade_off(dataset)
         print(f"Profiling results:  score_time_per_model={score_time_per_model},"
                     f" train_time_per_epoch={train_time_per_epoch}")
         logger.info(f"Profiling results:  score_time_per_model={score_time_per_model},"
                     f" train_time_per_epoch={train_time_per_epoch}")
-        return score_time_per_model, train_time_per_epoch, N_K_ratio
+        return score_time_per_model, train_time_per_epoch, n_k_ratio
 
     def micro_to_id(self, arch_struct: ModelMicroCfg) -> str:
         assert isinstance(arch_struct, MlpMicroCfg)

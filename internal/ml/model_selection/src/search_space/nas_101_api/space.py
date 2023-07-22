@@ -7,7 +7,6 @@ import ConfigSpace
 import numpy as np
 
 from src.common.constant import Config
-from src.query_api.img_score import ImgScoreQueryApi
 from src.search_space.core.model_params import ModelMicroCfg, ModelMacroCfg
 from src.search_space.core.space import SpaceWrapper
 from src.third_pkg.sp101_lib import nb101_api
@@ -15,7 +14,8 @@ from src.third_pkg.sp101_lib.model import NasBench101Network
 from src.third_pkg.sp101_lib.nb101_api import ModelSpec
 from src.search_space.nas_101_api.model_params import NB101MacroCfg
 from src.search_space.nas_101_api.rl_policy import RLPolicy101Topology
-import src.query_api.query_model_performance as gt_api
+from src.query_api.query_api_img import ImgScoreQueryApi, guess_train_one_epoch_time, guess_score_time
+from src.query_api.interface import profile_NK_trade_off
 from torch.utils.data import DataLoader
 from typing import Generator
 
@@ -111,9 +111,9 @@ class NasBench101Space(SpaceWrapper):
     def profiling(self, dataset: str,
                   train_loader: DataLoader = None, val_loader: DataLoader = None,
                   args=None, is_simulate: bool = False) -> (float, float, int):
-        score_time_per_model = gt_api.guess_score_time(self.name, dataset)
-        train_time_per_epoch = gt_api.guess_train_one_epoch_time(self.name, dataset)
-        N_K_ratio = gt_api.profile_NK_trade_off(dataset)
+        score_time_per_model = guess_score_time(self.name, dataset)
+        train_time_per_epoch = guess_train_one_epoch_time(self.name, dataset)
+        N_K_ratio = profile_NK_trade_off(dataset)
         return score_time_per_model, train_time_per_epoch, N_K_ratio
 
     def micro_to_id(self, arch_struct: ModelMicroCfg) -> str:
