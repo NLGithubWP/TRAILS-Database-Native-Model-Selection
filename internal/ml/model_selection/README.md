@@ -58,7 +58,7 @@ bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_crit
    2. We score all models in NB201 and 28K models in NB101.
    3. We search with  EA + Score and record the searching process in terms of
        `run_id,  current_explored_model, top_400 highest scored model, time_usage` 
-    to SQLLite.
+        to SQLLite.
 
 ```python
 # 1. Record NASBENCH API data into json file
@@ -97,14 +97,49 @@ python internal/ml/model_selection/exps/macro/anytime_img_draw.py
 
 ![image-20230702035554579](documents/imgs/image-20230702035554579.png)
 
-## Benchmark TFMEMs
+## Micro: Benchmark TFMEMs => Which to use?
 
 ```bash
 export PYTHONPATH=$PYTHONPATH:./internal/ml/model_selection
-python ./internal/ml/model_selection/exps/micro/measure_correlation.py
+python ./internal/ml/model_selection/exps/micro/benchmark_correlation.py
 ```
 
 ![image-20230421214835152](./documents/imgs/image-20230421214835152.png)
+
+## Micro: Benchmark Budge Aware Algorithm
+
+```bash
+bash internal/ml/model_selection/scripts/micro_budget_aware_alg.sh
+```
+
+![image-20230421214753155](./documents/imgs/image-20230421214753155.png)
+
+## Micro: N, K, U TradeOff
+
+With ranking the models by ther TFMEM score in the filtering phase, we aim to determine
+
+1. Further examinng more models  (**K**) with each going through less training epoch (**U**) is more easier to find good model?
+   or examine less but each training more epochs?
+2. How many models to explore (**N**) and how many to keep (**K**) ?
+
+```bash
+bash internal/ml/model_selection/scripts/micro_nku_tradeoff.sh
+```
+
+This is the experimental result conducted at the UCI Diabetes datasets.
+Clearly,  expore more models in refinement phase (large **K** ) is more helpful to find the a better model. 
+Although increasing **U** can find a better model accurately, it runs more training epochs leading to higher training cost. 
+
+![image-20230722202555763](./documents/imgs/image-20230722202555763.png)
+
+Then we fix **U=1** for cost efficiency and determine N/K for higher searching effectiveness. 
+Clearly, K/N reaches 100 yields better scheduling result in both image and tabular dataset, thus, we set **N/K=100** in coordinator. 
+
+![image-20230421214807878](./documents/imgs/image-20230421214807878.png)
+
+![image-20230722205244718](./documents/imgs/image-20230722205244718.png)
+
+
 
 ## System Motivation Experiments
 
@@ -129,28 +164,6 @@ python exps/main_v2/analysis/6.draw_IDMS_dataloading.py
 ```
 
 ![image-20230702035639502](documents/imgs/image-20230702035639502.png)
-
-## Reproduce Figure9
-
-```bash
-# generate results
-python main/4_system/analysis/2_benchmarking/1_micro_phase2.py
-# draw with the following cmd
-python main/4_system/analysis/2_benchmarking/1_micro_phase2_only_draw.py
-```
-
-![image-20230421214753155](./documents/imgs/image-20230421214753155.png)
-
-## Reproduce Figure 10
-
-```bash
-# draw results with the following:
-python main/4_system/analysis/1_sys_design/plot_1.py
-python main/4_system/analysis/1_sys_design/plot_2.py
-```
-
-![image-20230421214807878](./documents/imgs/image-20230421214807878.png)
-
 # Baselines
 
 We compare with Training-Based MS, TabNAS, and Training-Free ms etc. 
