@@ -83,17 +83,17 @@ if __name__ == "__main__":
     from src.logger import logger
 
     # for this exp, we repeat 100 times and set max to 1000 mins
-    total_run = 50
+    total_run = 100
 
     rms = RunModelSelection(args.search_space, args, is_simulate=True)
 
     # Fix budget to 100 mins and only use phase1, try differetn K and U
     if args.dataset in [Config.c10, Config.c100, Config.imgNet]:
-        budget_array = [5]
+        budget_array = [6]
         k_options = [2, 4, 8, 16]
         u_options = [1, 4, 16, 64, 200]
     else:
-        budget_array = [100]
+        budget_array = [300]
         k_options = [2, 4, 8, 16]
         u_options = [1, 2, 4, 8, 16]
 
