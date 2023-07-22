@@ -40,25 +40,26 @@ class P1Evaluator:
         self.score_getter = None
 
         # get one mini batch
-        if self.dataset_name in [Config.c10, Config.c100, Config.imgNet]:
-            # for img data
-            self.mini_batch, self.mini_batch_targets = dataset.get_mini_batch(
-                dataloader=self.train_loader,
-                sample_alg="random",
-                batch_size=32,
-                num_classes=self.num_labels)
-            self.mini_batch.to(self.device)
-            self.mini_batch_targets.to(self.device)
-        elif self.dataset_name in [Config.Criteo, Config.Frappe, Config.UCIDataset]:
-            # this is structure data
-            batch = iter(self.train_loader).__next__()
-            target = batch['y'].type(torch.LongTensor).to(self.device)
-            batch['id'] = batch['id'].to(self.device)
-            batch['value'] = batch['value'].to(self.device)
-            self.mini_batch = batch
-            self.mini_batch_targets = target.to(self.device)
-        else:
-            raise NotImplementedError
+        if not self.is_simulate:
+            if self.dataset_name in [Config.c10, Config.c100, Config.imgNet]:
+                # for img data
+                self.mini_batch, self.mini_batch_targets = dataset.get_mini_batch(
+                    dataloader=self.train_loader,
+                    sample_alg="random",
+                    batch_size=32,
+                    num_classes=self.num_labels)
+                self.mini_batch.to(self.device)
+                self.mini_batch_targets.to(self.device)
+            elif self.dataset_name in [Config.Criteo, Config.Frappe, Config.UCIDataset]:
+                # this is structure data
+                batch = iter(self.train_loader).__next__()
+                target = batch['y'].type(torch.LongTensor).to(self.device)
+                batch['id'] = batch['id'].to(self.device)
+                batch['value'] = batch['value'].to(self.device)
+                self.mini_batch = batch
+                self.mini_batch_targets = target.to(self.device)
+            else:
+                raise NotImplementedError
 
     def p1_evaluate(self, data_str: str) -> dict:
         """
