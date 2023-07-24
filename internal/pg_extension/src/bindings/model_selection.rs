@@ -16,18 +16,22 @@ static PY_MODULE: Lazy<Py<PyModule>> = Lazy::new(|| {
 });
 
 
-pub fn filtering_phase(
-    task: &serde_json::Value,
+/*
+ * @param parameters: the task parameter
+ * @param function_name: the name of the python function
+ */
+pub fn run_python_function(
+    parameters: &String,
+    function_name: &str
 ) -> serde_json::Value {
-    let task = serde_json::to_string(task).unwrap();
-    println!("{}", task);
+    let parameters_str = parameters.to_string();
     let results = Python::with_gil(|py| -> String {
-        let print_hell: Py<PyAny> = PY_MODULE.getattr(py, "filtering_phase").unwrap().into();
-        let result = print_hell.call1(
+        let run_script: Py<PyAny> = PY_MODULE.getattr(py, function_name).unwrap().into();
+        let result = run_script.call1(
             py,
             PyTuple::new(
                 py,
-                &[task.into_py(py)],
+                &[parameters_str.into_py(py)],
             ),
         );
         let result = match result {
@@ -40,6 +44,40 @@ pub fn filtering_phase(
         };
         result
     });
+
     serde_json::from_str(&results).unwrap()
+}
+
+
+/*
+ * @param mini_batch: mini_batch of data. Assume all columns are string type in
+ * libsvm codding
+ */
+pub fn filtering_phase(
+    task: &String
+) -> serde_json::Value {
+    run_python_function(task,"filtering_phase")
+}
+
+
+/*
+ * @param mini_batch: mini_batch of data. Assume all columns are string type in
+ * libsvm codding
+ */
+pub fn profiling_filtering_phase(
+    task: &String
+) -> serde_json::Value {
+    run_python_function(task,"profiling_filtering_phase")
+}
+
+
+/*
+ * @param mini_batch: mini_batch of data. Assume all columns are string type in
+ * libsvm codding
+ */
+pub fn profiling_refinement_phase(
+    task: &String
+) -> serde_json::Value {
+    run_python_function(task, "profiling_refinement_phase")
 }
 

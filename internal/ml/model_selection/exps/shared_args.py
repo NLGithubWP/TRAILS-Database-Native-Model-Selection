@@ -107,7 +107,7 @@ def data_set_config(parser):
     parser.add_argument('--base_dir', type=str, default="../exp_data/",
                         help='path of data and result parent folder')
     # define search space,
-    parser.add_argument('--dataset', type=str, default='criteo',
+    parser.add_argument('--dataset', type=str, default='frappe',
                         help='cifar10, cifar100, ImageNet16-120 '
                              'frappe, criteo, uci_diabetes')
 

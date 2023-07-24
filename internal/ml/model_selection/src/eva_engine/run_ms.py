@@ -8,6 +8,7 @@ from torch.utils.data import DataLoader
 from src.eva_engine.phase2.run_sh import BudgetAwareControllerSH
 from src.logger import logger
 from src.search_space.init_search_space import init_search_space
+from src.query_api.interface import profile_NK_trade_off
 
 
 class RunModelSelection:
@@ -77,7 +78,7 @@ class RunModelSelection:
 
         train_loader, valid_loader, test_loader = data_loader
 
-        logger.info("0. [trails] Begin model selection ... ")
+        logger.info(f"0. [trails] Begin model selection, is_simulate={self.is_simulate} ... ")
         begin_time = time.time()
 
         logger.info("1. [trails] Begin profiling.")
@@ -192,3 +193,57 @@ class RunModelSelection:
                                                                                      only_phase1)
 
         return N
+
+    #############################################
+    # to support in-database model selection
+    #############################################
+
+    def profile_filtering(self, data_loader: List[DataLoader], ):
+        train_loader, valid_loader, test_loader = data_loader
+        score_time_per_model = self.search_space_ins.profiling_score_time(
+            self.dataset,
+            train_loader,
+            valid_loader,
+            self.args,
+            is_simulate=self.is_simulate)
+        return score_time_per_model
+
+    def profile_refinement(self, data_loader: List[DataLoader], ):
+        train_loader, valid_loader, test_loader = data_loader
+        train_time_per_epoch = self.search_space_ins.profiling_train_time(
+            self.dataset,
+            train_loader,
+            valid_loader,
+            self.args,
+            is_simulate=self.is_simulate)
+        return train_time_per_epoch
+
+    def coordination(self):
+        n_k_ratio = profile_NK_trade_off(self.dataset)
+        pass
+
+    def filtering_phase(self, N, K, train_loader):
+        p1_runner = RunPhase1(
+            args=self.args,
+            K=K, N=N,
+            search_space_ins=self.search_space_ins,
+            train_loader=train_loader,
+            is_simulate=self.is_simulate)
+
+        k_models, all_models, p1_trace_highest_score, p1_trace_highest_scored_models_id \
+            = p1_runner.run_phase1()
+        return k_models
+
+    def refinement_phase(self, U, k_models, train_loader, valid_loader, train_time_per_epoch, ):
+        self.sh = BudgetAwareControllerSH(
+            search_space_ins=self.search_space_ins,
+            dataset_name=self.dataset,
+            eta=self.eta,
+            time_per_epoch=train_time_per_epoch,
+            is_simulate=self.is_simulate,
+            train_loader=train_loader,
+            val_loader=valid_loader,
+            args=self.args)
+        best_arch, best_arch_performance, B2_actual_epoch_use = self.sh.run_phase2(U, k_models)
+
+        return best_arch, best_arch_performance

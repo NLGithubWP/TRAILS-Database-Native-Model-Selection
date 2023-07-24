@@ -85,6 +85,17 @@ class NasBench201Space(SpaceWrapper):
         arch_id = self.api.query_index_by_arch(arch_struct.cell_struct)
         return str(arch_id)
 
+    def profiling_score_time(
+            self, dataset: str,
+            train_loader: DataLoader = None, val_loader: DataLoader = None,
+            args=None, is_simulate: bool = False):
+        return guess_score_time(self.name, dataset)
+
+    def profiling_train_time(self, dataset: str,
+                             train_loader: DataLoader = None, val_loader: DataLoader = None,
+                             args=None, is_simulate: bool = False):
+        return guess_train_one_epoch_time(self.name, dataset)
+
     def profiling(self, dataset: str,
                   train_loader: DataLoader = None, val_loader: DataLoader = None,
                   args=None, is_simulate: bool = False) -> (float, float, int):

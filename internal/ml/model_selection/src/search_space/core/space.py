@@ -142,3 +142,33 @@ class SpaceWrapper:
         :return:
         """
         raise NotImplementedError
+
+    """In-RDBMS Helper Functions"""
+
+    def profiling_score_time(self, dataset: str, train_loader: DataLoader = None, val_loader: DataLoader = None,
+                             args=None, is_simulate: bool = False) -> float:
+        """
+        Profile the scoring time.
+        Args:
+            dataset:
+            train_loader:
+            val_loader
+            args:
+            is_simulate:
+        Returns:
+        """
+        raise NotImplementedError
+
+    def profiling_train_time(self, dataset: str, train_loader: DataLoader = None, val_loader: DataLoader = None,
+                             args=None, is_simulate: bool = False) -> float:
+        """
+        Profile the training time.
+        Args:
+            dataset:
+            train_loader:
+            val_loader
+            args:
+            is_simulate:
+        Returns:
+        """
+        raise NotImplementedError

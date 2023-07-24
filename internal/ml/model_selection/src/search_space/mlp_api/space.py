@@ -199,6 +199,104 @@ class MlpSpace(SpaceWrapper):
         model_micro = MlpSpace.deserialize_model_encoding(model_encoding)
         return MlpSpace.new_arch_scratch(self.model_cfg, model_micro, bn)
 
+    def profiling_score_time(
+            self, dataset: str,
+                  train_loader: DataLoader = None, val_loader: DataLoader = None,
+                  args=None, is_simulate: bool = False):
+        assert isinstance(self.model_cfg, MlpMacroCfg)
+
+        device = "cpu"
+        if is_simulate:
+            gtmlp = GTMLP(dataset)
+            # todo, we use hybird here.
+            # those are from the pre-calculator
+            _train_time_per_epoch = gtmlp.get_score_one_model_time("cpu")
+            score_time = _train_time_per_epoch
+        else:
+
+            # get a random batch.
+            batch = iter(train_loader).__next__()
+            target = batch['y'].type(torch.LongTensor)
+            batch['id'] = batch['id'].to(device)
+            batch['value'] = batch['value'].to(device)
+            target = target.to(device)
+            # .reshape(target.shape[0], self.model_cfg.num_labels).
+
+            # pick the largest net to train
+            super_net = DNNModel(
+                nfield=args.nfield,
+                nfeat=args.nfeat,
+                nemb=args.nemb,
+                hidden_layer_list=[DEFAULT_LAYER_CHOICES_20[-1]] * self.model_cfg.num_layers,
+                dropout_rate=0,
+                noutput=self.model_cfg.num_labels).to(device)
+
+            # measure score time,
+            score_time_begin = time.time()
+            naswot_score, _ = evaluator_register[CommonVars.NAS_WOT].evaluate_wrapper(
+                arch=super_net,
+                device=device,
+                batch_data=batch,
+                batch_labels=target)
+
+            # re-init hte net
+            del super_net
+            super_net = DNNModel(
+                nfield=args.nfield,
+                nfeat=args.nfeat,
+                nemb=args.nemb,
+                hidden_layer_list=[DEFAULT_LAYER_CHOICES_20[-1]] * self.model_cfg.num_layers,
+                dropout_rate=0,
+                noutput=self.model_cfg.num_labels,
+                use_bn=False).to(device)
+
+            synflow_score, _ = evaluator_register[CommonVars.PRUNE_SYNFLOW].evaluate_wrapper(
+                arch=super_net,
+                device=device,
+                batch_data=batch,
+                batch_labels=target)
+
+            score_time = time.time() - score_time_begin
+
+            # re-init hte net
+            del super_net
+        return score_time
+
+    def profiling_train_time(self, dataset: str,
+                  train_loader: DataLoader = None, val_loader: DataLoader = None,
+                  args=None, is_simulate: bool = False):
+
+        device = args.device
+
+        if is_simulate:
+            gtmlp = GTMLP(dataset)
+            # todo, find a ideal server, and use 512 model to profile.
+            # those are from the pre-calculator
+            _train_time_per_epoch = gtmlp.get_train_one_epoch_time(device)
+        else:
+            super_net = DNNModel(
+                nfield=args.nfield,
+                nfeat=args.nfeat,
+                nemb=args.nemb,
+                hidden_layer_list=[DEFAULT_LAYER_CHOICES_20[-1]] * self.model_cfg.num_layers,
+                dropout_rate=0,
+                noutput=self.model_cfg.num_labels).to(device)
+            # only train for ony iteratin to evaluat the time usage.
+            targs = copy.deepcopy(args)
+            targs.iter_per_epoch = 1
+            valid_auc, train_time_iter, train_log = ModelTrainer.fully_train_arch(
+                model=super_net,
+                use_test_acc=False,
+                epoch_num=1,
+                train_loader=train_loader,
+                val_loader=val_loader,
+                test_loader=val_loader,
+                args=targs)
+            del super_net
+            _train_time_per_epoch = train_time_iter * args.iter_per_epoch
+
+        return _train_time_per_epoch
+
     def profiling(self, dataset: str,
                   train_loader: DataLoader = None, val_loader: DataLoader = None,
                   args=None, is_simulate: bool = False) -> (float, float, int):

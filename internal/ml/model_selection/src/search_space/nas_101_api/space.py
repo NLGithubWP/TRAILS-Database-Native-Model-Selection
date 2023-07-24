@@ -19,7 +19,6 @@ from src.query_api.interface import profile_NK_trade_off
 from torch.utils.data import DataLoader
 from typing import Generator
 
-
 # Useful constants
 INPUT = 'input'
 OUTPUT = 'output'
@@ -52,7 +51,6 @@ class NB101MicroCfg(ModelMicroCfg):
 
 
 class NasBench101Space(SpaceWrapper):
-
     api = None
 
     def __init__(self, api_loc: str, modelCfg: NB101MacroCfg, loapi: ImgScoreQueryApi):
@@ -115,6 +113,17 @@ class NasBench101Space(SpaceWrapper):
         train_time_per_epoch = guess_train_one_epoch_time(self.name, dataset)
         N_K_ratio = profile_NK_trade_off(dataset)
         return score_time_per_model, train_time_per_epoch, N_K_ratio
+
+    def profiling_score_time(
+            self, dataset: str,
+            train_loader: DataLoader = None, val_loader: DataLoader = None,
+            args=None, is_simulate: bool = False):
+        return guess_score_time(self.name, dataset)
+
+    def profiling_train_time(self, dataset: str,
+                             train_loader: DataLoader = None, val_loader: DataLoader = None,
+                             args=None, is_simulate: bool = False):
+        return guess_train_one_epoch_time(self.name, dataset)
 
     def micro_to_id(self, arch_struct: ModelMicroCfg) -> str:
         assert isinstance(arch_struct, NB101MicroCfg)
@@ -243,4 +252,3 @@ class NasBench101Space(SpaceWrapper):
         labeling = ['input'] + list(labeling) + ['output']
         model_spec = ModelSpec(matrix, labeling)
         return model_spec
-

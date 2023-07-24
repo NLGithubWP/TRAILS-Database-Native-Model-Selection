@@ -1,70 +1,185 @@
+import calendar
+import os
+import time
+from exps.shared_args import parse_arguments
 
-
-
+import json
+from typing import List, Dict
+import torch
+from torch.utils.data import Dataset
+import traceback
 import orjson
 
-def filtering_phase(a: str):
-    import orjson
+
+def exception_catcher(func):
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            return orjson.dumps(
+                {"Errored": traceback.format_exc()}).decode('utf-8')
+
+    return wrapper
+
+
+class LibsvmDataset(Dataset):
+    """ Dataset loader for Libsvm data format """
+
+    @staticmethod
+    def decode_libsvm(columns):
+        map_func = lambda pair: (int(pair[0]), float(pair[1]))
+        id, value = zip(*map(lambda col: map_func(col.split(':')), columns[:-1]))
+        sample = {'id': torch.LongTensor(id),
+                  'value': torch.FloatTensor(value),
+                  'y': float(columns[-1])}
+        return sample
+
+    @staticmethod
+    def pre_processing(mini_batch_data: List[Dict]):
+        sample_lines = len(mini_batch_data)
+        nfields = 3
+        feat_id = torch.LongTensor(sample_lines, nfields)
+        feat_value = torch.FloatTensor(sample_lines, nfields)
+        y = torch.FloatTensor(sample_lines)
+
+        for i in range(sample_lines):
+            row_value = mini_batch_data[i].values()
+            sample = LibsvmDataset.decode_libsvm(list(row_value))
+            feat_id[i] = sample['id']
+            feat_value[i] = sample['value']
+            y[i] = sample['y']
+        return feat_id, feat_value, y, sample_lines
+
+    def __init__(self, mini_batch_data: List[Dict]):
+        self.feat_id, self.feat_value, self.y, self.nsamples = \
+            LibsvmDataset.pre_processing(mini_batch_data)
+
+    def __len__(self):
+        return self.nsamples
+
+    def __getitem__(self, idx):
+        return {'id': self.feat_id[idx],
+                'value': self.feat_value[idx],
+                'y': self.y[idx]}
+
+
+@exception_catcher
+def filtering_phase(mini_batch_m: str):
+    # define dataLoader, and sample a mini-batch
+
+    args = parse_arguments()
+    gmt = time.gmtime()
+    ts = calendar.timegm(gmt)
+    args.log_name = "score_based_all_metrics"
+    args.search_space = "mlp_sp"
+    args.num_labels = 2
+    args.device = "cpu"
+    args.batch_size = 8
+    args.dataset = "frappe"
+    args.base_dir = "/project/TRAILS/exp_data/"
+    args.result_dir = "/project/TRAILS/internal/ml/model_selection/exp_result/"
+
+    os.environ.setdefault("log_logger_folder_name", "/project/TRAILS/log_score_time_frappe")
+    os.environ.setdefault("log_file_name", args.log_name + "_" + str(ts) + ".log")
+    os.environ.setdefault("base_dir", args.base_dir)
+
+    from src.logger import logger
+    from src.eva_engine.run_ms import RunModelSelection
+
+    logger.info(f"begin run filtering phase at {os.getcwd()}")
+    mini_batch_data = json.loads(mini_batch_m)
+
+    dataloader = LibsvmDataset(mini_batch_data)
+    data_loader = [dataloader, dataloader, dataloader]
+
+    rms = RunModelSelection(args.search_space, args, is_simulate=True)
+    best_arch, best_arch_performance, time_usage, _, _, _, p1_trace_highest_score, p1_trace_highest_scored_models_id = \
+        rms.select_model_online(
+            budget=2,
+            data_loader=data_loader,
+            only_phase1=True,
+            run_workers=1)
+
+    # mini_batch_data = mini_batch.decode('utf-8')
     return orjson.dumps(
-        {"data": "adsf" + a,
-         "types": "adsf"}).decode('utf-8')
+        {"best_arch": best_arch,
+         "best_arch_performance": best_arch_performance,
+         "time_usage": time_usage,
+         "p1_trace_highest_score": p1_trace_highest_score,
+         "p1_trace_highest_scored_models_id": p1_trace_highest_scored_models_id,
+         }).decode('utf-8')
 
 
-#
-# # this is the main function of model selection.
-#
-# import calendar
-# import os
-# import time
-# from src.common.constant import Config
-# from src.dataset_utils.structure_data_loader import libsvm_dataloader
-# from exps.shared_args import parse_arguments
-# args = parse_arguments()
-#
-# # set the log name
-# gmt = time.gmtime()
-# ts = calendar.timegm(gmt)
-# os.environ.setdefault("log_file_name", args.log_name + "_" + str(ts) + ".log")
-# os.environ.setdefault("base_dir", args.base_dir)
-#
-# from src.eva_engine.run_ms import RunModelSelection
-# from src.dataset_utils import dataset
-#
-#
-#
-#
-# def filtering_phase(a: str):
-#     import orjson
-#     return orjson.dumps(
-#         {"data": "adsf",
-#          "types": "adsf"}).decode('utf-8')
-#
-#
-# def refinement_phase():
-#     pass
-#
-#
-# def coordinator():
-#     pass
-#
-#
-# def generate_data_loader():
-#     if args.dataset in [Config.c10, Config.c100, Config.imgNet]:
-#         train_loader, val_loader, class_num = dataset.get_dataloader(
-#             train_batch_size=args.batch_size,
-#             test_batch_size=args.batch_size,
-#             dataset=args.dataset,
-#             num_workers=1,
-#             datadir=os.path.join(args.base_dir, "data"))
-#         test_loader = val_loader
-#     else:
-#         train_loader, val_loader, test_loader = libsvm_dataloader(
-#             args=args,
-#             data_dir=os.path.join(args.base_dir, "data", "structure_data", args.dataset),
-#             nfield=args.nfield,
-#             batch_size=args.batch_size)
-#         class_num = args.num_labels
-#
-#     return train_loader, val_loader, test_loader, class_num
-#
-#
+@exception_catcher
+def profiling_filtering_phase(mini_batch_m: str):
+    # define dataLoader, and sample a mini-batch
+
+    args = parse_arguments()
+    gmt = time.gmtime()
+    ts = calendar.timegm(gmt)
+    args.log_name = "score_based_all_metrics"
+    args.search_space = "mlp_sp"
+    args.num_labels = 2
+    args.device = "cpu"
+    args.batch_size = 8
+    args.dataset = "frappe"
+    args.base_dir = "/project/TRAILS/exp_data/"
+    args.result_dir = "/project/TRAILS/internal/ml/model_selection/exp_result/"
+
+    os.environ.setdefault("log_logger_folder_name", "/project/TRAILS/log_score_time_frappe")
+    os.environ.setdefault("log_file_name", args.log_name + "_" + str(ts) + ".log")
+    os.environ.setdefault("base_dir", args.base_dir)
+
+    from src.logger import logger
+    from src.eva_engine.run_ms import RunModelSelection
+
+    logger.info(f"begin run filtering phase at {os.getcwd()}")
+    mini_batch_data = json.loads(mini_batch_m)
+
+    dataloader = LibsvmDataset(mini_batch_data)
+    data_loader = [dataloader, dataloader, dataloader]
+
+    rms = RunModelSelection(args.search_space, args, is_simulate=True)
+    score_time_per_model = rms.profile_filtering(data_loader=data_loader)
+
+    # mini_batch_data = mini_batch.decode('utf-8')
+    return orjson.dumps(
+        {"time": score_time_per_model}).decode('utf-8')
+
+
+@exception_catcher
+def profiling_refinement_phase(mini_batch_m: str):
+    # define dataLoader, and sample a mini-batch
+
+    args = parse_arguments()
+    gmt = time.gmtime()
+    ts = calendar.timegm(gmt)
+    args.log_name = "score_based_all_metrics"
+    args.search_space = "mlp_sp"
+    args.num_labels = 2
+    args.device = "cpu"
+    args.batch_size = 8
+    args.dataset = "frappe"
+    args.base_dir = "/project/TRAILS/exp_data/"
+    args.result_dir = "/project/TRAILS/internal/ml/model_selection/exp_result/"
+
+    os.environ.setdefault("log_logger_folder_name", "/project/TRAILS/log_score_time_frappe")
+    os.environ.setdefault("log_file_name", args.log_name + "_" + str(ts) + ".log")
+    os.environ.setdefault("base_dir", args.base_dir)
+
+    from src.logger import logger
+    from src.eva_engine.run_ms import RunModelSelection
+
+    logger.info(f"begin run filtering phase at {os.getcwd()}")
+    mini_batch_data = json.loads(mini_batch_m)
+
+    dataloader = LibsvmDataset(mini_batch_data)
+    data_loader = [dataloader, dataloader, dataloader]
+
+    rms = RunModelSelection(args.search_space, args, is_simulate=True)
+    train_time_per_epoch = rms.profile_refinement(data_loader=data_loader)
+
+    # mini_batch_data = mini_batch.decode('utf-8')
+    return orjson.dumps(
+        {"time": train_time_per_epoch}).decode('utf-8')
+
