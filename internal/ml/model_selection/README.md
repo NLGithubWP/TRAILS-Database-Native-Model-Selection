@@ -6,8 +6,6 @@
 
 [TOC]
 
-
-
 # Config Environments
 
 ```bash
@@ -116,7 +114,7 @@ python ./internal/ml/model_selection/exps/micro/benchmark_correlation.py
 bash internal/ml/model_selection/scripts/micro_budget_aware_alg.sh
 ```
 
-![image-20230421214753155](./documents/imgs/image-20230421214753155.png)
+![image-20230724111659545](./documents/imgs/image-20230724111659545.png)
 
 ## Micro: Benchmark N, K, U 
 
@@ -139,7 +137,7 @@ Although increasing **U** can find a better model accurately, it runs more train
 Then we fix **U=1** for cost efficiency and determine N/K for higher searching effectiveness. 
 Clearly, K/N reaches 100 yields better scheduling result in both image and tabular dataset, thus, we set **N/K=100** in coordinator. 
 
-![image-20230421214807878](./documents/imgs/image-20230421214807878.png)
+![image-20230724111325368](./documents/imgs/image-20230724111325368.png)
 
 ![image-20230722205244718](./documents/imgs/image-20230722205244718.png)
 
@@ -148,6 +146,8 @@ Clearly, K/N reaches 100 yields better scheduling result in both image and tabul
 
 
 ## Latency
+
+
 
 ## Memory Usage
 

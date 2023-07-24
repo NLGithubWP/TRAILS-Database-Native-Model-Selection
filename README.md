@@ -2,7 +2,9 @@
 
 # TRAILS: A Database Native Model Selection System
 
-![image-20230702035806963](documents/imgs/image-20230702035806963.png)
+![image-20230702035806963](internal/ml/model_selection/documents/imgs/image-20230702035806963.png)
+
+[TOC]
 
 # Config Environments
 
@@ -58,7 +60,7 @@ bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_crit
    2. We score all models in NB201 and 28K models in NB101.
    3. We search with  EA + Score and record the searching process in terms of
        `run_id,  current_explored_model, top_400 highest scored model, time_usage`
-    to SQLLite.
+        to SQLLite.
 
 ```python
 # 1. Record NASBENCH API data into json file
@@ -70,6 +72,9 @@ bash internal/ml/model_selection/scripts/nas_bench_img/score_all_models.sh
 
 # 3. Explore with EA ans score result and store exploring process into SQLLite
 bash internal/ml/model_selection/scripts/nas_bench_img/explore_all_models.sh
+
+# 4. Generate the baseline.
+bash internal/ml/model_selection/scripts/baseline_system_img.sh
 ```
 
 The following experiment could then query filtering phase results based on `run_id`.
@@ -92,20 +97,61 @@ python internal/ml/model_selection/exps/macro/anytime_tab_draw.py
 python internal/ml/model_selection/exps/macro/anytime_img_draw.py
 ```
 
-![image-20230702035554579](documents/imgs/image-20230702035554579.png)
+![image-20230702035554579](internal/ml/model_selection/documents/imgs/image-20230702035554579.png)
 
-## Benchmark TFMEMs
+## Micro: Benchmark TFMEMs
 
 ```bash
 export PYTHONPATH=$PYTHONPATH:./internal/ml/model_selection
-python ./internal/ml/model_selection/exps/micro/measure_correlation.py
+python ./internal/ml/model_selection/exps/micro/benchmark_correlation.py
 ```
 
-![image-20230421214835152](./documents/imgs/image-20230421214835152.png)
+![image-20230421214835152](./internal/ml/model_selection/documents/imgs/image-20230421214835152.png)
+
+## Micro: Benchmark Budge-Aware Algorithm
+
+```bash
+bash internal/ml/model_selection/scripts/micro_budget_aware_alg.sh
+```
+
+![image-20230724111659545](./internal/ml/model_selection/documents/imgs/image-20230724111659545.png)
+
+## Micro: Benchmark N, K, U
+
+With ranking the models by ther TFMEM score in the filtering phase, we aim to determine
+
+1. Further examinng more models  (**K**) with each going through less training epoch (**U**) is more easier to find good model?
+   or examine less but each training more epochs?
+2. How many models to explore (**N**) and how many to keep (**K**) ?
+
+```bash
+bash internal/ml/model_selection/scripts/micro_nku_tradeoff.sh
+```
+
+This is the experimental result conducted at the UCI Diabetes datasets.
+Clearly,  expore more models in refinement phase (large **K** ) is more helpful to find the a better model.
+Although increasing **U** can find a better model accurately, it runs more training epochs leading to higher training cost.
+
+![image-20230722202555763](./internal/ml/model_selection/documents/imgs/image-20230722202555763.png)
+
+Then we fix **U=1** for cost efficiency and determine N/K for higher searching effectiveness.
+Clearly, K/N reaches 100 yields better scheduling result in both image and tabular dataset, thus, we set **N/K=100** in coordinator.
+
+![image-20230724111325368](./internal/ml/model_selection/documents/imgs/image-20230724111325368.png)
+
+![image-20230722205244718](./internal/ml/model_selection/documents/imgs/image-20230722205244718.png)
 
 ## System Motivation Experiments
 
-asdf
+
+
+## Latency
+
+
+
+## Memory Usage
+
+
 
 ## Reproduce Figure7
 
@@ -114,7 +160,7 @@ python exps/main_v2/analysis/2.\ cost_draw.py
 python exps/main_v2/analysis/3.\ cost_train_based.py
 ```
 
-![image-20230702035622198](documents/imgs/image-20230702035622198.png)
+![image-20230702035622198](internal/ml/model_selection/documents/imgs/image-20230702035622198.png)
 
 ## Reproduce Figure8
 
@@ -125,29 +171,12 @@ python exps/main_v2/analysis/5.draw_IDMS_var_workloads.py
 python exps/main_v2/analysis/6.draw_IDMS_dataloading.py
 ```
 
-![image-20230702035639502](documents/imgs/image-20230702035639502.png)
+![image-20230702035639502](internal/ml/model_selection/documents/imgs/image-20230702035639502.png)
+# Baselines
 
-## Reproduce Figure9
+We compare with Training-Based MS, TabNAS, and Training-Free ms etc.
 
-```bash
-# generate results
-python main/4_system/analysis/2_benchmarking/1_micro_phase2.py
-# draw with the following cmd
-python main/4_system/analysis/2_benchmarking/1_micro_phase2_only_draw.py
-```
-
-![image-20230421214753155](./documents/imgs/image-20230421214753155.png)
-
-## Reproduce Figure 10
-
-```bash
-# draw results with the following:
-python main/4_system/analysis/1_sys_design/plot_1.py
-python main/4_system/analysis/1_sys_design/plot_2.py
-```
-
-![image-20230421214807878](./documents/imgs/image-20230421214807878.png)
-
+For image data, it already generated at the NAS-Bench-Img part, see above.
 
 # Run end2end model selection
 
@@ -157,9 +186,9 @@ download the dataset and put it in the `exp_data/data/structure_data`
 python main.py --budget=100 --dataset=frappe
 ```
 
-Check the log at the `Logs`
+Check the log at the `logs_default`
 
-![image-20230421220338391](./documents/imgs/image-20230421220338391.png)
+![image-20230421220338391](./internal/ml/model_selection/documents/imgs/image-20230421220338391.png)
 
-![image-20230421220443231](./documents/imgs/image-20230421220443231.png)
+![image-20230421220443231](./internal/ml/model_selection/documents/imgs/image-20230421220443231.png)
 
