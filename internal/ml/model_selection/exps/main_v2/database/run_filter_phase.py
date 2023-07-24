@@ -39,7 +39,6 @@ if __name__ == "__main__":
     os.environ.setdefault("log_file_name", args.log_name + "_" + str(ts) + ".log")
     os.environ.setdefault("base_dir", args.base_dir)
 
-    from eva_engine.phase1.run_phase1 import RunPhase1
     from search_space.init_search_space import init_search_space
     from storage import dataset
     from common.constant import Config
@@ -74,7 +73,6 @@ if __name__ == "__main__":
     #     train_loader=train_loader,
     #     is_simulate=True)
     #
-    # K_models = p1_runner.run_phase1()
     #
     # result = {
     #     "models": K_models,

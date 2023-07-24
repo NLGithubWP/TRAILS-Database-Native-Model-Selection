@@ -66,7 +66,7 @@ class RunPhase1:
                                       train_loader=train_loader,
                                       is_simulate=is_simulate)
 
-    def run_phase1(self) -> (list, list):
+    def run_phase1(self) -> (list, list, list, list):
         """
         Controller explore n models, and return the top K models.
         :return:
@@ -124,4 +124,5 @@ class RunPhase1:
                     trace_highest_scored_models_id.append(trace_highest_scored_models_id[-1])
 
         # return the top K models
-        return self.sampler.get_current_top_k_models(self.K), trace_highest_score, trace_highest_scored_models_id
+        return self.sampler.get_current_top_k_models(self.K), self.sampler.get_current_top_k_models(-1), \
+               trace_highest_score, trace_highest_scored_models_id

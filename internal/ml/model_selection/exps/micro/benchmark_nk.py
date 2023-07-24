@@ -13,7 +13,7 @@ def run_with_time_budget(time_budget: float, only_phase1: bool):
     :return:
     """
 
-    best_arch, best_arch_performance, time_usage, _, _, p1_trace_highest_score, p1_trace_highest_scored_models_id = \
+    best_arch, best_arch_performance, time_usage, _, _, _, p1_trace_highest_score, p1_trace_highest_scored_models_id = \
         rms.select_model_online(
             budget=time_budget,
             data_loader=[None, None, None],

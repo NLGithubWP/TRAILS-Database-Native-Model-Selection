@@ -40,7 +40,7 @@ def run_with_time_budget(time_budget: float):
     data_loader = [train_loader, val_loader, test_loader]
 
     rms = RunModelSelection(args.search_space, args, is_simulate=True)
-    best_arch, best_arch_performance, _, _, _, _, _ = rms.select_model_online(
+    best_arch, best_arch_performance, _, _, _, _, _, _ = rms.select_model_online(
         budget=time_budget,
         data_loader=data_loader,
         only_phase1=False,

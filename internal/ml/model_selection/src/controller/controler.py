@@ -139,14 +139,17 @@ class SampleController(object):
         new_rank_score = model_new_rank_score[model_id]
         return new_rank_score
 
-    def get_current_top_k_models(self, k=10):
+    def get_current_top_k_models(self, k=-1):
         """
         The model is already scored by: low -> high
         :param k:
         :return:
         """
-        # return [ele.model_id for ele in self.vote_score[-k:]]
-        return self.ranked_models[-k:]
+        if k == -1:
+            # retur all models
+            return self.ranked_models
+        else:
+            return self.ranked_models[-k:]
 
 
 if __name__ == "__main__":

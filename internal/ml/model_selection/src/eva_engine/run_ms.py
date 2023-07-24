@@ -55,11 +55,11 @@ class RunModelSelection:
         print(f"Budget = {budget}, N={N}, K={K}")
 
         # 2. run phase 1 to score N models
-        K_models, B1_actual_time_use = p1_evaluate_query(self.search_space_name, self.dataset, run_id, N, K)
+        k_models, B1_actual_time_use = p1_evaluate_query(self.search_space_name, self.dataset, run_id, N, K)
 
         # 3. run phase-2 to determine the final model
-        best_arch, best_arch_performance, B2_actual_epoch_use = self.sh.run_phase2(U, K_models)
-        # print("best model returned from Phase2 = ", K_models)
+        best_arch, best_arch_performance, B2_actual_epoch_use = self.sh.run_phase2(U, k_models)
+        # print("best model returned from Phase2 = ", k_models)
 
         return best_arch, B1_actual_time_use + B2_actual_epoch_use * train_time_per_epoch, \
                B1_planed_time + B2_planed_time, B2_all_epoch
@@ -123,25 +123,27 @@ class RunModelSelection:
             train_loader=train_loader,
             is_simulate=self.is_simulate)
 
-        K_models, p1_trace_highest_score, p1_trace_highest_scored_models_id = p1_runner.run_phase1()
+        k_models, all_models, p1_trace_highest_score, p1_trace_highest_scored_models_id \
+            = p1_runner.run_phase1()
 
         logger.info("4. [trails] Begin to run phase2: refinement phase")
 
         # 3. run phase-2 to determine the final model
-        best_arch, best_arch_performance, B2_actual_epoch_use = self.sh.run_phase2(U, K_models)
-        # print("best model returned from Phase2 = ", K_models)
+        best_arch, best_arch_performance, B2_actual_epoch_use = self.sh.run_phase2(U, k_models)
+        # print("best model returned from Phase2 = ", k_models)
         end_time = time.time()
-
-        logger.info("5.  [trails] Real time Usage = " + str(end_time - begin_time)
+        real_time_usage = end_time - begin_time
+        planned_time_usage = B1_planed_time + B2_planed_time
+        logger.info("5.  [trails] Real time Usage = " + str(real_time_usage)
                     + ", Final selected model = " + str(best_arch)
-                    + ", planned time usage = " + str(B1_planed_time + B2_planed_time)
+                    + ", planned time usage = " + str(planned_time_usage)
                     )
         # best arch returned,
         # time usage, epoch trained,
         # p1 ea trace
         return best_arch, best_arch_performance, \
-               end_time - begin_time, B1_planed_time + B2_planed_time, B2_all_epoch, \
-               p1_trace_highest_score, p1_trace_highest_scored_models_id
+               real_time_usage, planned_time_usage, B2_all_epoch, \
+               all_models, p1_trace_highest_score, p1_trace_highest_scored_models_id
 
     def schedule_only(self, budget: float, data_loader: List[DataLoader],
                       only_phase1: bool = False, run_workers: int = 1):

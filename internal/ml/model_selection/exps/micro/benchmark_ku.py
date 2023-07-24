@@ -13,7 +13,7 @@ def run_with_time_budget(time_budget: float, only_phase1: bool):
     :return:
     """
 
-    best_arch, best_arch_performance, time_usage, _, _, p1_trace_highest_score, p1_trace_highest_scored_models_id = \
+    best_arch, best_arch_performance, time_usage, _, _, all_models, p1_trace_highest_score, p1_trace_highest_scored_models_id = \
         rms.select_model_online(
             budget=time_budget,
             data_loader=[None, None, None],
@@ -21,7 +21,7 @@ def run_with_time_budget(time_budget: float, only_phase1: bool):
             run_workers=1)
 
     return best_arch, best_arch_performance, time_usage, \
-           p1_trace_highest_score, p1_trace_highest_scored_models_id
+           all_models, p1_trace_highest_score, p1_trace_highest_scored_models_id
 
 
 def select_top_k_items(list_m, k):
@@ -83,7 +83,7 @@ if __name__ == "__main__":
     from src.logger import logger
 
     # for this exp, we repeat 100 times and set max to 1000 mins
-    total_run = 100
+    total_run = 20
 
     rms = RunModelSelection(args.search_space, args, is_simulate=True)
 
@@ -109,14 +109,16 @@ if __name__ == "__main__":
         for time_budget in budget_array:
             time_budget_sec = time_budget * 60
             logger.info(f"\n Running job with budget={time_budget} min \n")
-            best_arch, best_arch_performance, time_usage, p1_trace_highest_score, p1_trace_highest_scored_models_id = \
+            best_arch, best_arch_performance, time_usage, \
+            all_models, p1_trace_highest_score, p1_trace_highest_scored_models_id = \
                 run_with_time_budget(time_budget_sec, only_phase1=True)
 
             # try various K, U to decide the second phase.
             for k in k_options:
                 # select top K
-                print(f"After exploring {len(p1_trace_highest_scored_models_id)} models, total unique models are {len(set(p1_trace_highest_scored_models_id))}")
-                top_k_models = select_top_k_items(p1_trace_highest_scored_models_id, k)
+                print(
+                    f"After exploring {len(p1_trace_highest_scored_models_id)} models, total unique models are {len(set(p1_trace_highest_scored_models_id))}")
+                top_k_models = select_top_k_items(all_models, k)
                 for u in u_options:
                     p2_best_arch, p2_best_arch_performance, p2_actual_epoch_use = \
                         rms.sh.run_phase2(u, top_k_models)
@@ -144,4 +146,3 @@ if __name__ == "__main__":
     p = Process(target=draw_graph, args=(scaled_data, two_d_epoch, u_options, k_options, args.dataset))
     p.start()
     p.join()
-
