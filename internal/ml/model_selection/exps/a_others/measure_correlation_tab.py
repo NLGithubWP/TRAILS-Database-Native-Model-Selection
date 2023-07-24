@@ -2,7 +2,7 @@ import os
 
 from src.common.constant import CommonVars
 from src.tools.io_tools import read_json
-from src.tools.measure_tools import CorCoefficient
+from src.tools.correlation import CorCoefficient
 import numpy as np
 
 # Criteo

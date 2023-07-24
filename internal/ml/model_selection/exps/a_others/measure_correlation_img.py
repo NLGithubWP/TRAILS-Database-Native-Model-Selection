@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 
 from exps.main_v1.statistic_lib import sort_update_with_batch_average, get_rank_after_sort, \
     sort_update_with_batch_average_hlm, sort_update
-from src.tools.measure_tools import CorCoefficient
+from src.tools.correlation import CorCoefficient
 from query_api.query_model_gt_acc_api import Gt101
 
 

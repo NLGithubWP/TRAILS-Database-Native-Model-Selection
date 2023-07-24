@@ -67,7 +67,7 @@ def calculate_correlation(dataset, search_space, epoch_train):
 if __name__ == "__main__":
     os.environ.setdefault("base_dir", "../exp_data")
     from src.query_api.interface import SimulateTrain, SimulateScore
-    from src.tools.measure_tools import CorCoefficient
+    from src.tools.correlation import CorCoefficient
     from src.common.constant import CommonVars, Config
 
     # NB101 + C10
