@@ -71,7 +71,7 @@ def schedule(dataset: str, sh: BudgetAwareControllerSH, T_: float, t1_: float, t
                 f' [trails] Only p1, Budget {T_} is too small, it\'s at least >= {time_used} with current worker, '
                 f'{t1_}, {t2_}, eta')
 
-    # Calculate phase 2
+    # Calculate phase 2, start from min U, if user given budget is larger enough, then evaluat each mode with more epoch
     else:
         # record all possible K, U pair meeting the SLO ( time used < T)
         for K_ in range(2, min(int(T_ / t1_), K_max) + 1):
