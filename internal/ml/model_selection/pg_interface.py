@@ -6,7 +6,7 @@ import orjson
 def filtering_phase(a: str):
     import orjson
     return orjson.dumps(
-        {"data": "adsf",
+        {"data": "adsf" + a,
          "types": "adsf"}).decode('utf-8')
 
 
