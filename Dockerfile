@@ -43,14 +43,18 @@ RUN mkdir /project && \
 
 # Switch to the postgres user and run rdbms
 USER postgres
-ENV PATH="/root/.cargo/bin:${PATH}"
-WORKDIR /project
 
-COPY ./requirement.txt ./requirement.txt
-RUN pip install -r requirement.txt
+# Set environment variables for Rust and Python
+ENV PATH="/root/.cargo/bin:${PATH}"
+ENV PYTHONPATH="${PYTHONPATH}:/project/TRAILS/internal/ml/model_selec"
+ENV PYTHONPATH="${PYTHONPATH}:/project/TRAILS/internal/ml/model_selection"
 
 # Set environment variables for PostgreSQL
 ENV PGDATA /var/lib/postgresql/data
+
+WORKDIR /project
+COPY ./requirement.txt ./requirement.txt
+RUN pip install -r requirement.txt
 
 # Initialize PostgreSQL data directory
 RUN mkdir -p ${PGDATA} && chown -R postgres:postgres ${PGDATA} && \
