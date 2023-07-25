@@ -374,7 +374,7 @@ class MlpSpace(SpaceWrapper):
                 noutput=self.model_cfg.num_labels).to(device)
             # only train for ony iteratin to evaluat the time usage.
             targs = copy.deepcopy(args)
-            targs.iter_per_epoch = 1
+            targs.iter_per_epoch = 10
             valid_auc, train_time_iter, train_log = ModelTrainer.fully_train_arch(
                model=super_net,
                use_test_acc=False,
@@ -384,7 +384,7 @@ class MlpSpace(SpaceWrapper):
                test_loader=val_loader,
                args=targs)
             del super_net
-            _train_time_per_epoch = train_time_iter * args.iter_per_epoch
+            _train_time_per_epoch = train_time_iter * args.iter_per_epoch / 10
 
         # todo: this is pre-defined by using img Dataset, suppose each epoch only train 200 iterations
         score_time_per_model = score_time
