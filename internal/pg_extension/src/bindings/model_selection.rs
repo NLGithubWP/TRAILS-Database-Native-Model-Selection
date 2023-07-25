@@ -1,10 +1,12 @@
-
 use log::error;
 use once_cell::sync::Lazy;
 use pyo3::prelude::*;
 use pyo3::types::PyTuple;
 
 
+/*
+ Python Module Path
+ */
 static PY_MODULE: Lazy<Py<PyModule>> = Lazy::new(|| {
     Python::with_gil(|py| -> Py<PyModule> {
         let src = include_str!(concat!(
@@ -17,12 +19,13 @@ static PY_MODULE: Lazy<Py<PyModule>> = Lazy::new(|| {
 
 
 /*
+ * Rust Call Python,
  * @param parameters: the task parameter
  * @param function_name: the name of the python function
  */
 pub fn run_python_function(
     parameters: &String,
-    function_name: &str
+    function_name: &str,
 ) -> serde_json::Value {
     let parameters_str = parameters.to_string();
     let results = Python::with_gil(|py| -> String {
@@ -49,31 +52,20 @@ pub fn run_python_function(
 }
 
 
-/*
- * @param mini_batch: mini_batch of data. Assume all columns are string type in
- * libsvm codding
- */
 pub fn profiling_filtering_phase(
     task: &String
 ) -> serde_json::Value {
-    run_python_function(task,"profiling_filtering_phase")
+    run_python_function(task, "profiling_filtering_phase")
 }
 
 
-/*
- * @param mini_batch: mini_batch of data. Assume all columns are string type in
- * libsvm codding
- */
 pub fn profiling_refinement_phase(
     task: &String
 ) -> serde_json::Value {
     run_python_function(task, "profiling_refinement_phase")
 }
 
-/*
- * @param mini_batch: mini_batch of data. Assume all columns are string type in
- * libsvm codding
- */
+
 pub fn coordinator(
     task: &String
 ) -> serde_json::Value {
@@ -81,24 +73,16 @@ pub fn coordinator(
 }
 
 
-/*
- * @param mini_batch: mini_batch of data. Assume all columns are string type in
- * libsvm codding
- */
 pub fn filtering_phase(
     task: &String
 ) -> serde_json::Value {
-    run_python_function(task,"filtering_phase")
+    run_python_function(task, "filtering_phase")
 }
 
-/*
- * @param mini_batch: mini_batch of data. Assume all columns are string type in
- * libsvm codding
- */
-pub fn refinement_phase(
-) -> serde_json::Value {
-    let task = "refinement_phase".to_string();;
-    run_python_function(&task,"refinement_phase")
+
+pub fn refinement_phase() -> serde_json::Value {
+    let task = "refinement_phase".to_string();
+    run_python_function(&task, "refinement_phase")
 }
 
 
