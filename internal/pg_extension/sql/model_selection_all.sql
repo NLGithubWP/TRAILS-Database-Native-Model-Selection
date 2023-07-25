@@ -1,7 +1,7 @@
 
 
 CREATE OR REPLACE
-PROCEDURE model_selection_sp(
+PROCEDURE model_selection_end2end(
     dataset TEXT,               --dataset name
     selected_columns TEXT[],    --used columns
     budget TEXT,                --user given time budget

@@ -130,11 +130,16 @@ CREATE EXTENSION pg_extension;
 
 # test if the UDF is there or not
 SELECT *  FROM pg_proc  WHERE proname = 'coordinator';
-SELECT coordinator('0.0211558125', '5.122203075885773', '3330', false, '/project/TRAILS/internal/ml/model_selection/config.ini');
+SELECT coordinator('0.08244', '168.830156', '800', false, '/project/TRAILS/internal/ml/model_selection/config.ini');
 
 # this is database name, columns used, time budget, batch size, and config file
-CALL model_selection_sp('dummy', ARRAY['col1', 'col2', 'col3', 'label'], '100', 32, '/project/TRAILS/internal/ml/model_selection/config.ini');
-                
+CALL model_selection_sp('dummy', ARRAY['col1', 'col2', 'col3', 'label'], '1000', 32, '/project/TRAILS/internal/ml/model_selection/config.ini');
+
+
+# end2end model selection
+CALL model_selection_end2end('dummy', ARRAY['col1', 'col2', 'col3', 'label'], '1000', '/project/TRAILS/internal/ml/model_selection/config.ini');
+
+
 ```
 
 # Container log
