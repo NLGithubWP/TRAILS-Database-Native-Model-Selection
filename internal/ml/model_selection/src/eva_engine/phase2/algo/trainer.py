@@ -118,6 +118,7 @@ class ModelTrainer:
             # if suer set this, then only train fix number of iteras
             # stop training current epoch for evaluation
             if namespace == 'train' and iter_per_epoch is not None and batch_idx >= iter_per_epoch:
+                logger.info(f"Traing Iteration {batch_idx} > iter_per_epoch = {iter_per_epoch}, breakout")
                 break
 
             target = batch['y'].type(torch.LongTensor).to(args.device)
