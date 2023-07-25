@@ -99,6 +99,7 @@ class BudgetAwareControllerSH:
         total_epochs = 0
 
         while cur_cand_num > 1 and cur_epoch < max_unit_per_model:
+            logger.info(f"4. [trails] Running phase2: train {len(candidates_m)} models each with {cur_epoch} epochs")
             scores = []
             # Evaluate all models
             for cand in candidates_m:
@@ -118,6 +119,7 @@ class BudgetAwareControllerSH:
 
         # If the models are fully trained and there is more than one candidate, select the top one
         if cur_cand_num > 1 and cur_epoch >= max_unit_per_model:
+            logger.info(f"4. [trails] Running phase2: train {len(candidates_m)} models each with {max_unit_per_model} epochs")
             scores = []
             for cand in candidates_m:
                 score, _ = self._evaluator.p2_evaluate(cand, max_unit_per_model)
