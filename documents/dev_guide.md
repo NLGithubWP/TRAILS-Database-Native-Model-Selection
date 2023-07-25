@@ -45,7 +45,7 @@ CREATE EXTENSION my_extension;
 SELECT hello_my_extension();=
 ```
 
-# mac locally
+# MAC locally
 ```bash
 conda activate firmest38
 export PYTHON_SYS_EXECUTABLE=/Users/kevin/opt/anaconda3/envs/firmest38/bin/python
@@ -67,42 +67,9 @@ chmod -R 777 internal/pg_extension
 chmod -R 777 TRAILS
 ```
 
-# Dev
+# Develop
 
-## 1. Ensure the pyhton modules called in the UDF can find
-```bash
-export PYTHONPATH=$PYTHONPATH:/project/TRAILS/internal/ml/model_selection
-```
-
-## 2. Compile
-
-In shell
-
-```bash
-cd internal/pg_extension/
-cargo clean
-rm -r /usr/lib/postgresql/14/lib/pg_extension.so
-cargo pgrx run
-```
-
-In SQL
-
-```sql
-DROP EXTENSION IF EXISTS pg_extension;
-CREATE EXTENSION pg_extension;
-```
-
-## 3. Run it
-```sql
-CREATE EXTENSION pg_extension;
-
-SELECT coordinator('0.5', '0.8', '2', true);
-
-
-CALL model_selection_sp('dummy', ARRAY['col1', 'col2', 'col3', 'label'], '20');
-```
-
-# Data generate
+## Create dummy data
 
 ```sql
 CREATE TABLE dummy (
@@ -128,9 +95,46 @@ SELECT '123:123', '123:123', '123:123', '123:123', '123:123', '123:123', '123:12
        END
 FROM generate_series(1,5000);
 
-
 select * from dummy limit 10;
 
+```
+
+## 1. Compile
+
+In shell
+
+```bash
+cd internal/pg_extension/
+cargo clean
+rm -r /usr/lib/postgresql/14/lib/pg_extension.so
+cargo pgrx run
+```
+
+In SQL
+
+```sql
+DROP EXTENSION IF EXISTS pg_extension;
+CREATE EXTENSION pg_extension;
+```
+
+## 2. Edit the config file
+
+Update the `nfield` in the `config.ini` file, it is == number of columns used.
+
+E.g, `ARRAY['col1', 'col2', 'col3', 'label']`  => `nfield` = 3
+
+## 3. Run it
+
+```sql
+CREATE EXTENSION pg_extension;
+
+# test if the UDF is there or not
+SELECT *  FROM pg_proc  WHERE proname = 'coordinator';
+SELECT coordinator('0.0211558125', '5.122203075885773', '3330', false, '/project/TRAILS/internal/ml/model_selection/config.ini');
+
+# this is database name, columns used, time budget, batch size, and config file
+CALL model_selection_sp('dummy', ARRAY['col1', 'col2', 'col3', 'label'], '100', 32, '/project/TRAILS/internal/ml/model_selection/config.ini');
+                
 ```
 
 # Container log

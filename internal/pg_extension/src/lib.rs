@@ -65,7 +65,7 @@ pub fn coordinator(time_score: String, time_train: String, time_budget: String, 
 #[allow(unused_variables)]
 pub fn filtering_phase(mini_batch: String, n: i32, k: i32, config_file: String) -> String {
     let mut task_map = HashMap::new();
-    task_map.insert("mini_batch_m", mini_batch);
+    task_map.insert("mini_batch", mini_batch);
     task_map.insert("n", n.to_string());
     task_map.insert("k", k.to_string());
     task_map.insert("config_file", config_file);

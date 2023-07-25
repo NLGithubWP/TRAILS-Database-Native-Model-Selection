@@ -5,7 +5,7 @@ import time
 import json
 from typing import List, Dict
 import torch
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, DataLoader
 import traceback
 import orjson
 import argparse
@@ -127,7 +127,7 @@ class LibsvmDataset(Dataset):
     @staticmethod
     def pre_processing(mini_batch_data: List[Dict]):
         sample_lines = len(mini_batch_data)
-        nfields = 3
+        nfields = len(mini_batch_data[0].keys()) - 1
         feat_id = torch.LongTensor(sample_lines, nfields)
         feat_value = torch.FloatTensor(sample_lines, nfields)
         y = torch.FloatTensor(sample_lines)
@@ -154,24 +154,10 @@ class LibsvmDataset(Dataset):
 
 
 @exception_catcher
-def model_selection(mini_batch_m: str):
+def model_selection(params: dict, args: Namespace):
     # define dataLoader, and sample a mini-batch
 
-    args = parse_config_arguments()
-    gmt = time.gmtime()
-    ts = calendar.timegm(gmt)
-    args.log_name = "score_based_all_metrics"
-    args.search_space = "mlp_sp"
-    args.num_labels = 2
-    args.device = "cpu"
-    args.batch_size = 8
-    args.dataset = "frappe"
-    args.base_dir = "/project/exp_data/"
-    args.result_dir = "/project/TRAILS/internal/ml/model_selection/exp_result/"
-
-    os.environ.setdefault("log_logger_folder_name", "/project/TRAILS/log_score_time_frappe")
-    os.environ.setdefault("log_file_name", args.log_name + "_" + str(ts) + ".log")
-    os.environ.setdefault("base_dir", args.base_dir)
+    mini_batch_m = params["mini_batch"]
 
     from src.logger import logger
     from src.eva_engine.run_ms import RunModelSelection
@@ -179,10 +165,13 @@ def model_selection(mini_batch_m: str):
     logger.info(f"begin run filtering phase at {os.getcwd()}")
     mini_batch_data = json.loads(mini_batch_m)
 
-    dataloader = LibsvmDataset(mini_batch_data)
+    dataloader = DataLoader(LibsvmDataset(mini_batch_data),
+                            batch_size=args.batch_size,
+                            shuffle=True)
+
     data_loader = [dataloader, dataloader, dataloader]
 
-    rms = RunModelSelection(args.search_space, args, is_simulate=True)
+    rms = RunModelSelection(args.search_space, args, is_simulate=args.is_simulate)
     best_arch, best_arch_performance, time_usage, _, _, _, p1_trace_highest_score, p1_trace_highest_scored_models_id = \
         rms.select_model_online(
             budget=2,
@@ -212,10 +201,12 @@ def profiling_filtering_phase(params: dict, args: Namespace):
     logger.info(f"begin run filtering phase at {os.getcwd()}, with {mini_batch_m}")
 
     mini_batch_data = json.loads(mini_batch_m)
-    dataloader = LibsvmDataset(mini_batch_data)
+    dataloader = DataLoader(LibsvmDataset(mini_batch_data),
+                            batch_size=args.batch_size,
+                            shuffle=True)
     data_loader = [dataloader, dataloader, dataloader]
 
-    rms = RunModelSelection(args.search_space, args, is_simulate=True)
+    rms = RunModelSelection(args.search_space, args, is_simulate=args.is_simulate)
     score_time_per_model = rms.profile_filtering(data_loader=data_loader)
 
     return orjson.dumps({"time": score_time_per_model}).decode('utf-8')
@@ -233,10 +224,12 @@ def profiling_refinement_phase(params: dict, args: Namespace):
     logger.info(f"begin run refinement phase at {os.getcwd()}")
     mini_batch_data = json.loads(mini_batch_m)
 
-    dataloader = LibsvmDataset(mini_batch_data)
+    dataloader = DataLoader(LibsvmDataset(mini_batch_data),
+                            batch_size=args.batch_size,
+                            shuffle=True)
     data_loader = [dataloader, dataloader, dataloader]
 
-    rms = RunModelSelection(args.search_space, args, is_simulate=True)
+    rms = RunModelSelection(args.search_space, args, is_simulate=args.is_simulate)
     train_time_per_epoch = rms.profile_refinement(data_loader=data_loader)
 
     # mini_batch_data = mini_batch.decode('utf-8')
@@ -258,7 +251,7 @@ def coordinator(params: dict, args: Namespace):
                 f"train_time_per_epoch={train_time_per_epoch}, "
                 f"only_phase1={only_phase1}")
 
-    rms = RunModelSelection(args.search_space, args, is_simulate=True)
+    rms = RunModelSelection(args.search_space, args, is_simulate=args.is_simulate)
     K, U, N = rms.coordination(
         budget=budget,
         score_time_per_model=score_time_per_model,
@@ -271,7 +264,7 @@ def coordinator(params: dict, args: Namespace):
 
 @exception_catcher
 def filtering_phase(params: dict, args: Namespace):
-    mini_batch_m = params["mini_batch_m"]
+    mini_batch_m = params["mini_batch"]
     n = int(params["n"])
     k = int(params["k"])
 
@@ -281,9 +274,11 @@ def filtering_phase(params: dict, args: Namespace):
     logger.info(f"begin run filtering phase at {os.getcwd()}")
 
     mini_batch_data = json.loads(mini_batch_m)
-    dataloader = LibsvmDataset(mini_batch_data)
+    dataloader = DataLoader(LibsvmDataset(mini_batch_data),
+                            batch_size=args.batch_size,
+                            shuffle=True)
 
-    rms = RunModelSelection(args.search_space, args, is_simulate=True)
+    rms = RunModelSelection(args.search_space, args, is_simulate=args.is_simulate)
     k_models = rms.filtering_phase(N=n, K=k, train_loader=dataloader)
 
     return orjson.dumps({"k_models": k_models}).decode('utf-8')
@@ -291,7 +286,7 @@ def filtering_phase(params: dict, args: Namespace):
 
 @exception_catcher
 def refinement_phase(params: dict, args: Namespace):
-    mini_batch_m = params["mini_batch_m"]
+    mini_batch_m = params["mini_batch"]
     return orjson.dumps(
         {"k_models": "k_models"}).decode('utf-8')
 
@@ -300,11 +295,26 @@ def refinement_phase(params: dict, args: Namespace):
 def test_io(params: dict, args: Namespace):
     return orjson.dumps({"inputs are": json.dumps(params)}).decode('utf-8')
 
-#
-# params = {}
-# params["budget"] = 10
-# params["score_time_per_model"] = 0.0211558125
-# params["train_time_per_epoch"] = 5.122203075885773
-# params["only_phase1"] = 'true'
-# params["config_file"] = './internal/ml/model_selection/config.ini'
-# print(coordinator(json.dumps(params)))
+
+if __name__ == "__main__":
+    params = {}
+    params["budget"] = 10
+    params["score_time_per_model"] = 0.0211558125
+    params["train_time_per_epoch"] = 5.122203075885773
+    params["only_phase1"] = 'true'
+    params["config_file"] = './internal/ml/model_selection/config.ini'
+    print(coordinator(json.dumps(params)))
+
+    params = {}
+    params[
+        "mini_batch"] = '[{"col1":"123:123","col2":"123:123","col3":"123:123","label":"1"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"1"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"1"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"1"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"1"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"1"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"1"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"1"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"1"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"1"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"1"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"1"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}]'
+    params["n"] = 10
+    params["k"] = 1
+    params["config_file"] = './internal/ml/model_selection/config.ini'
+    print(filtering_phase(json.dumps(params)))
+
+    params = {}
+    params[
+        "mini_batch"] = '[{"col1":"123:123","col2":"123:123","col3":"123:123","label":"1"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"1"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"1"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"1"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"1"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"1"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"1"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"1"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"1"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"1"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"1"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"1"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}, {"col1":"123:123","col2":"123:123","col3":"123:123","label":"0"}]'
+    params["config_file"] = './internal/ml/model_selection/config.ini'
+    print(profiling_refinement_phase(json.dumps(params)))
