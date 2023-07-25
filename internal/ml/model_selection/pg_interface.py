@@ -300,11 +300,11 @@ def refinement_phase(params: dict, args: Namespace):
 def test_io(params: dict, args: Namespace):
     return orjson.dumps({"inputs are": json.dumps(params)}).decode('utf-8')
 
-
-params = {}
-params["budget"] = 10
-params["score_time_per_model"] = 0.0211558125
-params["train_time_per_epoch"] = 5.122203075885773
-params["only_phase1"] = 'true'
-params["config_file"] = './internal/ml/model_selection/config.ini'
-print(coordinator(json.dumps(params)))
+#
+# params = {}
+# params["budget"] = 10
+# params["score_time_per_model"] = 0.0211558125
+# params["train_time_per_epoch"] = 5.122203075885773
+# params["only_phase1"] = 'true'
+# params["config_file"] = './internal/ml/model_selection/config.ini'
+# print(coordinator(json.dumps(params)))
