@@ -55,7 +55,7 @@ BEGIN
     RAISE NOTICE '2. profiling_refinement_phase, get train_time: %', train_time;
 
     -- 2. Coordinator to get N, K ,U
-    EXECUTE format('SELECT "coordinator"(%L, %L, %L, true)', score_time, train_time, budget) INTO result_status;
+    EXECUTE format('SELECT "coordinator"(%L, %L, %L, false)', score_time, train_time, budget) INTO result_status;
 
     coordinator_k := (json_extract_path_text(result_status::json, 'k'))::integer;
     coordinator_u := (json_extract_path_text(result_status::json, 'u'))::integer;

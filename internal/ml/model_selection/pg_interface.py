@@ -11,6 +11,7 @@ import traceback
 import orjson
 from src.tools.io_tools import write_json
 
+
 def exception_catcher(func):
     def wrapper(*args, **kwargs):
         try:
@@ -277,3 +278,10 @@ def filtering_phase(encoded_str: str):
 @exception_catcher
 def refinement_phase(mini_batch_m: str):
     pass
+
+# params = {}
+# params["budget"] = 10
+# params["score_time_per_model"] = 0.0211558125
+# params["train_time_per_epoch"] = 5.122203075885773
+# params["only_phase1"] = 'true'
+# coordinator(json.dumps(params))
