@@ -9,13 +9,16 @@ import torch
 from torch.utils.data import Dataset
 import traceback
 import orjson
-
+from src.tools.io_tools import write_json
 
 def exception_catcher(func):
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
         except Exception as e:
+            write_json(
+                "/project/TRAILS/log_score_time_frappe/test.log",
+                {"Errored": traceback.format_exc()})
             return orjson.dumps(
                 {"Errored": traceback.format_exc()}).decode('utf-8')
 
@@ -64,7 +67,7 @@ class LibsvmDataset(Dataset):
 
 
 @exception_catcher
-def filtering_phase(mini_batch_m: str):
+def model_selection(mini_batch_m: str):
     # define dataLoader, and sample a mini-batch
 
     args = parse_arguments()
@@ -76,7 +79,7 @@ def filtering_phase(mini_batch_m: str):
     args.device = "cpu"
     args.batch_size = 8
     args.dataset = "frappe"
-    args.base_dir = "/project/TRAILS/exp_data/"
+    args.base_dir = "/project/exp_data/"
     args.result_dir = "/project/TRAILS/internal/ml/model_selection/exp_result/"
 
     os.environ.setdefault("log_logger_folder_name", "/project/TRAILS/log_score_time_frappe")
@@ -123,7 +126,7 @@ def profiling_filtering_phase(mini_batch_m: str):
     args.device = "cpu"
     args.batch_size = 8
     args.dataset = "frappe"
-    args.base_dir = "/project/TRAILS/exp_data/"
+    args.base_dir = "/project/exp_data/"
     args.result_dir = "/project/TRAILS/internal/ml/model_selection/exp_result/"
 
     os.environ.setdefault("log_logger_folder_name", "/project/TRAILS/log_score_time_frappe")
@@ -133,7 +136,7 @@ def profiling_filtering_phase(mini_batch_m: str):
     from src.logger import logger
     from src.eva_engine.run_ms import RunModelSelection
 
-    logger.info(f"begin run filtering phase at {os.getcwd()}")
+    logger.info(f"begin run filtering phase at {os.getcwd()}, with {mini_batch_m}")
     mini_batch_data = json.loads(mini_batch_m)
 
     dataloader = LibsvmDataset(mini_batch_data)
@@ -160,7 +163,7 @@ def profiling_refinement_phase(mini_batch_m: str):
     args.device = "cpu"
     args.batch_size = 8
     args.dataset = "frappe"
-    args.base_dir = "/project/TRAILS/exp_data/"
+    args.base_dir = "/project/exp_data/"
     args.result_dir = "/project/TRAILS/internal/ml/model_selection/exp_result/"
 
     os.environ.setdefault("log_logger_folder_name", "/project/TRAILS/log_score_time_frappe")
@@ -170,7 +173,7 @@ def profiling_refinement_phase(mini_batch_m: str):
     from src.logger import logger
     from src.eva_engine.run_ms import RunModelSelection
 
-    logger.info(f"begin run filtering phase at {os.getcwd()}")
+    logger.info(f"begin run refinement phase at {os.getcwd()}")
     mini_batch_data = json.loads(mini_batch_m)
 
     dataloader = LibsvmDataset(mini_batch_data)
@@ -183,3 +186,94 @@ def profiling_refinement_phase(mini_batch_m: str):
     return orjson.dumps(
         {"time": train_time_per_epoch}).decode('utf-8')
 
+
+@exception_catcher
+def coordinator(encode_str: str):
+    # define dataLoader, and sample a mini-batch
+    args = parse_arguments()
+    gmt = time.gmtime()
+    ts = calendar.timegm(gmt)
+    args.log_name = "score_based_all_metrics"
+    args.search_space = "mlp_sp"
+    args.num_labels = 2
+    args.device = "cpu"
+    args.batch_size = 8
+    args.dataset = "frappe"
+    args.base_dir = "/project/exp_data/"
+    args.result_dir = "/project/TRAILS/internal/ml/model_selection/exp_result/"
+
+    os.environ.setdefault("log_logger_folder_name", "/project/TRAILS/log_score_time_frappe")
+    os.environ.setdefault("log_file_name", args.log_name + "_" + str(ts) + ".log")
+    os.environ.setdefault("base_dir", args.base_dir)
+
+    from src.logger import logger
+    from src.eva_engine.run_ms import RunModelSelection
+
+    logger.info(encode_str)
+    params = json.loads(encode_str)
+    budget = float(params["budget"])
+    score_time_per_model = float(params["score_time_per_model"])
+    train_time_per_epoch = float(params["train_time_per_epoch"])
+    only_phase1 = True if params["only_phase1"].lower() == "true" else False
+
+    logger.info(budget, score_time_per_model, train_time_per_epoch, only_phase1)
+    rms = RunModelSelection(args.search_space, args, is_simulate=True)
+    K, U, N = rms.coordination(
+        budget=budget,
+        score_time_per_model=score_time_per_model,
+        train_time_per_epoch=train_time_per_epoch,
+        only_phase1=only_phase1)
+
+    return orjson.dumps(
+        {
+            "k": K,
+            "u": U,
+            "n": N,
+        }).decode('utf-8')
+
+
+@exception_catcher
+def filtering_phase(encoded_str: str):
+    # define dataLoader, and sample a mini-batch
+
+    args = parse_arguments()
+    gmt = time.gmtime()
+    ts = calendar.timegm(gmt)
+    args.log_name = "score_based_all_metrics"
+    args.search_space = "mlp_sp"
+    args.num_labels = 2
+    args.device = "cpu"
+    args.batch_size = 8
+    args.dataset = "frappe"
+    args.base_dir = "/project/exp_data/"
+    args.result_dir = "/project/TRAILS/internal/ml/model_selection/exp_result/"
+
+    os.environ.setdefault("log_logger_folder_name", "/project/TRAILS/log_score_time_frappe")
+    os.environ.setdefault("log_file_name", args.log_name + "_" + str(ts) + ".log")
+    os.environ.setdefault("base_dir", args.base_dir)
+
+    from src.logger import logger
+    from src.eva_engine.run_ms import RunModelSelection
+
+    logger.info(encoded_str)
+    params = json.loads(encoded_str)
+    mini_batch_m = params["mini_batch_m"]
+    n = int(params["n"])
+    k = int(params["k"])
+
+    logger.info(f"begin run filtering phase at {os.getcwd()}")
+    mini_batch_data = json.loads(mini_batch_m)
+
+    dataloader = LibsvmDataset(mini_batch_data)
+
+    rms = RunModelSelection(args.search_space, args, is_simulate=True)
+    k_models = rms.filtering_phase(N=n, K=k, train_loader=dataloader)
+
+    # mini_batch_data = mini_batch.decode('utf-8')
+    return orjson.dumps(
+        {"k_models": k_models}).decode('utf-8')
+
+
+@exception_catcher
+def refinement_phase(mini_batch_m: str):
+    pass

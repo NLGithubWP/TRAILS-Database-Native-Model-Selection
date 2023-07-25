@@ -7,6 +7,7 @@ docker build -t trails .
 
 docker run -d --name trails \
   -v $(pwd)/TRAILS:/project/TRAILS \
+  -v $(pwd)/exp_data:/project/exp_data \
   trails
 ```
 
@@ -66,7 +67,7 @@ chmod -R 777 internal/pg_extension
 chmod -R 777 TRAILS
 ```
 
-# On container
+# Dev
 
 ## 1. Ensure the pyhton modules called in the UDF can find
 ```bash
@@ -84,7 +85,7 @@ rm -r /usr/lib/postgresql/14/lib/pg_extension.so
 cargo pgrx run
 ```
 
-In sql
+In SQL
 
 ```sql
 DROP EXTENSION IF EXISTS pg_extension;
@@ -93,31 +94,12 @@ CREATE EXTENSION pg_extension;
 
 ## 3. Run it
 ```sql
-SELECT filtering_phase('your_task_here');
-SELECT system_profiling('your_task_here');
-SELECT refinement_phase('your_task_here');
-SELECT coordinator('your_task_here');
-SELECT model_selection('your_dataset', ARRAY['col1', 'col2'], 2);
-```
-
-# Dev
-
-Update code locally
-
-In docker container, Run 
-
-```bash
-cargo pgrx run
-```
-
-Then run
-
-```sql
 CREATE EXTENSION pg_extension;
 
-SELECT filtering_phase('your_task_here');
-SELECT model_selection('your_dataset', ARRAY['col1', 'col2'], 2);
-CALL model_selection_sp('dummy', ARRAY['col1', 'col2', 'col3', 'label'], 2);
+SELECT coordinator('0.5', '0.8', '2', true);
+
+
+CALL model_selection_sp('dummy', ARRAY['col1', 'col2', 'col3', 'label'], '20');
 ```
 
 # Data generate
@@ -151,7 +133,49 @@ select * from dummy limit 10;
 
 ```
 
+# Container log
 
+Each line in your output represents a different process that is currently running on your PostgreSQL server. Here's what each one is doing:
+
+1.  `/bin/sh -c service postgresql start && tail -F /var/log/postgresql/postgresq` : This is the command that was used to start your PostgreSQL server. It also includes a command to continuously display new entries from the PostgreSQL log file.
+
+
+2.  `/usr/lib/postgresql/14/bin/postgres -D /var/lib/postgresql/14/main -c config` : This is the main PostgreSQL process. All other PostgreSQL processes are children of this process.
+
+
+3.  `postgres: 14/main: checkpointer` : The checkpointer process is responsible for making sure data changes get saved to disk regularly. This is important for database recovery in case of a crash.
+
+
+4.  `postgres: 14/main: background writer` : The background writer process is responsible for writing buffers to disk when they become dirty. This reduces the amount of work that needs to be done when a buffer is reused.
+
+
+5.  `postgres: 14/main: walwriter` : The walwriter process writes transaction logs (Write-Ahead Logs or WAL) to disk. This is also important for database recovery and replication.
+
+
+6.  `postgres: 14/main: autovacuum launcher` : The autovacuum launcher process starts autovacuum worker processes as needed. These processes automatically clean up and optimize the database.
+
+
+7.  `postgres: 14/main: stats collector` : The stats collector process collects statistics about the server's activity. This information can be viewed using the `pg_stat` family of system views.
+
+
+8.  `postgres: 14/main: logical replication launcher` : The logical replication launcher manages the worker processes that perform logical replication, copying data changes to other databases.
+
+
+9.  `tail -F /var/log/postgresql/postgresql-14-main.log` : This process is displaying the end of the PostgreSQL log file and updating as more entries are added.
+
+
+10.  `bash` : These are shell sessions, likely interactive ones you've started.
+
+
+11.  `/usr/lib/postgresql/14/bin/psql -h localhost -p 28814 pg_extension` : These are instances of the psql command line interface, connected to your database.
+
+
+12.  `postgres: postgres pg_extension 127.0.0.1(52236) CALL` : This is your currently running stored procedure.
+
+
+13.  `ps aux` : This is the command you ran to display the list of processes.
+
+Each process is part of the PostgreSQL database system and helps it to run efficiently and robustly.
 
 
 

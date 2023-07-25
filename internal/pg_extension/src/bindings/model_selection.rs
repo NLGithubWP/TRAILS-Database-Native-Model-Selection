@@ -53,17 +53,6 @@ pub fn run_python_function(
  * @param mini_batch: mini_batch of data. Assume all columns are string type in
  * libsvm codding
  */
-pub fn filtering_phase(
-    task: &String
-) -> serde_json::Value {
-    run_python_function(task,"filtering_phase")
-}
-
-
-/*
- * @param mini_batch: mini_batch of data. Assume all columns are string type in
- * libsvm codding
- */
 pub fn profiling_filtering_phase(
     task: &String
 ) -> serde_json::Value {
@@ -80,4 +69,40 @@ pub fn profiling_refinement_phase(
 ) -> serde_json::Value {
     run_python_function(task, "profiling_refinement_phase")
 }
+
+/*
+ * @param mini_batch: mini_batch of data. Assume all columns are string type in
+ * libsvm codding
+ */
+pub fn coordinator(
+    task: &String
+) -> serde_json::Value {
+    run_python_function(task, "coordinator")
+}
+
+
+/*
+ * @param mini_batch: mini_batch of data. Assume all columns are string type in
+ * libsvm codding
+ */
+pub fn filtering_phase(
+    task: &String
+) -> serde_json::Value {
+    run_python_function(task,"filtering_phase")
+}
+
+/*
+ * @param mini_batch: mini_batch of data. Assume all columns are string type in
+ * libsvm codding
+ */
+pub fn refinement_phase(
+) -> serde_json::Value {
+    let task = "refinement_phase".to_string();;
+    run_python_function(&task,"refinement_phase")
+}
+
+
+
+
+
 

@@ -218,9 +218,26 @@ class RunModelSelection:
             is_simulate=self.is_simulate)
         return train_time_per_epoch
 
-    def coordination(self):
+    def coordination(self, budget: float, score_time_per_model: float, train_time_per_epoch: float, only_phase1: bool):
+        sh = BudgetAwareControllerSH(
+            search_space_ins=self.search_space_ins,
+            dataset_name=self.dataset,
+            eta=self.eta,
+            time_per_epoch=train_time_per_epoch,
+            is_simulate=self.is_simulate,
+            train_loader=None,
+            val_loader=None,
+            args=self.args)
         n_k_ratio = profile_NK_trade_off(self.dataset)
-        pass
+        K, U, N, B1_planed_time, B2_planed_time, B2_all_epoch = coordinator.schedule(self.dataset, sh, budget,
+                                                                                     score_time_per_model,
+                                                                                     train_time_per_epoch,
+                                                                                     1,
+                                                                                     self.search_space_ins,
+                                                                                     n_k_ratio,
+                                                                                     only_phase1)
+
+        return K, U, N
 
     def filtering_phase(self, N, K, train_loader):
         p1_runner = RunPhase1(
@@ -234,7 +251,7 @@ class RunModelSelection:
             = p1_runner.run_phase1()
         return k_models
 
-    def refinement_phase(self, U, k_models, train_loader, valid_loader, train_time_per_epoch, ):
+    def refinement_phase(self, U, k_models, train_loader, valid_loader, train_time_per_epoch):
         self.sh = BudgetAwareControllerSH(
             search_space_ins=self.search_space_ins,
             dataset_name=self.dataset,

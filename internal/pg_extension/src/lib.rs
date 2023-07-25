@@ -7,35 +7,6 @@ pub mod bindings;
 
 
 /*
- * @param dataset: relation name.
- * @param columns: queried columns.
- * @param time_budget: user pre-defined time budget.
- */
-// #[cfg(feature = "python")]
-// #[pg_extern(immutable, parallel_safe, name = "model_selection")]
-// pub fn model_selection(dataset: String, columns: Vec<String>, time_budget: i32) -> String {
-//     let mut task_map = HashMap::new();
-//     task_map.insert("dataset", dataset);
-//     task_map.insert("columns", columns.join(","));
-//     task_map.insert("time_budget", time_budget.to_string());
-//     let task_json = json!(task_map);
-//     crate::bindings::model_selection::model_selection(&task_json).to_string()
-// }
-
-
-/*
- * @param mini_batch: mini_batch of data. Assume all columns are string type in
- * libsvm codding
- */
-#[cfg(feature = "python")]
-#[pg_extern(immutable, parallel_safe, name = "filtering_phase")]
-#[allow(unused_variables)]
-pub fn filtering_phase(mini_batch: String) -> String {
-    crate::bindings::model_selection::filtering_phase(&mini_batch).to_string()
-}
-
-
-/*
  * @param mini_batch: mini_batch of data. Assume all columns are string type in
  * libsvm codding
  */
@@ -47,7 +18,7 @@ pub fn profiling_filtering_phase(mini_batch: String) -> String {
 }
 
 /*
- * @param mini_batch: mini_batch of data. Assume all columns are string type in
+ * @param mini_batch: training for one iteration.
  * libsvm codding
  */
 #[cfg(feature = "python")]
@@ -57,32 +28,48 @@ pub fn profiling_refinement_phase(mini_batch: String) -> String {
     crate::bindings::model_selection::profiling_refinement_phase(&mini_batch).to_string()
 }
 
-//
-// #[cfg(feature = "python")]
-// #[pg_extern(immutable, parallel_safe, name = "profiling")]
-// #[allow(unused_variables)]
-// pub fn profiling(rows: Array<Array<String>>) -> i32 {
-//     // Implement your logic here.
-//     // You can access individual strings using rows[i][j]
-//     0
-// }
-//
-// #[cfg(feature = "python")]
-// #[pg_extern(immutable, parallel_safe, name = "refinement_phase")]
-// #[allow(unused_variables)]
-// pub fn refinement_phase(rows: Array<Array<String>>) -> i32 {
-//     // Implement your logic here.
-//     // You can access individual strings using rows[i][j]
-//     0
-// }
-//
-//
-// #[cfg(feature = "python")]
-// #[pg_extern(immutable, parallel_safe, name = "coordinator")]
-// #[allow(unused_variables)]
-// pub fn coordinator(rows: Array<Array<String>>) -> i32 {
-//     // Implement your logic here.
-//     // You can access individual strings using rows[i][j]
-//     0
-// }
-//
+/*
+ * @param mini_batch: training for one iteration.
+ * libsvm codding
+ */
+#[cfg(feature = "python")]
+#[pg_extern(immutable, parallel_safe, name = "coordinator")]
+#[allow(unused_variables)]
+pub fn coordinator(time_score: String, time_train: String, time_budget: String, only_phase1: bool)
+    -> String {
+    let mut task_map = HashMap::new();
+    task_map.insert("budget", time_budget);
+    task_map.insert("score_time_per_model", time_score);
+    task_map.insert("train_time_per_epoch", time_train);
+    task_map.insert("only_phase1", only_phase1.to_string());
+    let task_json = json!(task_map).to_string();
+    crate::bindings::model_selection::coordinator(&task_json).to_string()
+}
+
+
+/*
+ * @param mini_batch: mini_batch of data. Assume all columns are string type in
+ * libsvm codding
+ */
+#[cfg(feature = "python")]
+#[pg_extern(immutable, parallel_safe, name = "filtering_phase")]
+#[allow(unused_variables)]
+pub fn filtering_phase(mini_batch: String, n: i32, k: i32) -> String {
+    let mut task_map = HashMap::new();
+    task_map.insert("mini_batch_m", mini_batch);
+    task_map.insert("n", n.to_string());
+    task_map.insert("k", k.to_string());
+    let task_json = json!(task_map).to_string();
+    crate::bindings::model_selection::filtering_phase(&task_json).to_string()
+}
+
+
+#[cfg(feature = "python")]
+#[pg_extern(immutable, parallel_safe, name = "refinement_phase")]
+#[allow(unused_variables)]
+pub fn refinement_phase() -> String {
+    crate::bindings::model_selection::refinement_phase().to_string()
+}
+
+
+
