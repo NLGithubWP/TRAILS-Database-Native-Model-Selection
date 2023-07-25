@@ -85,4 +85,21 @@ pub fn refinement_phase(config_file: String) -> String {
 }
 
 
+/*
+ End-2-End model selection, All in UDF runtime.
+ */
+#[cfg(feature = "python")]
+#[pg_extern(immutable, parallel_safe, name = "model_selection")]
+#[allow(unused_variables)]
+pub fn model_selection(mini_batch: String, time_budget: String, config_file: String) -> String {
+    let mut task_map = HashMap::new();
+    task_map.insert("mini_batch", mini_batch);
+    task_map.insert("budget", time_budget);
+    task_map.insert("config_file", config_file);
+    let task_json = json!(task_map).to_string();
+    crate::bindings::model_selection::model_selection(&task_json).to_string()
+}
+
+
+
 

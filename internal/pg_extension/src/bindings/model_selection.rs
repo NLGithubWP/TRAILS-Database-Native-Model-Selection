@@ -86,6 +86,15 @@ pub fn refinement_phase() -> serde_json::Value {
 }
 
 
+pub fn model_selection(
+    task: &String
+) -> serde_json::Value {
+    run_python_function(task, "model_selection")
+}
+
+
+
+
 
 
 

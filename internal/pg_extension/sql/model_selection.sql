@@ -5,7 +5,7 @@ PROCEDURE model_selection_sp(
     dataset TEXT,               --dataset name
     selected_columns TEXT[],    --used columns
     budget TEXT,                --user given time budget
-    batch_size INTEGER,         --user given time budget
+    batch_size INTEGER,         --batch size, for profiling, filtering
     config_file TEXT            --config file path
 )
 LANGUAGE plpgsql
@@ -55,7 +55,7 @@ BEGIN
     train_time := json_extract_path_text(result_status::json, 'time');
         RAISE NOTICE '2. profiling_refinement_phase, get train_time: %', train_time;
 
-    -- 2. Coordinator to get N, K ,U
+    -- 3. Coordinator to get N, K ,U
     EXECUTE format('SELECT "coordinator"(%L, %L, %L, false, %L)', score_time, train_time, budget, config_file) INTO result_status;
 
     coordinator_k := (json_extract_path_text(result_status::json, 'k'))::integer;
@@ -63,7 +63,7 @@ BEGIN
         coordinator_n := (json_extract_path_text(result_status::json, 'n'))::integer;
         RAISE NOTICE '3. coordinator result: k = %, u = %, n = %', coordinator_k, coordinator_u, coordinator_n;
 
-    -- 2. Run filtering phase to get top K models.
+    -- 4. Run filtering phase to get top K models.
     EXECUTE format('
             WITH batch_rows AS (
                 SELECT %s
