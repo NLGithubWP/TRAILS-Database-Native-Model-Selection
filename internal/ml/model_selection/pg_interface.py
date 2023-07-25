@@ -182,10 +182,7 @@ def model_selection(params: dict, args: Namespace):
     return orjson.dumps(
         {"best_arch": best_arch,
          "best_arch_performance": best_arch_performance,
-         "time_usage": time_usage,
-         "p1_trace_highest_score": p1_trace_highest_score,
-         "p1_trace_highest_scored_models_id": p1_trace_highest_scored_models_id,
-         }).decode('utf-8')
+         "time_usage": time_usage}).decode('utf-8')
 
 
 @exception_catcher
