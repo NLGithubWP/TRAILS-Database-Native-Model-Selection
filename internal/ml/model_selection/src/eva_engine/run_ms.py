@@ -218,7 +218,9 @@ class RunModelSelection:
     # to support in-database model selection
     #############################################
 
-    def profile_filtering(self, data_loader: List[DataLoader], ):
+    def profile_filtering(self, data_loader: List[DataLoader]):
+        logger.info("0. [trails] Begin profile_filtering...")
+        begin_time = time.time()
         train_loader, valid_loader, test_loader = data_loader
         score_time_per_model = self.search_space_ins.profiling_score_time(
             self.dataset,
@@ -226,9 +228,12 @@ class RunModelSelection:
             valid_loader,
             self.args,
             is_simulate=self.is_simulate)
+        logger.info(f"0. [trails] profile_filtering Done, time_usage = {time.time() - begin_time}")
         return score_time_per_model
 
     def profile_refinement(self, data_loader: List[DataLoader], ):
+        logger.info("0. [trails] Begin profile_refinement...")
+        begin_time = time.time()
         train_loader, valid_loader, test_loader = data_loader
         train_time_per_epoch = self.search_space_ins.profiling_train_time(
             self.dataset,
@@ -236,9 +241,12 @@ class RunModelSelection:
             valid_loader,
             self.args,
             is_simulate=self.is_simulate)
+        logger.info(f"0. [trails] profile_refinement Done, time_usage = {time.time() - begin_time}")
         return train_time_per_epoch
 
     def coordination(self, budget: float, score_time_per_model: float, train_time_per_epoch: float, only_phase1: bool):
+        logger.info("1. [trails] Begin coordination...")
+        begin_time = time.time()
         sh = BudgetAwareControllerSH(
             search_space_ins=self.search_space_ins,
             dataset_name=self.dataset,
@@ -258,6 +266,7 @@ class RunModelSelection:
             n_k_ratio,
             only_phase1)
 
+        logger.info(f"1. [trails] Coordination Done, time_usage = {time.time() - begin_time}")
         return K, U, N
 
     def filtering_phase(self, N, K, train_loader):
