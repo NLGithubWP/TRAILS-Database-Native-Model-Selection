@@ -288,6 +288,36 @@ def refinement_phase(params: dict, args: Namespace):
 
 
 @exception_catcher
+def model_selection_workloads(params: dict, args: Namespace):
+    """
+    Run filtering (explore N models) and refinement phase (refine K models) for benchmarking latency.
+    """
+    mini_batch_m = params["mini_batch"]
+    n = int(params["n"])
+    k = int(params["k"])
+
+    from src.logger import logger
+    from src.eva_engine.run_ms import RunModelSelection
+    logger.info(f"begin run model_selection_workloads ")
+    mini_batch_data = json.loads(mini_batch_m)
+    dataloader = DataLoader(LibsvmDataset(mini_batch_data),
+                            batch_size=args.batch_size,
+                            shuffle=True)
+    rms = RunModelSelection(args.search_space, args, is_simulate=args.is_simulate)
+    k_models = rms.filtering_phase(N=n, K=k, train_loader=dataloader)
+    best_arch, best_arch_performance = rms.refinement_phase(
+        U=1,
+        k_models=k_models,
+        train_loader=dataloader,
+        valid_loader=dataloader)
+
+    return orjson.dumps(
+        {"best_arch": best_arch,
+         "best_arch_performance": best_arch_performance,
+         }).decode('utf-8')
+
+
+@exception_catcher
 def test_io(params: dict, args: Namespace):
     return orjson.dumps({"inputs are": json.dumps(params)}).decode('utf-8')
 

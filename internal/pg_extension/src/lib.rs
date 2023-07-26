@@ -100,6 +100,22 @@ pub fn model_selection(mini_batch: String, time_budget: String, config_file: Str
     crate::bindings::model_selection::model_selection(&task_json).to_string()
 }
 
+/*
+ * @param mini_batch: mini_batch of data. Assume all columns are string type in
+ * libsvm codding
+ */
+#[cfg(feature = "python")]
+#[pg_extern(immutable, parallel_safe, name = "model_selection_workloads")]
+#[allow(unused_variables)]
+pub fn model_selection_workloads(mini_batch: String, n: i32, k: i32, config_file: String) -> String {
+    let mut task_map = HashMap::new();
+    task_map.insert("mini_batch", mini_batch);
+    task_map.insert("n", n.to_string());
+    task_map.insert("k", k.to_string());
+    task_map.insert("config_file", config_file);
+    let task_json = json!(task_map).to_string();
+    crate::bindings::model_selection::model_selection_workloads(&task_json).to_string()
+}
 
 
 

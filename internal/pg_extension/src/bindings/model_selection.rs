@@ -93,9 +93,9 @@ pub fn model_selection(
 }
 
 
-
-
-
-
-
+pub fn model_selection_workloads(
+    task: &String
+) -> serde_json::Value {
+    run_python_function(task, "model_selection_workloads")
+}
 

@@ -251,7 +251,7 @@ class RunModelSelection:
             = p1_runner.run_phase1()
         return k_models
 
-    def refinement_phase(self, U, k_models, train_loader, valid_loader, train_time_per_epoch):
+    def refinement_phase(self, U, k_models, train_loader, valid_loader, train_time_per_epoch=None):
         self.sh = BudgetAwareControllerSH(
             search_space_ins=self.search_space_ins,
             dataset_name=self.dataset,
