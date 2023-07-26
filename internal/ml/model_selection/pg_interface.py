@@ -84,7 +84,7 @@ def parse_config_arguments(config_path: str):
     args.only_phase1 = parser.getboolean('ANYTIME', 'only_phase1')
     args.is_simulate = parser.getboolean('ANYTIME', 'is_simulate')
 
-    args.url = parser.getboolean('REFINEMENT_SERVER', 'url')
+    args.url = parser.get('REFINEMENT_SERVER', 'url')
 
     return args
 
