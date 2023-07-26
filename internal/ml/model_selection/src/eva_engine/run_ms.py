@@ -65,6 +65,26 @@ class RunModelSelection:
         return best_arch, B1_actual_time_use + B2_actual_epoch_use * train_time_per_epoch, \
                B1_planed_time + B2_planed_time, B2_all_epoch
 
+    def select_model_online_clean(self, budget: float, data_loader: List[DataLoader],
+                                  only_phase1: bool = False, run_workers: int = 1):
+        """
+        Select model online for structured data.
+        :param budget:  time budget
+        :param data_loader:  time budget
+        :param only_phase1:
+        :param run_workers:
+        :return:
+        """
+        score_time_per_model = self.profile_filtering(data_loader)
+        train_time_per_epoch = self.profile_refinement(data_loader)
+        K, U, N = self.coordination(budget, score_time_per_model, train_time_per_epoch, only_phase1)
+        k_models, all_models, p1_trace_highest_score, p1_trace_highest_scored_models_id = self.filtering_phase(
+            N, K, train_loader=data_loader[0])
+        best_arch, best_arch_performance = self.refinement_phase(
+            U, k_models, data_loader[0], data_loader[1])
+
+        return best_arch, best_arch_performance, all_models, p1_trace_highest_score, p1_trace_highest_scored_models_id
+
     def select_model_online(self, budget: float, data_loader: List[DataLoader],
                             only_phase1: bool = False, run_workers: int = 1):
         """
@@ -229,17 +249,20 @@ class RunModelSelection:
             val_loader=None,
             args=self.args)
         n_k_ratio = profile_NK_trade_off(self.dataset)
-        K, U, N, B1_planed_time, B2_planed_time, B2_all_epoch = coordinator.schedule(self.dataset, sh, budget,
-                                                                                     score_time_per_model,
-                                                                                     train_time_per_epoch,
-                                                                                     1,
-                                                                                     self.search_space_ins,
-                                                                                     n_k_ratio,
-                                                                                     only_phase1)
+        K, U, N, B1_planed_time, B2_planed_time, B2_all_epoch = coordinator.schedule(
+            self.dataset, sh, budget,
+            score_time_per_model,
+            train_time_per_epoch,
+            1,
+            self.search_space_ins,
+            n_k_ratio,
+            only_phase1)
 
         return K, U, N
 
     def filtering_phase(self, N, K, train_loader):
+        logger.info("2. [trails] Begin filtering_phase...")
+        begin_time = time.time()
         p1_runner = RunPhase1(
             args=self.args,
             K=K, N=N,
@@ -249,9 +272,12 @@ class RunModelSelection:
 
         k_models, all_models, p1_trace_highest_score, p1_trace_highest_scored_models_id \
             = p1_runner.run_phase1()
-        return k_models
+        logger.info(f"2. [trails] filtering_phase Done, time_usage = {time.time() - begin_time}")
+        return k_models, all_models, p1_trace_highest_score, p1_trace_highest_scored_models_id
 
     def refinement_phase(self, U, k_models, train_loader, valid_loader, train_time_per_epoch=None):
+        logger.info("3. [trails] Begin refinement...")
+        begin_time = time.time()
         self.sh = BudgetAwareControllerSH(
             search_space_ins=self.search_space_ins,
             dataset_name=self.dataset,
@@ -262,5 +288,7 @@ class RunModelSelection:
             val_loader=valid_loader,
             args=self.args)
         best_arch, best_arch_performance, B2_actual_epoch_use = self.sh.run_phase2(U, k_models)
-
+        logger.info(
+            f"3. [trails] refinement phase Done, time_usage = {time.time() - begin_time}, "
+            f"epoches_used = {B2_actual_epoch_use}")
         return best_arch, best_arch_performance

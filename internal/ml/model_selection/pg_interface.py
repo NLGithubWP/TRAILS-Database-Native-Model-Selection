@@ -153,21 +153,28 @@ class LibsvmDataset(Dataset):
                 'y': self.y[idx]}
 
 
+def generate_dataloader(mini_batch_data, args):
+    from src.logger import logger
+    logger.info(f"Begin to preprocessing dataset")
+    begin_time = time.time()
+    dataloader = DataLoader(LibsvmDataset(mini_batch_data),
+                            batch_size=args.batch_size,
+                            shuffle=True)
+    logger.info(f"Preprocessing dataset Done ! time_usage = {time.time() - begin_time}")
+    return dataloader
+
+
 @exception_catcher
 def model_selection(params: dict, args: Namespace):
-    # define dataLoader, and sample a mini-batch
+    from src.logger import logger
+    logger.info(f"begin run model_selection on UDF runtime with CPU only")
 
     mini_batch_data = json.loads(params["mini_batch"])
     budget = float(params["budget"])
 
-    from src.logger import logger
     from src.eva_engine.run_ms import RunModelSelection
 
-    logger.info(f"begin run filtering phase at {os.getcwd()}")
-
-    dataloader = DataLoader(LibsvmDataset(mini_batch_data),
-                            batch_size=args.batch_size,
-                            shuffle=True)
+    dataloader = generate_dataloader(mini_batch_data=mini_batch_data, args=args)
 
     data_loader = [dataloader, dataloader, dataloader]
 
@@ -187,19 +194,17 @@ def model_selection(params: dict, args: Namespace):
 
 @exception_catcher
 def profiling_filtering_phase(params: dict, args: Namespace):
-    # define dataLoader, and sample a mini-batch
+    from src.logger import logger
+    logger.info(f"begin run profiling_filtering_phase CPU only")
 
     mini_batch_m = params["mini_batch"]
 
-    from src.logger import logger
     from src.eva_engine.run_ms import RunModelSelection
 
     logger.info(f"begin run filtering phase at {os.getcwd()}, with {mini_batch_m}")
 
     mini_batch_data = json.loads(mini_batch_m)
-    dataloader = DataLoader(LibsvmDataset(mini_batch_data),
-                            batch_size=args.batch_size,
-                            shuffle=True)
+    dataloader = generate_dataloader(mini_batch_data=mini_batch_data, args=args)
     data_loader = [dataloader, dataloader, dataloader]
 
     rms = RunModelSelection(args.search_space, args, is_simulate=args.is_simulate)
@@ -210,36 +215,34 @@ def profiling_filtering_phase(params: dict, args: Namespace):
 
 @exception_catcher
 def profiling_refinement_phase(params: dict, args: Namespace):
-    # define dataLoader, and sample a mini-batch
+    from src.logger import logger
+    logger.info(f"begin run profiling_refinement_phase CPU only")
 
     mini_batch_m = params["mini_batch"]
 
-    from src.logger import logger
     from src.eva_engine.run_ms import RunModelSelection
 
-    logger.info(f"begin run refinement phase at {os.getcwd()}")
     mini_batch_data = json.loads(mini_batch_m)
 
-    dataloader = DataLoader(LibsvmDataset(mini_batch_data),
-                            batch_size=args.batch_size,
-                            shuffle=True)
+    dataloader = generate_dataloader(mini_batch_data=mini_batch_data, args=args)
     data_loader = [dataloader, dataloader, dataloader]
 
     rms = RunModelSelection(args.search_space, args, is_simulate=args.is_simulate)
     train_time_per_epoch = rms.profile_refinement(data_loader=data_loader)
 
-    # mini_batch_data = mini_batch.decode('utf-8')
     return orjson.dumps({"time": train_time_per_epoch}).decode('utf-8')
 
 
 @exception_catcher
 def coordinator(params: dict, args: Namespace):
+    from src.logger import logger
+    logger.info(f"begin run coordinator")
+
     budget = float(params["budget"])
     score_time_per_model = float(params["score_time_per_model"])
     train_time_per_epoch = float(params["train_time_per_epoch"])
     only_phase1 = True if params["only_phase1"].lower() == "true" else False
 
-    from src.logger import logger
     from src.eva_engine.run_ms import RunModelSelection
 
     logger.info(f"coordinator params: budget={budget}, "
@@ -260,22 +263,21 @@ def coordinator(params: dict, args: Namespace):
 
 @exception_catcher
 def filtering_phase(params: dict, args: Namespace):
+
+    from src.logger import logger
+    logger.info(f"begin run filtering_phase CPU only")
+
     mini_batch_m = params["mini_batch"]
     n = int(params["n"])
     k = int(params["k"])
 
-    from src.logger import logger
     from src.eva_engine.run_ms import RunModelSelection
 
-    logger.info(f"begin run filtering phase at {os.getcwd()}")
-
     mini_batch_data = json.loads(mini_batch_m)
-    dataloader = DataLoader(LibsvmDataset(mini_batch_data),
-                            batch_size=args.batch_size,
-                            shuffle=True)
+    dataloader = generate_dataloader(mini_batch_data=mini_batch_data, args=args)
 
     rms = RunModelSelection(args.search_space, args, is_simulate=args.is_simulate)
-    k_models = rms.filtering_phase(N=n, K=k, train_loader=dataloader)
+    k_models, _, _, _ = rms.filtering_phase(N=n, K=k, train_loader=dataloader)
 
     return orjson.dumps({"k_models": k_models}).decode('utf-8')
 
@@ -292,19 +294,20 @@ def model_selection_workloads(params: dict, args: Namespace):
     """
     Run filtering (explore N models) and refinement phase (refine K models) for benchmarking latency.
     """
+
     mini_batch_m = params["mini_batch"]
     n = int(params["n"])
     k = int(params["k"])
 
     from src.logger import logger
+    logger.info(f"begin run model_selection_workloads on CPU only, explore N={n} and K={k}")
+
     from src.eva_engine.run_ms import RunModelSelection
-    logger.info(f"begin run model_selection_workloads ")
+
     mini_batch_data = json.loads(mini_batch_m)
-    dataloader = DataLoader(LibsvmDataset(mini_batch_data),
-                            batch_size=args.batch_size,
-                            shuffle=True)
+    dataloader = generate_dataloader(mini_batch_data=mini_batch_data, args=args)
     rms = RunModelSelection(args.search_space, args, is_simulate=args.is_simulate)
-    k_models = rms.filtering_phase(N=n, K=k, train_loader=dataloader)
+    k_models, _, _, _ = rms.filtering_phase(N=n, K=k, train_loader=dataloader)
     best_arch, best_arch_performance = rms.refinement_phase(
         U=1,
         k_models=k_models,
