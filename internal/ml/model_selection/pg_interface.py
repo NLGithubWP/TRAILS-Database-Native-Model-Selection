@@ -1,7 +1,7 @@
 import calendar
 import os
 import time
-
+import requests
 import json
 from typing import List, Dict
 import torch
@@ -83,6 +83,8 @@ def parse_config_arguments(config_path: str):
     # anytime args
     args.only_phase1 = parser.getboolean('ANYTIME', 'only_phase1')
     args.is_simulate = parser.getboolean('ANYTIME', 'is_simulate')
+
+    args.url = parser.getboolean('REFINEMENT_SERVER', 'url')
 
     return args
 
@@ -179,8 +181,8 @@ def model_selection(params: dict, args: Namespace):
     data_loader = [dataloader, dataloader, dataloader]
 
     rms = RunModelSelection(args.search_space, args, is_simulate=args.is_simulate)
-    best_arch, best_arch_performance, time_usage, _, _, _, p1_trace_highest_score, p1_trace_highest_scored_models_id = \
-        rms.select_model_online(
+    best_arch, best_arch_performance, time_usage, _, p1_trace_highest_score, p1_trace_highest_scored_models_id = \
+        rms.select_model_online_clean(
             budget=budget,
             data_loader=data_loader,
             only_phase1=False,
@@ -263,7 +265,6 @@ def coordinator(params: dict, args: Namespace):
 
 @exception_catcher
 def filtering_phase(params: dict, args: Namespace):
-
     from src.logger import logger
     logger.info(f"begin run filtering_phase CPU only")
 
@@ -323,6 +324,79 @@ def model_selection_workloads(params: dict, args: Namespace):
 @exception_catcher
 def test_io(params: dict, args: Namespace):
     return orjson.dumps({"inputs are": json.dumps(params)}).decode('utf-8')
+
+
+@exception_catcher
+def model_selection_trails(params: dict, args: Namespace):
+    from src.logger import logger
+    logger.info(f"begin run model_selection_trails CPU  + GPU")
+
+    mini_batch_data = json.loads(params["mini_batch"])
+    budget = float(params["budget"])
+
+    from src.eva_engine.run_ms import RunModelSelection
+
+    dataloader = generate_dataloader(mini_batch_data=mini_batch_data, args=args)
+
+    data_loader = [dataloader, dataloader, dataloader]
+
+    rms = RunModelSelection(args.search_space, args, is_simulate=args.is_simulate)
+
+    begin_time = time.time()
+    score_time_per_model = rms.profile_filtering(data_loader)
+    train_time_per_epoch = rms.profile_refinement(data_loader)
+    K, U, N = rms.coordination(budget, score_time_per_model, train_time_per_epoch, False)
+
+    k_models, all_models, p1_trace_highest_score, p1_trace_highest_scored_models_id = rms.filtering_phase(
+        N, K, train_loader=data_loader[0])
+
+    # Run refinement pahse
+    data = {'u': U, 'k_models': k_models}
+    response = requests.post(args.url, json=data).json()
+
+    best_arch, best_arch_performance = response["best_arch"], response["best_arch_performance"]
+
+    end_time = time.time()
+    real_time_usage = end_time - begin_time
+
+    return orjson.dumps(
+        {"best_arch": best_arch,
+         "best_arch_performance": best_arch_performance,
+         "time_usage": real_time_usage}).decode('utf-8')
+
+
+@exception_catcher
+def model_selection_trails_workloads(params: dict, args: Namespace):
+    """
+    Run filtering (explore N models) and refinement phase (refine K models) for benchmarking latency.
+    """
+
+    mini_batch_m = params["mini_batch"]
+    n = int(params["n"])
+    k = int(params["k"])
+
+    from src.logger import logger
+    logger.info(f"begin run model_selection_trails_workloads CPU + GPU, explore N={n} and K={k}")
+
+    from src.eva_engine.run_ms import RunModelSelection
+
+    begin_time = time.time()
+    mini_batch_data = json.loads(mini_batch_m)
+    dataloader = generate_dataloader(mini_batch_data=mini_batch_data, args=args)
+    rms = RunModelSelection(args.search_space, args, is_simulate=args.is_simulate)
+    k_models, _, _, _ = rms.filtering_phase(N=n, K=k, train_loader=dataloader)
+
+    # Run refinement pahse
+    data = {'u': 1, 'k_models': k_models}
+    response = requests.post(args.url, json=data).json()
+    best_arch, best_arch_performance = response["best_arch"], response["best_arch_performance"]
+    real_time_usage = time.time() - begin_time
+
+    return orjson.dumps(
+        {"best_arch": best_arch,
+         "best_arch_performance": best_arch_performance,
+         "time_usage": real_time_usage
+         }).decode('utf-8')
 
 
 if __name__ == "__main__":

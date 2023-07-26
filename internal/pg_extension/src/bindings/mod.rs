@@ -1,5 +1,6 @@
 
 
 #[cfg(feature = "python")]
-pub mod model_selection;
+pub mod ms;
+mod ml_register;
 

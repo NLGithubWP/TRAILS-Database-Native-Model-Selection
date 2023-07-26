@@ -75,6 +75,7 @@ class RunModelSelection:
         :param run_workers:
         :return:
         """
+        begin_time = time.time()
         score_time_per_model = self.profile_filtering(data_loader)
         train_time_per_epoch = self.profile_refinement(data_loader)
         K, U, N = self.coordination(budget, score_time_per_model, train_time_per_epoch, only_phase1)
@@ -83,7 +84,11 @@ class RunModelSelection:
         best_arch, best_arch_performance = self.refinement_phase(
             U, k_models, data_loader[0], data_loader[1])
 
-        return best_arch, best_arch_performance, all_models, p1_trace_highest_score, p1_trace_highest_scored_models_id
+        end_time = time.time()
+        real_time_usage = end_time - begin_time
+
+        return best_arch, best_arch_performance, real_time_usage, all_models, \
+               p1_trace_highest_score, p1_trace_highest_scored_models_id
 
     def select_model_online(self, budget: float, data_loader: List[DataLoader],
                             only_phase1: bool = False, run_workers: int = 1):
