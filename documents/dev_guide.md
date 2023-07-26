@@ -11,40 +11,6 @@ docker run -d --name trails \
   trails
 ```
 
-# Test the pg-extension works
-
-```sql
-su postgres
-psql
-
-CREATE EXTENSION plpython3u;
-
-CREATE FUNCTION py_version() RETURNS text AS $$
-import sys
-return sys.version
-$$ LANGUAGE plpython3u;
-
-SELECT py_version();
-
-CREATE OR REPLACE FUNCTION test_numpy()
-  RETURNS text
-LANGUAGE plpython3u
-AS $$
-import numpy
-import torch
-import sklearn
-import torchvision
-import tqdm
-print("asdf")
-return str(numpy.__version__) + " torch: " + str(torch.__version__)
-$$;
-
-SELECT test_numpy();
-
-CREATE EXTENSION my_extension;
-SELECT hello_my_extension();=
-```
-
 # MAC locally
 ```bash
 conda activate firmest38
@@ -53,7 +19,7 @@ export DYLD_LIBRARY_PATH=/Users/kevin/opt/anaconda3/envs/firmest38/lib/:$DYLD_LI
 cargo run --features python
 ```
 
-# this is in docker image already
+# This is in docker image already
 ```bash
 cargo install --locked cargo-pgrx
 cargo pgrx init --pg14 /usr/bin/pg_config
@@ -129,17 +95,53 @@ E.g, `ARRAY['col1', 'col2', 'col3', 'label']`  => `nfield` = 3
 CREATE EXTENSION pg_extension;
 
 # test if the UDF is there or not
-SELECT *  FROM pg_proc  WHERE proname = 'coordinator';
+SELECT *  FROM pg_proc  WHERE proname = 'model_selection_workloads';
 SELECT coordinator('0.08244', '168.830156', '800', false, '/project/TRAILS/internal/ml/model_selection/config.ini');
 
 # this is database name, columns used, time budget, batch size, and config file
-CALL model_selection_sp('dummy', ARRAY['col1', 'col2', 'col3', 'label'], '1000', 32, '/project/TRAILS/internal/ml/model_selection/config.ini');
+CALL model_selection_sp('dummy', ARRAY['col1', 'col2', 'col3', 'label'], '30', 32, '/project/TRAILS/internal/ml/model_selection/config.ini');
 
 
 # end2end model selection
-CALL model_selection_end2end('dummy', ARRAY['col1', 'col2', 'col3', 'label'], '1000', '/project/TRAILS/internal/ml/model_selection/config.ini');
+CALL model_selection_end2end('dummy', ARRAY['col1', 'col2', 'col3', 'label'], '30', '/project/TRAILS/internal/ml/model_selection/config.ini');
 
+# filtering & refinement with workloads
+CALL model_selection_workloads('dummy', ARRAY['col1', 'col2', 'col3', 'label'], 100, 10, '/project/TRAILS/internal/ml/model_selection/config.ini');
 
+```
+
+# Test the pg-extension works
+
+```sql
+su postgres
+psql
+
+CREATE EXTENSION plpython3u;
+
+CREATE FUNCTION py_version() RETURNS text AS $$
+import sys
+return sys.version
+$$ LANGUAGE plpython3u;
+
+SELECT py_version();
+
+CREATE OR REPLACE FUNCTION test_numpy()
+  RETURNS text
+LANGUAGE plpython3u
+AS $$
+import numpy
+import torch
+import sklearn
+import torchvision
+import tqdm
+print("asdf")
+return str(numpy.__version__) + " torch: " + str(torch.__version__)
+$$;
+
+SELECT test_numpy();
+
+CREATE EXTENSION my_extension;
+SELECT hello_my_extension();=
 ```
 
 # Container log
