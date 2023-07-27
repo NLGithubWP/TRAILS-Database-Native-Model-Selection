@@ -184,7 +184,7 @@ def parse_arguments():
     parser.add_argument('--max_load', type=int, default=-1, help="Max Loading time")
 
     # refinement server
-    parser.add_argument('--url', type=str, default=-1, help="URL of the refinement phase")
+    parser.add_argument('--url', type=str, default=-1, help="Max Loading time")
 
     seed_everything()
 

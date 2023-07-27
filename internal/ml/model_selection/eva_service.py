@@ -5,7 +5,6 @@ import argparse
 import configparser
 from sanic import Sanic
 from sanic.exceptions import InvalidUsage
-from src.dataset_utils.stream_dataloader import StreamingDataLoader
 from sanic.response import json
 
 ts = calendar.timegm(time.gmtime())
@@ -13,6 +12,7 @@ os.environ.setdefault("log_logger_folder_name", "eval_service")
 os.environ.setdefault("log_file_name", "eval_service_" + str(ts) + ".log")
 from src.logger import logger
 from src.eva_engine.run_ms import RunModelSelection
+from src.dataset_utils.stream_dataloader import StreamingDataLoader
 
 
 def parse_config_arguments(config_path: str):

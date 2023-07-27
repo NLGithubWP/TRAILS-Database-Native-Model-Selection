@@ -6,18 +6,34 @@ from typing import Any, List, Dict, Tuple
 from sanic import Sanic
 from sanic.response import json
 import calendar
-
+import os
 import logging
 
+log_logger_folder_name = "log_cache_service"
+if not os.path.exists(f"./{log_logger_folder_name}"):
+    os.makedirs(f"./{log_logger_folder_name}")
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)-8s %(message)s',
                     datefmt='%d %b %Y %H:%M:%S',
-                    filename=f"./log_cache_service/log_{str(calendar.timegm(time.gmtime()))}", filemode='w')
+                    filename=f"./{log_logger_folder_name}/log_{str(calendar.timegm(time.gmtime()))}", filemode='w')
+
+USER = "postgres"
+HOST = "127.0.0.1"
+PORT = "28814"
+DB_NAME = "pg_extension"
+TABLE = "dummy"
+CACHE_SIZE = 10
 
 
 class CacheService:
-    def __init__(self, database: str, table: str, columns: List, max_size: int = 100):
+    def __init__(self, database: str, table: str, columns: List, max_size: int = CACHE_SIZE):
+        """
+        database: database to use
+        table: which table
+        columns: selected cols
+        max_size: max batches to cache
+        """
         self.database = database
         self.table = table
         self.columns = columns
@@ -52,18 +68,18 @@ class CacheService:
         return {'id': feat_id, 'value': feat_value, 'y': y}
 
     def fetch_data(self):
-        with psycopg2.connect(database=self.database, user="postgres", host="127.0.0.1", port="28814") as conn:
+        with psycopg2.connect(database=self.database, user=USER, host=HOST, port=PORT) as conn:
             while True:
                 try:
                     # fetch and preprocess data from PostgreSQL
                     batch = self.fetch_and_preprocess(conn)
+                    # block until a free slot is available
                     self.queue.put(batch)
-                    logger.info(f"Data fetched and preprocessed, queue size: {self.queue.qsize()}")
-                    time.sleep(0.2)
+                    time.sleep(0.1)
                 except psycopg2.OperationalError:
                     logger.exception("Lost connection to the database, trying to reconnect...")
                     time.sleep(5)  # wait before trying to establish a new connection
-                    conn = psycopg2.connect(database=self.database, user="postgres", host="127.0.0.1", port="28814")
+                    conn = psycopg2.connect(database=self.database, user=USER, host=HOST, port=PORT)
 
     def fetch_and_preprocess(self, conn):
         begin_time = time.time()
@@ -73,7 +89,9 @@ class CacheService:
         cur.execute(f"SELECT {columns_str} FROM {self.table} LIMIT 10")
         rows = cur.fetchall()
         batch = self.pre_processing(rows)
-        print(f"Data is fetched {time.time() - begin_time}")
+
+        logger.info(f"Data is fetched {time.time() - begin_time}")
+
         return batch
 
     def get(self):
@@ -98,9 +116,8 @@ async def start_service(request):
         print(f"columns are {columns}")
 
         if not hasattr(app.ctx, 'cache_service'):
-            app.ctx.cache_service = CacheService("pg_extension", "dummy", columns, 10)
+            app.ctx.cache_service = CacheService(DB_NAME, TABLE, columns, CACHE_SIZE)
 
-        logger.info(f"Serve the get request, Now the queue size: {app.ctx.cache_service.queue.qsize()}")
         return json("OK")
     except Exception as e:
         return json({"error": str(e)}, status=500)
@@ -113,7 +130,6 @@ async def serve_get_request(request):
         return json({"error": "cache_service not start yet"}, status=404)
 
     data = app.ctx.cache_service.get()
-    logger.info(f"Serve the get requet, Now the queue size: {app.ctx.cache_service.queue.qsize()}")
     print(f"return data {data}")
     if data is None:
         return json({"error": "No data available"}, status=404)

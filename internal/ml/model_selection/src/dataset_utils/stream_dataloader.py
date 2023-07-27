@@ -1,7 +1,9 @@
 import queue
 import threading
 import requests
+import time
 import torch
+from src.logger import logger
 
 
 class StreamingDataLoader:
@@ -14,7 +16,10 @@ class StreamingDataLoader:
 
     def fetch_data(self):
         while not self.stop_event.is_set():
+            begin = time.time()
             response = requests.get(f'{self.cache_svc_url}/')
+
+            logger.log(f"Fetch data, time usage = {time.time() - begin}")
             if response.status_code == 200:
                 batch = response.json()
 
@@ -48,14 +53,12 @@ class StreamingDataLoader:
 
 if __name__ == "__main__":
 
-    import requests
     url = 'http://localhost:8093/'
     columns = ['col1', 'col2', 'col3', 'label']
     response = requests.post(url, json={'columns': columns})
     print(response.json())
 
     stream = StreamingDataLoader(cache_svc_url="http://localhost:8093")
-    import time
     for batch_idx, batch in enumerate(stream):
         print(batch_idx, batch)
         time.sleep(1)
