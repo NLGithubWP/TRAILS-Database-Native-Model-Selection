@@ -84,7 +84,8 @@ def parse_config_arguments(config_path: str):
     args.only_phase1 = parser.getboolean('ANYTIME', 'only_phase1')
     args.is_simulate = parser.getboolean('ANYTIME', 'is_simulate')
 
-    args.url = parser.get('REFINEMENT_SERVER', 'url')
+    args.refinement_url = parser.get('SERVER', 'refinement_url')
+    args.cache_svc_url = parser.get('SERVER', 'cache_svc_url')
 
     return args
 
@@ -94,7 +95,7 @@ def exception_catcher(func):
         try:
             # each functon accepts a json string
             params = json.loads(encoded_str)
-            config_file = params.pop("config_file")
+            config_file = params.get("config_file")
 
             # Parse the config file
             args = parse_config_arguments(config_file)
@@ -334,12 +335,15 @@ def model_selection_trails(params: dict, args: Namespace):
     mini_batch_data = json.loads(params["mini_batch"])
     budget = float(params["budget"])
 
+    # 1. launch cache service
+    columns = list(mini_batch_data[0].keys())
+    requests.post(args.cache_svc_url, json={'columns': columns})
+
     from src.eva_engine.run_ms import RunModelSelection
 
+    # 2. profiling & coordination
     dataloader = generate_dataloader(mini_batch_data=mini_batch_data, args=args)
-
     data_loader = [dataloader, dataloader, dataloader]
-
     rms = RunModelSelection(args.search_space, args, is_simulate=args.is_simulate)
 
     begin_time = time.time()
@@ -347,12 +351,13 @@ def model_selection_trails(params: dict, args: Namespace):
     train_time_per_epoch = rms.profile_refinement(data_loader)
     K, U, N = rms.coordination(budget, score_time_per_model, train_time_per_epoch, False)
 
+    # 3. filtering
     k_models, all_models, p1_trace_highest_score, p1_trace_highest_scored_models_id = rms.filtering_phase(
         N, K, train_loader=data_loader[0])
 
-    # Run refinement pahse
-    data = {'u': U, 'k_models': k_models}
-    response = requests.post(args.url, json=data).json()
+    # 4. Run refinement pahse
+    data = {'u': 1, 'k_models': k_models, "config_file": args.config_file}
+    response = requests.post(args.refinement_url, json=data).json()
 
     best_arch, best_arch_performance = response["best_arch"], response["best_arch_performance"]
 
@@ -375,20 +380,25 @@ def model_selection_trails_workloads(params: dict, args: Namespace):
     n = int(params["n"])
     k = int(params["k"])
 
+    # 1. launch cache service
+    columns = list(mini_batch_m[0].keys())
+    requests.post(args.cache_svc_url, json={'columns': columns})
+
     from src.logger import logger
     logger.info(f"begin run model_selection_trails_workloads CPU + GPU, explore N={n} and K={k}")
 
     from src.eva_engine.run_ms import RunModelSelection
 
+    # 2. filtering
     begin_time = time.time()
     mini_batch_data = json.loads(mini_batch_m)
     dataloader = generate_dataloader(mini_batch_data=mini_batch_data, args=args)
     rms = RunModelSelection(args.search_space, args, is_simulate=args.is_simulate)
     k_models, _, _, _ = rms.filtering_phase(N=n, K=k, train_loader=dataloader)
 
-    # Run refinement pahse
-    data = {'u': 1, 'k_models': k_models}
-    response = requests.post(args.url, json=data).json()
+    # 3. Run refinement pahse
+    data = {'u': 1, 'k_models': k_models, "config_file": args.config_file}
+    response = requests.post(args.refinement_url, json=data).json()
     best_arch, best_arch_performance = response["best_arch"], response["best_arch_performance"]
     real_time_usage = time.time() - begin_time
 
