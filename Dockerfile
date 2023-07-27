@@ -2,7 +2,7 @@ FROM ubuntu:20.04
 
 # Install Python, Vim, and necessary libraries
 RUN apt-get update && \
-    apt-get install -y software-properties-common wget gnupg2 lsb-release && \
+    apt-get install -y software-properties-common wget gnupg2 lsb-release git && \
     add-apt-repository ppa:deadsnakes/ppa && \
     apt-get install -y python3.6 python3-pip vim && \
     apt-get clean && \
@@ -52,7 +52,7 @@ ENV PYTHONPATH="${PYTHONPATH}:/project/TRAILS/internal/ml/model_selection"
 ENV PGDATA /var/lib/postgresql/data
 
 WORKDIR /project
-COPY ./requirement.txt ./requirement.txt
+COPY ./internal/ml/model_selection/requirement.txt ./requirement.txt
 RUN pip install -r requirement.txt
 
 # Initialize PostgreSQL data directory

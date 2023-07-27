@@ -337,7 +337,12 @@ def model_selection_trails(params: dict, args: Namespace):
 
     # 1. launch cache service
     columns = list(mini_batch_data[0].keys())
-    requests.post(args.cache_svc_url, json={'columns': columns})
+    requests.post(args.cache_svc_url,
+                  json={'columns': columns, 'name_space': "train", 'table_name': "dummy",
+                        "batch_size": len(mini_batch_data)})
+    requests.post(args.cache_svc_url,
+                  json={'columns': columns, 'name_space': "valid", 'table_name': "dummy",
+                        "batch_size": len(mini_batch_data)})
 
     from src.eva_engine.run_ms import RunModelSelection
 
@@ -356,7 +361,7 @@ def model_selection_trails(params: dict, args: Namespace):
         N, K, train_loader=data_loader[0])
 
     # 4. Run refinement pahse
-    data = {'u': 1, 'k_models': k_models, "config_file": args.config_file}
+    data = {'u': 1, 'k_models': k_models, "table_name": "dummy", "config_file": args.config_file}
     response = requests.post(args.refinement_url, json=data).json()
 
     best_arch, best_arch_performance = response["best_arch"], response["best_arch_performance"]
@@ -376,13 +381,20 @@ def model_selection_trails_workloads(params: dict, args: Namespace):
     Run filtering (explore N models) and refinement phase (refine K models) for benchmarking latency.
     """
 
-    mini_batch_m = params["mini_batch"]
+    begin_time = time.time()
+    mini_batch_data = json.loads(params["mini_batch"])
     n = int(params["n"])
     k = int(params["k"])
 
-    # 1. launch cache service
-    columns = list(mini_batch_m[0].keys())
-    requests.post(args.cache_svc_url, json={'columns': columns})
+    # 1. launch cache service, for both train and valid.
+    # todo: use real data table or others
+    columns = list(mini_batch_data[0].keys())
+    requests.post(args.cache_svc_url,
+                  json={'columns': columns, 'name_space': "train", 'table_name': "dummy",
+                        "batch_size": len(mini_batch_data)})
+    requests.post(args.cache_svc_url,
+                  json={'columns': columns, 'name_space': "valid", 'table_name': "dummy",
+                        "batch_size": len(mini_batch_data)})
 
     from src.logger import logger
     logger.info(f"begin run model_selection_trails_workloads CPU + GPU, explore N={n} and K={k}")
@@ -390,14 +402,12 @@ def model_selection_trails_workloads(params: dict, args: Namespace):
     from src.eva_engine.run_ms import RunModelSelection
 
     # 2. filtering
-    begin_time = time.time()
-    mini_batch_data = json.loads(mini_batch_m)
     dataloader = generate_dataloader(mini_batch_data=mini_batch_data, args=args)
     rms = RunModelSelection(args.search_space, args, is_simulate=args.is_simulate)
     k_models, _, _, _ = rms.filtering_phase(N=n, K=k, train_loader=dataloader)
 
     # 3. Run refinement pahse
-    data = {'u': 1, 'k_models': k_models, "config_file": args.config_file}
+    data = {'u': 1, 'k_models': k_models, "table_name": "dummy", "config_file": args.config_file}
     response = requests.post(args.refinement_url, json=data).json()
     best_arch, best_arch_performance = response["best_arch"], response["best_arch_performance"]
     real_time_usage = time.time() - begin_time

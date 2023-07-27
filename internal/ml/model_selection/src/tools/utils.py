@@ -430,7 +430,7 @@ def roc_auc_compute_fn(y_pred, y_target):
     try:
         return roc_auc_score(y_true, y_pred)
     except ValueError:
-        print('ValueError: Only one class present in y_true. ROC AUC score is not defined in that case.')
+        # print('ValueError: Only one class present in y_true. ROC AUC score is not defined in that case.')
         return 0.
 
 

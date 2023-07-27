@@ -7,7 +7,11 @@ from src.logger import logger
 
 
 class StreamingDataLoader:
-    def __init__(self, cache_svc_url):
+    def __init__(self, cache_svc_url, table_name, name_space):
+        self.table_name = table_name
+        # train, valid, test
+        self.name_space = name_space
+        self.end_signal = "end_position"
         self.cache_svc_url = cache_svc_url
         self.data_queue = queue.Queue(maxsize=10)
         self.stop_event = threading.Event()
@@ -16,20 +20,31 @@ class StreamingDataLoader:
 
     def fetch_data(self):
         while not self.stop_event.is_set():
-            begin = time.time()
-            response = requests.get(f'{self.cache_svc_url}/')
+            response = requests.get(
+                f'{self.cache_svc_url}/',
+                params={
+                    'table_name': self.table_name,
+                    'name_space': self.name_space})
 
-            logger.log(f"Fetch data, time usage = {time.time() - begin}")
             if response.status_code == 200:
                 batch = response.json()
 
-                # convert to tensor again
-                id_tensor = torch.LongTensor(batch['id'])
-                value_tensor = torch.FloatTensor(batch['value'])
-                y_tensor = torch.FloatTensor(batch['y'])
-                data_tensor = {'id': id_tensor, 'value': value_tensor, 'y': y_tensor}
-                print(f"put to data queue: {data_tensor}")
-                self.data_queue.put(data_tensor)
+                # in trianing, we use iteraiton-per-epoch to control the end
+                if batch == self.end_signal:
+                    if self.name_space == "valid":
+                        # end_signal in inference, stop !
+                        logger.info("[StreamingDataLoader]: last iteration in valid is meet!")
+                        self.data_queue.put({self.end_signal: True})
+                    else:
+                        # end_signal in trianing, then keep training
+                        continue
+                else:
+                    # convert to tensor again
+                    id_tensor = torch.LongTensor(batch['id'])
+                    value_tensor = torch.FloatTensor(batch['value'])
+                    y_tensor = torch.FloatTensor(batch['y'])
+                    data_tensor = {'id': id_tensor, 'value': value_tensor, 'y': y_tensor}
+                    self.data_queue.put(data_tensor)
             else:
                 print(response.json())
                 time.sleep(5)
@@ -41,7 +56,11 @@ class StreamingDataLoader:
         if self.data_queue.empty() and not self.thread.is_alive():
             raise StopIteration
         else:
-            return self.data_queue.get(block=True)
+            data = self.data_queue.get(block=True)
+            if self.end_signal in data:
+                raise StopIteration
+            else:
+                return data
 
     def __len__(self):
         return self.data_queue.qsize()
@@ -51,14 +70,4 @@ class StreamingDataLoader:
         self.thread.join()
 
 
-if __name__ == "__main__":
 
-    url = 'http://localhost:8093/'
-    columns = ['col1', 'col2', 'col3', 'label']
-    response = requests.post(url, json={'columns': columns})
-    print(response.json())
-
-    stream = StreamingDataLoader(cache_svc_url="http://localhost:8093")
-    for batch_idx, batch in enumerate(stream):
-        print(batch_idx, batch)
-        time.sleep(1)

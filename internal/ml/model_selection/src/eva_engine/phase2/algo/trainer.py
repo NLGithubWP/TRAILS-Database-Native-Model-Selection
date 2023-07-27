@@ -67,6 +67,7 @@ class ModelTrainer:
 
         info_dic = {}
         valid_auc = -1
+        valid_loss = 0
         for epoch in range(epoch_num):
             logger.info(f'Epoch [{epoch:3d}/{epoch_num:3d}]')
             # train and eval
@@ -114,6 +115,7 @@ class ModelTrainer:
         time_avg, timestamp = utils.AvgrageMeter(), time.time()
         loss_avg, auc_avg = utils.AvgrageMeter(), utils.AvgrageMeter()
 
+        batch_idx = 0
         for batch_idx, batch in enumerate(data_loader):
             # if suer set this, then only train fix number of iteras
             # stop training current epoch for evaluation
@@ -147,6 +149,11 @@ class ModelTrainer:
             timestamp = time.time()
             if batch_idx % args.report_freq == 0:
                 logger.info(f'Epoch [{epoch:3d}/{args.epoch_num}][{batch_idx:3d}/{len(data_loader)}]\t'
+                            f'{time_avg.val:.3f} ({time_avg.avg:.3f}) AUC {auc_avg.val:4f} ({auc_avg.avg:4f}) '
+                            f'Loss {loss_avg.val:8.4f} ({loss_avg.avg:8.4f})')
+
+        # record the last epoch information
+        logger.info(f'Epoch [{epoch:3d}/{args.epoch_num}][{batch_idx:3d}/{len(data_loader)}]\t'
                             f'{time_avg.val:.3f} ({time_avg.avg:.3f}) AUC {auc_avg.val:4f} ({auc_avg.avg:4f}) '
                             f'Loss {loss_avg.val:8.4f} ({loss_avg.avg:8.4f})')
 

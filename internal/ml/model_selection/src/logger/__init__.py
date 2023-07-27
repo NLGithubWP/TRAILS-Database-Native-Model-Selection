@@ -17,7 +17,7 @@ if os.environ.get("log_file_name") == None:
 else:
     log_name = f"{log_logger_folder_name}/" + os.environ.get("log_file_name")
 
-logging.basicConfig(level=logging.DEBUG,
+logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(levelname)-8s %(message)s',
                     datefmt='%d %b %Y %H:%M:%S',
                     filename=log_name, filemode='w')
