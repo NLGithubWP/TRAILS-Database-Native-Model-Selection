@@ -5,7 +5,15 @@ import psycopg2
 from typing import Any, List, Dict, Tuple
 from sanic import Sanic
 from sanic.response import json
-from log import logger
+import calendar
+
+import logging
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s %(levelname)-8s %(message)s',
+                    datefmt='%d %b %Y %H:%M:%S',
+                    filename=f"./log_cache_service/log_{str(calendar.timegm(time.gmtime()))}", filemode='w')
 
 
 class CacheService:
