@@ -59,7 +59,7 @@ if __name__ == "__main__":
                              search_space_ins=search_space_ins,
                              train_loader=train_loader,
                              is_simulate=False,
-                             metrics=CommonVars.ALL_EVALUATOR)
+                             metrics=args.tfmem)
 
     sampler = SequenceSampler(search_space_ins)
 

@@ -149,6 +149,7 @@ def anytime_exp_set(parser):
 
 def system_performance_exp(parser):
     parser.add_argument('--models_explore', default=1000, type=int, help='# models to explore in the filtering phase')
+    parser.add_argument('--tfmem', default="all_matrix", type=int, help='the matrix t use')
 
 
 def parse_arguments():
