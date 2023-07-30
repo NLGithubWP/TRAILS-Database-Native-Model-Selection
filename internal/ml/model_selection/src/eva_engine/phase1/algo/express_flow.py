@@ -3,12 +3,14 @@ from src.eva_engine.phase1.utils.autograd_hacks import *
 from torch import nn
 from src.common.constant import Config
 
+
 class ExpressFlowEvaluator(Evaluator):
 
     def __init__(self):
         super().__init__()
 
-    def evaluate(self, arch: nn.Module, device, batch_data: object, batch_labels: torch.Tensor, space_name: str) -> float:
+    def evaluate(self, arch: nn.Module, device, batch_data: object, batch_labels: torch.Tensor,
+                 space_name: str) -> float:
 
         # # 1. Convert params to their abs. Record sign for converting it back.
         @torch.no_grad()
@@ -56,9 +58,9 @@ class ExpressFlowEvaluator(Evaluator):
         torch.sum(out).backward()
 
         total_sum = 0.0 * Vs[0].flatten().sum() * list(Vs[0].shape)[1] / 10 \
-                  + 0.0 * Vs[1].flatten().sum() * list(Vs[1].shape)[1] / 10 \
-                  + Vs[2].flatten().sum() * list(Vs[2].shape)[1] / 10 \
-                  + Vs[3].flatten().sum() * list(Vs[3].shape)[1] / 10
+                    + 0.0 * Vs[1].flatten().sum() * list(Vs[1].shape)[1] / 10 \
+                    + Vs[2].flatten().sum() * list(Vs[2].shape)[1] / 10 \
+                    + Vs[3].flatten().sum() * list(Vs[3].shape)[1] / 10
 
         total_sum = total_sum.item()
 
