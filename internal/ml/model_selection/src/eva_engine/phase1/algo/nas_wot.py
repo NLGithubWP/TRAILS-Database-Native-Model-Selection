@@ -2,6 +2,7 @@ import numpy as np
 import torch
 from torch import nn
 from src.eva_engine.phase1.algo.alg_base import Evaluator
+from src.common.constant import Config
 
 
 class NWTEvaluator(Evaluator):
@@ -9,7 +10,8 @@ class NWTEvaluator(Evaluator):
     def __init__(self):
         super().__init__()
 
-    def evaluate(self, arch: nn.Module, device, batch_data: object, batch_labels: torch.Tensor) -> float:
+    def evaluate(self, arch: nn.Module, device, batch_data: object, batch_labels: torch.Tensor,
+                 space_name: str) -> float:
         """
         This is implementation of paper "Neural Architecture Search without Training"
         The score takes 5 steps:
@@ -46,13 +48,11 @@ class NWTEvaluator(Evaluator):
         # add new attribute K
 
         # this is for the structure data,
-        if isinstance(batch_data, dict):
+        if space_name == Config.MLPSP:
             arch.K = np.zeros((batch_data["value"].shape[0], batch_data["value"].shape[0]))
-        elif isinstance(batch_data, torch.Tensor):
+        else:
             arch.K = np.zeros((batch_data.shape[0], batch_data.shape[0]))
             batch_data = batch_data.to(device)
-        else:
-            raise
 
         # def counting_backward_hook(module, inp, out):
         #     module.visited_backwards = True

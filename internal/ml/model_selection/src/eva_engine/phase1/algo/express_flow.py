@@ -1,14 +1,14 @@
 from src.eva_engine.phase1.algo.alg_base import Evaluator
 from src.eva_engine.phase1.utils.autograd_hacks import *
 from torch import nn
-
+from src.common.constant import Config
 
 class ExpressFlowEvaluator(Evaluator):
 
     def __init__(self):
         super().__init__()
 
-    def evaluate(self, arch: nn.Module, device, batch_data: object, batch_labels: torch.Tensor) -> float:
+    def evaluate(self, arch: nn.Module, device, batch_data: object, batch_labels: torch.Tensor, space_name: str) -> float:
 
         # # 1. Convert params to their abs. Record sign for converting it back.
         @torch.no_grad()
@@ -46,23 +46,19 @@ class ExpressFlowEvaluator(Evaluator):
             if isinstance(module, nn.ReLU):
                 hooks.append(module.register_forward_hook(hook_fn))
 
-        if isinstance(batch_data, torch.Tensor):
-            feature_dim = list(batch_data[0, :].shape)
-            # add one dimension to feature dim, [1] + [3, 32, 32] = [1, 3, 32, 32]
-            batch_data = torch.ones([1] + feature_dim).float().to(device)
-            out = arch.forward(batch_data)
+        arch.double()
+        if space_name == Config.MLPSP:
+            out = arch.forward_wo_embedding(batch_data.double())
         else:
-            # this is for the embedding data,
-            batch_data = arch.generate_all_ones_embedding().float().to(device)
-            out = arch.forward_wo_embedding(batch_data)
+            out = arch.forward(batch_data.double())
 
         # directly sum
         torch.sum(out).backward()
 
         total_sum = 0.0 * Vs[0].flatten().sum() * list(Vs[0].shape)[1] / 10 \
-                    + 0.0 * Vs[1].flatten().sum() * list(Vs[1].shape)[1] / 10 \
-                    + Vs[2].flatten().sum() * list(Vs[2].shape)[1] / 10 \
-                    + Vs[3].flatten().sum() * list(Vs[3].shape)[1] / 10
+                  + 0.0 * Vs[1].flatten().sum() * list(Vs[1].shape)[1] / 10 \
+                  + Vs[2].flatten().sum() * list(Vs[2].shape)[1] / 10 \
+                  + Vs[3].flatten().sum() * list(Vs[3].shape)[1] / 10
 
         total_sum = total_sum.item()
 

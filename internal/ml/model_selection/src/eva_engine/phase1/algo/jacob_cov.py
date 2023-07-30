@@ -2,6 +2,7 @@
 import numpy as np
 
 from src.eva_engine.phase1.algo.alg_base import Evaluator
+from src.common.constant import Config
 from src.eva_engine.phase1.utils.autograd_hacks import *
 from torch import nn
 from src.logger import logger
@@ -12,7 +13,7 @@ class JacobConvEvaluator(Evaluator):
     def __init__(self):
         super().__init__()
 
-    def evaluate(self, arch: nn.Module, device, batch_data: object, batch_labels: torch.Tensor) -> float:
+    def evaluate(self, arch: nn.Module, device, batch_data: object, batch_labels: torch.Tensor, space_name: str) -> float:
         """
         This is another implementation of paper "Neural Architecture Search without Training"
         This is from implementation of paper "ZERO-COST PROXIES FOR LIGHTWEIGHT NAS"

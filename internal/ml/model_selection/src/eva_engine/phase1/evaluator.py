@@ -10,11 +10,15 @@ from src.query_api.interface import SimulateScore
 from src.dataset_utils import dataset
 from torch.utils.data import DataLoader
 import torch
+import time
+from torch import nn
+from src.search_space.core.space import SpaceWrapper
 
 
 class P1Evaluator:
 
-    def __init__(self, device: str, num_label: int, dataset_name: str, search_space_ins,
+    def __init__(self, device: str, num_label: int, dataset_name: str,
+                 search_space_ins: SpaceWrapper,
                  train_loader: DataLoader, is_simulate: bool, metrics: str = CommonVars.ExpressFlow):
         """
         :param device:
@@ -61,6 +65,18 @@ class P1Evaluator:
             else:
                 raise NotImplementedError
 
+        self.time_usage = {
+            "compute": [],  # compute time
+            "io_model": [],  # context switch
+            "io_data": [],  # context switch
+        }
+
+    def if_cuda_avaiable(self):
+        if "cuda" in self.device:
+            return True
+        else:
+            return False
+
     def p1_evaluate(self, data_str: str) -> dict:
         """
         :param data_str: encoded ModelAcquireData
@@ -92,6 +108,7 @@ class P1Evaluator:
         # naswot_score, _ = evaluator_register[CommonVars.NAS_WOT].evaluate_wrapper(
         #     arch=new_model,
         #     device=self.device,
+        #     space_name = self.search_space_ins.name,
         #     batch_data=self.mini_batch,
         #     batch_labels=self.mini_batch_targets)
         #
@@ -101,6 +118,7 @@ class P1Evaluator:
         # synflow_score, _ = evaluator_register[CommonVars.PRUNE_SYNFLOW].evaluate_wrapper(
         #     arch=new_model,
         #     device=self.device,
+        #     space_name = self.search_space_ins.name,
         #     batch_data=self.mini_batch,
         #     batch_labels=self.mini_batch_targets)
         #
@@ -119,10 +137,14 @@ class P1Evaluator:
                     bn = True
                 new_model = self.search_space_ins.new_arch_scratch_with_default_setting(model_encoding, bn=bn)
                 new_model = new_model.to(self.device)
+
+                mini_batch = self.data_pre_processing(alg, new_model)
+
                 naswot_score, _ = score_evaluator.evaluate_wrapper(
                     arch=new_model,
                     device=self.device,
-                    batch_data=self.mini_batch,
+                    space_name=self.search_space_ins.name,
+                    batch_data=mini_batch,
                     batch_labels=self.mini_batch_targets)
                 model_score[alg] = naswot_score
 
@@ -136,20 +158,31 @@ class P1Evaluator:
                 bn = False
             else:
                 bn = True
+
+            # measure model load time
+            begin = time.time()
             new_model = self.search_space_ins.new_arch_scratch_with_default_setting(model_encoding, bn=bn)
             new_model = new_model.to(self.device)
+            if self.if_cuda_avaiable():
+                torch.cuda.synchronize()
+            self.time_usage["io_model"].append(time.time() - begin)
 
-            _score, _ = evaluator_register[self.metrics].evaluate_wrapper(
+            # measure data load time
+            begin = time.time()
+            mini_batch = self.data_pre_processing(self.metrics, new_model)
+            self.time_usage["io_data"].append(time.time() - begin)
+
+            _score, curr_time = evaluator_register[self.metrics].evaluate_wrapper(
                 arch=new_model,
                 device=self.device,
-                batch_data=self.mini_batch,
+                space_name=self.search_space_ins.name,
+                batch_data=mini_batch,
                 batch_labels=self.mini_batch_targets)
 
-            model_score = {self.metrics: _score}
+            self.time_usage["compute"].append(curr_time)
 
             del new_model
-            if "cuda" in self.device:
-                torch.cuda.empty_cache()
+            model_score = {self.metrics: _score}
 
         return model_score
 
@@ -161,3 +194,21 @@ class P1Evaluator:
         model_score = self.score_getter.query_tfmem_rank_score(arch_id=model_acquire.model_id)
 
         return model_score
+
+    def data_pre_processing(self, metrics: str, new_model: nn.Module):
+        """
+        To measure the io/compute time more acccuretely, we pick the data pre_processing here.
+        """
+
+        # for those two metrics, we use all one embedding for efficiency (as in their paper)
+        if metrics in [CommonVars.ExpressFlow, CommonVars.PRUNE_SYNFLOW]:
+            if isinstance(self.mini_batch, torch.Tensor):
+                feature_dim = list(self.mini_batch[0, :].shape)
+                # add one dimension to feature dim, [1] + [3, 32, 32] = [1, 3, 32, 32]
+                mini_batch = torch.ones([1] + feature_dim).float().to(self.device)
+            else:
+                # this is for the tabular data,
+                mini_batch = new_model.generate_all_ones_embedding().float().to(self.device)
+        else:
+            mini_batch = self.mini_batch
+        return mini_batch

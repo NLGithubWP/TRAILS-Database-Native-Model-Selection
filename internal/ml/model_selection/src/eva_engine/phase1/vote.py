@@ -1,13 +1,13 @@
 from src.eva_engine.phase1.algo.alg_base import Evaluator
 from .utils.autograd_hacks import *
-
+from src.common.constant import Config
 
 class VoteEvaluator(Evaluator):
 
     def __init__(self):
         super().__init__()
 
-    def evaluate(self, arch: nn.Module, device, batch_data: object, batch_labels: torch.Tensor) -> float:
+    def evaluate(self, arch: nn.Module, device, batch_data: object, batch_labels: torch.Tensor, space_name: str) -> float:
         """
         This is simply sum over all weigth's norm to calculate models performance
         :param arch:

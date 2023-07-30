@@ -147,6 +147,10 @@ def anytime_exp_set(parser):
     parser.add_argument('--is_simulate', default='False', type=str2bool, help='Use pre-computed result or run online')
 
 
+def system_performance_exp(parser):
+    parser.add_argument('--models_explore', default=1000, type=int, help='# models to explore in the filtering phase')
+
+
 def parse_arguments():
     parser = argparse.ArgumentParser(description='system')
 
@@ -180,6 +184,8 @@ def parse_arguments():
     db4nas(parser)
     anytime_exp_set(parser)
 
+    system_performance_exp(parser)
+
     # tmp
     parser.add_argument('--max_load', type=int, default=-1, help="Max Loading time")
 
@@ -187,5 +193,6 @@ def parse_arguments():
     parser.add_argument('--url', type=str, default=-1, help="Max Loading time")
 
     seed_everything()
+
 
     return parser.parse_args()

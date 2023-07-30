@@ -65,6 +65,7 @@ if __name__ == "__main__":
 
     explored_n = 0
     output_file = f"{args.result_dir}/score_{args.search_space}_{args.dataset}_batch_size_{args.batch_size}.json"
+    time_output_file = f"{args.result_dir}/time_score_{args.search_space}_{args.dataset}_batch_size_{args.batch_size}.json"
     result = read_json(output_file)
     print(f"begin to score all, currently we already explored {len(result.keys())}")
     while True:
@@ -73,6 +74,8 @@ if __name__ == "__main__":
             break
         if arch_id in result:
             continue
+        if explored_n > args.models_explore:
+            break
         # run the model selection
         model_encoding = search_space_ins.serialize_model_encoding(arch_micro)
         model_acquire_data = ModelAcquireData(model_id=arch_id,
@@ -93,3 +96,4 @@ if __name__ == "__main__":
                         " model_scores = " + json.dumps(model_score))
             write_json(output_file, result)
     write_json(output_file, result)
+    write_json(time_output_file, _evaluator.time_usage)

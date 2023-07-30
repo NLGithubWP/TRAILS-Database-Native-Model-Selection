@@ -1,6 +1,7 @@
 import numpy as np
 
 from src.eva_engine.phase1.algo.alg_base import Evaluator
+from src.common.constant import Config
 from src.eva_engine.phase1.utils.autograd_hacks import *
 from torch import nn
 
@@ -10,7 +11,7 @@ class NTKCondNumEvaluator(Evaluator):
     def __init__(self):
         super().__init__()
 
-    def evaluate(self, arch: nn.Module, device, batch_data: object, batch_labels: torch.Tensor) -> float:
+    def evaluate(self, arch: nn.Module, device, batch_data: object, batch_labels: torch.Tensor, space_name: str) -> float:
         """
         This is implementation of paper TE-NAS,
         "NEURAL ARCHITECTURE SEARCH ON IMAGENET IN FOUR GPU HOURS: A THEORETICALLY INSPIRED PERSPECTIVE"
@@ -27,12 +28,10 @@ class NTKCondNumEvaluator(Evaluator):
         import time
 
         # this is for the structure data,
-        if isinstance(batch_data, dict):
+        if space_name == Config.MLPSP:
             batch_size = batch_data["value"].shape[0]
-        elif isinstance(batch_data, torch.Tensor):
-            batch_size = batch_data.shape[0]
         else:
-            raise
+            batch_size = batch_data.shape[0]
 
         # print("\n3. ----------------- Begin to evaluate NTK condNum -----------------\n")
         # print(showUtilization()[0])

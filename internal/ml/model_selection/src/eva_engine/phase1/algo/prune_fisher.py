@@ -1,5 +1,6 @@
 from src.eva_engine.phase1.algo.alg_base import Evaluator
 from src.eva_engine.phase1.utils.autograd_hacks import *
+from src.common.constant import Config
 from src.eva_engine.phase1.utils.p_utils import get_layer_metric_array, reshape_elements
 
 import types
@@ -10,7 +11,7 @@ class FisherEvaluator(Evaluator):
     def __init__(self):
         super().__init__()
 
-    def evaluate(self, arch: nn.Module, device, batch_data: object, batch_labels: torch.Tensor) -> float:
+    def evaluate(self, arch: nn.Module, device, batch_data: object, batch_labels: torch.Tensor, space_name: str) -> float:
         """
         This is implementation of paper
         "Faster gaze prediction with dense archworks and fisher pruning"

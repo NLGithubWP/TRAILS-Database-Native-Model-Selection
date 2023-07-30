@@ -1,6 +1,7 @@
 import torch
 from torch import nn
 from src.eva_engine.phase1.algo.alg_base import Evaluator
+from src.common.constant import Config
 from src.eva_engine.phase1.utils.p_utils import get_layer_metric_array
 
 
@@ -9,7 +10,7 @@ class SynFlowEvaluator(Evaluator):
     def __init__(self):
         super().__init__()
 
-    def evaluate(self, arch: nn.Module, device, batch_data: object, batch_labels: torch.Tensor) -> float:
+    def evaluate(self, arch: nn.Module, device, batch_data: object, batch_labels: torch.Tensor, space_name: str) -> float:
         """
         This is implementation of paper
         "Pruning neural networks without any data by iteratively conserving synaptic flow"
@@ -47,16 +48,10 @@ class SynFlowEvaluator(Evaluator):
         # 2. Compute gradients with input of one dummy example ( 1-vector with dimension [1, c, h, w] )
         arch.double()
 
-        # this is for the structure data,
-        if isinstance(batch_data, torch.Tensor):
-            feature_dim = list(batch_data[0, :].shape)
-            # add one dimension to feature dim, [1] + [3, 32, 32] = [1, 3, 32, 32]
-            batch_data = torch.ones([1] + feature_dim).double().to(device)
-            output = arch.forward(batch_data)
+        if space_name == Config.MLPSP:
+            output = arch.forward_wo_embedding(batch_data.double())
         else:
-            # this is for the embedding data,
-            batch_data = arch.generate_all_ones_embedding().to(device)
-            output = arch.forward_wo_embedding(batch_data)
+            output = arch.forward(batch_data.double())
 
         # 3.R = sum(output)
         torch.sum(output).backward()
