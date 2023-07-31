@@ -48,10 +48,15 @@ if __name__ == "__main__":
     from src.dataset_utils import dataset
     from src.common.constant import Config
 
+    output_file = f"{args.result_dir}/score_{args.search_space}_{args.dataset}_batch_size_{args.batch_size}_{args.device}.json"
+    time_output_file = f"{args.result_dir}/time_score_{args.search_space}_{args.dataset}_batch_size_{args.batch_size}_{args.device}.json"
+    res_output_file = f"{args.result_dir}/resource_score_{args.search_space}_{args.dataset}_batch_size_{args.batch_size}_{args.device}.json"
+
+    # start the resource monitor
+    stop_event, thread = print_cpu_gpu_usage(interval=0.5, output_file=res_output_file)
+
     search_space_ins = init_search_space(args)
-
     train_loader, val_loader, test_loader, class_num = generate_data_loader()
-
     _evaluator = P1Evaluator(device=args.device,
                              num_label=args.num_labels,
                              dataset_name=args.dataset,
@@ -59,19 +64,10 @@ if __name__ == "__main__":
                              train_loader=train_loader,
                              is_simulate=False,
                              metrics=args.tfmem)
-
     sampler = SequenceSampler(search_space_ins)
-
     explored_n = 0
-    output_file = f"{args.result_dir}/score_{args.search_space}_{args.dataset}_batch_size_{args.batch_size}_{args.device}.json"
-    time_output_file = f"{args.result_dir}/time_score_{args.search_space}_{args.dataset}_batch_size_{args.batch_size}_{args.device}.json"
-    res_output_file = f"{args.result_dir}/resource_score_{args.search_space}_{args.dataset}_batch_size_{args.batch_size}_{args.device}.json"
-
     result = read_json(output_file)
     print(f"begin to score all, currently we already explored {len(result.keys())}")
-
-    # start the resource monitor
-    stop_event, thread = print_cpu_gpu_usage(interval=0.5, output_file=res_output_file)
 
     while True:
         arch_id, arch_micro = sampler.sample_next_arch()
