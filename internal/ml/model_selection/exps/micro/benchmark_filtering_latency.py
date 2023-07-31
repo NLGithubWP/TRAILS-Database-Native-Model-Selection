@@ -63,7 +63,8 @@ if __name__ == "__main__":
                              search_space_ins=search_space_ins,
                              train_loader=train_loader,
                              is_simulate=False,
-                             metrics=args.tfmem)
+                             metrics=args.tfmem,
+                             enable_cache=True)
     sampler = SequenceSampler(search_space_ins)
     explored_n = 0
     result = read_json(output_file)
