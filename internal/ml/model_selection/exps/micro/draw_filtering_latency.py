@@ -44,53 +44,63 @@ gpu_colors = ['#98DF8A', '#D62728']  # Colors for GPU bars
 hatches = ['/', '\\', 'x', '.', '*']
 # hatches = ['', '', '', '', '']
 
-# Create the figure and axis
-fig, ax = plt.subplots(figsize=(6.4, 4.5))
-ax.grid()
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 
-for i, (dataset_name, json_files) in enumerate(datasets.items()):
-    # Load the JSON data for cpu
-    with open(json_files['cpu']) as f:
-        data_cpu = json.load(f)
+# Define the grid for subplots with widths ratio as 1:2
+gs = gridspec.GridSpec(1, 2, width_ratios=[1, 2])
 
-    # Load the JSON data for gpu
-    with open(json_files['gpu']) as f:
-        data_gpu = json.load(f)
+fig = plt.figure(figsize=(6.4, 4.5))
+fig.subplots_adjust(wspace=0.01)  # adjust the space between
 
-    # Plot bars for cpu
-    ax.bar(i - bar_width / 2, data_cpu['io_latency'], bar_width,
-           alpha=opacity, color=cpu_colors[0], hatch=hatches[0], edgecolor='black',
-           label='CPU IO' if i == 0 else "")
+# Split your datasets into two groups
+datasets_left = dict(list(datasets.items())[:2])
+datasets_right = dict(list(datasets.items())[2:])
 
-    ax.bar(i - bar_width / 2, data_cpu['compute_latency'], bar_width,
-           alpha=opacity, color=cpu_colors[1], hatch=hatches[1], edgecolor='black',
-           label='CPU Compute' if i == 0 else "",
-           bottom=data_cpu['io_latency'])
+for idx, datasets in enumerate([datasets_left, datasets_right]):
+    # Create a subplot with custom width
+    ax = plt.subplot(gs[idx])
 
-    # Plot bars for gpu
-    ax.bar(i + bar_width / 2, data_gpu['io_latency'], bar_width,
-           alpha=opacity, color=gpu_colors[0], hatch=hatches[2], edgecolor='black',
-           label='GPU IO' if i == 0 else "")
+    for i, (dataset_name, json_files) in enumerate(datasets.items()):
+        # Load the JSON data for cpu
+        with open(json_files['cpu']) as f:
+            data_cpu = json.load(f)
 
-    ax.bar(i + bar_width / 2, data_gpu['compute_latency'], bar_width,
-           alpha=opacity, color=gpu_colors[1], hatch=hatches[3], edgecolor='black',
-           label='GPU Compute' if i == 0 else "",
-           bottom=data_gpu['io_latency'])
+        # Load the JSON data for gpu
+        with open(json_files['gpu']) as f:
+            data_gpu = json.load(f)
 
-# Set x-ticks and x-tick labels
-ax.set_xticks(range(len(datasets)))
-ax.set_xticklabels(datasets.keys(), fontsize=fontsize)
+        # Plot bars for cpu
+        ax.bar(i - bar_width / 2, data_cpu['io_latency'], bar_width,
+               alpha=opacity, color=cpu_colors[0], hatch=hatches[0], edgecolor='black',
+               label='(CPU) Model I/O' if i == 0 else "")
 
-# Set axis labels
-ax.set_ylabel('Latency (s)', fontsize=fontsize)
+        ax.bar(i - bar_width / 2, data_cpu['compute_latency'], bar_width,
+               alpha=opacity, color=cpu_colors[1], hatch=hatches[1], edgecolor='black',
+               label='(CPU) TFMEM' if i == 0 else "",
+               bottom=data_cpu['io_latency'])
 
-# Set y-scale to logarithmic
-ax.set_yscale('log')
-# adjust the upper limit as per your need
-plt.ylim(0, 20 ** 3)
+        # Plot bars for gpu
+        ax.bar(i + bar_width / 2, data_gpu['io_latency'], bar_width,
+               alpha=opacity, color=gpu_colors[0], hatch=hatches[2], edgecolor='black',
+               label='(GPU) Model I/O' if i == 0 else "")
 
-# Set other parameters and show plot
-ax.legend(fontsize=fontsize, loc='upper right', ncol=2)
+        ax.bar(i + bar_width / 2, data_gpu['compute_latency'], bar_width,
+               alpha=opacity, color=gpu_colors[1], hatch=hatches[3], edgecolor='black',
+               label='(GPU) TFMEM' if i == 0 else "",
+               bottom=data_gpu['io_latency'])
+
+        ax.set_xticks(range(len(datasets)))
+        ax.set_xticklabels(datasets.keys(), fontsize=fontsize)
+
+    # Set axis labels and legend for first subplot only
+    if idx == 0:
+        ax.set_ylabel('Latency (s)', fontsize=fontsize)
+        ax.legend().remove()  # remove the legend
+    else:
+        # ax.set_ylim(0, 2000)
+        ax.legend(fontsize=fontsize, loc='upper right', ncol=1)
+
 fig.tight_layout()
 plt.show()
 
