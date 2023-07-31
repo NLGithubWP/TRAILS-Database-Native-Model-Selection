@@ -3,7 +3,7 @@
 export PYTHONPATH=$PYTHONPATH:./internal/ml/model_selection
 
 # frappe
-nohup  python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py \
+python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py \
   --tfmem=express_flow \
   --models_explore=5000 \
   --log_name=score_based \
@@ -20,10 +20,10 @@ nohup  python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_late
   --nemb=10 \
   --workers=0 \
   --result_dir=./internal/ml/model_selection/exp_result/ \
-  --log_folder=log_score_time_frappe  > output.log&
+  --log_folder=log_score_time_frappe
 
 #criteo
-nohup  python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py \
+python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py \
   --tfmem=express_flow \
   --models_explore=5000 \
   --log_name=score_based \
@@ -40,10 +40,10 @@ nohup  python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_late
   --nemb=10 \
   --workers=0 \
   --result_dir=./internal/ml/model_selection/exp_result/ \
-  --log_folder=log_score_time_frappe  > output.log&
+  --log_folder=log_score_time_frappe
 
 # uci
-nohup  python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py \
+python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py \
   --tfmem=express_flow \
   --models_explore=5000 \
   --log_name=score_based \
@@ -60,11 +60,11 @@ nohup  python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_late
   --nemb=10 \
   --workers=0 \
   --result_dir=./internal/ml/model_selection/exp_result/ \
-  --log_folder=log_score_time_frappe  > output.log&
+  --log_folder=log_score_time_frappe
 
 
 # cifar 10
-nohup  python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py \
+python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py \
   --tfmem=synflow \
   --models_explore=5000 \
   --log_name=score_based \
@@ -76,11 +76,11 @@ nohup  python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_late
   --batch_size=32 \
   --dataset=cifar10 \
   --result_dir=./internal/ml/model_selection/exp_result/ \
-  --log_folder=log_score_time_frappe  > output.log&
+  --log_folder=log_score_time_frappe
 
 
 # cifar 100
-nohup  python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py \
+python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py \
   --tfmem=synflow \
   --models_explore=5000 \
   --log_name=score_based \
@@ -92,11 +92,11 @@ nohup  python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_late
   --batch_size=32 \
   --dataset=cifar100 \
   --result_dir=./internal/ml/model_selection/exp_result/ \
-  --log_folder=log_score_time_frappe  > output.log&
+  --log_folder=log_score_time_frappe
 
 
 # imageNet
-nohup  python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py \
+python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py \
   --tfmem=synflow \
   --models_explore=5000 \
   --log_name=score_based \
@@ -108,6 +108,6 @@ nohup  python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_late
   --batch_size=32 \
   --dataset=ImageNet16-120 \
   --result_dir=./internal/ml/model_selection/exp_result/ \
-  --log_folder=log_score_time_frappe  > output.log&
+  --log_folder=log_score_time_frappe
 
 
