@@ -30,6 +30,7 @@ class P1Evaluator:
         :param train_loader:
         :param is_simulate:
         :param metrics: which TFMEM to use?
+        :param enable_cache: if cache embedding for scoring? only used on structued data
         """
         self.metrics = metrics
         self.is_simulate = is_simulate
