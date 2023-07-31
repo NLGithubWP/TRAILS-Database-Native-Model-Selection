@@ -177,7 +177,8 @@ class P1Evaluator:
             if self.search_space_ins == Config.MLPSP:
                 if self.enable_cache:
                     new_model.init_embedding(self.model_cache)
-                    self.model_cache = new_model.embedding.to(self.device)
+                    if self.model_cache is None:
+                        self.model_cache = new_model.embedding.to(self.device)
                 else:
                     new_model.init_embedding()
 
