@@ -143,7 +143,17 @@ Clearly, K/N reaches 100 yields better scheduling result in both image and tabul
 
 ## System Motivation Experiments
 
+1. To measure the time usage for filtering phase on vairous hardware, run the following
 
+   ```bash
+   nohup bash internal/ml/model_selection/scripts/latency_phase1_cpu_gpu.sh &
+   ```
+
+2. Further we measure the end-2-end latency under two CPU, GPU, and Hybrid. 
+
+   ```bash
+   nohup bash internal/ml/model_selection/scripts/latency_phase1_cpu_gpu.sh &
+   ```
 
 ## Latency
 

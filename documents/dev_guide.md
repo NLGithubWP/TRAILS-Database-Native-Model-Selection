@@ -103,10 +103,13 @@ CALL model_selection_sp('dummy', ARRAY['col1', 'col2', 'col3', 'label'], '30', 3
 
 
 # end2end model selection
-CALL model_selection_end2end('dummy', ARRAY['col1', 'col2', 'col3', 'label'], '30', '/project/TRAILS/internal/ml/model_selection/config.ini');
+CALL model_selection_end2end('dummy', ARRAY['col1', 'col2', 'col3', 'label'], '15', '/project/TRAILS/internal/ml/model_selection/config.ini');
 
 # filtering & refinement with workloads
-CALL model_selection_workloads('dummy', ARRAY['col1', 'col2', 'col3', 'label'], 100, 10, '/project/TRAILS/internal/ml/model_selection/config.ini');
+CALL model_selection_workloads('dummy', ARRAY['col1', 'col2', 'col3', 'label'], 300, 3, '/project/TRAILS/internal/ml/model_selection/config.ini');
+
+
+response = requests.post(args.refinement_url, json=data).json()
 
 ```
 

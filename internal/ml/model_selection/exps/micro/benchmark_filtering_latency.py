@@ -4,6 +4,7 @@ import random
 import time
 from exps.shared_args import parse_arguments
 import torch
+from src.tools.res_measure import print_cpu_gpu_usage
 
 
 def generate_data_loader():
@@ -41,12 +42,11 @@ if __name__ == "__main__":
     from src.common.structure import ModelAcquireData
     from src.controller.sampler_all.seq_sampler import SequenceSampler
     from src.eva_engine.phase1.evaluator import P1Evaluator
-    from src.logger import logger
     from src.search_space.init_search_space import init_search_space
     from src.dataset_utils.structure_data_loader import libsvm_dataloader
     from src.tools.io_tools import write_json, read_json
     from src.dataset_utils import dataset
-    from src.common.constant import Config, CommonVars
+    from src.common.constant import Config
 
     search_space_ins = init_search_space(args)
 
@@ -65,8 +65,13 @@ if __name__ == "__main__":
     explored_n = 0
     output_file = f"{args.result_dir}/score_{args.search_space}_{args.dataset}_batch_size_{args.batch_size}_{args.device}.json"
     time_output_file = f"{args.result_dir}/time_score_{args.search_space}_{args.dataset}_batch_size_{args.batch_size}_{args.device}.json"
+    res_output_file = f"{args.result_dir}/resource_score_{args.search_space}_{args.dataset}_batch_size_{args.batch_size}_{args.device}.json"
+
     result = read_json(output_file)
     print(f"begin to score all, currently we already explored {len(result.keys())}")
+
+    # start the resource monitor
+    print_cpu_gpu_usage(interval=1, output_file=res_output_file)
 
     while True:
         arch_id, arch_micro = sampler.sample_next_arch()
