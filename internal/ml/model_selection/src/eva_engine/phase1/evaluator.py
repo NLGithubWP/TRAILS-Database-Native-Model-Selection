@@ -66,9 +66,12 @@ class P1Evaluator:
                 raise NotImplementedError
 
         self.time_usage = {
-            "compute": [],  # compute time
-            "io_model": [],  # context switch
-            "io_data": [],  # context switch
+            "latency": 0.0,
+            "io_latency": 0.0,
+            "compute_latency": 0.0,
+            "track_compute": [],  # compute time
+            "track_io_model": [],  # context switch
+            "track_io_data": [],  # context switch
         }
 
     def if_cuda_avaiable(self):
@@ -101,6 +104,8 @@ class P1Evaluator:
         print('Params = ' + str(params / 1000 ** 2) + 'M')
 
     def _p1_evaluate_online(self, model_acquire: ModelAcquireData) -> dict:
+
+        begin_eva = time.time()
 
         # # 1. Score NasWot
         # new_model = self.search_space_ins.new_arch_scratch_with_default_setting(model_encoding, bn=True)
@@ -165,12 +170,12 @@ class P1Evaluator:
             new_model = new_model.to(self.device)
             if self.if_cuda_avaiable():
                 torch.cuda.synchronize()
-            self.time_usage["io_model"].append(time.time() - begin)
+            self.time_usage["track_io_model"].append(time.time() - begin)
 
             # measure data load time
             begin = time.time()
             mini_batch = self.data_pre_processing(self.metrics, new_model)
-            self.time_usage["io_data"].append(time.time() - begin)
+            self.time_usage["track_io_data"].append(time.time() - begin)
 
             _score, curr_time = evaluator_register[self.metrics].evaluate_wrapper(
                 arch=new_model,
@@ -179,11 +184,24 @@ class P1Evaluator:
                 batch_data=mini_batch,
                 batch_labels=self.mini_batch_targets)
 
-            self.time_usage["compute"].append(curr_time)
+            self.time_usage["track_compute"].append(curr_time)
 
             del new_model
             model_score = {self.metrics: _score}
 
+        if self.if_cuda_avaiable():
+            torch.cuda.synchronize()
+        end_eva = time.time()
+        # the first two are used for warming up
+        self.time_usage["latency"] = end_eva - begin_eva \
+                                             - sum(self.time_usage["track_compute"][:2]) \
+                                             - sum(self.time_usage["track_io_model"][:2]) \
+                                             - sum(self.time_usage["track_io_data"][:2])
+
+        self.time_usage["io_latency"] = sum(self.time_usage["track_io_model"][2:]) + \
+                                        sum(self.time_usage["track_io_data"][2:])
+
+        self.time_usage["compute_latency"] = sum(self.time_usage["track_compute"][2:])
         return model_score
 
     def _p1_evaluate_simu(self, model_acquire: ModelAcquireData) -> dict:
