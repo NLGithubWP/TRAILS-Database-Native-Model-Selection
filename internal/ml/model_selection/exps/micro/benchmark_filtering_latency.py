@@ -71,7 +71,7 @@ if __name__ == "__main__":
     print(f"begin to score all, currently we already explored {len(result.keys())}")
 
     # start the resource monitor
-    stop_event, thread = print_cpu_gpu_usage(interval=1, output_file=res_output_file)
+    stop_event, thread = print_cpu_gpu_usage(interval=0.5, output_file=res_output_file)
 
     while True:
         arch_id, arch_micro = sampler.sample_next_arch()
