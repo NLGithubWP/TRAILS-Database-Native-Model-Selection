@@ -64,8 +64,8 @@ if __name__ == "__main__":
     sampler = SequenceSampler(search_space_ins)
 
     explored_n = 0
-    output_file = f"{args.result_dir}/score_{args.search_space}_{args.dataset}_batch_size_{args.batch_size}.json"
-    time_output_file = f"{args.result_dir}/time_score_{args.search_space}_{args.dataset}_batch_size_{args.batch_size}.json"
+    output_file = f"{args.result_dir}/score_{args.search_space}_{args.dataset}_batch_size_{args.batch_size}_{args.device}.json"
+    time_output_file = f"{args.result_dir}/time_score_{args.search_space}_{args.dataset}_batch_size_{args.batch_size}_{args.device}.json"
     result = read_json(output_file)
     print(f"begin to score all, currently we already explored {len(result.keys())}")
     while True:
