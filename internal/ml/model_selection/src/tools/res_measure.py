@@ -17,18 +17,15 @@ def print_cpu_gpu_usage(interval=1, output_file="path_to_folder"):
         while True:
             # Get CPU usage for current process
             cpu_percent = process.cpu_percent()
-            print(f"Current process CPU usage: {cpu_percent}%")
             metrics['cpu_usage'].append(cpu_percent)
 
             # Get memory usage for current process
             memory_info = process.memory_info()
-            print(f"Current process memory usage: {memory_info.rss / (1024 ** 2)}MB")
             metrics['memory_usage'].append(memory_info.rss / (1024 ** 2))
 
             # Get GPU usage
             gpu_stats = gpustat.GPUStatCollection.new_query()
             for gpu in gpu_stats:
-                print(f"GPU {gpu.index} usage: {gpu.utilization}% memory: {gpu.memory_used * 1024}MB")
                 metrics['gpu_usage'].append((gpu.index, gpu.utilization, gpu.memory_used * 1024))
 
             # If it's time to write metrics to a file, do so
