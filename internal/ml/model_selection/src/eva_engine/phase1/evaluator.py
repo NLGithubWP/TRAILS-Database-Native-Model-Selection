@@ -70,7 +70,8 @@ class P1Evaluator:
             "io_latency": 0.0,
             "compute_latency": 0.0,
             "track_compute": [],  # compute time
-            "track_io_model": [],  # context switch
+            "track_io_model_load": [],  # context switch
+            "track_io_model_release_each_50": [],  # context switch
             "track_io_data": [],  # context switch
         }
 
@@ -168,7 +169,7 @@ class P1Evaluator:
             new_model = new_model.to(self.device)
             if self.if_cuda_avaiable():
                 torch.cuda.synchronize()
-            self.time_usage["track_io_model"].append(time.time() - begin)
+            self.time_usage["track_io_model_load"].append(time.time() - begin)
 
             # measure data load time
             begin = time.time()
