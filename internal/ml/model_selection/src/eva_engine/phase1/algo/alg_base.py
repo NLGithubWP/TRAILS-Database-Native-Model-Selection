@@ -43,6 +43,7 @@ class Evaluator:
 
         # measure scoring time
         if "cuda" in device:
+            torch.cuda.synchronize()
             # use this will not need cuda.sync
             starter, ender = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
             starter.record()
