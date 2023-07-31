@@ -89,8 +89,7 @@ if __name__ == "__main__":
         torch.cuda.synchronize()
 
     # the first two are used for warming up
-    _evaluator.time_usage["io_latency"] = sum(_evaluator.time_usage["track_io_model"][2:]) + \
-                                          sum(_evaluator.time_usage["track_io_data"][2:])
+    _evaluator.time_usage["io_latency"] = sum(_evaluator.time_usage["track_io_model"][2:])
     _evaluator.time_usage["compute_latency"] = sum(_evaluator.time_usage["track_compute"][2:])
     _evaluator.time_usage["latency"] = _evaluator.time_usage["io_latency"] + _evaluator.time_usage["compute_latency"]
 
