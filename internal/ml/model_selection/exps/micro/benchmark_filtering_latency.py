@@ -112,5 +112,6 @@ if __name__ == "__main__":
     # compute time
     write_json(time_output_file, _evaluator.time_usage)
 
+    print("Done, time sleep for 10 seonds")
     # wait the resource montor flush
     time.sleep(10)
