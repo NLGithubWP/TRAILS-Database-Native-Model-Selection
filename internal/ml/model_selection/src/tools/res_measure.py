@@ -6,7 +6,7 @@ import time
 from src.tools.io_tools import write_json
 
 
-def print_cpu_gpu_usage(interval=1, output_file="path_to_folder"):
+def print_cpu_gpu_usage(interval=1, output_file="path_to_folder", stop_event=None):
     def print_usage():
         # Get current process
         process = psutil.Process(os.getpid())
@@ -14,7 +14,7 @@ def print_cpu_gpu_usage(interval=1, output_file="path_to_folder"):
         # Create an empty dictionary to store metrics
         metrics = {'cpu_usage': [], 'memory_usage': [], 'gpu_usage': []}
 
-        while True:
+        while not stop_event.is_set():
             # Get CPU usage for current process
             cpu_percent = process.cpu_percent()
             metrics['cpu_usage'].append(cpu_percent)
@@ -40,5 +40,7 @@ def print_cpu_gpu_usage(interval=1, output_file="path_to_folder"):
 
             time.sleep(interval)
 
+    stop_event = stop_event or threading.Event()
     thread = threading.Thread(target=print_usage)
     thread.start()
+    return stop_event, thread

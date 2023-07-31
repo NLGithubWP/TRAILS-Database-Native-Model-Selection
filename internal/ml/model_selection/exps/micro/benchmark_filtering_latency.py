@@ -71,7 +71,7 @@ if __name__ == "__main__":
     print(f"begin to score all, currently we already explored {len(result.keys())}")
 
     # start the resource monitor
-    print_cpu_gpu_usage(interval=1, output_file=res_output_file)
+    stop_event, thread = print_cpu_gpu_usage(interval=1, output_file=res_output_file)
 
     while True:
         arch_id, arch_micro = sampler.sample_next_arch()
@@ -112,6 +112,9 @@ if __name__ == "__main__":
     # compute time
     write_json(time_output_file, _evaluator.time_usage)
 
-    print("Done, time sleep for 10 seonds")
+    # Then, at the end of your program, you can stop the thread:
+    print("Done, time sleep for 10 seconds")
     # wait the resource montor flush
     time.sleep(10)
+    stop_event.set()
+    thread.join()
