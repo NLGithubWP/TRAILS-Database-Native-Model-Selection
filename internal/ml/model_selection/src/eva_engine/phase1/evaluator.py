@@ -19,7 +19,8 @@ class P1Evaluator:
 
     def __init__(self, device: str, num_label: int, dataset_name: str,
                  search_space_ins: SpaceWrapper,
-                 train_loader: DataLoader, is_simulate: bool, metrics: str = CommonVars.ExpressFlow):
+                 train_loader: DataLoader, is_simulate: bool, metrics: str = CommonVars.ExpressFlow,
+                 enable_cache: bool = False):
         """
         :param device:
         :param num_label:
@@ -74,6 +75,10 @@ class P1Evaluator:
             "track_io_model_release_each_50": [],  # context switch
             "track_io_data": [],  # context switch
         }
+
+        # this is to do the expeirment
+        self.enable_cache = enable_cache
+        self.model_cache = None
 
     def if_cuda_avaiable(self):
         if "cuda" in self.device:
@@ -166,6 +171,15 @@ class P1Evaluator:
             # measure model load time
             begin = time.time()
             new_model = self.search_space_ins.new_arch_scratch_with_default_setting(model_encoding, bn=bn)
+
+            # mlp have embedding layer, which can be cached, optimization!
+            if self.search_space_ins == Config.MLPSP:
+                if self.enable_cache:
+                    new_model.init_embedding(self.model_cache)
+                    self.model_cache = new_model.embedding.to(self.device)
+                else:
+                    new_model.init_embedding()
+
             new_model = new_model.to(self.device)
             if self.if_cuda_avaiable():
                 torch.cuda.synchronize()

@@ -133,10 +133,20 @@ class DNNModel(torch.nn.Module):
             nemb: embedding size
         """
         super().__init__()
-        self.embedding = Embedding(nfeat, nemb)
+        self.embedding = None
         self.mlp_ninput = nfield*nemb
         self.mlp = MLP(self.mlp_ninput, hidden_layer_list, dropout_rate, noutput, use_bn)
         # self.sigmoid = nn.Sigmoid()
+
+    def init_embedding(self, cached_embedding=None):
+        """
+        This is slow, in filtering phase, we could enable caching here.
+        """
+        if self.embedding is None:
+            if cached_embedding is None:
+                self.embedding = Embedding(self.nfeat, self.nemb)
+            else:
+                self.embedding = cached_embedding
 
     def generate_all_ones_embedding(self):
         """
