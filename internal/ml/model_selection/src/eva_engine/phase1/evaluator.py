@@ -105,8 +105,6 @@ class P1Evaluator:
 
     def _p1_evaluate_online(self, model_acquire: ModelAcquireData) -> dict:
 
-        begin_eva = time.time()
-
         # # 1. Score NasWot
         # new_model = self.search_space_ins.new_arch_scratch_with_default_setting(model_encoding, bn=True)
         # new_model = new_model.to(self.device)
@@ -188,20 +186,6 @@ class P1Evaluator:
 
             del new_model
             model_score = {self.metrics: _score}
-
-        if self.if_cuda_avaiable():
-            torch.cuda.synchronize()
-        end_eva = time.time()
-        # the first two are used for warming up
-        self.time_usage["latency"] = end_eva - begin_eva \
-                                             - sum(self.time_usage["track_compute"][:2]) \
-                                             - sum(self.time_usage["track_io_model"][:2]) \
-                                             - sum(self.time_usage["track_io_data"][:2])
-
-        self.time_usage["io_latency"] = sum(self.time_usage["track_io_model"][2:]) + \
-                                        sum(self.time_usage["track_io_data"][2:])
-
-        self.time_usage["compute_latency"] = sum(self.time_usage["track_compute"][2:])
         return model_score
 
     def _p1_evaluate_simu(self, model_acquire: ModelAcquireData) -> dict:
