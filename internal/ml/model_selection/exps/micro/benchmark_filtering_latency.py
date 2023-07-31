@@ -85,11 +85,21 @@ if __name__ == "__main__":
         model_score = _evaluator.p1_evaluate(data_str)
         explored_n += 1
         result[arch_id] = model_score
+        if explored_n % 50 == 0:
+            # clear the cache ever 50 models, to prevent the model overflow
+            # todo: add those to other functiosn.
+            if _evaluator.if_cuda_avaiable():
+                begin = time.time()
+                torch.cuda.empty_cache()
+                torch.cuda.synchronize()
+                _evaluator.time_usage["track_io_model_release_each_50"].append(time.time() - begin)
+
     if _evaluator.if_cuda_avaiable():
         torch.cuda.synchronize()
 
     # the first two are used for warming up
-    _evaluator.time_usage["io_latency"] = sum(_evaluator.time_usage["track_io_model"][2:])
+    _evaluator.time_usage["io_latency"] = sum(_evaluator.time_usage["track_io_model_load"][2:]) + \
+                                          sum(_evaluator.time_usage["track_io_model_release_each_50"])
     _evaluator.time_usage["compute_latency"] = sum(_evaluator.time_usage["track_compute"][2:])
     _evaluator.time_usage["latency"] = _evaluator.time_usage["io_latency"] + _evaluator.time_usage["compute_latency"]
 
