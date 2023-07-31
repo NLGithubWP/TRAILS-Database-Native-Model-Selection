@@ -21,12 +21,14 @@ def print_cpu_gpu_usage(interval=1, output_file="path_to_folder"):
 
             # Get memory usage for current process
             memory_info = process.memory_info()
+            # bytes -> MB
             metrics['memory_usage'].append(memory_info.rss / (1024 ** 2))
 
             # Get GPU usage
             gpu_stats = gpustat.GPUStatCollection.new_query()
             for gpu in gpu_stats:
-                metrics['gpu_usage'].append((gpu.index, gpu.utilization, gpu.memory_used * 1024))
+                # here in MB
+                metrics['gpu_usage'].append((gpu.index, gpu.utilization, gpu.memory_used))
 
             # If it's time to write metrics to a file, do so
             if len(metrics['cpu_usage']) % 4 == 0:
