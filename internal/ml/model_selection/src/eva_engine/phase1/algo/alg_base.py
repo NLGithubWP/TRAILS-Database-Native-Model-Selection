@@ -45,8 +45,9 @@ class Evaluator:
         if "cuda" in device:
             torch.cuda.synchronize()
             # use this will not need cuda.sync
-            starter, ender = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
-            starter.record()
+            # starter, ender = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
+            # starter.record()
+            starter, ender = time.time(), time.time()
         else:
             starter, ender = time.time(), time.time()
 
@@ -54,9 +55,12 @@ class Evaluator:
         score = self.evaluate(arch, device, batch_data, batch_labels, space_name)
 
         if "cuda" in device:
-            ender.record()
+            # ender.record()
             # implicitly waits for the event to be marked as complete before calculating the time difference
-            curr_time = starter.elapsed_time(ender)
+            # curr_time = starter.elapsed_time(ender)
+            torch.cuda.synchronize()
+            ender = time.time()
+            curr_time = ender - starter
         else:
             ender = time.time()
             curr_time = ender - starter
