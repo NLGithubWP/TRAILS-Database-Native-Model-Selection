@@ -5,7 +5,6 @@ import random
 import time
 from exps.shared_args import parse_arguments
 from datetime import datetime
-import torch
 
 
 def generate_data_loader():
@@ -66,10 +65,8 @@ if __name__ == "__main__":
 
     explored_n = 0
     output_file = f"{args.result_dir}/score_{args.search_space}_{args.dataset}_batch_size_{args.batch_size}_{args.device}.json"
-    time_output_file = f"{args.result_dir}/time_score_{args.search_space}_{args.dataset}_batch_size_{args.batch_size}_{args.device}.json"
     result = read_json(output_file)
     print(f"begin to score all, currently we already explored {len(result.keys())}")
-
     while True:
         arch_id, arch_micro = sampler.sample_next_arch()
         if arch_id is None:
@@ -88,25 +85,13 @@ if __name__ == "__main__":
         explored_n += 1
         result[arch_id] = model_score
         print(f" {datetime.now()} finish arch = {arch_id}, model_score = {model_score}")
-        # if explored_n % 100 == 0:
-        #     print("3. [trails] Phase 1: filter phase explored " + str(explored_n)
-        #           + "Total explored" + str(len(result)) +
-        #           " model, model_id = " + str(arch_id) +
-        #           " model_scores = " + json.dumps(model_score))
-        #     logger.info("3. [trails] Phase 1: filter phase explored " + str(explored_n) +
-        #                 " model, model_id = " + str(arch_id) +
-        #                 " model_scores = " + json.dumps(model_score))
-        #     write_json(output_file, result)
-
-    if _evaluator.if_cuda_avaiable():
-        torch.cuda.synchronize()
-
-    # the first two are used for warming up
-    _evaluator.time_usage["io_latency"] = sum(_evaluator.time_usage["track_io_model"][2:]) + \
-                                          sum(_evaluator.time_usage["track_io_data"][2:])
-    _evaluator.time_usage["compute_latency"] = sum(_evaluator.time_usage["track_compute"][2:])
-    _evaluator.time_usage["latency"] = _evaluator.time_usage["io_latency"] + _evaluator.time_usage["compute_latency"]
-
+        if explored_n % 100 == 0:
+            print("3. [trails] Phase 1: filter phase explored " + str(explored_n)
+                  + "Total explored" + str(len(result)) +
+                  " model, model_id = " + str(arch_id) +
+                  " model_scores = " + json.dumps(model_score))
+            logger.info("3. [trails] Phase 1: filter phase explored " + str(explored_n) +
+                        " model, model_id = " + str(arch_id) +
+                        " model_scores = " + json.dumps(model_score))
+            write_json(output_file, result)
     write_json(output_file, result)
-    # compute time
-    write_json(time_output_file, _evaluator.time_usage)
