@@ -211,4 +211,7 @@ class P1Evaluator:
                 mini_batch = new_model.generate_all_ones_embedding().float().to(self.device)
         else:
             mini_batch = self.mini_batch
+
+        if self.if_cuda_avaiable():
+            torch.cuda.synchronize()
         return mini_batch
