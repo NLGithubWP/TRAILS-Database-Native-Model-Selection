@@ -107,6 +107,8 @@ if __name__ == "__main__":
     result = read_json(output_file)
     print(f"begin to score all, currently we already explored {len(result.keys())}")
 
+    overall_latency = []
+    begin = time.time()
     # concurrent model evaluation
     with Pool(processes=args.concurrency) as pool:
         archs_to_evaluate = [sampler.sample_next_arch() for _ in range(10000)]
@@ -124,17 +126,12 @@ if __name__ == "__main__":
     if _evaluator.if_cuda_avaiable():
         torch.cuda.synchronize()
 
-    # the first two are used for warming up
-    _evaluator.time_usage["io_latency"] = sum(_evaluator.time_usage["track_io_model_load"][2:]) + \
-                                          sum(_evaluator.time_usage["track_io_model_release_each_50"]) + \
-                                          sum(_evaluator.time_usage["track_io_model_init"][2:])
-
-    _evaluator.time_usage["compute_latency"] = sum(_evaluator.time_usage["track_compute"][2:])
-    _evaluator.time_usage["latency"] = _evaluator.time_usage["io_latency"] + _evaluator.time_usage["compute_latency"]
+    end = time.time()
+    overall_latency.append(end - begin)
 
     write_json(output_file, result)
     # compute time
-    write_json(time_output_file, _evaluator.time_usage)
+    write_json(time_output_file, overall_latency)
 
     # Then, at the end of your program, you can stop the thread:
     print("Done, time sleep for 10 seconds")
