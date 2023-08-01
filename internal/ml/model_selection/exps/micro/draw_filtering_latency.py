@@ -69,7 +69,9 @@ datasets_embedding_cache = {
 # Set your plot parameters
 bar_width = 0.25
 opacity = 0.8
-fontsize = 14  # Set the font size
+set_font_size = 20  # Set the font size
+set_lgend_size = 15
+set_tick_size = 12
 cpu_colors = ['#729ECE', '#FFB579']  # Colors for CPU bars
 gpu_colors = ['#98DF8A', '#D62728']  # Colors for GPU bars
 hatches = ['/', '\\', 'x', '.', '*']
@@ -77,6 +79,13 @@ hatches = ['/', '\\', 'x', '.', '*']
 
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
+
+# from matplotlib.ticker import FuncFormatter
+# # This is your custom formatter function
+# def thousands_format(x, pos):
+#     return f'{x * 1e-3}K'
+# # This creates a formatter using your function
+# formatter = FuncFormatter(thousands_format)
 
 for img_id, datasets in enumerate([datasets_wo_cache, datasets_embedding_cache]):
     # Define the grid for subplots with widths ratio as 1:2
@@ -129,15 +138,18 @@ for img_id, datasets in enumerate([datasets_wo_cache, datasets_embedding_cache])
                    bottom=data_gpu['io_latency'])
 
             ax.set_xticks(range(len(datasets)))
-            ax.set_xticklabels(datasets.keys(), fontsize=fontsize)
+            ax.set_xticklabels(datasets.keys(), fontsize=set_font_size)
 
         # Set axis labels and legend for first subplot only
         if idx == 0:
-            ax.set_ylabel('Latency (s)', fontsize=fontsize)
+            ax.set_ylabel('Latency (s)', fontsize=set_font_size)
             ax.legend().remove()  # remove the legend
         else:
+            # ax.yaxis.set_major_formatter(formatter)
             # ax.set_ylim(0, 2000)
-            ax.legend(fontsize=fontsize, loc='upper right', ncol=1)
+            ax.legend(fontsize=set_lgend_size, loc='upper right', ncol=1)
+
+        ax.tick_params(axis='both', which='major', labelsize=set_tick_size)
 
     fig.tight_layout()
     plt.show()

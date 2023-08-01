@@ -51,11 +51,11 @@ for i, (dataset_name, json_files) in enumerate(datasets.items()):
     # Plot bars for cpu
     ax.bar(i - bar_width / 2, data_cache['io_latency'], bar_width,
            alpha=opacity, color=cpu_colors[0], hatch=hatches[0], edgecolor='black',
-           label='(Cache) Model I/O' if i == 0 else "")
+           label='(Embedding Cache) Model I/O' if i == 0 else "")
 
     ax.bar(i - bar_width / 2, data_cache['compute_latency'], bar_width,
            alpha=opacity, color=cpu_colors[1], hatch=hatches[1], edgecolor='black',
-           label='(Cache) TFMEM' if i == 0 else "",
+           label='(Embedding Cache) TFMEM' if i == 0 else "",
            bottom=data_cache['io_latency'])
 
     # Plot bars for gpu
@@ -71,6 +71,7 @@ for i, (dataset_name, json_files) in enumerate(datasets.items()):
 ax.set_xticks(range(len(datasets)))
 ax.set_xticklabels(datasets.keys(), fontsize=set_font_size)
 ax.set_yscale('symlog')
+ax.set_ylim(0, 3000)
 
 # Set axis labels and legend
 ax.set_ylabel('Latency (s)', fontsize=set_font_size)
