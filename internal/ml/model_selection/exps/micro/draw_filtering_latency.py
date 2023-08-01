@@ -50,20 +50,20 @@ datasets_embedding_cache = {
                'gpu': './internal/ml/model_selection/exp_result_sever_filtering_cache/exp_filter_cache'
                       '/time_score_mlp_sp_criteo_batch_size_32_cuda:1.json'},
 
-    'c10': {'cpu': './internal/ml/model_selection/exp_result_sever_filtering_cache/exp_filter_cache'
+    'c10': {'cpu': './internal/ml/model_selection/exp_result_sever/exp_result'
                    '/time_score_nasbench201_cifar10_batch_size_32_cpu.json',
-            'gpu': './internal/ml/model_selection/exp_result_sever_filtering_cache/exp_filter_cache'
-                   '/time_score_nasbench201_cifar10_batch_size_32_cuda:1.json'},
+            'gpu': './internal/ml/model_selection/exp_result_sever/exp_result'
+                   '/time_score_nasbench201_cifar10_batch_size_32_cuda:0.json'},
 
-    'c100': {'cpu': './internal/ml/model_selection/exp_result_sever_filtering_cache/exp_filter_cache'
+    'c100': {'cpu': './internal/ml/model_selection/exp_result_sever/exp_result'
                     '/time_score_nasbench201_cifar100_batch_size_32_cpu.json',
-             'gpu': './internal/ml/model_selection/exp_result_sever_filtering_cache/exp_filter_cache'
-                    '/time_score_nasbench201_cifar100_batch_size_32_cuda:1.json'},
+             'gpu': './internal/ml/model_selection/exp_result_sever/exp_result'
+                    '/time_score_nasbench201_cifar100_batch_size_32_cuda:0.json'},
 
-    'IN-16': {'cpu': './internal/ml/model_selection/exp_result_sever_filtering_cache/exp_filter_cache'
+    'IN-16': {'cpu': './internal/ml/model_selection/exp_result_sever/exp_result'
                      '/time_score_nasbench201_ImageNet16-120_batch_size_32_cpu.json',
-              'gpu': './internal/ml/model_selection/exp_result_sever_filtering_cache/exp_filter_cache'
-                     '/time_score_nasbench201_ImageNet16-120_batch_size_32_cuda:1.json'},
+              'gpu': './internal/ml/model_selection/exp_result_sever/exp_result'
+                     '/time_score_nasbench201_ImageNet16-120_batch_size_32_cuda:0.json'},
 }
 
 # Set your plot parameters
