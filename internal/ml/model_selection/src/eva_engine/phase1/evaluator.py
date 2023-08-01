@@ -72,6 +72,7 @@ class P1Evaluator:
             "io_latency": 0.0,
             "compute_latency": 0.0,
             "track_compute": [],  # compute time
+            "track_io_model_init": [],  # context switch
             "track_io_model_load": [],  # context switch
             "track_io_model_release_each_50": [],  # context switch
             "track_io_data": [],  # context switch
@@ -182,6 +183,9 @@ class P1Evaluator:
                 else:
                     new_model.init_embedding()
 
+            self.time_usage["track_io_model_init"].append(time.time() - begin)
+
+            begin = time.time()
             new_model = new_model.to(self.device)
             if self.if_cuda_avaiable():
                 torch.cuda.synchronize()
