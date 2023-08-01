@@ -34,7 +34,8 @@ def print_cpu_gpu_usage(interval=1, output_file="path_to_folder", stop_event=Non
                 for gpu in gpu_stats:
                     metrics['gpu_usage'].append((gpu.index, gpu.utilization, gpu.memory_used))
             except Exception as e:
-                print(f"Exception encountered when fetching GPU stats: {e}")
+                pass
+                # print(f"Exception encountered when fetching GPU stats: {e}")
 
             # If it's time to write metrics to a file, do so
             if len(metrics['cpu_usage']) % 40 == 0:
