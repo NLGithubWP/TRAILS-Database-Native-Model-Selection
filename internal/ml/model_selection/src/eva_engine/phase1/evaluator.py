@@ -66,14 +66,13 @@ class P1Evaluator:
                 self.mini_batch_targets = target.to(self.device)
             else:
                 raise NotImplementedError
-
         self.time_usage = {
             "latency": 0.0,
             "io_latency": 0.0,
             "compute_latency": 0.0,
             "track_compute": [],  # compute time
-            "track_io_model_init": [],  # context switch
-            "track_io_model_load": [],  # context switch
+            "track_io_model_init": [],  # init model weight
+            "track_io_model_load": [],  # load into GPU/CPU
             "track_io_model_release_each_50": [],  # context switch
             "track_io_data": [],  # context switch
         }
