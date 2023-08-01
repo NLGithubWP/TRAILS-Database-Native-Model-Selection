@@ -71,5 +71,5 @@ class SynFlowEvaluator(Evaluator):
         # 5. Sum over all parameter's results to get the final score.
         score = 0.
         for i in range(len(grads_abs)):
-            score += grads_abs[i].detach().cpu().numpy().sum()
+            score += grads_abs[i].sum().item()
         return score
