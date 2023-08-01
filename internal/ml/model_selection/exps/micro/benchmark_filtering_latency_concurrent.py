@@ -111,7 +111,7 @@ if __name__ == "__main__":
     begin = time.time()
     # concurrent model evaluation
     with Pool(processes=args.concurrency) as pool:
-        archs_to_evaluate = [sampler.sample_next_arch() for _ in range(10000)]
+        archs_to_evaluate = [sampler.sample_next_arch() for _ in range(args.models_explore)]
         total_to_evaluate = len(archs_to_evaluate)
         for i, res in enumerate(pool.starmap(evaluate_model,
                                              [(arch, args, search_space_ins, _evaluator, explored_n, result) for arch in
