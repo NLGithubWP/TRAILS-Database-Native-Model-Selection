@@ -72,9 +72,9 @@ opacity = 0.8
 set_font_size = 20  # Set the font size
 set_lgend_size = 15
 set_tick_size = 12
-cpu_colors = ['#729ECE', '#FFB579']  # Colors for CPU bars
-gpu_colors = ['#98DF8A', '#D62728']  # Colors for GPU bars
-hatches = ['/', '\\', 'x', '.', '*']
+cpu_colors = ['#729ECE', '#FFB579', '#E74C3C', '#2ECC71', '#3498DB', '#F39C12', '#8E44AD', '#C0392B']
+gpu_colors = ['#98DF8A', '#D62728', '#1ABC9C', '#9B59B6', '#34495E', '#16A085', '#27AE60', '#2980B9']
+hatches = ['/', '\\', 'x', 'o', 'O', '.', '*', '//', '\\\\',  'xx', 'oo', 'OO', '..', '**']
 # hatches = ['', '', '', '', '']
 
 import matplotlib.pyplot as plt
@@ -117,25 +117,46 @@ for img_id, datasets in enumerate([datasets_wo_cache, datasets_embedding_cache])
             with open(json_files['gpu']) as f:
                 data_gpu = json.load(f)
 
-            # Plot bars for cpu
-            ax.bar(i - bar_width / 2, data_cpu['io_latency'], bar_width,
+            # Plot bars for CPU
+            bottom_init = sum(data_cpu['track_io_model_init'][2:])
+            bottom_load_release = bottom_init
+
+            ax.bar(i - bar_width / 2, sum(data_cpu['track_io_model_init'][2:]), bar_width,
                    alpha=opacity, color=cpu_colors[0], hatch=hatches[0], edgecolor='black',
-                   label='(CPU) Model I/O' if i == 0 else "")
+                   label='(CPU) M Init' if i == 0 else "")
+
+            # ax.bar(i - bar_width / 2,
+            #        0,
+            #        bar_width,
+            #        alpha=opacity, color=cpu_colors[1], hatch=hatches[1], edgecolor='black',
+            #        label='(CPU) M Load' if i == 0 else "",
+            #        bottom=bottom_init)
 
             ax.bar(i - bar_width / 2, data_cpu['compute_latency'], bar_width,
                    alpha=opacity, color=cpu_colors[1], hatch=hatches[1], edgecolor='black',
                    label='(CPU) TFMEM' if i == 0 else "",
-                   bottom=data_cpu['io_latency'])
+                   bottom=bottom_load_release)
 
-            # Plot bars for gpu
-            ax.bar(i + bar_width / 2, data_gpu['io_latency'], bar_width,
-                   alpha=opacity, color=gpu_colors[0], hatch=hatches[2], edgecolor='black',
-                   label='(GPU) Model I/O' if i == 0 else "")
+            # Plot bars for GPU
+            bottom_init_gpu = sum(data_gpu['track_io_model_init'][2:])
+            bottom_load_release_gpu = bottom_init_gpu + sum(data_gpu['track_io_model_load'][2:]) + sum(
+                data_gpu['track_io_model_release_each_50'][2:])
+
+            ax.bar(i + bar_width / 2, sum(data_gpu['track_io_model_init'][2:]), bar_width,
+                   alpha=opacity, color=gpu_colors[0], hatch=hatches[0], edgecolor='black',
+                   label='(GPU) M Init' if i == 0 else "")
+
+            ax.bar(i + bar_width / 2,
+                   sum(data_gpu['track_io_model_load'][2:]) + sum(data_gpu['track_io_model_release_each_50'][2:]),
+                   bar_width,
+                   alpha=opacity, color=gpu_colors[1], hatch=hatches[1], edgecolor='black',
+                   label='(GPU) M Load' if i == 0 else "",
+                   bottom=bottom_init_gpu)
 
             ax.bar(i + bar_width / 2, data_gpu['compute_latency'], bar_width,
-                   alpha=opacity, color=gpu_colors[1], hatch=hatches[3], edgecolor='black',
+                   alpha=opacity, color=gpu_colors[2], hatch=hatches[2], edgecolor='black',
                    label='(GPU) TFMEM' if i == 0 else "",
-                   bottom=data_gpu['io_latency'])
+                   bottom=bottom_load_release_gpu)
 
             ax.set_xticks(range(len(datasets)))
             ax.set_xticklabels(datasets.keys(), fontsize=set_font_size)
@@ -146,13 +167,13 @@ for img_id, datasets in enumerate([datasets_wo_cache, datasets_embedding_cache])
             ax.legend().remove()  # remove the legend
         else:
             # ax.yaxis.set_major_formatter(formatter)
-            # ax.set_ylim(0, 2000)
+            ax.set_ylim(0, 1600)
             ax.legend(fontsize=set_lgend_size, loc='upper right', ncol=1)
 
         ax.tick_params(axis='both', which='major', labelsize=set_tick_size)
 
     fig.tight_layout()
-    plt.show()
+    # plt.show()
 
     # Save the plot
     fig.savefig(f"./internal/ml/model_selection/exp_result_sever/exp_result/filter_latency_{img_id}.pdf",
