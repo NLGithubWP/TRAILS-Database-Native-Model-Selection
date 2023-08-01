@@ -116,7 +116,8 @@ if __name__ == "__main__":
         for i, res in enumerate(pool.starmap(evaluate_model,
                                              [(arch, args, search_space_ins, _evaluator, explored_n, result) for arch in
                                               archs_to_evaluate])):
-            print(f"Progress: {i}/{total_to_evaluate}")
+            if i % 1000 == 0:
+                print(f"Progress: {i}/{total_to_evaluate}")
             if res is not None:
                 arch_id, model_score = res
                 result[arch_id] = model_score
