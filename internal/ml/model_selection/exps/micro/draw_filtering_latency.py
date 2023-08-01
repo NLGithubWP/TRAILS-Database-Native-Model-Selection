@@ -170,7 +170,8 @@ for img_id, datasets in enumerate([datasets_wo_cache, datasets_embedding_cache])
             ax.set_ylim(0, 1600)
             ax.legend(fontsize=set_lgend_size, loc='upper right', ncol=1)
 
-        ax.tick_params(axis='both', which='major', labelsize=set_tick_size)
+        # increase x size
+        ax.tick_params(axis='x', which='major', labelsize=set_tick_size+5)
 
     fig.tight_layout()
     # plt.show()
