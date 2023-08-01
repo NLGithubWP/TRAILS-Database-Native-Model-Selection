@@ -68,6 +68,7 @@ class ConcurrentP1Evaluator:
             else:
                 raise NotImplementedError
 
+            print("GC the large train data loader")
             del train_loader
             # Force garbage collection
             gc.collect()
