@@ -174,7 +174,7 @@ class P1Evaluator:
             new_model = self.search_space_ins.new_arch_scratch_with_default_setting(model_encoding, bn=bn)
 
             # mlp have embedding layer, which can be cached, optimization!
-            if self.search_space_ins == Config.MLPSP:
+            if self.search_space_ins.name == Config.MLPSP:
                 if self.enable_cache:
                     new_model.init_embedding(self.model_cache)
                     if self.model_cache is None:

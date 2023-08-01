@@ -133,6 +133,8 @@ class DNNModel(torch.nn.Module):
             nemb: embedding size
         """
         super().__init__()
+        self.nfeat = nfeat
+        self.nemb = nemb
         self.embedding = None
         self.mlp_ninput = nfield*nemb
         self.mlp = MLP(self.mlp_ninput, hidden_layer_list, dropout_rate, noutput, use_bn)
