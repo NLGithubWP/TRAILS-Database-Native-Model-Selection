@@ -14,6 +14,7 @@ import time
 from torch import nn
 from src.search_space.core.space import SpaceWrapper
 from multiprocessing import Manager
+import gc
 
 
 class ConcurrentP1Evaluator:
@@ -39,7 +40,6 @@ class ConcurrentP1Evaluator:
         self.dataset_name = dataset_name
 
         self.search_space_ins = search_space_ins
-        self.train_loader = train_loader
 
         self.device = device
         self.num_labels = num_label
@@ -51,7 +51,7 @@ class ConcurrentP1Evaluator:
             if self.dataset_name in [Config.c10, Config.c100, Config.imgNet]:
                 # for img data
                 self.mini_batch, self.mini_batch_targets = dataset.get_mini_batch(
-                    dataloader=self.train_loader,
+                    dataloader=train_loader,
                     sample_alg="random",
                     batch_size=32,
                     num_classes=self.num_labels)
@@ -59,7 +59,7 @@ class ConcurrentP1Evaluator:
                 self.mini_batch_targets.to(self.device)
             elif self.dataset_name in [Config.Criteo, Config.Frappe, Config.UCIDataset]:
                 # this is structure data
-                batch = iter(self.train_loader).__next__()
+                batch = iter(train_loader).__next__()
                 target = batch['y'].type(torch.LongTensor).to(self.device)
                 batch['id'] = batch['id'].to(self.device)
                 batch['value'] = batch['value'].to(self.device)
@@ -67,6 +67,11 @@ class ConcurrentP1Evaluator:
                 self.mini_batch_targets = target.to(self.device)
             else:
                 raise NotImplementedError
+
+            del train_loader
+            # Force garbage collection
+            gc.collect()
+
         self.time_usage = {
             "latency": 0.0,
             "io_latency": 0.0,

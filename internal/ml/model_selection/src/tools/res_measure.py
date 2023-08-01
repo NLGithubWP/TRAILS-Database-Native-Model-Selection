@@ -37,7 +37,7 @@ def print_cpu_gpu_usage(interval=1, output_file="path_to_folder", stop_event=Non
                 print(f"Exception encountered when fetching GPU stats: {e}")
 
             # If it's time to write metrics to a file, do so
-            if len(metrics['cpu_usage']) % 4 == 0:
+            if len(metrics['cpu_usage']) % 40 == 0:
                 write_json(output_file, metrics)
 
             time.sleep(interval)

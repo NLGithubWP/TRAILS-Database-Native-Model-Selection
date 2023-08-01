@@ -137,6 +137,6 @@ if __name__ == "__main__":
     # Then, at the end of your program, you can stop the thread:
     print("Done, time sleep for 10 seconds")
     # wait the resource montor flush
-    time.sleep(10)
+    time.sleep(40)
     stop_event.set()
     thread.join()
