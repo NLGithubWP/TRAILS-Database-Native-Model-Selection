@@ -152,6 +152,7 @@ def system_performance_exp(parser):
     parser.add_argument('--tfmem', default="all_matrix", type=str, help='the matrix t use')
     parser.add_argument('--embedding_cache_filtering', default='False', type=str2bool,
                         help='Cache embedding for MLP in filtering phase?')
+    parser.add_argument('--concurrency', default=1, type=int, help='number of worker in filtering phase')
 
 
 def parse_arguments():

@@ -8,6 +8,7 @@ from src.tools.io_tools import write_json
 
 def print_cpu_gpu_usage(interval=1, output_file="path_to_folder", stop_event=None):
     def print_usage():
+        print("Starting to print usage")  # Debugging print
         # Get current process
         main_process = psutil.Process(os.getpid())
 
@@ -24,12 +25,12 @@ def print_cpu_gpu_usage(interval=1, output_file="path_to_folder", stop_event=Non
             metrics['cpu_usage'].append(cpu_percent)
             metrics['memory_usage'].append(mem_usage_mb)
 
-            # Get GPU usage
-            gpu_stats = gpustat.GPUStatCollection.new_query()
-            for gpu in gpu_stats:
-                # here in MB
-                metrics['gpu_usage'].append((gpu.index, gpu.utilization, gpu.memory_used))
-                # print(f"GPU {gpu.index} usage: {gpu.utilization}% memory: {gpu.memory_used}MB")
+            try:
+                gpu_stats = gpustat.GPUStatCollection.new_query()
+                for gpu in gpu_stats:
+                    metrics['gpu_usage'].append((gpu.index, gpu.utilization, gpu.memory_used))
+            except Exception as e:
+                print(f"Exception encountered when fetching GPU stats: {e}")
 
             # If it's time to write metrics to a file, do so
             if len(metrics['cpu_usage']) % 4 == 0:
