@@ -43,6 +43,8 @@ def print_cpu_gpu_usage(interval=1, output_file="path_to_folder", stop_event=Non
 
             time.sleep(interval)
 
+        print("Stop monitering, flust to disk")
+        write_json(output_file, metrics)
     stop_event = stop_event or threading.Event()
     thread = threading.Thread(target=print_usage)
     thread.start()
