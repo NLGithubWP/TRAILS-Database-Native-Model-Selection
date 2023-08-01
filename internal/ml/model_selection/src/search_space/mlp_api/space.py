@@ -146,10 +146,8 @@ class DNNModel(torch.nn.Module):
         """
         if self.embedding is None:
             if cached_embedding is None:
-                print("[init_embedding]: init from scrach")
                 self.embedding = Embedding(self.nfeat, self.nemb)
             else:
-                print("[init_embedding]: use cache")
                 self.embedding = cached_embedding
 
     def generate_all_ones_embedding(self):
