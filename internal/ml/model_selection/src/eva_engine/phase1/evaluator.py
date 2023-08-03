@@ -105,6 +105,8 @@ class P1Evaluator:
         model_acquire = ModelAcquireData.deserialize(data_str)
         model_encoding = model_acquire.model_encoding
         new_model = self.search_space_ins.new_arch_scratch_with_default_setting(model_encoding, bn=True)
+        if self.search_space_ins.name == Config.MLPSP:
+            new_model.init_embedding(requires_grad=True)
         new_model = new_model.to(self.device)
         flops, params = profile(new_model, inputs=(self.mini_batch,))
         print('FLOPs = ' + str(flops / 1000 ** 3) + 'G')
@@ -146,6 +148,8 @@ class P1Evaluator:
                 else:
                     bn = True
                 new_model = self.search_space_ins.new_arch_scratch_with_default_setting(model_encoding, bn=bn)
+                if self.search_space_ins.name == Config.MLPSP:
+                    new_model.init_embedding()
                 new_model = new_model.to(self.device)
 
                 mini_batch = self.data_pre_processing(alg, new_model)
