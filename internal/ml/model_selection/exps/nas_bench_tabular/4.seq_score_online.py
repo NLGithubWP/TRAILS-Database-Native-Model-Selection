@@ -70,10 +70,12 @@ if __name__ == "__main__":
     while True:
         arch_id, arch_micro = sampler.sample_next_arch()
         if arch_id is None:
+            logger.info("Stop exploring, meet None arch id")
             break
         if arch_id in result:
             continue
         if explored_n > args.models_explore:
+            logger.info(f"Stop exploring, {explored_n} > {args.models_explore}")
             break
         # run the model selection
         model_encoding = search_space_ins.serialize_model_encoding(arch_micro)
@@ -87,7 +89,7 @@ if __name__ == "__main__":
         print(f" {datetime.now()} finish arch = {arch_id}, model_score = {model_score}")
         if explored_n % 100 == 0:
             print("3. [trails] Phase 1: filter phase explored " + str(explored_n)
-                  + "Total explored" + str(len(result)) +
+                  + "Total explored " + str(len(result)) +
                   " model, model_id = " + str(arch_id) +
                   " model_scores = " + json.dumps(model_score))
             logger.info("3. [trails] Phase 1: filter phase explored " + str(explored_n) +
