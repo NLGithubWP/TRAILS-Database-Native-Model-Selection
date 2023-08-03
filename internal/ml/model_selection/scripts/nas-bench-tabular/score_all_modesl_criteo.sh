@@ -11,7 +11,7 @@ nohup  python ./internal/ml/model_selection/exps/nas_bench_tabular/4.seq_score_o
   --hidden_choice_len=10 \
   --base_dir=/hdd1/xingnaili/exp_data/ \
   --num_labels=2 \
-  --device=cuda:6 \
+  --device=cpu \
   --batch_size=32 \
   --dataset=criteo \
   --nfeat=2100000 \
