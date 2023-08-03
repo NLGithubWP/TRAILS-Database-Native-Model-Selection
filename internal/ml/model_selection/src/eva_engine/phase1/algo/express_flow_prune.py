@@ -49,13 +49,13 @@ class ExpressFlowEvaluator(Evaluator):
             if isinstance(module, nn.ReLU):
                 hooks.append(module.register_forward_hook(hook_fn))
 
+        arch.double()
         if space_name == Config.MLPSP:
-            out = arch.forward_wo_embedding(batch_data)
+            out = arch.forward_wo_embedding(batch_data.double())
         else:
-            out = arch.forward(batch_data)
+            out = arch.forward(batch_data.double())
 
         # directly sum
-        # out = arch(batch_data)
         torch.sum(out).backward()
 
         total_sum = 0.0 * Vs[0].flatten().sum() * list(Vs[0].shape)[1] / 10 \
