@@ -87,7 +87,7 @@ class ConcurrentP1Evaluator:
         # this is to do the expeirment
         self.enable_cache = enable_cache
         if self.enable_cache:
-            # warmup for concurrent usage.
+            # todo: warmup for concurrent usage. this is only test for MLP with embedding.
             new_model = self.search_space_ins.new_arch_scratch_with_default_setting("8-8-8-8", bn=False)
             new_model.init_embedding()
             # shared embedding
@@ -126,21 +126,7 @@ class ConcurrentP1Evaluator:
         """
 
         model_acquire = ModelAcquireData.deserialize(data_str)
-
-        if self.is_simulate:
-            return self._p1_evaluate_simu(model_acquire)
-        else:
-            return self._p1_evaluate_online(model_acquire)
-
-    def measure_model_flops(self, data_str: str, batch_size: int, channel_size: int):
-        # todo: check the package
-        model_acquire = ModelAcquireData.deserialize(data_str)
-        model_encoding = model_acquire.model_encoding
-        new_model = self.search_space_ins.new_arch_scratch_with_default_setting(model_encoding, bn=True)
-        new_model = new_model.to(self.device)
-        flops, params = profile(new_model, inputs=(self.mini_batch,))
-        print('FLOPs = ' + str(flops / 1000 ** 3) + 'G')
-        print('Params = ' + str(params / 1000 ** 2) + 'M')
+        return self._p1_evaluate_online(model_acquire)
 
     def _p1_evaluate_online(self, model_acquire: ModelAcquireData) -> dict:
 
@@ -189,15 +175,6 @@ class ConcurrentP1Evaluator:
 
         del new_model
         model_score = {self.metrics: _score}
-        return model_score
-
-    def _p1_evaluate_simu(self, model_acquire: ModelAcquireData) -> dict:
-        if self.score_getter is None:
-            self.score_getter = SimulateScore(space_name=self.search_space_ins.name,
-                                              dataset_name=self.dataset_name)
-
-        model_score = self.score_getter.query_tfmem_rank_score(arch_id=model_acquire.model_id)
-
         return model_score
 
     def data_pre_processing(self, metrics: str, new_model: nn.Module):
