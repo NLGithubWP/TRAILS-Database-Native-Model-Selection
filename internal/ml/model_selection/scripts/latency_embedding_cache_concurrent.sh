@@ -8,7 +8,7 @@ export PYTHONPATH=$PYTHONPATH:./internal/ml/model_selection
 
 # frappe
 python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency_concurrent.py \
-  --concurrency=1 \
+  --concurrency=8 \
   --embedding_cache_filtering=True \
   --tfmem=express_flow \
   --models_explore=5000 \
