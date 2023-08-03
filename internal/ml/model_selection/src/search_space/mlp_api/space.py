@@ -20,11 +20,11 @@ from src.query_api.query_api_mlp import GTMLP
 
 # Useful constants
 
-DEFAULT_LAYER_CHOICES_20 = [8, 16, 24, 32, # 8
-                            48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, # 16
+DEFAULT_LAYER_CHOICES_20 = [8, 16, 24, 32,  # 8
+                            48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256,  # 16
                             384, 512]
 DEFAULT_LAYER_CHOICES_10 = [8, 16, 32,
-                            48,  96, 112, 144, 176, 240,
+                            48, 96, 112, 144, 176, 240,
                             384]
 
 
@@ -54,8 +54,8 @@ class Embedding(nn.Module):
         :param x:   {'id': LongTensor B*F, 'value': FloatTensor B*F}
         :return:    embeddings B*F*E
         """
-        emb = self.embedding(x['id'])                           # B*F*E
-        return emb * x['value'].unsqueeze(2)                    # B*F*E
+        emb = self.embedding(x['id'])  # B*F*E
+        return emb * x['value'].unsqueeze(2)  # B*F*E
 
 
 class MLP(nn.Module):
@@ -140,7 +140,7 @@ class DNNModel(torch.nn.Module):
         self.mlp = MLP(self.mlp_ninput, hidden_layer_list, dropout_rate, noutput, use_bn)
         # self.sigmoid = nn.Sigmoid()
 
-    def init_embedding(self, cached_embedding=None):
+    def init_embedding(self, cached_embedding=None, requires_grad=False):
         """
         This is slow, in filtering phase, we could enable caching here.
         """
@@ -149,6 +149,12 @@ class DNNModel(torch.nn.Module):
                 self.embedding = Embedding(self.nfeat, self.nemb)
             else:
                 self.embedding = cached_embedding
+
+        # in scoring process
+        # Disable gradients for all parameters in the embedding layer
+        if not requires_grad:
+            for param in self.embedding.parameters():
+                param.requires_grad = False
 
     def generate_all_ones_embedding(self):
         """
@@ -170,8 +176,8 @@ class DNNModel(torch.nn.Module):
         :param x:   {'id': LongTensor B*F, 'value': FloatTensor B*F}
         :return:    y of size B, Regression and Classification (+sigmoid)
         """
-        x_emb = self.embedding(x)                           # B*F*E
-        y = self.mlp(x_emb.view(-1, self.mlp_ninput))       # B*label
+        x_emb = self.embedding(x)  # B*F*E
+        y = self.mlp(x_emb.view(-1, self.mlp_ninput))  # B*label
         # this is for binary classification
         return y.squeeze(1)
 
@@ -213,8 +219,8 @@ class MlpSpace(SpaceWrapper):
 
     def profiling_score_time(
             self, dataset: str,
-                  train_loader: DataLoader = None, val_loader: DataLoader = None,
-                  args=None, is_simulate: bool = False):
+            train_loader: DataLoader = None, val_loader: DataLoader = None,
+            args=None, is_simulate: bool = False):
         assert isinstance(self.model_cfg, MlpMacroCfg)
 
         device = "cpu"
@@ -241,8 +247,9 @@ class MlpSpace(SpaceWrapper):
                 nemb=args.nemb,
                 hidden_layer_list=[DEFAULT_LAYER_CHOICES_20[-1]] * self.model_cfg.num_layers,
                 dropout_rate=0,
-                noutput=self.model_cfg.num_labels).to(device)
-
+                noutput=self.model_cfg.num_labels)
+            super_net.init_embedding(requires_grad=False)
+            super_net.to(device)
             # measure score time,
             score_time_begin = time.time()
             naswot_score, _ = evaluator_register[CommonVars.NAS_WOT].evaluate_wrapper(
@@ -260,8 +267,9 @@ class MlpSpace(SpaceWrapper):
                 hidden_layer_list=[DEFAULT_LAYER_CHOICES_20[-1]] * self.model_cfg.num_layers,
                 dropout_rate=0,
                 noutput=self.model_cfg.num_labels,
-                use_bn=False).to(device)
-
+                use_bn=False)
+            super_net.init_embedding(requires_grad=False)
+            super_net.to(device)
             synflow_score, _ = evaluator_register[CommonVars.PRUNE_SYNFLOW].evaluate_wrapper(
                 arch=super_net,
                 device=device,
@@ -275,8 +283,8 @@ class MlpSpace(SpaceWrapper):
         return score_time
 
     def profiling_train_time(self, dataset: str,
-                  train_loader: DataLoader = None, val_loader: DataLoader = None,
-                  args=None, is_simulate: bool = False):
+                             train_loader: DataLoader = None, val_loader: DataLoader = None,
+                             args=None, is_simulate: bool = False):
 
         device = args.device
 
@@ -292,7 +300,9 @@ class MlpSpace(SpaceWrapper):
                 nemb=args.nemb,
                 hidden_layer_list=[DEFAULT_LAYER_CHOICES_20[-1]] * self.model_cfg.num_layers,
                 dropout_rate=0,
-                noutput=self.model_cfg.num_labels).to(device)
+                noutput=self.model_cfg.num_labels)
+            super_net.init_embedding(requires_grad=True)
+            super_net.to(device)
             # only train for ony iteratin to evaluat the time usage.
             targs = copy.deepcopy(args)
             valid_auc, train_time_epoch, train_log = ModelTrainer.fully_train_arch(
@@ -338,7 +348,9 @@ class MlpSpace(SpaceWrapper):
                 nemb=args.nemb,
                 hidden_layer_list=[DEFAULT_LAYER_CHOICES_20[-1]] * self.model_cfg.num_layers,
                 dropout_rate=0,
-                noutput=self.model_cfg.num_labels).to(device)
+                noutput=self.model_cfg.num_labels)
+            super_net.init_embedding(requires_grad=False)
+            super_net.to(device)
 
             # measure score time,
             score_time_begin = time.time()
@@ -357,7 +369,9 @@ class MlpSpace(SpaceWrapper):
                 hidden_layer_list=[DEFAULT_LAYER_CHOICES_20[-1]] * self.model_cfg.num_layers,
                 dropout_rate=0,
                 noutput=self.model_cfg.num_labels,
-                use_bn=False).to(device)
+                use_bn=False)
+            super_net.init_embedding(requires_grad=False)
+            super_net.to(device)
 
             synflow_score, _ = evaluator_register[CommonVars.PRUNE_SYNFLOW].evaluate_wrapper(
                 arch=super_net,
@@ -382,17 +396,20 @@ class MlpSpace(SpaceWrapper):
                 nemb=args.nemb,
                 hidden_layer_list=[DEFAULT_LAYER_CHOICES_20[-1]] * self.model_cfg.num_layers,
                 dropout_rate=0,
-                noutput=self.model_cfg.num_labels).to(device)
+                noutput=self.model_cfg.num_labels)
+            super_net.init_embedding(requires_grad=True)
+            super_net.to(device)
+
             # only train for ony iteratin to evaluat the time usage.
             targs = copy.deepcopy(args)
             valid_auc, train_time_epoch, train_log = ModelTrainer.fully_train_arch(
-               model=super_net,
-               use_test_acc=False,
-               epoch_num=1,
-               train_loader=train_loader,
-               val_loader=val_loader,
-               test_loader=val_loader,
-               args=targs)
+                model=super_net,
+                use_test_acc=False,
+                epoch_num=1,
+                train_loader=train_loader,
+                val_loader=val_loader,
+                test_loader=val_loader,
+                args=targs)
             del super_net
             _train_time_per_epoch = train_time_epoch
 
@@ -404,7 +421,7 @@ class MlpSpace(SpaceWrapper):
         else:
             n_k_ratio = profile_NK_trade_off(dataset)
         print(f"Profiling results:  score_time_per_model={score_time_per_model},"
-                    f" train_time_per_epoch={train_time_per_epoch}")
+              f" train_time_per_epoch={train_time_per_epoch}")
         logger.info(f"Profiling results:  score_time_per_model={score_time_per_model},"
                     f" train_time_per_epoch={train_time_per_epoch}")
         return score_time_per_model, train_time_per_epoch, n_k_ratio
@@ -484,6 +501,7 @@ class MlpSpace(SpaceWrapper):
         return model_encoding, model_micro
 
     '''Below is for EA'''
+
     def mutate_architecture(self, parent_arch: ModelMicroCfg) -> (str, ModelMicroCfg):
         assert isinstance(parent_arch, MlpMicroCfg)
         assert isinstance(self.model_cfg, MlpMacroCfg)
@@ -517,6 +535,3 @@ class MlpSpace(SpaceWrapper):
             #
             # new_model = MlpMicroCfg(child_layer_list)
             # return str(new_model), new_model
-
-
-

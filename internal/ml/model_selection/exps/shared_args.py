@@ -65,7 +65,7 @@ def nb201_args(parser):
 def mlp_args(parser):
     parser.add_argument('--num_layers', default=4, type=int, help='# hidden layers')
     parser.add_argument('--hidden_choice_len', default=20, type=int, help=
-                        'number of hidden layer choices, 10 for criteo, 20 for others')
+    'number of hidden layer choices, 10 for criteo, 20 for others')
 
 
 def mlp_trainner_args(parser):
@@ -118,7 +118,8 @@ def data_set_config(parser):
 
 def seq_train_all_params(parser):
     parser.add_argument('--worker_id', type=int, default=0, help='start from 0')
-    parser.add_argument('--total_workers', type=int, default=120, help='total number of workers, each train some models')
+    parser.add_argument('--total_workers', type=int, default=120,
+                        help='total number of workers, each train some models')
     parser.add_argument('--total_models_per_worker', type=int, default=-1, help='How many models to evaluate')
     parser.add_argument('--pre_partitioned_file',
                         default="./internal/ml/model_selection/exps/sampled_data/sampled_models_all.json",
@@ -149,7 +150,7 @@ def anytime_exp_set(parser):
 
 def system_performance_exp(parser):
     parser.add_argument('--models_explore', default=1000, type=int, help='# models to explore in the filtering phase')
-    parser.add_argument('--tfmem', default="all_matrix", type=str, help='the matrix t use')
+    parser.add_argument('--tfmem', default="express_flow", type=str, help='the matrix t use, all_matrix')
     parser.add_argument('--embedding_cache_filtering', default='False', type=str2bool,
                         help='Cache embedding for MLP in filtering phase?')
     parser.add_argument('--concurrency', default=1, type=int, help='number of worker in filtering phase')
@@ -197,6 +198,5 @@ def parse_arguments():
     parser.add_argument('--url', type=str, default=-1, help="Max Loading time")
 
     seed_everything()
-
 
     return parser.parse_args()
