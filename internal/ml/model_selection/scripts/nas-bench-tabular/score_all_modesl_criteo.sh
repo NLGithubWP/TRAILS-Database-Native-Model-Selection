@@ -3,6 +3,8 @@
 export PYTHONPATH=$PYTHONPATH:./internal/ml/model_selection
 
 nohup  python ./internal/ml/model_selection/exps/nas_bench_tabular/4.seq_score_online.py \
+  --models_explore=9999 \
+  --tfmem=express_flow \
   --log_name=score_based \
   --search_space=mlp_sp \
   --num_layers=4 \
