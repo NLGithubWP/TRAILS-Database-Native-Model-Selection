@@ -1,7 +1,6 @@
-
-
 import numpy as np
 import os
+import numpy as np
 
 
 # Initialize function to calculate correlation
@@ -63,8 +62,35 @@ def calculate_correlation(dataset, search_space, epoch_train):
     print("JACFLOW", res[CommonVars.Spearman])
 
 
+def average_rank(data):
+    # Take the absolute value of each element
+    abs_data = np.abs(data)
+
+    # Rank each value within its row based on the absolute value, from large to small
+    row_ranks = abs_data.argsort(axis=1)[:, ::-1].argsort(axis=1)
+
+    # Add 1 to each rank so that the ranking starts from 1
+    row_ranks += 1
+
+    # Compute the average rank for each column
+    avg_ranks = row_ranks.mean(axis=0)
+
+    return avg_ranks
+
+
 # Call the main function
 if __name__ == "__main__":
+
+    # this is pre-computed
+    data = np.array([
+        [0.45, 0.61, -0.77, 0.54, 0.13, 0.48, -0.27, 0.68, 0.77, 0.80],
+        [0.39, 0.63, -0.56, 0.37, 0.31, 0.21, -0.23, 0.62, 0.68, 0.76],
+        [0.32, 0.69, -0.66, 0.46, 0.01, 0.41, -0.18, 0.78, 0.74, 0.77]
+    ])
+
+    avg_ranks = average_rank(data)
+    print(avg_ranks)
+
     os.environ.setdefault("base_dir", "../exp_data")
     from src.query_api.interface import SimulateTrain, SimulateScore
     from src.tools.correlation import CorCoefficient
@@ -90,5 +116,3 @@ if __name__ == "__main__":
 
     # Criteo configuration
     calculate_correlation(Config.Criteo, Config.MLPSP, 9)
-
-
