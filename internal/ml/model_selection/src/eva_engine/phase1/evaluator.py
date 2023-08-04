@@ -210,6 +210,8 @@ class P1Evaluator:
             self.time_usage["track_compute"].append(curr_time)
 
             del new_model
+
+            # todo: witout force gc, memory overflow.
             gc.collect()
             model_score = {self.metrics: _score}
         return model_score
