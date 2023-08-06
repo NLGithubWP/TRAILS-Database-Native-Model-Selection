@@ -519,3 +519,28 @@ class MlpSpace(SpaceWrapper):
                 new_model = MlpMicroCfg(child_layer_list)
                 return str(new_model), new_model
 
+    def mutate_architecture_move_proposal(self, parent_arch: ModelMicroCfg):
+        assert isinstance(parent_arch, MlpMicroCfg)
+        assert isinstance(self.model_cfg, MlpMacroCfg)
+        child_layer_list = deepcopy(parent_arch.hidden_layer_list)
+
+        all_combs = set()
+        # 1. choose layer index
+        for chosen_hidden_layer_index in list(range(len(child_layer_list))):
+
+            # 2. choose size of the layer index, increase the randomness
+            while True:
+                cur_layer_size = child_layer_list[chosen_hidden_layer_index]
+                mutated_layer_size = random.choice(self.model_cfg.layer_choices)
+                if mutated_layer_size != cur_layer_size:
+                    child_layer_list[chosen_hidden_layer_index] = mutated_layer_size
+                    new_model = MlpMicroCfg(child_layer_list)
+                    all_combs.add((str(new_model), new_model))
+                    break
+
+        return list(all_combs)
+
+
+
+
+
