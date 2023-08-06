@@ -3,6 +3,10 @@ import random
 import calendar
 import os
 import time
+import matplotlib
+matplotlib.use('TkAgg')  # Or any other supported backend
+from matplotlib import pyplot as plt
+import numpy as np
 
 
 def random_combination(iterable, sample_size):
@@ -118,12 +122,40 @@ def run_evolution_search(max_trained_models=1000,
         if num_trained_models >= max_trained_models:
             break
 
-    best_tests.pop(0)
     return time_usage_lst, best_tests
 
 
 def filter_refinment_fully_training():
     pass
+
+
+def plot_experiment(exp_list, title):
+    def plot_exp(time_usg, exp, label):
+        exp = np.array(exp)
+        q_75_y = np.quantile(exp, .75, axis=0)
+        q_25_y = np.quantile(exp, .25, axis=0)
+        mean_y = np.mean(exp, axis=0)
+
+        time_usg = np.array(time_usg)
+        q_75_time = np.quantile(time_usg, .75, axis=0)
+        q_25_time = np.quantile(time_usg, .25, axis=0)
+        mean_time = np.mean(time_usg, axis=0)
+
+        plt.plot(mean_time, mean_y, label=label)
+        plt.fill_between(mean_time, q_25_y, q_75_y, alpha=0.1)
+
+    for time_usg, exp, ename in exp_list:
+        plot_exp(time_usg, exp, ename)
+    plt.grid()
+    plt.xlabel('Trained Models')
+    plt.ylabel('Test Accuracy')
+    # plt.ylim(70, 73.6)
+
+    plt.xscale('xlog')
+
+    plt.legend()
+    plt.title(title)
+    plt.show()
 
 
 if __name__ == "__main__":
@@ -138,26 +170,43 @@ if __name__ == "__main__":
     from src.eva_engine.phase2.evaluator import P2Evaluator
     from src.search_space.init_search_space import init_search_space
 
-    ae_warmup_time_usage_lst, ae_warmup_best_tests = run_evolution_search(
-        max_trained_models=1000,
-        pool_size=64,
-        tournament_size=10,
-        zero_cost_warmup=3000,
-        zero_cost_move=False,
-        tfmem="express_flow",
-        dataset_name="frappe",
-        query_epoch=19,
-        args=args)
+    total_run = 5
 
-    ae_move_time_usage_lst, ae_move_best_tests = run_evolution_search(
-        max_trained_models=1000,
-        pool_size=64,
-        tournament_size=10,
-        zero_cost_warmup=0,
-        zero_cost_move=True,
-        tfmem="express_flow",
-        dataset_name="frappe",
-        query_epoch=19,
-        args=args)
+    ae_warmup_time, ae_warmup = [], []
+
+    for run_id in range(total_run):
+        _ae_warmup_time, _ae_warmup = run_evolution_search(
+            max_trained_models=1000,
+            pool_size=64,
+            tournament_size=10,
+            zero_cost_warmup=3000,
+            zero_cost_move=False,
+            tfmem="express_flow",
+            dataset_name="frappe",
+            query_epoch=19,
+            args=args)
+
+        ae_warmup_time.append(_ae_warmup_time)
+        ae_warmup.append(_ae_warmup)
+
+    ae_move_time, ae_move = [], []
+    for run_id in range(total_run):
+        _ae_move_time, _ae_move = run_evolution_search(
+            max_trained_models=1000,
+            pool_size=64,
+            tournament_size=10,
+            zero_cost_warmup=0,
+            zero_cost_move=True,
+            tfmem="express_flow",
+            dataset_name="frappe",
+            query_epoch=19,
+            args=args)
+
+        ae_move_time.append(_ae_move_time)
+        ae_move.append(_ae_move)
+
+    plot_experiment([(ae_warmup_time, ae_warmup, 'AE + warmup (3000)'),
+                     (ae_move_time, ae_move, 'AE + move')],
+                    'Aging Evolution Search')
 
     print("Done")
