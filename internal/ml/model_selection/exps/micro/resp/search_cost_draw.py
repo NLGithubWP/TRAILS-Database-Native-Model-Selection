@@ -26,6 +26,8 @@ def get_dataset_parameters(dataset):
             "ntk_cond_num_p1": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_frappe_-1_10_ntk_cond_num_p1.json",
             "ntk_trace": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_frappe_-1_10_ntk_trace.json",
             "ntk_trace_p1": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_frappe_-1_10_ntk_trace_p1.json",
+            "ntk_trace_approx": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_frappe_-1_10_ntk_trace_approx.json",
+            "ntk_trace_approx_p1": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_frappe_-1_10_ntk_trace_approx_p1.json",
             "snip": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_frappe_-1_10_snip.json",
             "snip_p1": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_frappe_-1_10_snip_p1.json",
             "synflow": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_frappe_-1_10_synflow.json",
