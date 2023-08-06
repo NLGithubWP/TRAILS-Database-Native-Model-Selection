@@ -129,8 +129,8 @@ python internal/ml/model_selection/exps/macro/anytime_simulate.py \
 # ntk_trace
 # run the 2phase-MS
 python internal/ml/model_selection/exps/macro/anytime_simulate.py \
-      --tfmem=nas_wot \
-      --search_space ntk_trace \
+      --tfmem=ntk_trace \
+      --search_space mlp_sp \
       --num_layers 4 \
       --hidden_choice_len 20 \
       --batch_size 128 \
@@ -377,8 +377,6 @@ python internal/ml/model_selection/exps/macro/anytime_simulate.py \
       --log_folder any_time_frappe \
       --result_dir ./internal/ml/model_selection/exp_result/ \
       --num_points 10
-
-
 
 
 # express_flow
