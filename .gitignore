@@ -16,3 +16,4 @@ log_*/
 exp_result/*.json
 exp_result/*.pdf
 
+a_compute_cost/
