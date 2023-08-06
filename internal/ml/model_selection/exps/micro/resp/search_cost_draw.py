@@ -138,7 +138,7 @@ def generate_and_draw_data(dataset):
             "synflow_p1", "nas_wot_p1", "snip_p1",
             "EA + warmup-synflow (3K)", "EA + warmup-nas_wot (3K)", "EA + warmup-snip (3K)",
             "EA + warmup-express_flow (3K)",
-            "EA + move-synflow", "EA + move-nas_wot", "EA + move-snip", "EA + move-warmup-express_flow",
+            "EA + move-synflow", "EA + move-nas_wot", "EA + move-snip", "EA + move-express_flow",
             "express_flow"]:
             selected_lines.append(line)
 
