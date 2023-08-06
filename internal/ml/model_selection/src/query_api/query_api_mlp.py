@@ -19,6 +19,14 @@ mlp_score_frappe = os.path.join(base_dir, "tab_data/frappe/score_frappe_batch_si
 mlp_score_uci = os.path.join(base_dir, "tab_data/uci_diabetes/score_uci_diabetes_batch_size_32_all_metrics.json")
 mlp_score_criteo = os.path.join(base_dir, "tab_data/criteo/score_criteo_batch_size_32.json")
 
+
+# todo: here is for debug expressFlow only
+# sspath = "/Users/kevin/project_python/VLDB_code/TRAILS/internal/ml/model_selection/exp_result_sever/exp_result/"
+# mlp_score_frappe = os.path.join(sspath, "score_mlp_sp_criteo_batch_size_32_cpu.json")
+# mlp_score_uci = os.path.join(sspath, "score_mlp_sp_frappe_batch_size_32_cpu.json")
+# mlp_score_criteo = os.path.join(sspath, "score_mlp_sp_uci_diabetes_batch_size_32_cpu.json")
+
+
 # pre computed result
 score_one_model_time_dict = {
     "cpu": {

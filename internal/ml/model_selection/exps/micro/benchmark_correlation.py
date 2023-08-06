@@ -35,7 +35,12 @@ def calculate_correlation(dataset, search_space, epoch_train):
 
             all_alg_score_dic[alg].append(float(value))
 
-        all_alg_score_dic["nas_wot_add_syn_flow"].append(float(score_value["nas_wot"]) + float(score_value["synflow"]))
+        if "nas_wot" in score_value:
+            all_alg_score_dic["nas_wot_add_syn_flow"].append(
+                float(score_value["nas_wot"]) + float(score_value["synflow"]))
+        else:
+            all_alg_score_dic["nas_wot_add_syn_flow"].append(0)
+
         model_train_res_lst.append(acc)
 
     # Measure the correlation for each algorithm and print the result
@@ -51,15 +56,18 @@ def calculate_correlation(dataset, search_space, epoch_train):
 
     # Get global ranks, measure correlation and print result for JACFLOW
     # if dataset in [Config.Frappe, Config.UCIDataset, Config.Criteo]:
-    global_rank_score = [score_query.query_tfmem_rank_score(model_id)['nas_wot_synflow']
-                         for model_id in trained_scored_models]
+    try:
+        global_rank_score = [score_query.query_tfmem_rank_score(model_id)['nas_wot_synflow']
+                             for model_id in trained_scored_models]
 
-    sorted_indices = np.argsort(global_rank_score)
-    sorted_ground_truth = [model_train_res_lst[i] for i in sorted_indices]
-    sorted_scores = [global_rank_score[i] for i in sorted_indices]
+        sorted_indices = np.argsort(global_rank_score)
+        sorted_ground_truth = [model_train_res_lst[i] for i in sorted_indices]
+        sorted_scores = [global_rank_score[i] for i in sorted_indices]
 
-    res = CorCoefficient.measure(sorted_scores, sorted_ground_truth)
-    print("JACFLOW", res[CommonVars.Spearman])
+        res = CorCoefficient.measure(sorted_scores, sorted_ground_truth)
+        print("JACFLOW", res[CommonVars.Spearman])
+    except:
+        print("JACFLOW not provided")
 
 
 def average_rank(data):
@@ -80,7 +88,6 @@ def average_rank(data):
 
 # Call the main function
 if __name__ == "__main__":
-
     # this is pre-computed
     data = np.array([
         [0.45, 0.61, -0.77, 0.54, 0.13, 0.48, -0.27, 0.68, 0.77, 0.80],
@@ -96,6 +103,15 @@ if __name__ == "__main__":
     from src.tools.correlation import CorCoefficient
     from src.common.constant import CommonVars, Config
 
+    # Frappe configuration
+    calculate_correlation(Config.Frappe, Config.MLPSP, 19)
+
+    # UCI configuration
+    calculate_correlation(Config.UCIDataset, Config.MLPSP, 0)
+
+    # Criteo configuration
+    calculate_correlation(Config.Criteo, Config.MLPSP, 9)
+
     # NB101 + C10
     calculate_correlation(Config.c10, Config.NB101, None)
 
@@ -107,12 +123,3 @@ if __name__ == "__main__":
 
     # NB201 + imageNet
     calculate_correlation(Config.imgNet, Config.NB201, None)
-
-    # Frappe configuration
-    calculate_correlation(Config.Frappe, Config.MLPSP, 19)
-
-    # UCI configuration
-    calculate_correlation(Config.UCIDataset, Config.MLPSP, 0)
-
-    # Criteo configuration
-    calculate_correlation(Config.Criteo, Config.MLPSP, 9)
