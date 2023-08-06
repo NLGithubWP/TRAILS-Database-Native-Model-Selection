@@ -97,7 +97,10 @@ class P1Evaluator:
         model_acquire = ModelAcquireData.deserialize(data_str)
 
         if self.is_simulate:
-            return self._p1_evaluate_simu(model_acquire)
+            if self.metrics == "jacflow":
+                return self._p1_evaluate_simu_jacflow(model_acquire)
+            else:
+                return self._p1_evaluate_simu(model_acquire)
         else:
             return self._p1_evaluate_online(model_acquire)
 
@@ -216,13 +219,28 @@ class P1Evaluator:
             model_score = {self.metrics: _score}
         return model_score
 
-    def _p1_evaluate_simu(self, model_acquire: ModelAcquireData) -> dict:
+    def _p1_evaluate_simu_jacflow(self, model_acquire: ModelAcquireData) -> dict:
+        """
+        This involves get rank, and get jacflow
+        """
         if self.score_getter is None:
             self.score_getter = SimulateScore(space_name=self.search_space_ins.name,
                                               dataset_name=self.dataset_name)
 
         model_score = self.score_getter.query_tfmem_rank_score(arch_id=model_acquire.model_id)
 
+        return model_score
+
+    def _p1_evaluate_simu(self, model_acquire: ModelAcquireData) -> dict:
+        """
+        This involves simulate get alls core,
+        """
+        if self.score_getter is None:
+            self.score_getter = SimulateScore(space_name=self.search_space_ins.name,
+                                              dataset_name=self.dataset_name)
+
+        score = self.score_getter.query_all_tfmem_score(arch_id=model_acquire.model_id)
+        model_score = {self.metrics: score[self.metrics]}
         return model_score
 
     def data_pre_processing(self, metrics: str, new_model: nn.Module):

@@ -64,7 +64,8 @@ class RunPhase1:
                                       dataset_name=self.args.dataset,
                                       search_space_ins=self.search_space_ins,
                                       train_loader=train_loader,
-                                      is_simulate=is_simulate)
+                                      is_simulate=is_simulate,
+                                      metrics=self.args.tfmem)
 
     def run_phase1(self) -> (list, list, list, list):
         """
