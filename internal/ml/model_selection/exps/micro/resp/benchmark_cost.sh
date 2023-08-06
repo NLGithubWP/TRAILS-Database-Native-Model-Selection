@@ -230,4 +230,4 @@ python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py 
 
 
 
-echo "DOne"
+echo "Done"
