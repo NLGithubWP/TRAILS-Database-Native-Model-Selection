@@ -21,10 +21,9 @@ mlp_score_criteo = os.path.join(base_dir, "tab_data/criteo/score_criteo_batch_si
 
 
 # todo: here is for debug expressFlow only
-# sspath = "/Users/kevin/project_python/VLDB_code/TRAILS/internal/ml/model_selection/exp_result_sever/exp_result/"
-# mlp_score_frappe = os.path.join(sspath, "score_mlp_sp_criteo_batch_size_32_cpu.json")
-# mlp_score_uci = os.path.join(sspath, "score_mlp_sp_frappe_batch_size_32_cpu.json")
-# mlp_score_criteo = os.path.join(sspath, "score_mlp_sp_uci_diabetes_batch_size_32_cpu.json")
+exp_mlp_score_frappe = os.path.join(base_dir, "tab_data/expressflow_score_mlp_sp_frappe_batch_size_32_cpu.json")
+exp_mlp_score_uci = os.path.join(base_dir, "tab_data/expressflow_score_mlp_sp_uci_diabetes_batch_size_32_cpu.json")
+exp_mlp_score_criteo = os.path.join(base_dir, "tab_data/expressflow_score_mlp_sp_criteo_batch_size_32_cpu.json")
 
 
 # pre computed result
@@ -68,14 +67,24 @@ class GTMLP:
             if dataset == Config.Frappe:
                 instance.mlp_train_path = mlp_train_frappe
                 instance.mlp_score_path = mlp_score_frappe
+                instance.mlp_score_path2 = exp_mlp_score_frappe
             elif dataset == Config.Criteo:
                 instance.mlp_train_path = mlp_train_criteo
                 instance.mlp_score_path = mlp_score_criteo
+                instance.mlp_score_path2 = exp_mlp_score_criteo
             elif dataset == Config.UCIDataset:
                 instance.mlp_train_path = mlp_train_uci_diabetes
                 instance.mlp_score_path = mlp_score_uci
+                instance.mlp_score_path2 = exp_mlp_score_uci
             instance.mlp_train = read_json(instance.mlp_train_path)
             instance.mlp_score = read_json(instance.mlp_score_path)
+
+            mlp_score_expressflow = read_json(instance.mlp_score_path2)
+            # todo: here we combine two json dict, remove later
+            for key in mlp_score_expressflow:
+                if key in instance.mlp_score:
+                    instance.mlp_score[key].update(mlp_score_expressflow[key])
+
             instance.mlp_global_rank = generate_global_rank(
                 instance.mlp_score, instance.default_alg_name_list)
 
