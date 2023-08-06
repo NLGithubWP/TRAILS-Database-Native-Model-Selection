@@ -3,10 +3,11 @@ from typing import List
 from src.tools.compute import sample_in_log_scale_new
 from src.tools.io_tools import read_json
 from exps.draw_tab_lib import draw_structure_data_anytime
-import os
 import numpy as np
 from pprint import pprint
-
+from exps.micro.resp.benchmark_combinations import export_warm_up_move_proposal
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning)
 
 def get_dataset_parameters(dataset):
     parameters = {
@@ -32,8 +33,8 @@ def get_dataset_parameters(dataset):
             "snip_p1": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_frappe_-1_10_snip_p1.json",
             "synflow": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_frappe_-1_10_synflow.json",
             "synflow_p1": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_frappe_-1_10_synflow_p1.json",
-            "mx_value": 98.099,
-            "y_lim": [None, None],
+            "mx_value": 98.14,
+            "y_lim": [97.5, 98.08],
             "figure_size": (6.2, 4.71),
             "datasetfg_name": dataset,
             "annotations": [],  # ["TabNAS", 97.68, 324.8/60],
@@ -95,16 +96,13 @@ def find_time_for_target_accuracy(elements, target_accuracy_index, target_algo='
 
 def generate_and_draw_data(dataset):
     params = get_dataset_parameters(dataset)
-
     result_dir = "./internal/ml/model_selection/exp_result/"
-
-    all_lines = []
-
     json_keys = [k for k, v in params.items() if isinstance(v, str) and v.endswith('.json')]
 
+    # 1. compare training-free and two-phase under various tfmem
+    all_lines = []
     for key in json_keys:
         result = read_json(params[key])
-
         sampled_x, sampled_y = sample_some_points(
             x_array=[result["sys_time_budget"] for _ in result["sys_acc"]],
             y_2d_array=result["sys_acc"],
@@ -113,12 +111,41 @@ def generate_and_draw_data(dataset):
 
         all_lines.append([sampled_x, sampled_y, key])
 
+    # 2. compare with warm-up and move-proposal with snip, naswot, synflow, expressFlow
+    print('Computing EA+warm up(3k), and EA + Move ')
+    for tfmem in ["synflow", "nas_wot", "snip", "express_flow"]:
+        ea_warm_up, ea_move = export_warm_up_move_proposal(tfmem)
+        all_lines.append(ea_warm_up)
+        all_lines.append(ea_move)
+
     pprint(find_time_for_target_accuracy(elements=all_lines, target_accuracy_index=3))
 
+    # draw_structure_data_anytime(
+    #     all_lines=all_lines,
+    #     dataset=params['datasetfg_name'],
+    #     name_img=f"{result_dir}/anytime_{dataset}",
+    #     max_value=params['mx_value'],
+    #     figure_size=params['figure_size'],
+    #     annotations=params['annotations'],
+    #     y_ticks=params['y_lim'],
+    #     x_ticks=[0.01, None]
+    # )
+
+    # 3. draw graph for table 4
+    selected_lines = []
+    for line in all_lines:
+        if line[-1] in [
+            "synflow_p1", "nas_wot_p1", "snip_p1",
+            "EA + warmup-synflow (3K)", "EA + warmup-nas_wot (3K)", "EA + warmup-snip (3K)",
+            "EA + warmup-express_flow (3K)",
+            "EA + move-synflow", "EA + move-nas_wot", "EA + move-snip", "EA + move-warmup-express_flow",
+            "express_flow"]:
+            selected_lines.append(line)
+
     draw_structure_data_anytime(
-        all_lines=all_lines,
+        all_lines=selected_lines,
         dataset=params['datasetfg_name'],
-        name_img=f"{result_dir}/anytime_{dataset}",
+        name_img=f"{result_dir}/anytime_combines_{dataset}",
         max_value=params['mx_value'],
         figure_size=params['figure_size'],
         annotations=params['annotations'],
