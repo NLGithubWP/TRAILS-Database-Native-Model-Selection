@@ -158,13 +158,13 @@ class P1Evaluator:
 
                 mini_batch = self.data_pre_processing(alg, new_model)
 
-                naswot_score, _ = score_evaluator.evaluate_wrapper(
+                _score, _ = score_evaluator.evaluate_wrapper(
                     arch=new_model,
                     device=self.device,
                     space_name=self.search_space_ins.name,
                     batch_data=mini_batch,
                     batch_labels=self.mini_batch_targets)
-                model_score[alg] = naswot_score
+                model_score[alg] = abs(_score)
 
                 # clear the cache
                 del new_model
