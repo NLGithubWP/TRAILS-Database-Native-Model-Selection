@@ -30,7 +30,7 @@ def get_dataset_parameters(dataset):
             "snip_p1": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_frappe_-1_10_snip_p1.json",
             "synflow": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_frappe_-1_10_synflow.json",
             "synflow_p1": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_frappe_-1_10_synflow_p1.json",
-            "mx_value": 98.192,
+            "mx_value": 98.099,
             "y_lim": [None, None],
             "figure_size": (6.2, 4.71),
             "datasetfg_name": dataset,

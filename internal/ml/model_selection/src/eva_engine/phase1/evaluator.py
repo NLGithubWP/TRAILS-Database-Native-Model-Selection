@@ -216,7 +216,7 @@ class P1Evaluator:
 
             # todo: witout force gc, memory overflow.
             gc.collect()
-            model_score = {self.metrics: _score}
+            model_score = {self.metrics: abs(_score)}
         return model_score
 
     def _p1_evaluate_simu_jacflow(self, model_acquire: ModelAcquireData) -> dict:
@@ -240,7 +240,7 @@ class P1Evaluator:
                                               dataset_name=self.dataset_name)
 
         score = self.score_getter.query_all_tfmem_score(arch_id=model_acquire.model_id)
-        model_score = {self.metrics: score[self.metrics]}
+        model_score = {self.metrics: abs(score[self.metrics])}
         return model_score
 
     def data_pre_processing(self, metrics: str, new_model: nn.Module):

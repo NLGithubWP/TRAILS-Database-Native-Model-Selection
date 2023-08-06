@@ -389,7 +389,7 @@ python internal/ml/model_selection/exps/macro/anytime_simulate.py \
       --batch_size 128 \
       --nfeat 5500 \
       --nfield 10 \
-      --base_dir=/hdd1/xingnaili/exp_data/ \
+      --base_dir=../exp_data/ \
       --dataset frappe \
       --num_labels 2 \
       --only_phase1 False \
@@ -408,7 +408,7 @@ python internal/ml/model_selection/exps/macro/anytime_simulate.py \
       --batch_size 128 \
       --nfeat 5500 \
       --nfield 10 \
-      --base_dir=/hdd1/xingnaili/exp_data/ \
+      --base_dir=../exp_data/ \
       --dataset frappe \
       --num_labels 2 \
       --only_phase1 True \

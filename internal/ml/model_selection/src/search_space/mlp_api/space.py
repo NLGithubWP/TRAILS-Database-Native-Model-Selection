@@ -519,19 +519,3 @@ class MlpSpace(SpaceWrapper):
                 new_model = MlpMicroCfg(child_layer_list)
                 return str(new_model), new_model
 
-            # cur_index = self.model_cfg.layer_choices.index(cur_layer_size)
-            #
-            # # replace the chosen layer size,
-            # if cur_index - 1 < 0:
-            #     # only goes right
-            #     child_layer_list[chosen_hidden_layer_index] = self.model_cfg.layer_choices[cur_index + 1]
-            # elif cur_index + 1 > len(self.model_cfg.layer_choices) - 1:
-            #     # only goes left
-            #     child_layer_list[chosen_hidden_layer_index] = self.model_cfg.layer_choices[cur_index - 1]
-            # else:
-            #     # randomly select a direction
-            #     options = random.choice([1, -1])
-            #     child_layer_list[chosen_hidden_layer_index] = self.model_cfg.layer_choices[cur_index + options]
-            #
-            # new_model = MlpMicroCfg(child_layer_list)
-            # return str(new_model), new_model
