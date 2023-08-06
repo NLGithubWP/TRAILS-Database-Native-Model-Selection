@@ -419,3 +419,5 @@ python internal/ml/model_selection/exps/macro/anytime_simulate.py \
       --num_points 10
 
 
+# draw the plot
+python ./internal/ml/model_selection/exps/micro/resp/search_cost_draw.py
