@@ -48,9 +48,9 @@ if __name__ == "__main__":
     from src.dataset_utils import dataset
     from src.common.constant import Config
 
-    output_file = f"{args.result_dir}/score_{args.search_space}_{args.dataset}_batch_size_{args.batch_size}_{args.device}.json"
-    time_output_file = f"{args.result_dir}/time_score_{args.search_space}_{args.dataset}_batch_size_{args.batch_size}_{args.device}.json"
-    res_output_file = f"{args.result_dir}/resource_score_{args.search_space}_{args.dataset}_batch_size_{args.batch_size}_{args.device}.json"
+    output_file = f"{args.result_dir}/score_{args.search_space}_{args.dataset}_batch_size_{args.batch_size}_{args.device}_{args.tfmem}.json"
+    time_output_file = f"{args.result_dir}/time_score_{args.search_space}_{args.dataset}_batch_size_{args.batch_size}_{args.device}_{args.tfmem}.json"
+    res_output_file = f"{args.result_dir}/resource_score_{args.search_space}_{args.dataset}_batch_size_{args.batch_size}_{args.device}_{args.tfmem}.json"
 
     # start the resource monitor
     stop_event, thread = print_cpu_gpu_usage(interval=0.5, output_file=res_output_file)
@@ -106,6 +106,9 @@ if __name__ == "__main__":
 
     _evaluator.time_usage["compute_latency"] = sum(_evaluator.time_usage["track_compute"][2:])
     _evaluator.time_usage["latency"] = _evaluator.time_usage["io_latency"] + _evaluator.time_usage["compute_latency"]
+
+    _evaluator.time_usage["avg_compute_latency"] = _evaluator.time_usage["compute_latency"] \
+                                                   / len(_evaluator.time_usage["track_compute"][2:])
 
     write_json(output_file, result)
     # compute time
