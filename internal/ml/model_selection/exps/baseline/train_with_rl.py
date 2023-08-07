@@ -53,7 +53,7 @@ for dataset, architectures in data_dict.items():
 
 result_dir = "./internal/ml/model_selection/exp_result/"
 
-checkpoint_file = f"{result_dir}/rl_benchmark_{dataset_used}_epoch_{epoch_sampled[dataset_used]}.json"
+checkpoint_file = f"{result_dir}/rl_train_base_line_{dataset_used}_epoch_{epoch_sampled[dataset_used]}.json"
 
 # RL with the resource-aware Abs Reward
 
@@ -205,8 +205,8 @@ for i in range(n_reps):
     print(i)
     layer_1_probs_all, layer_2_probs_all, layer_3_probs_all, layer_4_probs_all, cur_best_performance = run_abs(i)
     r.append([layer_1_probs_all, layer_2_probs_all, layer_3_probs_all, layer_4_probs_all])
-    recorded_result["baseline_time_budget"].append(list(range(1, len(cur_best_performance) + 1)))
-    recorded_result["baseline_acc"].append(cur_best_performance)
+    recorded_result["sys_time_budget"].append(list(range(1, len(cur_best_performance) + 1)))
+    recorded_result["sys_acc"].append(cur_best_performance)
 
 
 write_json(checkpoint_file, recorded_result)

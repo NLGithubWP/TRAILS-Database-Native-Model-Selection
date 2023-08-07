@@ -4,49 +4,7 @@ import calendar
 import json
 import os
 import time
-
 from exps.shared_args import parse_arguments
-
-
-def generate_data_loader():
-    if args.dataset in [Config.c10, Config.c100, Config.imgNet]:
-        train_loader, val_loader, class_num = dataset.get_dataloader(
-            train_batch_size=args.batch_size,
-            test_batch_size=args.batch_size,
-            dataset=args.dataset,
-            num_workers=1,
-            datadir=os.path.join(args.base_dir, "data"))
-        test_loader = val_loader
-    else:
-        train_loader, val_loader, test_loader = libsvm_dataloader(
-            args=args,
-            data_dir=os.path.join(args.base_dir, "data", "structure_data", args.dataset),
-            nfield=args.nfield,
-            batch_size=args.batch_size)
-        class_num = args.num_labels
-
-    return train_loader, val_loader, test_loader, class_num
-
-
-def run_with_time_budget(time_budget: float):
-    """
-    :param time_budget: the given time budget, in second
-    :return:
-    """
-
-    # define dataLoader, and sample a mini-batch
-    train_loader, val_loader, test_loader, class_num = generate_data_loader()
-    args.num_labels = class_num
-    data_loader = [train_loader, val_loader, test_loader]
-
-    rms = RunModelSelection(args.search_space, args, is_simulate=True)
-    best_arch, best_arch_performance, _, _, _, _, _, _ = rms.select_model_online(
-        budget=time_budget,
-        data_loader=data_loader,
-        only_phase1=False,
-        run_workers=1)
-
-    return best_arch, best_arch_performance
 
 
 if __name__ == "__main__":
@@ -58,17 +16,13 @@ if __name__ == "__main__":
     os.environ.setdefault("log_file_name", args.log_name + "_" + str(ts) + ".log")
     os.environ.setdefault("base_dir", args.base_dir)
 
-    from src.eva_engine.run_ms import RunModelSelection
-    from src.dataset_utils import dataset
-    from src.common.constant import Config
     from src.logger import logger
-    from src.dataset_utils.structure_data_loader import libsvm_dataloader
     from src.common.structure import ModelEvaData, ModelAcquireData
-    from src.controller import RegularizedEASampler
     from src.controller.controler import SampleController
     from src.eva_engine.phase2.evaluator import P2Evaluator
     from src.search_space.init_search_space import init_search_space
     from src.tools.io_tools import write_json
+    from src.controller import RandomSampler
 
     result = {
         "baseline_time_budget": [],
@@ -78,15 +32,15 @@ if __name__ == "__main__":
     total_explore = 5000
     total_run = 5
     # how many epoch used to indict the model performance
-    checkpoint_file = f"{args.result_dir}/re_train_base_line_{args.dataset}_epoch_{args.epoch}.json"
+
+    checkpoint_file = f"{args.result_dir}/rs_train_base_line_{args.dataset}_epoch_{args.epoch}.json"
 
     for run_id in range(total_run):
+        print(run_id)
 
         search_space_ins = init_search_space(args)
         # seq: init the search strategy and controller,
-        strategy = RegularizedEASampler(search_space_ins,
-                                        population_size=args.population_size,
-                                        sample_size=args.sample_size)
+        strategy = RandomSampler(search_space_ins)
 
         sampler = SampleController(strategy)
 
@@ -118,16 +72,15 @@ if __name__ == "__main__":
             # update the shared model eval res
             model_eva.model_id = str(arch_id)
             try:
-                full_train_auc, time_usage = _evaluator.p2_evaluate(str(arch_id), args.epoch)
+                auc, time_usage = _evaluator.p2_evaluate(str(arch_id), args.epoch)
             except Exception as e:
-                print(e)
+                print("error", e)
                 continue
-            model_eva.model_score = {"AUC": full_train_auc}
-            sampler.fit_sampler(model_eva.model_id, model_eva.model_score, simple_score_sum=False)
+            model_eva.model_score = {"AUC": auc}
+            sampler.fit_sampler(model_eva.model_id, model_eva.model_score)
 
             explored_n += 1
-
-            performance_his.append(full_train_auc)
+            performance_his.append(auc)
             logger.info("3. [trails] Phase 1: filter phase explored " + str(explored_n) +
                         " model, model_id = " + model_eva.model_id +
                         " model_scores = " + json.dumps(model_eva.model_score))
