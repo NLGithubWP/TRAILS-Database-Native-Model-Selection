@@ -73,6 +73,7 @@ if __name__ == "__main__":
             logger.info(f" ---- model {res[arch_index]} already visited")
             continue
         model = search_space_ins.new_architecture(res[arch_index]).to(args.device)
+        model.init_embedding(requires_grad=True)
         valid_auc, total_run_time, train_log = ModelTrainer.fully_train_arch(
             model=model,
             use_test_acc=False,
