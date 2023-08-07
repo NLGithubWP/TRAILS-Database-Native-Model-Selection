@@ -5,9 +5,11 @@ from src.tools.io_tools import read_json
 from exps.draw_tab_lib import draw_structure_data_anytime
 import numpy as np
 from pprint import pprint
-from exps.micro.resp.benchmark_combinations import export_warm_up_move_proposal
+from exps.micro.resp.benchmark_combinations import export_warm_up_move_proposal, filter_refinment_fully_training
 import warnings
+
 warnings.filterwarnings("ignore", category=UserWarning)
+
 
 def get_dataset_parameters(dataset):
     parameters = {
@@ -117,6 +119,8 @@ def generate_and_draw_data(dataset):
         ea_warm_up, ea_move = export_warm_up_move_proposal(tfmem)
         all_lines.append(ea_warm_up)
         all_lines.append(ea_move)
+    filter_full_train = filter_refinment_fully_training()
+    all_lines.append(filter_full_train)
 
     pprint(find_time_for_target_accuracy(elements=all_lines, target_accuracy_index=3))
 
@@ -139,7 +143,7 @@ def generate_and_draw_data(dataset):
             "EA + warmup-synflow (3K)", "EA + warmup-nas_wot (3K)", "EA + warmup-snip (3K)",
             "EA + warmup-express_flow (3K)",
             "EA + move-synflow", "EA + move-nas_wot", "EA + move-snip", "EA + move-express_flow",
-            "express_flow"]:
+            "express_flow", "Filtering + Refinement (Fully Train)"]:
             selected_lines.append(line)
 
     draw_structure_data_anytime(

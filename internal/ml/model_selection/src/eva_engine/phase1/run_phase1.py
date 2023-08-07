@@ -52,7 +52,6 @@ class RunPhase1:
             print("Explore all models")
             strategy = SequenceSampler(self.search_space_ins)
         else:
-            print("Explore with ea")
             strategy = RegularizedEASampler(self.search_space_ins,
                                             population_size=self.args.population_size,
                                             sample_size=self.args.sample_size)

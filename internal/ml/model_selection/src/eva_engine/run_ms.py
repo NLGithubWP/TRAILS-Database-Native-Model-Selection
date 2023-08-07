@@ -223,7 +223,7 @@ class RunModelSelection:
     # to support in-database model selection
     #############################################
 
-    def profile_filtering(self, data_loader: List[DataLoader]):
+    def profile_filtering(self, data_loader: List[DataLoader] = [None, None, None]):
         logger.info("0. [trails] Begin profile_filtering...")
         begin_time = time.time()
         train_loader, valid_loader, test_loader = data_loader
@@ -236,7 +236,7 @@ class RunModelSelection:
         logger.info(f"0. [trails] profile_filtering Done, time_usage = {time.time() - begin_time}")
         return score_time_per_model
 
-    def profile_refinement(self, data_loader: List[DataLoader], ):
+    def profile_refinement(self, data_loader: List[DataLoader] = None):
         logger.info("0. [trails] Begin profile_refinement...")
         begin_time = time.time()
         train_loader, valid_loader, test_loader = data_loader
@@ -274,7 +274,7 @@ class RunModelSelection:
         logger.info(f"1. [trails] Coordination Done, time_usage = {time.time() - begin_time}")
         return K, U, N
 
-    def filtering_phase(self, N, K, train_loader):
+    def filtering_phase(self, N, K, train_loader=None):
         logger.info("2. [trails] Begin filtering_phase...")
         begin_time = time.time()
         p1_runner = RunPhase1(
