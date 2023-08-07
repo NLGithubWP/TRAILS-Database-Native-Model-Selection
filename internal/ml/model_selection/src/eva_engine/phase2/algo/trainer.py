@@ -200,8 +200,9 @@ class ModelTrainer:
                     loss = opt_metric(y, target)
 
             # for multiple classification
-            # auc = utils.roc_auc_compute_fn(torch.nn.functional.softmax(y, dim=1)[:, 1], target)
-            auc = utils.roc_auc_compute_fn(y, target)
+            auc = utils.roc_auc_compute_fn(torch.nn.functional.softmax(y, dim=1)[:, 1], target)
+            # for binary classification
+            # auc = utils.roc_auc_compute_fn(y, target)
             loss_avg.update(loss.item(), target.size(0))
             auc_avg.update(auc, target.size(0))
 
