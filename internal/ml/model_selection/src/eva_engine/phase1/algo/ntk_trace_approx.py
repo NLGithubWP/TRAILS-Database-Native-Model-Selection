@@ -27,7 +27,8 @@ class NTKTraceApproxEvaluator(Evaluator):
 
         # run in train mode
         # get all weights from architecture
-        model_params = [p for n, p in arch.named_parameters() if p is not None]
+        # todo: don't include the embedding
+        model_params = [p for n, p in arch.named_parameters() if p is not None and "embedding" not in str(n)]
 
         # 1. forward on mini-batch & calculate loss
         output_f = arch(batch_data)
