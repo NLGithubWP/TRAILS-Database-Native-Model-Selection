@@ -212,11 +212,23 @@ class ModelTrainer:
                             f'{time_avg.val:.3f} ({time_avg.avg:.3f}) AUC {auc_avg.val:4f} ({auc_avg.avg:4f}) '
                             f'Loss {loss_avg.val:8.4f} ({loss_avg.avg:8.4f})')
 
+                print(f'Epoch [{epoch:3d}/{args.epoch_num}][{batch_idx:3d}/{len(data_loader)}]\t'
+                      f'{time_avg.val:.3f} ({time_avg.avg:.3f}) AUC {auc_avg.val:4f} ({auc_avg.avg:4f}) '
+                      f'Loss {loss_avg.val:8.4f} ({loss_avg.avg:8.4f})')
+
         # record the last epoch information
         logger.info(f'Epoch [{epoch:3d}/{args.epoch_num}][{batch_idx:3d}/{len(data_loader)}]\t'
                     f'{time_avg.val:.3f} ({time_avg.avg:.3f}) AUC {auc_avg.val:4f} ({auc_avg.avg:4f}) '
                     f'Loss {loss_avg.val:8.4f} ({loss_avg.avg:8.4f})')
 
+        print(f'Epoch [{epoch:3d}/{args.epoch_num}][{batch_idx:3d}/{len(data_loader)}]\t'
+              f'{time_avg.val:.3f} ({time_avg.avg:.3f}) AUC {auc_avg.val:4f} ({auc_avg.avg:4f}) '
+              f'Loss {loss_avg.val:8.4f} ({loss_avg.avg:8.4f})')
+
         logger.info(f'{namespace}\tTime {utils.timeSince(s=time_avg.sum):>12s} '
                     f'AUC {auc_avg.avg:8.4f} Loss {loss_avg.avg:8.4f}')
+
+        print(f'{namespace}\tTime {utils.timeSince(s=time_avg.sum):>12s} '
+              f'AUC {auc_avg.avg:8.4f} Loss {loss_avg.avg:8.4f}')
+
         return auc_avg.avg, loss_avg.avg
