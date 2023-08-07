@@ -89,7 +89,10 @@ def find_time_for_target_accuracy(elements, target_accuracy_index, target_algo='
         if target_accuracy > max(y):
             results[algo.split(" - ")[0]] = '-'
         else:
-            estimated_time = np.interp(target_accuracy, y, x)
+            if target_accuracy in y:
+                estimated_time = x[y.index(target_accuracy)]
+            else:
+                estimated_time = np.interp(target_accuracy, y, x)
             results[algo.split(" - ")[0]] = estimated_time * 60
 
     return target_accuracy, results
@@ -118,7 +121,36 @@ def generate_and_draw_data(dataset):
 
         all_lines.append([sampled_x, sampled_y, key])
 
-    # 2. compare with warm-up and move-proposal with snip, naswot, synflow, expressFlow
+    # 3. draw the figure for traing-free/warm-up, move-proposal
+    draw_structure_data_anytime(
+        all_lines=all_lines,
+        dataset=params['datasetfg_name'],
+        name_img=f"{result_dir}/anytime_{dataset}",
+        max_value=params['mx_value'],
+        figure_size=params['figure_size'],
+        annotations=params['annotations'],
+        y_ticks=params['y_lim'],
+        x_ticks=[0.01, None]
+    )
+
+    # 2. draw filtering phase only
+    selected_lines = []
+    for line in all_lines:
+        if line[-1].split("_")[-1] == "p1":
+            selected_lines.append(line)
+    pprint(
+        find_time_for_target_accuracy(elements=selected_lines, target_accuracy_index=1, target_algo='express_flow_p1'))
+    draw_structure_data_anytime(
+        all_lines=selected_lines,
+        dataset=params['datasetfg_name'],
+        name_img=f"{result_dir}/anytime_p1_only_{dataset}",
+        max_value=params['mx_value'],
+        figure_size=params['figure_size'],
+        annotations=params['annotations'],
+        y_ticks=params['y_lim'],
+        x_ticks=[0.01, 100])
+
+    # 3. compare with warm-up and move-proposal with snip, naswot, synflow, expressFlow
     print('Computing EA+warm up(3k), and EA + Move ')
     for tfmem in ["synflow", "nas_wot", "snip", "express_flow"]:
         ea_warm_up, ea_move = export_warm_up_move_proposal(tfmem)
@@ -127,18 +159,7 @@ def generate_and_draw_data(dataset):
     filter_full_train = filter_refinment_fully_training()
     all_lines.append(filter_full_train)
 
-    pprint(find_time_for_target_accuracy(elements=all_lines, target_accuracy_index=3))
-
-    # draw_structure_data_anytime(
-    #     all_lines=all_lines,
-    #     dataset=params['datasetfg_name'],
-    #     name_img=f"{result_dir}/anytime_{dataset}",
-    #     max_value=params['mx_value'],
-    #     figure_size=params['figure_size'],
-    #     annotations=params['annotations'],
-    #     y_ticks=params['y_lim'],
-    #     x_ticks=[0.01, None]
-    # )
+    pprint(find_time_for_target_accuracy(elements=all_lines, target_accuracy_index=3, target_algo='express_flow'))
 
     # 3. draw graph for table 4
     selected_lines = []
