@@ -53,7 +53,7 @@ for dataset, architectures in data_dict.items():
 
 result_dir = "./internal/ml/model_selection/exp_result/"
 
-checkpoint_file = f".{result_dir}/rl_benchmark_{dataset_used}_epoch_{epoch_sampled[dataset_used]}.json"
+checkpoint_file = f"{result_dir}/rl_benchmark_{dataset_used}_epoch_{epoch_sampled[dataset_used]}.json"
 
 # RL with the resource-aware Abs Reward
 
