@@ -75,12 +75,18 @@ def load_model_weight_share_nas(model_path: str):
 
     print(f"super model AUC = {valid_auc}")
 
-    # randomly sample 5k models,
-    sampled_sub_net = {}
-    for _ in range(1000):
-        arch_id, arch_micro = search_space_ins.random_architecture_id()
-        model.sample_subnet(arch_id, args.device)
+    # randomly sample 5k models, load the checkpoint
+    sampled_sub_net = read_json(f'{args.result_dir}/weight_share_nas.json')
 
+    for _ in range(1000):
+
+        # todo: must find a differet.
+        while True:
+            arch_id, arch_micro = search_space_ins.random_architecture_id()
+            if arch_id not in sampled_sub_net:
+                break
+
+        model.sample_subnet(arch_id, args.device)
         # 3. evaluate
         valid_auc, _, _ = ModelTrainer.fully_evaluate_arch(
             model=model,
