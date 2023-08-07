@@ -2,6 +2,7 @@ import numpy as np
 import torch
 from src.tools.io_tools import read_json, write_json
 import os
+from src.query_api.query_api_mlp import train_one_epoch_time_dict
 
 DEFAULT_LAYER_CHOICES_20 = [8, 16, 24, 32,  # 8
                             48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256,  # 16
@@ -103,7 +104,8 @@ def run_abs(i_rep):
     rl_advantage_all = []
     prob_valid_all = []
     cur_best_performance = []
-    cur_time_usage = []
+    cur_time_usage_lst = []
+    cur_time_usage = 0
 
     for iter in range(max_iter):
         torch.manual_seed(1000 * i_rep + iter)
@@ -146,7 +148,10 @@ def run_abs(i_rep):
             else:
                 cur_best_performance.append(cur_best_performance[-1])
 
-        cur_time_usage.append(time_usage[(layer_1_choice, layer_2_choice, layer_3_choice, layer_4_choice)])
+        # todo: use the real time? convert to mins
+        cur_time_usage += train_one_epoch_time_dict["cpu"][dataset_used] * (epoch_sampled[dataset] + 1)
+        # cur_time_usage += time_usage[(layer_1_choice, layer_2_choice, layer_3_choice, layer_4_choice)]
+        cur_time_usage_lst.append(cur_time_usage/60)
 
         # compute single-step RL advantage
         rl_reward = rewards[(layer_1_choice, layer_2_choice, layer_3_choice, layer_4_choice)] - beta * np.abs(
@@ -196,7 +201,7 @@ def run_abs(i_rep):
     layer_3_probs_all[max_iter] = layer_3_probs
     layer_4_probs_all[max_iter] = layer_4_probs
 
-    return layer_1_probs_all, layer_2_probs_all, layer_3_probs_all, layer_4_probs_all, cur_best_performance, cur_time_usage
+    return layer_1_probs_all, layer_2_probs_all, layer_3_probs_all, layer_4_probs_all, cur_best_performance, cur_time_usage_lst
 
 
 recorded_result = {
