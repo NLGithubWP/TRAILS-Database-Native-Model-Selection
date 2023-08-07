@@ -100,7 +100,7 @@ def refinement_phase(u, k_models, table_name, config_file):
 
     try:
         rms = RunModelSelection(args.search_space, args, is_simulate=args.is_simulate)
-        best_arch, best_arch_performance = rms.refinement_phase(
+        best_arch, best_arch_performance, _ = rms.refinement_phase(
             U=u,
             k_models=k_models,
             train_loader=train_dataloader,

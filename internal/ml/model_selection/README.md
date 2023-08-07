@@ -1,5 +1,3 @@
-
-
 # TRAILS: A Database Native Model Selection System
 
 ![image-20230702035806963](documents/imgs/image-20230702035806963.png)
@@ -192,6 +190,33 @@ python exps/main_v2/analysis/6.draw_IDMS_dataloading.py
 We compare with Training-Based MS, TabNAS, and Training-Free ms etc. 
 
 For image data, it already generated at the NAS-Bench-Img part, see above.
+
+# Appendix
+
+1. Computational Costs
+
+   ```bash
+   bash ./internal/ml/model_selection/exps/micro/resp/benchmark_cost.sh
+   ```
+
+2. Search Cost, Various training-free and training-based combinations
+
+   ```bash
+   # get RL, RE, RS + training-based model evaluation
+   bash ./internal/ml/model_selection/scripts/micro_search_strategy.sh
+   # this will read previous file, and run warm-up/move proposal, and draw all together
+   bash ./internal/ml/model_selection/exps/micro/resp/benchmark_search_cost.sh
+   ```
+
+3. How des the K influence the result?
+
+   
+
+   
+
+   
+
+
 
 # Run end2end model selection
 

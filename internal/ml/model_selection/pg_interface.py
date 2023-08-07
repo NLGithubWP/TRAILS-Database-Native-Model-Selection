@@ -310,7 +310,7 @@ def model_selection_workloads(params: dict, args: Namespace):
     dataloader = generate_dataloader(mini_batch_data=mini_batch_data, args=args)
     rms = RunModelSelection(args.search_space, args, is_simulate=args.is_simulate)
     k_models, _, _, _ = rms.filtering_phase(N=n, K=k, train_loader=dataloader)
-    best_arch, best_arch_performance = rms.refinement_phase(
+    best_arch, best_arch_performance, _ = rms.refinement_phase(
         U=1,
         k_models=k_models,
         train_loader=dataloader,

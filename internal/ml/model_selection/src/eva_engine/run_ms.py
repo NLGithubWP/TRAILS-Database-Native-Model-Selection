@@ -81,7 +81,7 @@ class RunModelSelection:
         K, U, N = self.coordination(budget, score_time_per_model, train_time_per_epoch, only_phase1)
         k_models, all_models, p1_trace_highest_score, p1_trace_highest_scored_models_id = self.filtering_phase(
             N, K, train_loader=data_loader[0])
-        best_arch, best_arch_performance = self.refinement_phase(
+        best_arch, best_arch_performance, _ = self.refinement_phase(
             U, k_models, data_loader[0], data_loader[1])
 
         end_time = time.time()
@@ -236,7 +236,7 @@ class RunModelSelection:
         logger.info(f"0. [trails] profile_filtering Done, time_usage = {time.time() - begin_time}")
         return score_time_per_model
 
-    def profile_refinement(self, data_loader: List[DataLoader] = None):
+    def profile_refinement(self, data_loader: List[DataLoader] = [None, None, None]):
         logger.info("0. [trails] Begin profile_refinement...")
         begin_time = time.time()
         train_loader, valid_loader, test_loader = data_loader
@@ -289,7 +289,7 @@ class RunModelSelection:
         logger.info(f"2. [trails] filtering_phase Done, time_usage = {time.time() - begin_time}")
         return k_models, all_models, p1_trace_highest_score, p1_trace_highest_scored_models_id
 
-    def refinement_phase(self, U, k_models, train_loader, valid_loader, train_time_per_epoch=None):
+    def refinement_phase(self, U, k_models, train_loader=None, valid_loader=None, train_time_per_epoch=None):
         logger.info("3. [trails] Begin refinement...")
         begin_time = time.time()
         self.sh = BudgetAwareControllerSH(
@@ -305,4 +305,4 @@ class RunModelSelection:
         logger.info(
             f"3. [trails] refinement phase Done, time_usage = {time.time() - begin_time}, "
             f"epoches_used = {B2_actual_epoch_use}")
-        return best_arch, best_arch_performance
+        return best_arch, best_arch_performance, B2_actual_epoch_use
