@@ -59,7 +59,7 @@ class ModelTrainer:
         scheduler = optim.lr_scheduler.CosineAnnealingLR(
             optimizer,
             T_max=epoch_num,  # Maximum number of iterations.
-            eta_min=1e-4)     # Minimum learning rate.
+            eta_min=1e-4)  # Minimum learning rate.
 
         # gradient clipping, set the gradient value to be -1 - 1
         for p in model.parameters():
@@ -73,7 +73,8 @@ class ModelTrainer:
             # train and eval
             # print("begin to train...")
             train_auc, train_loss = ModelTrainer.run(logger,
-                epoch, iter_per_epoch, model, train_loader, opt_metric, args, optimizer=optimizer, namespace='train')
+                                                     epoch, iter_per_epoch, model, train_loader, opt_metric, args,
+                                                     optimizer=optimizer, namespace='train')
             scheduler.step()
 
             # print("begin to evaluate...")
@@ -104,9 +105,68 @@ class ModelTrainer:
 
         return valid_auc, time.time() - start_time, info_dic
 
+    @classmethod
+    def fully_evaluate_arch(cls,
+                            model: nn.Module,
+                            use_test_acc: bool,
+                            epoch_num,
+                            val_loader: DataLoader,
+                            test_loader: DataLoader,
+                            args,
+                            logger=None,
+                            ) -> (float, float, dict):
+        """
+        Args:
+            model:
+            use_test_acc:
+            epoch_num: how many epoch, set by scheduler
+            val_loader:
+            test_loader:
+            args:
+        Returns:
+        """
+
+        if logger is None:
+            from src.logger import logger
+            logger = logger
+
+        start_time, best_valid_auc = time.time(), 0.
+
+        device = args.device
+        iter_per_epoch = args.iter_per_epoch
+        args.epoch_num = epoch_num
+        opt_metric = nn.CrossEntropyLoss(reduction='mean').to(device)
+
+        info_dic = {}
+        valid_auc = -1
+        valid_loss = 0
+        for epoch in range(epoch_num):
+            logger.info(f'Epoch [{epoch:3d}/{epoch_num:3d}]')
+            # print("begin to evaluate...")
+            valid_auc, valid_loss = ModelTrainer.run(logger,
+                                                     epoch, iter_per_epoch, model, val_loader,
+                                                     opt_metric, args, namespace='val')
+
+            if use_test_acc:
+                test_auc, test_loss = ModelTrainer.run(logger,
+                                                       epoch, iter_per_epoch, model, test_loader,
+                                                       opt_metric, args, namespace='test')
+            else:
+                test_auc = -1
+
+            # record best auc and save checkpoint
+            if valid_auc >= best_valid_auc:
+                best_valid_auc, best_test_auc = valid_auc, test_auc
+                logger.info(f'best valid auc: valid {valid_auc:.4f}, test {test_auc:.4f}')
+            else:
+                logger.info(f'valid {valid_auc:.4f}, test {test_auc:.4f}')
+
+        return valid_auc, time.time() - start_time, info_dic
+
     #  train one epoch of train/val/test
     @classmethod
-    def run(cls, logger, epoch, iter_per_epoch, model, data_loader, opt_metric, args, optimizer=None, namespace='train'):
+    def run(cls, logger, epoch, iter_per_epoch, model, data_loader, opt_metric, args, optimizer=None,
+            namespace='train'):
         if optimizer:
             model.train()
         else:
@@ -154,10 +214,9 @@ class ModelTrainer:
 
         # record the last epoch information
         logger.info(f'Epoch [{epoch:3d}/{args.epoch_num}][{batch_idx:3d}/{len(data_loader)}]\t'
-                            f'{time_avg.val:.3f} ({time_avg.avg:.3f}) AUC {auc_avg.val:4f} ({auc_avg.avg:4f}) '
-                            f'Loss {loss_avg.val:8.4f} ({loss_avg.avg:8.4f})')
+                    f'{time_avg.val:.3f} ({time_avg.avg:.3f}) AUC {auc_avg.val:4f} ({auc_avg.avg:4f}) '
+                    f'Loss {loss_avg.val:8.4f} ({loss_avg.avg:8.4f})')
 
         logger.info(f'{namespace}\tTime {utils.timeSince(s=time_avg.sum):>12s} '
                     f'AUC {auc_avg.avg:8.4f} Loss {loss_avg.avg:8.4f}')
         return auc_avg.avg, loss_avg.avg
-
