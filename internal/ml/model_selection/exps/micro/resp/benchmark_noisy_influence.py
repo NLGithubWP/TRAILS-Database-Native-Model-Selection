@@ -50,7 +50,7 @@ def select_with_noise(all_explored_models, search_space_ins, K, noise_degree=0.1
 
     # Combining the selected models
     selected_models = top_K_selected + rest_selected
-    print(f" --- sample {len(top_K_selected)} from top K, {len(rest_selected)} from rest")
+    # print(f" --- sample {len(top_K_selected)} from top K, {len(rest_selected)} from rest")
     return selected_models
 
 
@@ -68,13 +68,12 @@ def run_with_time_budget(time_budget: float, is_simulate: bool, only_phase1: boo
     train_time_per_epoch = rms.profile_refinement()
     K, U, N = rms.coordination(time_budget, score_time_per_model, train_time_per_epoch, only_phase1)
     k_models, all_models, p1_trace_highest_score, p1_trace_highest_scored_models_id = rms.filtering_phase(N, K)
-    print(f"Total explored {len(all_models)} models, select top {K} models.")
+    print(f"When time_budget = {time_budget}, Total explored {len(all_models)} models, select top {K} models.")
 
     degree_auc = []
     for noise_degree in noisy_degree:
         k_models = select_with_noise(all_models, rms.search_space_ins, K, noise_degree)
         best_arch, best_arch_performance, _ = rms.refinement_phase(U, k_models)
-        print(f"noise_degree={noise_degree}, best_arch_performance={best_arch_performance}")
         degree_auc.append(best_arch_performance)
     return degree_auc
 
@@ -87,7 +86,7 @@ def plot_experiment(exp_list, title):
         mean_y = np.mean(exp, axis=0)
 
         print(
-            f"T = {time_budget * 60} sec, noisy_degree ={noisy_degree}, "
+            f"noisy_degree ={noisy_degree}, "
             f"sys_acc_m={mean_y}, sys_acc_m_25={q_25_y}")
 
         plt.plot(time_usg, mean_y, "-*", label=label, )
@@ -98,6 +97,10 @@ def plot_experiment(exp_list, title):
     for time_usg, exp, ename in exp_list:
         plot_exp(time_usg, exp, ename)
     plt.grid()
+
+    plt.xscale("log")
+    # plt.xlim([0.01, 150])
+
     plt.xlabel('Time in mins')
     plt.ylabel('Test Accuracy')
 
@@ -131,10 +134,11 @@ if __name__ == "__main__":
     is_simulate = True
     only_phase1 = False
 
-    total_run = 5
-    budget_array = [1, 10]
+    total_run = 50
 
-    noisy_degree = [0, 0.1, 0.2, 0.5, 1]
+    budget_array = [1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+
+    noisy_degree = [0, 0.3, 0.5, 0.7, 1]
     all_lines_auc = {}
     for ele in noisy_degree:
         all_lines_auc[f"noisy degree - {ele}"] = []
@@ -166,3 +170,43 @@ if __name__ == "__main__":
         )
         draw_list.append(one_line)
     plot_experiment(draw_list, "Noisy Degree")
+    print(budget_array)
+
+    """
+    time_budget = [1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+    noisy_degree =[0, 0.3, 0.5, 0.7, 1]
+    
+    noisy_degree =0, 
+    sys_acc_m=[0.9793351  0.97965873 0.98016251 0.98029751 0.98035841 0.98054162
+    0.98051063 0.98056461 0.9805699  0.98066832 0.98067426], 
+    sys_acc_m_25=[0.97905167 0.97914614 0.98002308 0.98009476 0.98009476 0.98023211
+    0.98042289 0.98042289 0.98042289 0.98052188 0.98052188]
+    
+    noisy_degree =0.3, 
+    sys_acc_m=[0.9795417  0.97958833 0.98008253 0.98025126 0.98028262 0.98048641
+    0.98041702 0.98061343 0.98057749 0.98061622 0.98069128], 
+    sys_acc_m_25=[0.97919281 0.97908462 0.97984906 0.98004839 0.98009476 0.98023211
+    0.98009476 0.98042289 0.98042289 0.98044764 0.98052188]
+    
+    noisy_degree =0.5, 
+    sys_acc_m=[0.97936154 0.9794479  0.98001024 0.98012287 0.98025332 0.98042334
+    0.98057988 0.98066708 0.98063632 0.98074862 0.98081903], 
+    sys_acc_m_25=[0.97896401 0.97892876 0.97975342 0.97986233 0.98002308 0.98010087
+    0.98030292 0.98042289 0.98030292 0.98042289 0.98075261]
+    
+    noisy_degree =0.7, 
+    sys_acc_m=[0.97908527 0.97966749 0.97989573 0.98018679 0.98037999 0.98046169
+    0.98049885 0.9805969  0.98071688 0.98068621 0.98075563], 
+    sys_acc_m_25=[0.97866051 0.97914367 0.97952316 0.98002308 0.98009476 0.98016468
+    0.98030292 0.98032052 0.98037335 0.98033628 0.98042289]
+    
+    noisy_degree =1, 
+    sys_acc_m=[0.97804819 0.9786629  0.97928355 0.97933981 0.97945496 0.97969818
+    0.97977445 0.97973729 0.9798775  0.97990203 0.97995017], 
+    sys_acc_m_25=[0.97741743 0.9780354  0.97901241 0.97897443 0.9791354  0.9794121
+    0.9795258  0.97945627 0.97965465 0.97958102 0.9796478 ]
+    
+    """
+
+
+
