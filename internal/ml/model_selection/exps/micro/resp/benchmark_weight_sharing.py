@@ -3,6 +3,7 @@ import os
 import time
 import torch
 from exps.shared_args import parse_arguments
+from src.tools.io_tools import read_json, write_json
 
 args = parse_arguments()
 
@@ -62,7 +63,6 @@ def load_model_weight_share_nas(model_path: str):
     model.init_embedding(requires_grad=False)
     model.load_state_dict(torch.load(model_path))
 
-    # 3. evaluate
     valid_auc, _, _ = ModelTrainer.fully_evaluate_arch(
         model=model,
         use_test_acc=False,
@@ -70,6 +70,27 @@ def load_model_weight_share_nas(model_path: str):
         val_loader=val_loader,
         test_loader=test_loader,
         args=args)
+
+    print(f"super model AUC = {valid_auc}")
+
+    # randomly sample 5k models,
+    sampled_sub_net = {}
+    for _ in range(10):
+        arch_id, arch_micro = search_space_ins.random_architecture_id()
+        model.sample_subnet(arch_id)
+
+        # 3. evaluate
+        valid_auc, _, _ = ModelTrainer.fully_evaluate_arch(
+            model=model,
+            use_test_acc=False,
+            epoch_num=args.epoch,
+            val_loader=val_loader,
+            test_loader=test_loader,
+            args=args)
+
+        print(f"sample arch {arch_id}, get the valid_auc = {valid_auc}")
+        sampled_sub_net[arch_id] = valid_auc
+    write_json(f'{args.result_dir}/weight_share_nas.json', sampled_sub_net)
 
 
 if __name__ == "__main__":
