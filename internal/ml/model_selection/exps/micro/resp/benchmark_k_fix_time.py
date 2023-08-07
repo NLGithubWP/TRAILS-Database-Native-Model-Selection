@@ -76,6 +76,21 @@ if __name__ == "__main__":
 
         print(f"K={K}, AUC={p2_best_arch_performance}, AUC (ATLAS) = {best_arch_performance_coord}")
 
-
-
+        # (0.9798742301833366,
+        #  K=1, AUC=0.9788888113938895, AUC (ATLAS) = 0.9805218764664727
+        # run
+        # with fix_time_budget=6000, K=2, N=283125.7647915072
+        # K=2, AUC=0.9794521659560285, AUC (ATLAS) = 0.9805218764664727
+        # run with fix_time_budget=6000, K=5, N=282399.4107822884
+        # K=5, AUC=0.9794521659560285, AUC (ATLAS) = 0.9805218764664727
+        # run with fix_time_budget=6000, K=10, N=279009.75873926707
+        # K=10, AUC=0.9800915384443517, AUC (ATLAS) = 0.9805218764664727
+        # run with fix_time_budget=6000, K=20, N=270051.3926255679
+        # K=20, AUC=0.9802417809754849, AUC (ATLAS) = 0.9805218764664727
+        # run with fix_time_budget=6000, K=50, N=248987.12635822117
+        # K=50, AUC=0.980094755736017, AUC (ATLAS) = 0.9805218764664727
+        # run with fix_time_budget=6000, K=100, N=197658.10970675558
+        # K=100, AUC=0.9802321101902912, AUC (ATLAS) = 0.9805218764664727
+        # run with fix_time_budget=6000, K=200, N=105620.26399204894
+        # K=200, AUC=0.9802417809754849, AUC (ATLAS) = 0.9805218764664727
 
