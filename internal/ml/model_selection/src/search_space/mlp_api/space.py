@@ -190,7 +190,7 @@ class DNNModel(torch.nn.Module):
             # this is for binary classification
             return y.squeeze(1)
 
-    def sample_subnet(self, arch_id: str):
+    def sample_subnet(self, arch_id: str, device: str):
         # arch_id e.g., '128-128-128-128'
         sizes = list(map(int, arch_id.split('-')))
         self.is_masked_subnet = True
@@ -201,7 +201,7 @@ class DNNModel(torch.nn.Module):
             mask = torch.cat([
                 torch.ones(size),
                 torch.zeros(self.hidden_layer_list[idx] - size)],
-                dim=0)
+                dim=0).to(device)
             # Shuffle the mask to randomize which neurons are active
             mask = mask[torch.randperm(mask.size(0))]
             self.subnet_mask[idx] = mask
