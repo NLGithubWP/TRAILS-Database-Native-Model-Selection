@@ -77,7 +77,7 @@ def load_model_weight_share_nas(model_path: str):
 
     # randomly sample 5k models,
     sampled_sub_net = {}
-    for _ in range(2):
+    for _ in range(1000):
         arch_id, arch_micro = search_space_ins.random_architecture_id()
         model.sample_subnet(arch_id, args.device)
 
