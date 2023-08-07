@@ -141,7 +141,6 @@ def run_evolution_search(max_trained_models=1000,
 
 def filter_refinment_fully_training(dataset_name="frappe",
                                     query_epoch=19):
-
     print("Running filter_refinment_fully_training...")
 
     rms = RunModelSelection(args.search_space, args, is_simulate=True)
@@ -162,10 +161,10 @@ def filter_refinment_fully_training(dataset_name="frappe",
         _auc_lst = []
         for N in range(30, 3030, 50):
             cur_time_used = 0
-            K = int(N/n_k_ratio)
+            K = int(N / n_k_ratio)
             k_models, all_models, p1_trace_highest_score, p1_trace_highest_scored_models_id = rms.filtering_phase(
                 N=N, K=K)
-            cur_time_used += N*score_time_per_model
+            cur_time_used += N * score_time_per_model
             if K > 1:
                 train_auc = []
                 for arch_id in k_models:
@@ -263,16 +262,15 @@ def plot_experiment(exp_list, title):
 
 
 if __name__ == "__main__":
-
     filter_full_train = filter_refinment_fully_training()
-    # warmups, move = export_warm_up_move_proposal("express_flow")
+    warmups, move = export_warm_up_move_proposal("express_flow")
 
     plot_experiment(
         [
-            # (warmups[0], warmups[1], warmups[2]),
-            # (move[0], move[1], move[2]),
+            (warmups[0], warmups[1], warmups[2]),
+            (move[0], move[1], move[2]),
             (filter_full_train[0], filter_full_train[1], filter_full_train[2])
-         ],
+        ],
         'EA Search')
 
     print("Done")
