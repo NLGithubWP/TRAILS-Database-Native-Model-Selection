@@ -1,6 +1,6 @@
 from eva_engine import coordinator
 from internal.common.constant import Config
-from query_api.query_model_gt_acc_api import GTMLP
+from src.query_api.query_api_mlp import GTMLP
 import logging
 logging.getLogger('matplotlib').setLevel(logging.WARNING)
 

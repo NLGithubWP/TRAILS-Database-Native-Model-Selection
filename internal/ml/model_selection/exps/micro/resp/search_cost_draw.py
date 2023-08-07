@@ -15,6 +15,9 @@ def get_dataset_parameters(dataset):
     parameters = {
         "frappe": {
             "epoch": 19,
+            "train_re": "./internal/ml/model_selection/exp_result/re_train_base_line_frappe_epoch_19.json",
+            "train_rs": "./internal/ml/model_selection/exp_result/rs_train_base_line_frappe_epoch_19.json",
+            "train_rl": "./internal/ml/model_selection/exp_result/rl_train_base_line_frappe_epoch_19.json",
             "express_flow": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_frappe_-1_10_express_flow.json",
             "express_flow_p1": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_frappe_-1_10_express_flow_p1.json",
             "fisher": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_frappe_-1_10_fisher.json",
@@ -105,8 +108,14 @@ def generate_and_draw_data(dataset):
     all_lines = []
     for key in json_keys:
         result = read_json(params[key])
+
+        # make it as 5 run
+        if isinstance(result["sys_time_budget"][0], float):
+            x_array = [result["sys_time_budget"] for _ in result["sys_acc"]]
+        else:
+            x_array = result["sys_time_budget"]
         sampled_x, sampled_y = sample_some_points(
-            x_array=[result["sys_time_budget"] for _ in result["sys_acc"]],
+            x_array=x_array,
             y_2d_array=result["sys_acc"],
             save_points=7,
             remove_n_points=0)
@@ -143,7 +152,7 @@ def generate_and_draw_data(dataset):
             "EA + warmup-synflow (3K)", "EA + warmup-nas_wot (3K)", "EA + warmup-snip (3K)",
             "EA + warmup-express_flow (3K)",
             "EA + move-synflow", "EA + move-nas_wot", "EA + move-snip", "EA + move-express_flow",
-            "express_flow", "Filtering + Refinement (Fully Train)"]:
+            "express_flow", "Filtering + Refinement (Fully Train)", "train_re", "train_rs", "train_rl"]:
             selected_lines.append(line)
 
     draw_structure_data_anytime(
@@ -154,7 +163,7 @@ def generate_and_draw_data(dataset):
         figure_size=params['figure_size'],
         annotations=params['annotations'],
         y_ticks=params['y_lim'],
-        x_ticks=[0.01, None]
+        x_ticks=[0.01, 100]
     )
 
 

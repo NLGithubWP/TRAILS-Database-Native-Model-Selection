@@ -1,6 +1,6 @@
 
 from internal.common.constant import Config
-from query_api.query_model_gt_acc_api import GTMLP
+from src.query_api.query_api_mlp import GTMLP
 
 
 def measure_total_time_usage(t1, t2, dataset):

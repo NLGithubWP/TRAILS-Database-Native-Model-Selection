@@ -70,7 +70,7 @@ for alg in all_alg_score_dic.keys():
 
 # Set environment for JACFLOW
 os.environ.setdefault("base_dir", "../exp_data")
-from src.query_api.query_model_performance import GTMLP
+from src.query_api.query_api_mlp import GTMLP
 gt_mlp = GTMLP()
 
 # Get global ranks and measure the correlation for JACFLOW
