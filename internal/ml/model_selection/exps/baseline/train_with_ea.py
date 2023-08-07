@@ -76,9 +76,9 @@ if __name__ == "__main__":
     }
 
     total_explore = 5000
-    total_run = 5
+    total_run = 100
     # how many epoch used to indict the model performance
-    checkpoint_file = f"{args.result_dir}/re_train_base_line_{args.dataset}_epoch_{args.epoch}.json"
+    checkpoint_file = f"{args.result_dir}/train_base_line_re_{args.dataset}_epoch_{args.epoch}.json"
 
     for run_id in range(total_run):
 

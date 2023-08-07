@@ -56,7 +56,7 @@ for dataset, architectures in data_dict.items():
 
 result_dir = "./internal/ml/model_selection/exp_result/"
 
-checkpoint_file = f"{result_dir}/rl_train_base_line_{dataset_used}_epoch_{epoch_sampled[dataset_used]}.json"
+checkpoint_file = f"{result_dir}/train_base_line_rl_{dataset_used}_epoch_{epoch_sampled[dataset_used]}.json"
 
 # RL with the resource-aware Abs Reward
 
@@ -209,7 +209,7 @@ recorded_result = {
     "sys_acc": []
 }
 
-n_reps = 5  # for easier demonstration; was 500 in paper
+n_reps = 100  # for easier demonstration; was 500 in paper
 r = []
 for i in range(n_reps):
     print(i)
