@@ -136,9 +136,15 @@ class DNNModel(torch.nn.Module):
         self.nfeat = nfeat
         self.nemb = nemb
         self.embedding = None
-        self.mlp_ninput = nfield*nemb
+        self.mlp_ninput = nfield * nemb
         self.mlp = MLP(self.mlp_ninput, hidden_layer_list, dropout_rate, noutput, use_bn)
         # self.sigmoid = nn.Sigmoid()
+
+        # for weight-sharing
+        self.is_masked_subnet = False
+        self.hidden_layer_list = hidden_layer_list
+        # Initialize subnet mask with ones
+        self.subnet_mask = [torch.ones(size) for size in hidden_layer_list]
 
     def init_embedding(self, cached_embedding=None, requires_grad=False):
         """
@@ -176,9 +182,49 @@ class DNNModel(torch.nn.Module):
         :param x:   {'id': LongTensor B*F, 'value': FloatTensor B*F}
         :return:    y of size B, Regression and Classification (+sigmoid)
         """
+        if self.is_masked_subnet:
+            return self.forward_w_mask(x)
+        else:
+            x_emb = self.embedding(x)  # B*F*E
+            y = self.mlp(x_emb.view(-1, self.mlp_ninput))  # B*label
+            # this is for binary classification
+            return y.squeeze(1)
+
+    def sample_subnet(self, arch_id: str):
+        # arch_id e.g., '128-128-128-128'
+        sizes = list(map(int, arch_id.split('-')))
+        self.is_masked_subnet = True
+        # randomly mask neurons in the layers.
+
+        for idx, size in enumerate(sizes):
+            # Create a mask of ones and zeros with the required length
+            mask = torch.cat([
+                torch.ones(size),
+                torch.zeros(self.hidden_layer_list[idx] - size)],
+                dim=0)
+            # Shuffle the mask to randomize which neurons are active
+            mask = mask[torch.randperm(mask.size(0))]
+            self.subnet_mask[idx] = mask
+
+    def forward_w_mask(self, x):
         x_emb = self.embedding(x)  # B*F*E
-        y = self.mlp(x_emb.view(-1, self.mlp_ninput))  # B*label
-        # this is for binary classification
+        x_emb = x_emb.view(-1, self.mlp_ninput)
+
+        # Loop till the second last layer of the MLP
+        for idx, layer in enumerate(self.mlp.mlp[:-1]):  # Exclude the last Linear layer
+            # 1. subnet_mask: idx // 4 is to map computation later => mlp later
+            # 2. unsqueeze(1): convert to 2 dimension,
+            #    and then the mask is broadcasted across the row, correspond to one neuron,
+            # 3. matrix multiplication between input and the transposed weight
+            if isinstance(layer, nn.Linear):
+                weight = layer.weight * self.subnet_mask[idx // 4].unsqueeze(1)
+                x_emb = torch.nn.functional.linear(x_emb, weight, layer.bias)
+            else:
+                x_emb = layer(x_emb)  # apply activation, dropout, batchnorm, etc.
+
+        # Handle the output layer
+        output_layer = self.mlp.mlp[-1]
+        y = output_layer(x_emb)
         return y.squeeze(1)
 
 
@@ -539,8 +585,3 @@ class MlpSpace(SpaceWrapper):
                     break
 
         return list(all_combs)
-
-
-
-
-
