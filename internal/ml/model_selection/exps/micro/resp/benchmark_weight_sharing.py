@@ -60,8 +60,9 @@ def load_model_weight_share_nas(model_path: str):
     train_loader, val_loader, test_loader = load_data()
 
     # 2. load model
-    model = search_space_ins.new_architecture("512-512-512-512").to(args.device)
+    model = search_space_ins.new_architecture("512-512-512-512")
     model.init_embedding(requires_grad=False)
+    model.to(args.device)
     model.load_state_dict(torch.load(model_path))
 
     valid_auc, _, _ = ModelTrainer.fully_evaluate_arch(
