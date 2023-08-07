@@ -15,9 +15,9 @@ def get_dataset_parameters(dataset):
     parameters = {
         "frappe": {
             "epoch": 19,
-            "train_re": "./internal/ml/model_selection/exp_result/re_train_base_line_frappe_epoch_19.json",
-            "train_rs": "./internal/ml/model_selection/exp_result/rs_train_base_line_frappe_epoch_19.json",
-            "train_rl": "./internal/ml/model_selection/exp_result/rl_train_base_line_frappe_epoch_19.json",
+            "train_re": "./internal/ml/model_selection/exp_result/train_base_line_re_frappe_epoch_19.json",
+            "train_rs": "./internal/ml/model_selection/exp_result/train_base_line_rs_frappe_epoch_19.json",
+            "train_rl": "./internal/ml/model_selection/exp_result/train_base_line_rl_frappe_epoch_19.json",
             "express_flow": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_frappe_-1_10_express_flow.json",
             "express_flow_p1": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_frappe_-1_10_express_flow_p1.json",
             "fisher": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_frappe_-1_10_fisher.json",
