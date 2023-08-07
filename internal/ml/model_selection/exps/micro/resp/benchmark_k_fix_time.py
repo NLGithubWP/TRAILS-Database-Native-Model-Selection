@@ -35,9 +35,12 @@ if __name__ == "__main__":
             only_phase1=False,
             run_workers=1)
 
-    for K in [1, 2, 5, 10, 20, 50, 100]:
+    # if explore ll model, then no need to explore again in the layer K
+    explore_all_cache = []
+
+    # 200: 0.9802417809754849
+    for K in [1, 2, 5, 10, 20, 50, 100, 200]:
         time_per_epoch = rms.profile_refinement()
-        print(time_per_epoch)
         # calculate time (simulate)
         _, _, B2_actual_epoch_use = \
             rms.refinement_phase(
@@ -52,13 +55,20 @@ if __name__ == "__main__":
         if time_left_for_filtering <= 0:
             print(f"********** fix_time_budget={fix_time_budget}, K={K}, "
                   f"refinement_time needs {refinement_time}, B2_actual_epoch_use needs {B2_actual_epoch_use}, fucked. ")
+            continue
 
         # run two phase w/o coordinator
         N = time_left_for_filtering / rms.profile_filtering()
         print(f"run with fix_time_budget={fix_time_budget}, K={K}, N={N}")
 
-        k_models, all_models, p1_trace_highest_score, p1_trace_highest_scored_models_id = rms.filtering_phase(
-            N=N, K=K)
+        # already explore ll
+        if N >= len(rms.search_space_ins) and len(explore_all_cache) > 0:
+            k_models = explore_all_cache[-K:]
+        else:
+            k_models, all_models, p1_trace_highest_score, p1_trace_highest_scored_models_id = rms.filtering_phase(
+                N=N, K=K)
+            # cache it. low -> high, cache all models.
+            explore_all_cache = all_models
 
         # real refinement phase (simulate)
         p2_best_arch, p2_best_arch_performance, p2_actual_epoch_use = \
