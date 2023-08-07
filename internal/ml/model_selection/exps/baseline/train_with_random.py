@@ -25,8 +25,8 @@ if __name__ == "__main__":
     from src.controller import RandomSampler
 
     result = {
-        "baseline_time_budget": [],
-        "baseline_acc": []
+        "sys_time_budget": [],
+        "sys_acc": []
     }
 
     total_explore = 5000

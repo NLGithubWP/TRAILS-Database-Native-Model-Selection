@@ -71,8 +71,8 @@ if __name__ == "__main__":
     from src.tools.io_tools import write_json
 
     result = {
-        "baseline_time_budget": [],
-        "baseline_acc": []
+        "sys_time_budget": [],
+        "sys_acc": []
     }
 
     total_explore = 5000

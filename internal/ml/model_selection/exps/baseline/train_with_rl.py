@@ -195,8 +195,8 @@ def run_abs(i_rep):
 
 
 recorded_result = {
-    "baseline_time_budget": [],
-    "baseline_acc": []
+    "sys_time_budget": [],
+    "sys_acc": []
 }
 
 n_reps = 5  # for easier demonstration; was 500 in paper
