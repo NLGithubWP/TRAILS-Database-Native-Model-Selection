@@ -39,8 +39,9 @@ def train_super_net(model_path: str):
     # 1. data loader
     train_loader, val_loader, test_loader = load_data()
     # 2. train model
-    model = search_space_ins.new_architecture("512-512-512-512").to(args.device)
+    model = search_space_ins.new_architecture("512-512-512-512")
     model.init_embedding(requires_grad=True)
+    model.to(args.device)
     ModelTrainer.fully_train_arch(
         model=model,
         use_test_acc=False,
