@@ -24,9 +24,9 @@ layer_3_choices = DEFAULT_LAYER_CHOICES_10
 layer_4_choices = DEFAULT_LAYER_CHOICES_10
 
 
-# dataset_used = "frappe"
+dataset_used = "frappe"
 # dataset_used = "uci_diabetes"
-dataset_used = "criteo"
+# dataset_used = "criteo"
 
 epoch_sampled = {"frappe": 19, "uci_diabetes": 0, "criteo": 9}
 if dataset_used == "frappe":
@@ -51,7 +51,9 @@ for dataset, architectures in data_dict.items():
         arch_tuple = tuple([int(ele) for ele in architecture.split("-")])
         rewards[arch_tuple] = epochs[str(epoch_sampled[dataset])]["valid_auc"]
 
-checkpoint_file = f"./rl_benchmark_{dataset_used}_epoch_{epoch_sampled[dataset_used]}.json"
+result_dir = "./internal/ml/model_selection/exp_result/"
+
+checkpoint_file = f".{result_dir}/rl_benchmark_{dataset_used}_epoch_{epoch_sampled[dataset_used]}.json"
 
 # RL with the resource-aware Abs Reward
 
