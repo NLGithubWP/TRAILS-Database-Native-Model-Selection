@@ -77,9 +77,7 @@ def load_model_weight_share_nas(model_path: str):
 
     # randomly sample 5k models, load the checkpoint
     sampled_sub_net = read_json(f'{args.result_dir}/weight_share_nas.json')
-
-    for _ in range(1000):
-
+    for index in range(2000):
         # todo: must find a differet.
         while True:
             arch_id, arch_micro = search_space_ins.random_architecture_id()
@@ -98,6 +96,8 @@ def load_model_weight_share_nas(model_path: str):
 
         print(f"sample arch {arch_id}, get the valid_auc = {valid_auc}")
         sampled_sub_net[arch_id] = valid_auc
+        if index % 50 == 0:
+            write_json(f'{args.result_dir}/weight_share_nas.json', sampled_sub_net)
     write_json(f'{args.result_dir}/weight_share_nas.json', sampled_sub_net)
 
 
