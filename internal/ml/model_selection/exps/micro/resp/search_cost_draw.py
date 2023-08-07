@@ -71,8 +71,6 @@ def find_time_for_target_accuracy(elements, target_accuracy_index, target_algo='
     # Find target accuracy for the algorithm
     for e in elements:
         x, y, algo = e
-        # x = [val[1:] for val in x]  # Skip the first element in each list of x
-        # y = [val[1:] for val in y]  # Skip the first element in each list of x
         x = [np.median(val) for val in zip(*x)]  # Calculate median per column
         y = [np.median(val) for val in zip(*y)]  # Calculate median per column
         if algo == target_algo:
@@ -86,8 +84,6 @@ def find_time_for_target_accuracy(elements, target_accuracy_index, target_algo='
     # Interpolate for other algorithms
     for e in elements:
         x, y, algo = e
-        # x = [val[1:] for val in x]  # Skip the first element in each list of x
-        # y = [val[1:] for val in y]  # Skip the first element in each list of x
         x = [np.median(val) for val in zip(*x)]  # Calculate median per column
         y = [np.median(val) for val in zip(*y)]  # Calculate median per column
         if target_accuracy > max(y):
