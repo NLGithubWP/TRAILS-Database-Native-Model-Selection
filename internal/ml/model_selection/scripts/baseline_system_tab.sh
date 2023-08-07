@@ -64,4 +64,7 @@ python internal/ml/model_selection/exps/baseline/train_with_ea.py \
   --result_dir ./internal/ml/model_selection/exp_result/
 
 
+############## draw the graph ##############
+python internal/ml/model_selection/exps/baseline/draw_benchmark_train_based.py  --dataset frappe
+
 

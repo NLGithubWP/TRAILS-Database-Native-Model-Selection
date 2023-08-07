@@ -98,7 +98,7 @@ all_lines = [
 draw_structure_data_anytime(
     all_lines=all_lines,
     dataset=datasetfg_name,
-    name_img=f"./benchmark_{dataset}",
+    name_img=f"./internal/ml/model_selection/exp_result/benchmark_{dataset}",
     max_value=mx_value,
     figure_size=figure_size,
     annotations=annotations,
