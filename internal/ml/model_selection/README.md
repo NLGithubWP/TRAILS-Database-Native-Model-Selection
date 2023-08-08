@@ -63,16 +63,16 @@ bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_crit
 ```python
 # 1. Record NASBENCH API data into json file
 ## This requires to install nats_bench: pip install nats_bench
-bash internal/ml/model_selection/scripts/nas_bench_img/convert_api_2_json.sh
+bash ./internal/ml/model_selection/scripts/nas-bench-img/convert_api_2_json.sh
 
 # 2. Scoring all models using all TFMEMs.
-bash internal/ml/model_selection/scripts/nas_bench_img/score_all_models.sh
+nohup bash ./internal/ml/model_selection/scripts/nas-bench-img/score_all_models.sh &
 
 # 3. Explore with EA ans score result and store exploring process into SQLLite
-bash internal/ml/model_selection/scripts/nas_bench_img/explore_all_models.sh
+bash ./internal/ml/model_selection/scripts/nas-bench-img/explore_all_models.sh
 
 # 4. Generate the baseline. 
-bash internal/ml/model_selection/scripts/baseline_system_img.sh
+bash ./internal/ml/model_selection/scripts/baseline_system_img.sh
 ```
 
 The following experiment could then query filtering phase results based on `run_id`.
@@ -86,9 +86,9 @@ With the above **NAS-Bench-Tabular**, we could run various experiments.
 ## tabular data: training-base-ms
 bash internal/ml/model_selection/scripts/baseline_system_tab.sh
 ## tabular data: training-free-ms, 2phase-ms
-bash internal/ml/model_selection/scripts/anytime_tab.sh
+nohup bash internal/ml/model_selection/scripts/anytime_tab.sh &
 ## image data: training-base-ms, training-free-ms, 2phase-ms
-bash internal/ml/model_selection/scripts/anytime_img_w_baseline.sh
+nohup bash internal/ml/model_selection/scripts/anytime_img_w_baseline.sh &
 
 # 2. Draw figure
 python internal/ml/model_selection/exps/macro/anytime_tab_draw.py
