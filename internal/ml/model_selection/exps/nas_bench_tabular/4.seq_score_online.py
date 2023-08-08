@@ -76,7 +76,7 @@ if __name__ == "__main__":
             break
         if arch_id in result:
             continue
-        if explored_n > args.models_explore:
+        if args.models_explore != -1 and explored_n > args.models_explore:
             logger.info(f"Stop exploring, {explored_n} > {args.models_explore}")
             break
         # run the model selection

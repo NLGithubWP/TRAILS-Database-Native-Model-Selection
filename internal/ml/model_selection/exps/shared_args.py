@@ -149,7 +149,7 @@ def anytime_exp_set(parser):
 
 
 def system_performance_exp(parser):
-    parser.add_argument('--models_explore', default=1000, type=int, help='# models to explore in the filtering phase')
+    parser.add_argument('--models_explore', default=-1, type=int, help='# models to explore in the filtering phase')
     parser.add_argument('--tfmem', default="express_flow", type=str, help='the matrix t use, all_matrix')
     parser.add_argument('--embedding_cache_filtering', default='False', type=str2bool,
                         help='Cache embedding for MLP in filtering phase?')
