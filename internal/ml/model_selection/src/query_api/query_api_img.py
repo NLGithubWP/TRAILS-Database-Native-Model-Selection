@@ -19,6 +19,12 @@ pre_score_path_201C10 = os.path.join(base_dir, "score_201_15k_c10_bs32_ic16.json
 pre_score_path_201C100 = os.path.join(base_dir, "score_201_15k_c100_bs32_ic16.json")
 pre_score_path_201IMG = os.path.join(base_dir, "score_201_15k_imgNet_bs32_ic16.json")
 
+# expreflow
+expreflow_score_path_101C10 = os.path.join(base_dir, "expssflow_score_nasbench101_cifar10_batch_size_32_cpu.json")
+expreflow_score_path_201C10 = os.path.join(base_dir, "expssflow_score_nasbench201_cifar10_batch_size_32_cpu.json")
+expreflow_score_path_201C100 = os.path.join(base_dir, "expssflow_score_nasbench201_cifar100_batch_size_32_cpu.json")
+expreflow_score_path_201IMG = os.path.join(base_dir, "expssflow_score_nasbench201_ImageNet16-120_batch_size_32_cpu.json")
+
 # training accuracy result.
 gt201 = os.path.join(base_dir, "ground_truth/201_allEpoch_info")
 gt101 = os.path.join(base_dir, "ground_truth/101_allEpoch_info_json")
@@ -57,14 +63,23 @@ class ImgScoreQueryApi:
             if search_space_name == Config.NB201:
                 if dataset == Config.c10:
                     instance.pre_score_path = pre_score_path_201C10
+                    instance.express_score_path = expreflow_score_path_201C10
                 elif dataset == Config.c100:
                     instance.pre_score_path = pre_score_path_201C100
+                    instance.express_score_path = expreflow_score_path_201C100
                 elif dataset == Config.imgNet:
                     instance.pre_score_path = pre_score_path_201IMG
+                    instance.express_score_path = expreflow_score_path_201IMG
             if search_space_name == Config.NB101:
                 instance.pre_score_path = pre_score_path_101C10
+                instance.express_score_path = expreflow_score_path_101C10
 
             instance.data = read_json(instance.pre_score_path)
+            express_score_data = read_json(instance.express_score_path)
+            for arch_id in express_score_data:
+                if arch_id in instance.data:
+                    instance.data[arch_id].update(express_score_data[arch_id])
+
             instance.global_rank = generate_global_rank(
                 instance.data, instance.default_alg_name_list)
 
