@@ -13,7 +13,6 @@ import torch
 import time
 from torch import nn
 from src.search_space.core.space import SpaceWrapper
-import gc
 
 
 class P1Evaluator:
@@ -213,9 +212,6 @@ class P1Evaluator:
             self.time_usage["track_compute"].append(curr_time)
 
             del new_model
-
-            # todo: witout force gc, memory overflow.
-            gc.collect()
             model_score = {self.metrics: abs(_score)}
         return model_score
 
