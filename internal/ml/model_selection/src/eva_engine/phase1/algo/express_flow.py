@@ -57,11 +57,18 @@ class ExpressFlowEvaluator(Evaluator):
         # directly sum
         torch.sum(out).backward()
 
-        total_sum = 0.0 * Vs[0].flatten().sum() * list(Vs[0].shape)[1] / 10 \
-                    + 0.0 * Vs[1].flatten().sum() * list(Vs[1].shape)[1] / 10 \
-                    + Vs[2].flatten().sum() * list(Vs[2].shape)[1] / 10 \
-                    + Vs[3].flatten().sum() * list(Vs[3].shape)[1] / 10
+        # Vs is a list of tensors, where each tensor corresponds to the product
+        # V=z×∣dz∣ (where z is the activation and dz is the gradient) for every ReLU layer in your model.
+        # Each tensor in Vs has the shape (batch_size, number_of_neurons)
+        # 1. aggregates the importance of all neurons in that specific ReLU module.
+        # 2. only use the first half layers.
 
+        # Determine the half point
+        half_point = len(Vs) // 2
+
+        # Sum over the second half of the modules,
+        # Vs[i].shape[1]: number of neuron in the layer i
+        total_sum = sum(V.flatten().sum() * V.shape[1] for V in Vs[half_point:]) / 10
         total_sum = total_sum.item()
 
         # Remove the hooks
