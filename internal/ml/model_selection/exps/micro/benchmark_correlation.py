@@ -1,10 +1,11 @@
 import numpy as np
 import os
 import numpy as np
+from typing import List
 
 
 # Initialize function to calculate correlation
-def calculate_correlation(dataset, search_space, epoch_train):
+def calculate_correlation(dataset, search_space, epoch_train, srcc_top_k: List = [1]):
     print("\n================================================================")
     print(f" {dataset} + {search_space}")
     print("================================================================")
@@ -44,8 +45,7 @@ def calculate_correlation(dataset, search_space, epoch_train):
         model_train_res_lst.append(acc)
 
     # Measure the correlation for each algorithm and print the result
-    print("--------------------------------------------------")
-    for topp in [0.002, 0.004, 0.006, 0.008, 1]:
+    for topp in srcc_top_k:
         print("--------------------------------------------------")
         for alg in all_alg_score_dic.keys():
             scores = all_alg_score_dic[alg]
@@ -104,8 +104,8 @@ if __name__ == "__main__":
     from src.tools.correlation import CorCoefficient
     from src.common.constant import CommonVars, Config
 
-    # Frappe configuration
-    calculate_correlation(Config.Frappe, Config.MLPSP, 19)
+    # Frappe configuration, here also measure SRCC of top 0.2% -> 0.8%
+    calculate_correlation(Config.Frappe, Config.MLPSP, 19, srcc_top_k=[0.002, 0.004, 0.006, 0.008, 1])
 
     # UCI configuration
     calculate_correlation(Config.UCIDataset, Config.MLPSP, 0)
