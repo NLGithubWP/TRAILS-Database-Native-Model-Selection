@@ -1,6 +1,8 @@
 
 
 export PYTHONPATH=$PYTHONPATH:./internal/ml/model_selection
+conda activate trails
+
 
 
 # here all are on frappe dataset

@@ -36,8 +36,8 @@ class RegularizedEASampler(Sampler):
 
         # use the visited to reduce the collapse
         self.visited = {}
-        self.max_mutate_time = 10
-        self.max_mutate_sampler_time = 5
+        self.max_mutate_time = 2
+        self.max_mutate_sampler_time = 2
 
     def sample_next_arch(self, sorted_model_ids: list) -> (str, ModelMicroCfg):
         """

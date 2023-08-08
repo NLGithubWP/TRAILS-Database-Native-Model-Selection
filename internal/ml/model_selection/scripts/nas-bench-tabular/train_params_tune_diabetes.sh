@@ -1,6 +1,8 @@
 
 
 export PYTHONPATH=$PYTHONPATH:./internal/ml/model_selection
+conda activate trails
+
 
 nohup python ./internal/ml/model_selection/exps/nas_bench_tabular/0.train_one_model.py  \
   --log_name=baseline_train_based \

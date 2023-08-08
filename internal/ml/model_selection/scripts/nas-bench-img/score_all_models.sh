@@ -2,6 +2,8 @@
 
 
 export PYTHONPATH=$PYTHONPATH:./internal/ml/model_selection
+conda activate trails
+
 
 
 for i in {1..4}

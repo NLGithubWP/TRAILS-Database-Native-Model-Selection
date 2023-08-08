@@ -1,6 +1,8 @@
 
 
 export PYTHONPATH=$PYTHONPATH:./internal/ml/model_selection
+conda activate trails
+
 
 worker_id=0
 GPU_NUM=8

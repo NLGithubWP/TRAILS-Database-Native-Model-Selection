@@ -1,6 +1,8 @@
 
 
 export PYTHONPATH=$PYTHONPATH:./internal/ml/model_selection
+conda activate trails
+
 
 # grad_norm
 # run the 2phase-MS

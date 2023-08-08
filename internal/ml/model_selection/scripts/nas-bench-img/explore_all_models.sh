@@ -1,5 +1,7 @@
 
 export PYTHONPATH=$PYTHONPATH:./internal/ml/model_selection
+conda activate trails
+
 
 # cifar10 + nb101
 python ./internal/ml/model_selection/exps/nas_bench_img/1_explore_models_100_run.py \

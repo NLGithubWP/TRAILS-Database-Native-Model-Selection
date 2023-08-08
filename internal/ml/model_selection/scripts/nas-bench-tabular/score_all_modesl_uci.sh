@@ -1,6 +1,8 @@
 
 
 export PYTHONPATH=$PYTHONPATH:./internal/ml/model_selection
+conda activate trails
+
 
 nohup  python ./internal/ml/model_selection/exps/nas_bench_tabular/4.seq_score_online.py \
   --models_explore=159999 \

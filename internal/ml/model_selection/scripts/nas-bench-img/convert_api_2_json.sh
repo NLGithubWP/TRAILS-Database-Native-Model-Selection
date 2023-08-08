@@ -1,5 +1,7 @@
 
 export PYTHONPATH=$PYTHONPATH:./internal/ml/model_selection
+conda activate trails
+
 
 # pip install nats_bench
 

@@ -1,6 +1,8 @@
 
 
 export PYTHONPATH=$PYTHONPATH:./internal/ml/model_selection
+conda activate trails
+
 
 python ./internal/ml/model_selection/exps/micro/resp/benchmark_weight_sharing.py  \
     --log_name=baseline_train_based \

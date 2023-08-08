@@ -1,6 +1,8 @@
 
 
 export PYTHONPATH=$PYTHONPATH:./internal/ml/model_selection
+conda activate trails
+
 
 # frappe
 python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py \
