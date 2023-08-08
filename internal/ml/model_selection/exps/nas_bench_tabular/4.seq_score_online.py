@@ -86,8 +86,8 @@ if __name__ == "__main__":
         model_score = _evaluator.p1_evaluate(data_str)
         explored_n += 1
         result[arch_id] = model_score
-        print(f" {datetime.now()} finish arch = {arch_id}, model_score = {model_score}")
-        if explored_n % 100 == 0:
+        # print(f" {datetime.now()} finish arch = {arch_id}, model_score = {model_score}")
+        if explored_n % 1000 == 0:
             print("3. [trails] Phase 1: filter phase explored " + str(explored_n)
                   + "Total explored " + str(len(result)) +
                   " model, model_id = " + str(arch_id) +
