@@ -68,6 +68,7 @@ if __name__ == "__main__":
     output_file = f"{args.result_dir}/score_{args.search_space}_{args.dataset}_batch_size_{args.batch_size}_{args.device}.json"
     result = read_json(output_file)
     print(f"begin to score all, currently we already explored {len(result.keys())}")
+    logger.info(f"begin to score all, currently we already explored {len(result.keys())}")
     while True:
         arch_id, arch_micro = sampler.sample_next_arch()
         if arch_id is None:
