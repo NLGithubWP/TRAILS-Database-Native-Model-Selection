@@ -45,14 +45,15 @@ def calculate_correlation(dataset, search_space, epoch_train):
 
     # Measure the correlation for each algorithm and print the result
     print("--------------------------------------------------")
-    for alg in all_alg_score_dic.keys():
-        scores = all_alg_score_dic[alg]
-        sorted_indices = np.argsort(scores)
-
-        sorted_ground_truth = [model_train_res_lst[i] for i in sorted_indices]
-        sorted_scores = [scores[i] for i in sorted_indices]
-        res = CorCoefficient.measure(sorted_scores, sorted_ground_truth)
-        print(alg, res[CommonVars.Spearman])
+    for topp in [0.002, 0.004, 0.006, 0.008, 1]:
+        print("--------------------------------------------------")
+        for alg in all_alg_score_dic.keys():
+            scores = all_alg_score_dic[alg]
+            sorted_indices = np.argsort(scores)[- int(topp * len(scores)):]
+            sorted_ground_truth = [model_train_res_lst[i] for i in sorted_indices]
+            sorted_scores = [scores[i] for i in sorted_indices]
+            res = CorCoefficient.measure(sorted_scores, sorted_ground_truth)
+            print(f"Top {topp, len(sorted_indices)}, {alg}, {res[CommonVars.Spearman]}")
 
     # Get global ranks, measure correlation and print result for JACFLOW
     # if dataset in [Config.Frappe, Config.UCIDataset, Config.Criteo]:
