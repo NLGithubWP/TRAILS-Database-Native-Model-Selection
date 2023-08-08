@@ -193,13 +193,15 @@ For image data, it already generated at the NAS-Bench-Img part, see above.
 
 # Appendix
 
+Here all experiments is on the Frappe dataset. 
+
 1. Computational Costs
 
    ```bash
    bash ./internal/ml/model_selection/exps/micro/resp/benchmark_cost.sh
    ```
 
-2. Search Cost, Various training-free and training-based combinations
+2. Search Cost, multiple training-free or training-based combinations (warm-up / movel proposal)
 
    ```bash
    # get RL, RE, RS + training-based model evaluation
@@ -209,6 +211,24 @@ For image data, it already generated at the NAS-Bench-Img part, see above.
    ```
 
 3. How des the K influence the result?
+
+   ```bash
+   python ./internal/ml/model_selection/exps/micro/resp/benchmark_k_fix_time.py
+   ```
+
+4. Nosy in selecting top K models
+
+   ```bash
+   python ./internal/ml/model_selection/exps/micro/resp/benchmark_noisy_influence.py
+   ```
+
+5. Weight-sharing result
+
+   ```bash
+   nohup bash internal/ml/model_selection/scripts/benchmark_weight_sharing.sh &
+   ```
+
+6. asdf
 
    
 
