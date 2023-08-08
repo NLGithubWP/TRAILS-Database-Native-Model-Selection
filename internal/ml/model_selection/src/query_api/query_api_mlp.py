@@ -25,6 +25,8 @@ exp_mlp_score_frappe = os.path.join(base_dir, "tab_data/expressflow_score_mlp_sp
 exp_mlp_score_uci = os.path.join(base_dir, "tab_data/expressflow_score_mlp_sp_uci_diabetes_batch_size_32_cpu.json")
 exp_mlp_score_criteo = os.path.join(base_dir, "tab_data/expressflow_score_mlp_sp_criteo_batch_size_32_cpu.json")
 
+# todo here we use weigth sharing.
+mlp_score_frappe_weight_share = os.path.join(base_dir, "tab_data/weight_share_nas_frappe.json")
 
 # pre computed result
 score_one_model_time_dict = {
@@ -67,23 +69,31 @@ class GTMLP:
             if dataset == Config.Frappe:
                 instance.mlp_train_path = mlp_train_frappe
                 instance.mlp_score_path = mlp_score_frappe
-                instance.mlp_score_path2 = exp_mlp_score_frappe
+                instance.mlp_score_path_expressflow = exp_mlp_score_frappe
+                instance.mlp_score_path_weight_share = mlp_score_frappe_weight_share
             elif dataset == Config.Criteo:
                 instance.mlp_train_path = mlp_train_criteo
                 instance.mlp_score_path = mlp_score_criteo
-                instance.mlp_score_path2 = exp_mlp_score_criteo
+                instance.mlp_score_path_expressflow = exp_mlp_score_criteo
+                instance.mlp_score_path_weight_share = "./not_exist"
             elif dataset == Config.UCIDataset:
                 instance.mlp_train_path = mlp_train_uci_diabetes
                 instance.mlp_score_path = mlp_score_uci
-                instance.mlp_score_path2 = exp_mlp_score_uci
+                instance.mlp_score_path_expressflow = exp_mlp_score_uci
+                instance.mlp_score_path_weight_share = "./not_exist"
             instance.mlp_train = read_json(instance.mlp_train_path)
             instance.mlp_score = read_json(instance.mlp_score_path)
 
-            mlp_score_expressflow = read_json(instance.mlp_score_path2)
             # todo: here we combine two json dict, remove later
-            for key in mlp_score_expressflow:
-                if key in instance.mlp_score:
-                    instance.mlp_score[key].update(mlp_score_expressflow[key])
+            mlp_score_expressflow = read_json(instance.mlp_score_path_expressflow)
+            for arch_id in mlp_score_expressflow:
+                if arch_id in instance.mlp_score:
+                    instance.mlp_score[arch_id].update(mlp_score_expressflow[arch_id])
+
+            mlp_score_weight_share = read_json(instance.mlp_score_path_weight_share)
+            for arch_id in mlp_score_weight_share:
+                if arch_id in instance.mlp_score:
+                    instance.mlp_score[arch_id].update({"weight_share": mlp_score_weight_share[arch_id]})
 
             instance.mlp_global_rank = generate_global_rank(
                 instance.mlp_score, instance.default_alg_name_list)
