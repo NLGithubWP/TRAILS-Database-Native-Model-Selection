@@ -27,10 +27,10 @@ mkdir ../exp_data
 
 ### Download NAS-Bench-Tabular
 
-1. **Download** the dataset using the following link, and extract them to `result_base`
+1. **Download** the dataset using the following link, and extract them to `exp_data`
 
 ```bash
-https://drive.google.com/file/d/1fpKAqvvVooiJh2EIfz18UMsBE4demHL2/view?usp=sharing
+https://drive.google.com/file/d/1TGii9ymbmX81c9-GKWXbe_4Z64R8Btz1/view?usp=sharing
 ```
 
 ### Build NAS-Bench-Tabular
@@ -229,10 +229,6 @@ Here all experiments is on the Frappe dataset.
    ```bash
    nohup bash internal/ml/model_selection/scripts/benchmark_weight_sharing.sh &
    ```
-
-6. asdf
-
-   
 
    
 

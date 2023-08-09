@@ -1,11 +1,8 @@
+# ATLAS: Anytime Neural Architecture Search on Tabular Data
 
-
-# TRAILS: A Database Native Model Selection System
-
-![image-20230702035806963](internal/ml/model_selection/documents/imgs/image-20230702035806963.png)
+![image-20230809191802916](./internal/ml/model_selection/documents/imgs/image-20230702035806963.png)
 
 [TOC]
-
 
 # Config Environments
 
@@ -16,7 +13,7 @@ conda create -n "trails" python=3.8.10
 conda activate trails
 pip install -r requirement.txt
 
-cd TRAILS
+cd ATLAS
 
 # make a dir to store all results.
 mkdir ../exp_data
@@ -30,10 +27,10 @@ mkdir ../exp_data
 
 ### Download NAS-Bench-Tabular
 
-1. **Download** the dataset using the following link, and extract them to `result_base`
+1. **Download** the dataset using the following link, and extract them to `exp_data`
 
 ```bash
-https://drive.google.com/file/d/1fpKAqvvVooiJh2EIfz18UMsBE4demHL2/view?usp=sharing
+https://drive.google.com/file/d/1TGii9ymbmX81c9-GKWXbe_4Z64R8Btz1/view?usp=sharing
 ```
 
 ### Build NAS-Bench-Tabular
@@ -53,7 +50,7 @@ bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_uci.
 bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_criteo.sh
 ```
 
-3. Build the **NAS-Bench-Img** from scratch
+3. Optionally, Build the **NAS-Bench-Img** from scratch
 
    To facilitate the experiments and query speed (NASBENCH API is slow)
 
@@ -66,21 +63,36 @@ bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_crit
 ```python
 # 1. Record NASBENCH API data into json file
 ## This requires to install nats_bench: pip install nats_bench
-bash internal/ml/model_selection/scripts/nas_bench_img/convert_api_2_json.sh
+bash ./internal/ml/model_selection/scripts/nas-bench-img/convert_api_2_json.sh
 
 # 2. Scoring all models using all TFMEMs.
-bash internal/ml/model_selection/scripts/nas_bench_img/score_all_models.sh
+nohup bash ./internal/ml/model_selection/scripts/nas-bench-img/score_all_models.sh &
 
 # 3. Explore with EA ans score result and store exploring process into SQLLite
-bash internal/ml/model_selection/scripts/nas_bench_img/explore_all_models.sh
+bash ./internal/ml/model_selection/scripts/nas-bench-img/explore_all_models.sh
 
 # 4. Generate the baseline.
-bash internal/ml/model_selection/scripts/baseline_system_img.sh
+bash ./internal/ml/model_selection/scripts/baseline_system_img.sh
+```
+
+### Reproduce Fig: (ECDF, Parameter/AUC )
+
+```bash
+# plot the ECDF figure
+python ./internal/ml/model_selection/exps/nas_bench_tabular/measure_ecdf.py
+# plot the parameter and AUC relationship
+python ./internal/ml/model_selection/exps/nas_bench_tabular/measure_param_auc.py
+```
+
+### Reproduce Fig: Search Strategy
+
+```bash
+bash ./internal/ml/model_selection/scripts/micro_search_strategy.sh
 ```
 
 The following experiment could then query filtering phase results based on `run_id`.
 
-## SLO-Aware 2Phase-MS
+## Anytime NAS on Tabular data
 
 With the above **NAS-Bench-Tabular**, we could run various experiments.
 
@@ -89,33 +101,41 @@ With the above **NAS-Bench-Tabular**, we could run various experiments.
 ## tabular data: training-base-ms
 bash internal/ml/model_selection/scripts/baseline_system_tab.sh
 ## tabular data: training-free-ms, 2phase-ms
-bash internal/ml/model_selection/scripts/anytime_tab.sh
+nohup bash internal/ml/model_selection/scripts/anytime_tab.sh &
 ## image data: training-base-ms, training-free-ms, 2phase-ms
-bash internal/ml/model_selection/scripts/anytime_img_w_baseline.sh
+nohup bash internal/ml/model_selection/scripts/anytime_img_w_baseline.sh &
 
 # 2. Draw figure
 python internal/ml/model_selection/exps/macro/anytime_tab_draw.py
 python internal/ml/model_selection/exps/macro/anytime_img_draw.py
+python exps/main_np/base_line/1.\ anytime_draw.py
 ```
 
-![image-20230702035554579](internal/ml/model_selection/documents/imgs/image-20230702035554579.png)
+## Micro: Benchmark Metrics
 
-## Micro: Benchmark TFMEMs
+### Compute/Visulation correlation
 
 ```bash
 export PYTHONPATH=$PYTHONPATH:./internal/ml/model_selection
+conda activate trails
 python ./internal/ml/model_selection/exps/micro/benchmark_correlation.py
 ```
 
-![image-20230421214835152](./internal/ml/model_selection/documents/imgs/image-20230421214835152.png)
+### Sensitive Study
+
+```bash
+## Reproduce Table 3-6
+# Adjust the input data, which can be scored under various strategy
+# Adjust the initialization method at src/search_space/mlp_api/space.py
+# then run
+python ./internal/ml/model_selection/exps/micro/benchmark_correlation.py
+```
 
 ## Micro: Benchmark Budge-Aware Algorithm
 
 ```bash
-bash internal/ml/model_selection/scripts/micro_budget_aware_alg.sh
+bash ./internal/ml/model_selection/scripts/micro_budget_aware_alg.sh
 ```
-
-![image-20230724111659545](./internal/ml/model_selection/documents/imgs/image-20230724111659545.png)
 
 ## Micro: Benchmark N, K, U
 
@@ -133,63 +153,47 @@ This is the experimental result conducted at the UCI Diabetes datasets.
 Clearly,  expore more models in refinement phase (large **K** ) is more helpful to find the a better model.
 Although increasing **U** can find a better model accurately, it runs more training epochs leading to higher training cost.
 
-![image-20230722202555763](./internal/ml/model_selection/documents/imgs/image-20230722202555763.png)
-
 Then we fix **U=1** for cost efficiency and determine N/K for higher searching effectiveness.
 Clearly, K/N reaches 100 yields better scheduling result in both image and tabular dataset, thus, we set **N/K=100** in coordinator.
 
-![image-20230724111325368](./internal/ml/model_selection/documents/imgs/image-20230724111325368.png)
-
-![image-20230722205244718](./internal/ml/model_selection/documents/imgs/image-20230722205244718.png)
-
-## System Motivation Experiments
-
-
-
-## Latency
-
-
-
-## Memory Usage
-
-
-
-## Reproduce Figure7
-
-```bash
-python exps/main_v2/analysis/2.\ cost_draw.py
-python exps/main_v2/analysis/3.\ cost_train_based.py
-```
-
-![image-20230702035622198](internal/ml/model_selection/documents/imgs/image-20230702035622198.png)
-
-## Reproduce Figure8
-
-```bash
-# draw figure 8(a)
-python exps/main_v2/analysis/5.draw_IDMS_var_workloads.py
-# draw figure 8(b)
-python exps/main_v2/analysis/6.draw_IDMS_dataloading.py
-```
-
-![image-20230702035639502](internal/ml/model_selection/documents/imgs/image-20230702035639502.png)
 # Baselines
 
-We compare with Training-Based MS, TabNAS, and Training-Free ms etc.
+We compare with Training-Based NAS, TabNAS, and Training-Free NAS etc.
 
-For image data, it already generated at the NAS-Bench-Img part, see above.
+# Response Experiments
 
-# Run end2end model selection
+Here all experiments is on the Frappe dataset.
 
-download the dataset and put it in the `exp_data/data/structure_data`
+1. Computational Costs
 
-```
-python main.py --budget=100 --dataset=frappe
-```
+   ```bash
+   # we measure the computational cost for each metrics
+   bash ./internal/ml/model_selection/exps/micro/resp/benchmark_cost.sh
+   ```
 
-Check the log at the `logs_default`
+2. Search Cost, multiple training-free or training-based combinations (warm-up / movel proposal)
 
-![image-20230421220338391](./internal/ml/model_selection/documents/imgs/image-20230421220338391.png)
+   ```bash
+   # get RL, RE, RS + training-based model evaluation
+   bash ./internal/ml/model_selection/scripts/micro_search_strategy.sh
+   # this will read previous file, and run warm-up/move proposal, and draw all together
+   bash ./internal/ml/model_selection/exps/micro/resp/benchmark_search_cost.sh
+   ```
 
-![image-20230421220443231](./internal/ml/model_selection/documents/imgs/image-20230421220443231.png)
+3. How des the K influence the result?
 
+   ```bash
+   python ./internal/ml/model_selection/exps/micro/resp/benchmark_k_fix_time.py
+   ```
+
+4. Nosy in selecting top K models
+
+   ```bash
+   python ./internal/ml/model_selection/exps/micro/resp/benchmark_noisy_influence.py
+   ```
+
+5. One-Shot NAS study
+
+   ```bash
+   nohup bash ./internal/ml/model_selection/scripts/benchmark_weight_sharing.sh &
+   ```
