@@ -41,7 +41,7 @@ if __name__ == "__main__":
         print(f"begin to train the {arch_id}")
 
         model = search_space_ins.new_architecture(arch_id)
-        model.init_embedding(requires_grad=False)
+        model.init_embedding(requires_grad=True)
         model.to(args.device)
 
         valid_auc, total_run_time, train_log = ModelTrainer.fully_train_arch(
