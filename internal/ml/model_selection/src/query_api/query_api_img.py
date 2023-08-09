@@ -79,6 +79,8 @@ class ImgScoreQueryApi:
             for arch_id in express_score_data:
                 if arch_id in instance.data:
                     instance.data[arch_id].update(express_score_data[arch_id])
+                else:
+                    instance.data[arch_id] = express_score_data[arch_id]
 
             instance.global_rank = generate_global_rank(
                 instance.data, instance.default_alg_name_list)
@@ -240,10 +242,10 @@ class Gt101(metaclass=Singleton):
         # this is acc from zero-cost paper, which only record 108 epoch' result [test, valid, train]
         # t_acc = self.data101_from_zerocost[self.id_to_hash_map[arch_id]][0]
         # this is acc from parse_testacc_101.py,
-        t_acc_usage = self.data101_full[arch_id][Config.c10][str(epoch_num)]["test-accuracy"]
+        t_acc = self.data101_full[arch_id][Config.c10][str(epoch_num)]["test-accuracy"]
         time_usage = self.data101_full[arch_id][Config.c10][str(epoch_num)]["time_usage"]
         # print(f"[Debug]: Acc different = {t_acc_usage - t_acc}")
-        return t_acc_usage, time_usage
+        return t_acc, time_usage
 
     def count_models(self):
         return len(self.data101_from_zerocost)
