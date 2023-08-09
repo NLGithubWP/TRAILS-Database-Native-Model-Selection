@@ -101,6 +101,8 @@ python internal/ml/model_selection/exps/macro/anytime_img_draw.py
 
 ```bash
 export PYTHONPATH=$PYTHONPATH:./internal/ml/model_selection
+conda activate trails
+
 python ./internal/ml/model_selection/exps/micro/benchmark_correlation.py
 ```
 
