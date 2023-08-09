@@ -12,7 +12,7 @@ python ./internal/ml/model_selection/exps/nas_bench_tabular/0.train_one_model.py
     --device=cuda:0 \
     --batch_size=512 \
     --lr=0.001 \
-    --epoch=1 \
+    --epoch=20 \
     --iter_per_epoch=200 \
     --dataset=frappe \
     --nfeat=5500 \
