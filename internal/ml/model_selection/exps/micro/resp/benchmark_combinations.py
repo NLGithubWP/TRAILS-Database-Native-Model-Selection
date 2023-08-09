@@ -153,7 +153,7 @@ def filter_refinment_fully_training(dataset_name="frappe",
     score_time_per_model = rms.profile_filtering()
     n_k_ratio = profile_NK_trade_off(dataset_name)
 
-    total_run = 5
+    total_run = 50
     auc_lst = []
     time_usage_lst = []
     for run_id in range(total_run):
@@ -185,8 +185,8 @@ def filter_refinment_fully_training(dataset_name="frappe",
 
 
 def export_warm_up_move_proposal(tfmem: str):
-    print("Running warm_up_move_proposal...")
-    total_run = 5
+    print(f"Running warm_up_move_proposal using {tfmem}...")
+    total_run = 50
     ae_warmup_time, ae_warmup = [], []
     for run_id in range(total_run):
         _ae_warmup_time, _ae_warmup = run_evolution_search(
@@ -262,15 +262,16 @@ def plot_experiment(exp_list, title):
 
 
 if __name__ == "__main__":
-    filter_full_train = filter_refinment_fully_training()
+    # filter_full_train = filter_refinment_fully_training()
     warmups, move = export_warm_up_move_proposal("express_flow")
+    warmups2, move2 = export_warm_up_move_proposal("synflow")
+    warmups3, move3 = export_warm_up_move_proposal("nas_wot")
 
-    plot_experiment(
-        [
-            (warmups[0], warmups[1], warmups[2]),
-            (move[0], move[1], move[2]),
-            (filter_full_train[0], filter_full_train[1], filter_full_train[2])
-        ],
-        'EA Search')
+    all_lines = [
+        # warmups,
+        move, move2, move3,
+        # filter_full_train
+    ]
 
+    plot_experiment(all_lines, 'EA Search')
     print("Done")

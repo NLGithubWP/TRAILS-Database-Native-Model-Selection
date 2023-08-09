@@ -57,6 +57,37 @@ class ExpressFlowEvaluator(Evaluator):
         # directly sum
         torch.sum(out).backward()
 
+        trajectory_lengths = self.calculate_trajectory_length(arch, batch_data)
+        total_sum = self.weighted_score(trajectory_lengths, Vs)
+        # total_sum = self.compute_score_early_halflayers(out, Vs)
+
+        # Remove the hooks
+        for hook in hooks:
+            hook.remove()
+
+        return total_sum
+
+    def calculate_trajectory_length(self, arch, batch_data):
+        epsilon = 1e-5
+        delta_x = torch.randn_like(batch_data) * epsilon
+
+        originals, perturbations = [], []
+
+        x, x_perturbed = batch_data, batch_data + delta_x
+
+        for module in arch.mlp.mlp:
+            x = module(x.double())
+            x_perturbed = module(x_perturbed.double())
+
+            if isinstance(module, nn.ReLU):
+                originals.append(x)
+                perturbations.append(x_perturbed)
+
+        trajectory_lengths = [(x_perturbed - x).norm() / epsilon for x, x_perturbed in zip(originals, perturbations)]
+
+        return trajectory_lengths
+
+    def compute_score_early_halflayers(self, out, Vs):
         # Vs is a list of tensors, where each tensor corresponds to the product
         # V=z×∣dz∣ (where z is the activation and dz is the gradient) for every ReLU layer in your model.
         # Each tensor in Vs has the shape (batch_size, number_of_neurons)
@@ -70,9 +101,23 @@ class ExpressFlowEvaluator(Evaluator):
         # Vs[i].shape[1]: number of neuron in the layer i
         total_sum = sum(V.flatten().sum() * V.shape[1] for V in Vs[half_point:]) / 10
         total_sum = total_sum.item()
+        return total_sum
 
-        # Remove the hooks
-        for hook in hooks:
-            hook.remove()
+    def weighted_score(self, trajectory_lengths, Vs):
+        trajectory_lengths.reverse()
+        # Modify trajectory_lengths to ensure that deeper layers have smaller weights
+        # For example, by taking the inverse of each computed trajectory length.
+        inverse_trajectory_lengths = [1.0 / (length + 1e-6) for length in trajectory_lengths]
+
+        # Normalize trajectory lengths if needed (this ensures the weights aren't too large)
+        normalized_lengths = [length / sum(inverse_trajectory_lengths) for length in inverse_trajectory_lengths]
+
+        # Use the normalized trajectory lengths as weights for your total_sum
+        total_sum = sum(
+            normalized_length * V.flatten().sum() * V.shape[1] for normalized_length, V in zip(normalized_lengths, Vs))
+        total_sum = total_sum.item()
 
         return total_sum
+
+
+

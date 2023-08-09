@@ -1,5 +1,3 @@
-
-
 import calendar
 import json
 import os
@@ -7,17 +5,6 @@ import time
 import traceback
 
 from exps.shared_args import parse_arguments
-
-
-def partition_list_by_worker_id(lst, num_workers=15):
-    partitions = []
-    for i in range(num_workers):
-        partitions.append([])
-    for idx, item in enumerate(lst):
-        worker_id = idx % num_workers
-        partitions[worker_id].append(item)
-    return partitions
-
 
 if __name__ == "__main__":
 
@@ -35,7 +22,6 @@ if __name__ == "__main__":
     from src.eva_engine.phase2.algo.trainer import ModelTrainer
     from src.search_space.init_search_space import init_search_space
     from src.dataset_utils.structure_data_loader import libsvm_dataloader
-    from src.tools.io_tools import write_json, read_json
 
     search_space_ins = init_search_space(args)
     search_space_ins.load()
@@ -51,10 +37,13 @@ if __name__ == "__main__":
             nfield=args.nfield,
             batch_size=args.batch_size)
 
-        arch_id = "384-384-384-384"
+        arch_id = "256-256-256-256"
         print(f"begin to train the {arch_id}")
 
-        model = search_space_ins.new_architecture(arch_id).to(args.device)
+        model = search_space_ins.new_architecture(arch_id)
+        model.init_embedding(requires_grad=True)
+        model.to(args.device)
+
         valid_auc, total_run_time, train_log = ModelTrainer.fully_train_arch(
             model=model,
             use_test_acc=False,
@@ -66,13 +55,15 @@ if __name__ == "__main__":
 
         logger.info(f' ----- model id: {arch_id}, Val_AUC : {valid_auc} Total running time: '
                     f'{total_run_time}-----')
+        print(f' ----- model id: {arch_id}, Val_AUC : {valid_auc} Total running time: '
+              f'{total_run_time}-----')
 
         # update the shared model eval res
-        logger.info(f" ---- info: {json.dumps({arch_id:train_log})}")
+        logger.info(f" ---- info: {json.dumps({arch_id: train_log})}")
+
+        print(f" ---- info: {json.dumps({arch_id: train_log})}")
 
         logger.info(f" Saving result to: {checkpoint_file_name}")
-        write_json(checkpoint_file_name, train_log)
     except:
         print(traceback.format_exc())
         logger.info(traceback.format_exc())
-

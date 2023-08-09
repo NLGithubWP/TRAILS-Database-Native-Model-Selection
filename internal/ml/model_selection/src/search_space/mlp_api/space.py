@@ -529,6 +529,8 @@ class MlpSpace(SpaceWrapper):
 
         # encoding each of them
         while True:
+            # debug only
+            # yield "8-16-32-64", MlpMicroCfg([8, 16, 32, 64])
             ele = combinations.__next__()
             model_micro = MlpMicroCfg(list(ele))
             model_encoding = str(model_micro)
