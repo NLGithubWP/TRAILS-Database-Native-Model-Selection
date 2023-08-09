@@ -1,3 +1,5 @@
+import random
+
 import numpy as np
 import os
 import numpy as np
@@ -5,7 +7,7 @@ from typing import List
 
 
 # Initialize function to calculate correlation
-def calculate_correlation(dataset, search_space, epoch_train, srcc_top_k: List = [1]):
+def calculate_correlation(dataset, search_space, epoch_train, srcc_top_k: List = [1], is_visual=False):
     print("\n================================================================")
     print(f" {dataset} + {search_space}")
     print("================================================================")
@@ -76,6 +78,33 @@ def calculate_correlation(dataset, search_space, epoch_train, srcc_top_k: List =
     except:
         print("JACFLOW not provided")
 
+    if is_visual:
+        for alg in all_alg_score_dic.keys():
+            scores = all_alg_score_dic[alg]
+            ground_truth = model_train_res_lst[alg]
+            ground_truth_sorted_indices = np.argsort(ground_truth)
+            top_ground_truth = [ground_truth[i] for i in ground_truth_sorted_indices]
+            top_scores = [scores[i] for i in ground_truth_sorted_indices]
+            visualization(alg, dataset, top_ground_truth, top_scores)
+
+
+def visualization(alg, dataset, sorted_ground_truth, sorted_scores):
+
+    import matplotlib
+    import matplotlib.pyplot as plt
+    set_tick_size = 20
+    matplotlib.rc('xtick', labelsize=set_tick_size)
+    matplotlib.rc('ytick', labelsize=set_tick_size)
+    plt.rcParams['axes.labelsize'] = set_tick_size
+    color_list = ['blue', 'green', 'purple',  'black',  'brown', 'red']
+    fig, ax = plt.subplots(figsize=(6.4, 5))
+    plt.scatter(sorted_ground_truth, sorted_scores, color=random.choice(color_list))
+    plt.grid()
+    plt.xlabel('Validation AUC')
+    plt.ylabel('TRAILER Score')
+    plt.tight_layout()
+    fig.savefig(f"visua_score_auc_{alg}_{dataset}.jpg", bbox_inches='tight')
+
 
 # Call the main function
 if __name__ == "__main__":
@@ -85,7 +114,7 @@ if __name__ == "__main__":
     from src.common.constant import CommonVars, Config
 
     # Frappe configuration, here also measure SRCC of top 0.2% -> 0.8%
-    calculate_correlation(Config.Frappe, Config.MLPSP, 19, srcc_top_k=[0.005, 1])
+    calculate_correlation(Config.Frappe, Config.MLPSP, 19, srcc_top_k=[0.005, 1], is_visual=True)
 
     # UCI configuration
     calculate_correlation(Config.UCIDataset, Config.MLPSP, 0)
