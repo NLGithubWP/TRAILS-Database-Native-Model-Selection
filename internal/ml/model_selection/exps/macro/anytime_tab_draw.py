@@ -4,13 +4,14 @@ from src.tools.compute import sample_in_log_scale_new
 from src.tools.io_tools import read_json
 from exps.draw_tab_lib import draw_structure_data_anytime
 
-
+trian_time = 3
 def get_dataset_parameters(dataset):
     parameters = {
         "uci_diabetes": {
             "epoch": 0,
             "sys_end2end_res": "./internal/ml/model_selection/exp_result/res_end_2_end_uci_diabetes_100_5.json",
             "sys_end2end_p1": "./internal/ml/model_selection/exp_result/res_end_2_end_uci_diabetes_100_5_p1.json",
+            "tab_nas_res": "./tabNAS_benchmark_uci_diabetes_epoch_0.json",
             "mx_value": 67.4,
             "y_lim": [61.8, 67.5],
             "figure_size": (6.2, 4.71),
@@ -22,6 +23,7 @@ def get_dataset_parameters(dataset):
             "epoch": 19,
             "sys_end2end_res": "./internal/ml/model_selection/exp_result/res_end_2_end_frappe_100_5.json",
             "sys_end2end_p1": "./internal/ml/model_selection/exp_result/res_end_2_end_frappe_100_5_p1.json",
+            "tab_nas_res": "./tabNAS_benchmark_frappe_epoch_19.json",
             "mx_value": 98.052,
             "y_lim": [97.6, None],
             "figure_size": (6.2, 4.71),
@@ -33,6 +35,7 @@ def get_dataset_parameters(dataset):
             "epoch": 9,
             "sys_end2end_res": "./internal/ml/model_selection/exp_result/res_end_2_end_criteo_100_5.json",
             "sys_end2end_p1": "./internal/ml/model_selection/exp_result/res_end_2_end_criteo_100_5_p1.json",
+            "tab_nas_res": "./tabNAS_benchmark_criteo_epoch_9.json",
             "mx_value": 80.335,
             "y_lim": [80.1, None],
             "figure_size": (6.2, 4.71),
@@ -76,6 +79,7 @@ def generate_and_draw_data(dataset):
 
     system_result = read_json(params['sys_end2end_res'])
     system_p1_result = read_json(params['sys_end2end_p1'])
+    tab_nas_res = read_json(params["tab_nas_res"])
 
     sampled_sys_x, sampled_sys_y = sample_some_points(
         x_array=[system_result["sys_time_budget"] for _ in system_result["sys_acc"]],
@@ -83,10 +87,17 @@ def generate_and_draw_data(dataset):
         save_points=7,
         remove_n_points=0)
 
+    tabnas_x, tabnas_y = sample_some_points(
+        x_array=[[earch * trian_time for earch in ele] for ele in tab_nas_res["baseline_time_budget"]],
+        y_2d_array=tab_nas_res["baseline_acc"],
+        save_points=9,
+        remove_n_points=3)
+
     all_lines = [
         [sampled_train_x, sampled_train_y, "Training-Based MS"],
         [system_p1_result["sys_time_budget"], system_p1_result["sys_acc"], "Training-Free MS"],
         [sampled_sys_x, sampled_sys_y, "2Phase-MS"],
+        [tabnas_x, tabnas_y, "TabNAS"],
     ]
 
     draw_structure_data_anytime(
