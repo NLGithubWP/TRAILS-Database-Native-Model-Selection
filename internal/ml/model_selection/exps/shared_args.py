@@ -65,17 +65,17 @@ def nb201_args(parser):
 def mlp_args(parser):
     parser.add_argument('--num_layers', default=4, type=int, help='# hidden layers')
     parser.add_argument('--hidden_choice_len', default=20, type=int, help=
-    'number of hidden layer choices, 10 for criteo, 20 for others')
+                        'number of hidden layer choices, 10 for criteo, 20 for others')
 
 
 def mlp_trainner_args(parser):
-    parser.add_argument('--epoch', type=int, default=10,
+    parser.add_argument('--epoch', type=int, default=20,
                         help='number of maximum epochs, '
                              'frappe: 20, uci_diabetes: 40, criteo: 10'
                              'nb101: 108, nb201: 200')
 
     parser.add_argument('--batch_size', type=int, default=32, help='batch size')
-    parser.add_argument('--lr', type=float, default=0.002, help="learning reate")
+    parser.add_argument('--lr', type=float, default=0.001, help="learning reate")
     parser.add_argument('--patience', type=int, default=1, help='number of epochs for stopping training')
     # parser.add_argument('--eval_freq', type=int, default=10000, help='max number of batches to train per epoch')
 
@@ -145,7 +145,8 @@ def db4nas(parser):
 
 def anytime_exp_set(parser):
     parser.add_argument('--only_phase1', default='False', type=str2bool)
-    parser.add_argument('--is_simulate', default='False', type=str2bool, help='Use pre-computed result or run online')
+    parser.add_argument('--is_simulate', default='True', type=str2bool,
+                        help='Use pre-computed result or run online')
 
 
 def system_performance_exp(parser):
