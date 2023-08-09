@@ -94,7 +94,8 @@ def find_time_for_target_accuracy(elements, target_accuracy_index, target_algo='
             else:
                 estimated_time = np.interp(target_accuracy, y, x)
             results[algo.split(" - ")[0]] = estimated_time * 60
-    pprint(f"Achieving target AUC = {target_accuracy}, time usage in seconds: {results} ")
+    pprint(f"Achieving target AUC = {target_accuracy}, time usage in seconds: ")
+    pprint(results)
 
 
 def generate_and_draw_data(dataset):
