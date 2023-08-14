@@ -67,6 +67,8 @@ class P1Evaluator:
                 self.mini_batch_targets = target.to(self.device)
             else:
                 raise NotImplementedError
+        self.processed_mini_batch = None
+
         self.time_usage = {
             "latency": 0.0,
             "io_latency": 0.0,
@@ -254,6 +256,8 @@ class P1Evaluator:
         """
         To measure the io/compute time more acccuretely, we pick the data pre_processing here.
         """
+        if self.processed_mini_batch is not None:
+            return self.processed_mini_batch
 
         # for those two metrics, we use all one embedding for efficiency (as in their paper)
         if metrics in [CommonVars.ExpressFlow, CommonVars.PRUNE_SYNFLOW]:
@@ -269,4 +273,5 @@ class P1Evaluator:
 
         if self.if_cuda_avaiable():
             torch.cuda.synchronize()
-        return mini_batch
+        self.processed_mini_batch = mini_batch
+        return self.processed_mini_batch
