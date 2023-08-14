@@ -222,7 +222,7 @@ class P1Evaluator:
         return model_score
 
     def force_gc(self):
-        self.explored_model = []
+        self.explored_model.clear()
         gc.collect()
         print(" force gc ... ")
 
