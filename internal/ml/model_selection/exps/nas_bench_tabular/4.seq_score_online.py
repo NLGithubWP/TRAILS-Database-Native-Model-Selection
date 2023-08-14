@@ -89,7 +89,7 @@ if __name__ == "__main__":
         explored_n += 1
         result[arch_id] = model_score
         # print(f" {datetime.now()} finish arch = {arch_id}, model_score = {model_score}")
-        if explored_n % 100 == 0:
+        if explored_n % 1000 == 0:
             _evaluator.force_gc()
             print("3. [trails] Phase 1: filter phase explored " + str(explored_n)
                   + "Total explored " + str(len(result)) +
