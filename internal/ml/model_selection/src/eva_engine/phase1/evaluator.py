@@ -13,6 +13,7 @@ import torch
 import time
 from torch import nn
 from src.search_space.core.space import SpaceWrapper
+import gc
 
 
 class P1Evaluator:
@@ -80,6 +81,9 @@ class P1Evaluator:
         # this is to do the expeirment
         self.enable_cache = enable_cache
         self.model_cache = None
+
+        # for gc
+        self.explored_model = []
 
     def if_cuda_avaiable(self):
         if "cuda" in self.device:
@@ -155,6 +159,8 @@ class P1Evaluator:
                     new_model.init_embedding()
                 new_model = new_model.to(self.device)
 
+                self.explored_model.append(new_model)
+
                 mini_batch = self.data_pre_processing(alg, new_model)
 
                 _score, _ = score_evaluator.evaluate_wrapper(
@@ -166,7 +172,6 @@ class P1Evaluator:
                 model_score[alg] = abs(_score)
 
                 # clear the cache
-                del new_model
                 if "cuda" in self.device:
                     torch.cuda.empty_cache()
         else:
@@ -188,6 +193,8 @@ class P1Evaluator:
                         self.model_cache = new_model.embedding.to(self.device)
                 else:
                     new_model.init_embedding()
+
+            self.explored_model.append(new_model)
 
             self.time_usage["track_io_model_init"].append(time.time() - begin)
 
@@ -211,9 +218,15 @@ class P1Evaluator:
 
             self.time_usage["track_compute"].append(curr_time)
 
-            del new_model
             model_score = {self.metrics: abs(_score)}
         return model_score
+
+    def force_gc(self):
+        for ele in self.explored_model:
+            del ele
+        gc.collect()
+        self.explored_model = []
+        print(" force gc ... ")
 
     def _p1_evaluate_simu_jacflow(self, model_acquire: ModelAcquireData) -> dict:
         """
