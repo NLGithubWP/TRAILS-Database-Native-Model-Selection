@@ -222,10 +222,8 @@ class P1Evaluator:
         return model_score
 
     def force_gc(self):
-        for ele in self.explored_model:
-            del ele
-        gc.collect()
         self.explored_model = []
+        gc.collect()
         print(" force gc ... ")
 
     def _p1_evaluate_simu_jacflow(self, model_acquire: ModelAcquireData) -> dict:
