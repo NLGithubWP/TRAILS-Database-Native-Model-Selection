@@ -6,6 +6,16 @@ import time
 from exps.shared_args import parse_arguments
 from datetime import datetime
 import gc
+import tracemalloc
+
+tracemalloc.start()
+
+
+def print_memory_usg():
+    snapshot = tracemalloc.take_snapshot()
+    top_stats = snapshot.statistics('lineno')
+    for stat in top_stats[:10]:  # top 10 memory-consuming lines
+        print(stat)
 
 
 def generate_data_loader():
@@ -90,7 +100,8 @@ if __name__ == "__main__":
         result[arch_id] = model_score
         # print(f" {datetime.now()} finish arch = {arch_id}, model_score = {model_score}")
         if explored_n % 1000 == 0:
-            _evaluator.force_gc()
+            print_memory_usg()
+            # _evaluator.force_gc()
             print("3. [trails] Phase 1: filter phase explored " + str(explored_n)
                   + "Total explored " + str(len(result)) +
                   " model, model_id = " + str(arch_id) +
