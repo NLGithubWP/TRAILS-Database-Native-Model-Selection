@@ -107,5 +107,5 @@ for i in range(50):
     result["baseline_time_budget"].append(list(range(1, len(w.baseline_acc) + 1)))
     result["baseline_acc"].append(w.baseline_acc)
 
-checkpoint_file = f"./bohb_benchmark_{dataset_used}_epoch_{epoch_sampled[dataset_used]}.json"
+checkpoint_file = f"./train_base_line_bohb_{dataset_used}_epoch_{epoch_sampled[dataset_used]}.json"
 write_json(checkpoint_file, result)
