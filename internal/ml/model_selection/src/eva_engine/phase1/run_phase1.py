@@ -29,7 +29,7 @@ def p1_evaluate_query(space_name, dataset, run_id, N, K) -> (list, float):
 class RunPhase1:
 
     def __init__(self, args, K: int, N: int, search_space_ins: SpaceWrapper,
-                 train_loader: DataLoader, is_simulate: bool):
+                 train_loader: DataLoader = None, is_simulate: bool = False):
         """
         Each model selection job will init one class here.
         :param args: space, population_size, sample_size
