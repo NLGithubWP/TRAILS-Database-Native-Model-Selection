@@ -1,10 +1,6 @@
 
 
 export PYTHONPATH=$PYTHONPATH:./internal/ml/model_selection
-conda activate trails
-
-
-
 
 # rs
 python internal/ml/model_selection/exps/baseline/train_with_random.py \
@@ -50,7 +46,7 @@ python internal/ml/model_selection/exps/baseline/train_with_ea.py \
   --result_dir ./internal/ml/model_selection/exp_result/
 
 # bohb
-python exps/main_np/statistics/train_bohb.py
+python internal/ml/model_selection/exps/baseline/train_bohb.py
 
 ############## draw the graph ##############
 python internal/ml/model_selection/exps/baseline/draw_benchmark_train_based.py  --dataset frappe
