@@ -8,7 +8,7 @@ for i in {1..4}
 do
     # cifar10 + nb101
 #    /home/xingnaili/miniconda3/envs/trails/bin/python ./internal/ml/model_selection/exps/nas_bench_tabular/4.seq_score_online.py \
-#      --models_explore=3000 \
+#      --models_explore=1200 \
 #      --search_space=nasbench101 \
 #      --api_loc=nasbench_only108.pkl \
 #      --base_dir=/hdd1/xingnaili/exp_data/ \
@@ -21,7 +21,7 @@ do
 
     # cifar10 + nb201
     /home/xingnaili/miniconda3/envs/trails/bin/python ./internal/ml/model_selection/exps/nas_bench_tabular/4.seq_score_online.py \
-      --models_explore=3000 \
+      --models_explore=1200 \
       --search_space=nasbench201 \
       --api_loc=NAS-Bench-201-v1_1-096897.pth \
       --base_dir=/hdd1/xingnaili/exp_data/ \
@@ -34,7 +34,7 @@ do
 
     # cifar100 + nb201
     /home/xingnaili/miniconda3/envs/trails/bin/python ./internal/ml/model_selection/exps/nas_bench_tabular/4.seq_score_online.py \
-      --models_explore=3000 \
+      --models_explore=1200 \
       --search_space=nasbench201 \
       --api_loc=NAS-Bench-201-v1_1-096897.pth \
       --base_dir=/hdd1/xingnaili/exp_data/ \
@@ -47,7 +47,7 @@ do
 
     # imgnet + nb201
     /home/xingnaili/miniconda3/envs/trails/bin/python ./internal/ml/model_selection/exps/nas_bench_tabular/4.seq_score_online.py \
-      --models_explore=3000 \
+      --models_explore=1200 \
       --search_space=nasbench201 \
       --api_loc=NAS-Bench-201-v1_1-096897.pth \
       --base_dir=/hdd1/xingnaili/exp_data/ \
