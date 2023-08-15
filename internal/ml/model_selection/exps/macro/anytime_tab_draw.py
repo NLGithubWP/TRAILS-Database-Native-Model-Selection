@@ -83,19 +83,19 @@ def generate_and_draw_data(dataset):
     sampled_train_x, sampled_train_y = sample_some_points(
         x_array=[[earch * trian_time for earch in ele] for ele in train_based_res["sys_time_budget"]],
         y_2d_array=train_based_res["sys_acc"],
-        save_points=9,
+        save_points=100,
         remove_n_points=0)
 
     sampled_sys_x, sampled_sys_y = sample_some_points(
         x_array=[system_result["sys_time_budget"] for _ in system_result["sys_acc"]],
         y_2d_array=system_result["sys_acc"],
-        save_points=7,
+        save_points=100,
         remove_n_points=0)
 
     tabnas_x, tabnas_y = sample_some_points(
         x_array=[[earch * trian_time for earch in ele] for ele in tab_nas_res["sys_time_budget"]],
         y_2d_array=tab_nas_res["sys_acc"],
-        save_points=9,
+        save_points=100,
         remove_n_points=0)
 
     all_lines = [
