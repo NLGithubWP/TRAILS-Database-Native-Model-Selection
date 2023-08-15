@@ -70,7 +70,8 @@ if __name__ == "__main__":
                              search_space_ins=search_space_ins,
                              train_loader=train_loader,
                              is_simulate=False,
-                             metrics=args.tfmem)
+                             metrics=args.tfmem,
+                             enable_cache=args.embedding_cache_filtering)
 
     sampler = SequenceSampler(search_space_ins)
 
