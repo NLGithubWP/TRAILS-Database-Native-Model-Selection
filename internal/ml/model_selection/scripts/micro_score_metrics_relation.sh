@@ -35,4 +35,4 @@ python ./internal/ml/model_selection/exps/micro/benchmark_score_metrics.py \
 
 
 ############## draw graphs ##############
-python internal/ml/model_selection/exps/micro/draw_score_metric_relation.py
+python ./internal/ml/model_selection/exps/micro/draw_score_metric_relation.py
