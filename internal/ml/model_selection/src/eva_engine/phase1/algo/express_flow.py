@@ -4,88 +4,104 @@ from torch import nn
 from src.common.constant import Config
 
 
+class IntegratedHook:
+    def __init__(self):
+        self.originals = []
+        self.perturbations = []
+        self.Vs = []
+        self.activation_map = {}
+        self.is_perturbed = False
+
+    def forward_hook(self, module, input, output):
+        # Store the output based on whether it's perturbed or not
+        if isinstance(module, nn.ReLU):
+            if self.is_perturbed:
+                self.perturbations.append(output)
+            else:
+                self.originals.append(output)
+
+        # Save this output in the map using the module's ID
+        self.activation_map[id(module)] = output
+
+        # Register backward hook for gradient computation
+        output.register_hook(lambda grad: self.backward_hook(grad, module))
+
+    def backward_hook(self, grad, module):
+        dz = grad  # gradient
+        # Get the correct activation from the map
+        activation = self.activation_map[id(module)]
+        V = activation * abs(dz)  # product
+        self.Vs.append(V)
+
+    def calculate_trajectory_length(self, epsilon):
+        assert len(self.originals) == len(self.perturbations)
+        trajectory_lengths = [(x_perturbed - x).norm() / epsilon for x, x_perturbed in
+                              zip(self.originals, self.perturbations)]
+        return trajectory_lengths
+
+
 class ExpressFlowEvaluator(Evaluator):
 
     def __init__(self):
         super().__init__()
 
+    @torch.no_grad()
+    def linearize(self, arch):
+        signs = {}
+        for name, param in arch.state_dict().items():
+            signs[name] = torch.sign(param)
+            param.abs_()
+        return signs
+
+    @torch.no_grad()
+    def nonlinearize(self, arch, signs):
+        for name, param in arch.state_dict().items():
+            if 'weight_mask' not in name:
+                param.mul_(signs[name])
+
     def evaluate(self, arch: nn.Module, device, batch_data: object, batch_labels: torch.Tensor,
                  space_name: str) -> float:
 
-        # # 1. Convert params to their abs. Record sign for converting it back.
-        @torch.no_grad()
-        def linearize(arch):
-            signs = {}
-            for name, param in arch.state_dict().items():
-                signs[name] = torch.sign(param)
-                param.abs_()
-            return signs
+        # Step 1: Linearize
+        signs = self.linearize(arch)
+        arch.double()
 
-        # convert to orig values with sign
-        @torch.no_grad()
-        def nonlinearize(arch, signs):
-            for name, param in arch.state_dict().items():
-                if 'weight_mask' not in name:
-                    param.mul_(signs[name])
-
-        def hook_fn(module, input, output):
-            z = output  # activation
-
-            # this method register_hook in PyTorch is used to register a backward hook on a tensor
-            def grad_hook(grad):
-                dz = grad  # gradient
-                V = z * abs(dz)  # product
-                Vs.append(V)
-
-            z.register_hook(grad_hook)
-
-        signs = linearize(arch)
-
-        # Create a list to store the results for each neuron
-        Vs = []
+        hook_obj = IntegratedHook()
         hooks = []
         for module in arch.modules():
             if isinstance(module, nn.ReLU):
-                hooks.append(module.register_forward_hook(hook_fn))
+                hooks.append(module.register_forward_hook(hook_obj.forward_hook))
 
-        arch.double()
+        epsilon = 1e-5
+        delta_x = torch.randn_like(batch_data) * epsilon
+
+        # Forward pass with original input
+        hook_obj.is_perturbed = False
         if space_name == Config.MLPSP:
             out = arch.forward_wo_embedding(batch_data.double())
         else:
             out = arch.forward(batch_data.double())
 
+        # Forward pass with perturbed input
+        hook_obj.is_perturbed = True
+        if space_name == Config.MLPSP:
+            _ = arch.forward_wo_embedding(batch_data.double() + delta_x)
+        else:
+            _ = arch.forward(batch_data.double() + delta_x)
+
+        trajectory_lengths = hook_obj.calculate_trajectory_length(epsilon)
+
         # directly sum
         torch.sum(out).backward()
 
-        trajectory_lengths = self.calculate_trajectory_length(arch, batch_data)
-        total_sum = self.weighted_score(trajectory_lengths, Vs)
+        total_sum = self.weighted_score(trajectory_lengths, hook_obj.Vs)
         # total_sum = self.compute_score_early_halflayers(out, Vs)
 
         # Remove the hooks
-        for hook in hooks:
-            hook.remove()
+        # Step 2: Nonlinearize
+        self.nonlinearize(arch, signs)
 
         return total_sum
-
-    def calculate_trajectory_length(self, arch, batch_data):
-        epsilon = 1e-5
-        delta_x = torch.randn_like(batch_data) * epsilon
-
-        originals, perturbations = [], []
-
-        x, x_perturbed = batch_data, batch_data + delta_x
-
-        for module in arch.mlp.mlp:
-            x = module(x.double())
-            x_perturbed = module(x_perturbed.double())
-
-            if isinstance(module, nn.ReLU):
-                originals.append(x)
-                perturbations.append(x_perturbed)
-
-        trajectory_lengths = [(x_perturbed - x).norm() / epsilon for x, x_perturbed in zip(originals, perturbations)]
-
-        return trajectory_lengths
 
     def compute_score_early_halflayers(self, out, Vs):
         # Vs is a list of tensors, where each tensor corresponds to the product
@@ -118,6 +134,3 @@ class ExpressFlowEvaluator(Evaluator):
         total_sum = total_sum.item()
 
         return total_sum
-
-
-
