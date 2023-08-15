@@ -5,6 +5,7 @@ conda activate trails
 
 
 nohup  python ./internal/ml/model_selection/exps/nas_bench_tabular/4.seq_score_online.py \
+  --embedding_cache_filtering=True \
   --models_explore=9999 \
   --tfmem=express_flow \
   --log_name=score_based \
