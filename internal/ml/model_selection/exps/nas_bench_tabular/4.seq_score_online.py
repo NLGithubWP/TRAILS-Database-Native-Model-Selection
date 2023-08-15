@@ -6,16 +6,16 @@ import time
 from exps.shared_args import parse_arguments
 from datetime import datetime
 import gc
-import tracemalloc
 
-tracemalloc.start()
-
-
-def print_memory_usg():
-    snapshot = tracemalloc.take_snapshot()
-    top_stats = snapshot.statistics('lineno')
-    for stat in top_stats[:10]:  # top 10 memory-consuming lines
-        print(stat)
+# import tracemalloc
+# tracemalloc.start()
+#
+#
+# def print_memory_usg():
+#     snapshot = tracemalloc.take_snapshot()
+#     top_stats = snapshot.statistics('lineno')
+#     for stat in top_stats[:10]:  # top 10 memory-consuming lines
+#         print(stat)
 
 
 def generate_data_loader():
