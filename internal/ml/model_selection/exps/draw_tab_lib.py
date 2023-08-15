@@ -9,7 +9,7 @@ import matplotlib.cbook
 warnings.filterwarnings("ignore", category=matplotlib.cbook.mplDeprecation)
 
 # lines' mark size
-set_marker_size = 15
+set_marker_size = 1
 # points' mark size
 set_marker_point = 14
 # points' mark size
@@ -51,8 +51,12 @@ def Add_one_line(x_time_array: list, y_twod_budget: List[List], namespace: str, 
     y_l = np.quantile(exp, .25, axis=0)
 
     ax.plot(x_m, y_m,
-            mark_list[index - 3] + line_shape_list[index],
-            label=namespace, markersize=mark_size_list[index - 3])
+            mark_list[int(index % len(mark_list))] + line_shape_list[int(index % len(line_shape_list))],
+            label=namespace,
+            markersize=mark_size_list[int(index % len(mark_list))],
+            linewidth=3
+            )
+
     ax.fill_between(x_m, y_l, y_h, alpha=shade_degree)
     return x_m
 
@@ -62,7 +66,7 @@ def draw_structure_data_anytime(
         dataset: str, name_img: str, max_value,
         figure_size=(6.4, 4.5),
         annotations=[],
-        x_ticks=None, y_ticks=None):
+        x_ticks=None, y_ticks=None, unique_labels=None):
     fig, ax = plt.subplots(figsize=figure_size)
 
     # draw all lines
@@ -114,7 +118,7 @@ def draw_structure_data_anytime(
         ax.plot(ele[2], ele[1], mark_list[i], label=ele[0], markersize=set_marker_point)
 
     # export_legend(fig, filename="any_time_legend", unique_labels=["Training-Based MS", "Training-Free MS", "2Phase-MS", 'Global Best AUC'])
-    export_legend(ori_fig=fig, colnum=5)
+    export_legend(ori_fig=fig, colnum=5, unique_labels=unique_labels)
     plt.tight_layout()
 
     fig.savefig(f"{name_img}.pdf", bbox_inches='tight')
