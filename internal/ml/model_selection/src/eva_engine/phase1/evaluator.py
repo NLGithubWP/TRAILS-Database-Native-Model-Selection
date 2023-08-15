@@ -161,7 +161,7 @@ class P1Evaluator:
                     new_model.init_embedding()
                 new_model = new_model.to(self.device)
 
-                self.explored_model.append(new_model)
+                # self.explored_model.append(new_model)
 
                 mini_batch = self.data_pre_processing(alg, new_model)
 
@@ -196,7 +196,7 @@ class P1Evaluator:
                 else:
                     new_model.init_embedding()
 
-            self.explored_model.append(new_model)
+            # self.explored_model.append(new_model)
 
             self.time_usage["track_io_model_init"].append(time.time() - begin)
 
