@@ -40,9 +40,9 @@ https://drive.google.com/file/d/1TGii9ymbmX81c9-GKWXbe_4Z64R8Btz1/view?usp=shari
 ```python
 # Construct NAS-Bench-Tabular:
 ## 1. Training all models.
-bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_frappe.sh
-bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_uci.sh
-bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_criteo.sh
+bash internal/ml/model_selection/scripts/nas-bench-tabular/train_all_models_frappe.sh
+bash internal/ml/model_selection/scripts/nas-bench-tabular/train_all_models_diabetes.sh
+bash internal/ml/model_selection/scripts/nas-bench-tabular/train_all_models_criteo.sh
 
 ## 2. Scoring all models using all TFMEMs.
 bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_frappe.sh
@@ -88,6 +88,9 @@ python ./internal/ml/model_selection/exps/nas_bench_tabular/measure_param_auc.py
 
 ```bash
 bash ./internal/ml/model_selection/scripts/micro_search_strategy.sh
+# directly draw with existing data
+export PYTHONPATH=$PYTHONPATH:./internal/ml/model_selection
+python ./internal/ml/model_selection/exps/baseline/draw_benchmark_train_based.py
 ```
 
 The following experiment could then query filtering phase results based on `run_id`.
@@ -129,6 +132,17 @@ python ./internal/ml/model_selection/exps/micro/benchmark_correlation.py
 # Adjust the initialization method at src/search_space/mlp_api/space.py
 # then run
 python ./internal/ml/model_selection/exps/micro/benchmark_correlation.py
+```
+
+## Micro: Relation between Score and AUC
+
+The highest score may not produce the highest AUC.
+
+```bash
+bash ./internal/ml/model_selection/scripts/micro_score_metrics_relation.sh
+# directly draw with existing data
+export PYTHONPATH=$PYTHONPATH:./internal/ml/model_selection
+python ./internal/ml/model_selection/exps/micro/draw_score_metric_relation.py
 ```
 
 ## Micro: Benchmark Budge-Aware Algorithm
@@ -186,13 +200,13 @@ Here all experiments is on the Frappe dataset.
    python ./internal/ml/model_selection/exps/micro/resp/benchmark_k_fix_time.py
    ```
 
-4. Nosy in selecting top K models
+4. Nosy in selecting top K models.
 
    ```bash
    python ./internal/ml/model_selection/exps/micro/resp/benchmark_noisy_influence.py
    ```
 
-5. One-Shot NAS study
+5. One-Shot NAS study.
 
    ```bash
    nohup bash ./internal/ml/model_selection/scripts/benchmark_weight_sharing.sh &
