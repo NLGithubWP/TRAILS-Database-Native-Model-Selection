@@ -96,8 +96,8 @@ class ExpressFlowEvaluator(Evaluator):
 
         # total_sum = self.compute_score(trajectory_lengths, hook_obj.Vs)
         # total_sum = self.weighted_score(trajectory_lengths, hook_obj.Vs)
-        total_sum = self.weighted_score_traj(trajectory_lengths, hook_obj.Vs)
-        # total_sum = self.weighted_score_width(trajectory_lengths, hook_obj.Vs)
+        # total_sum = self.weighted_score_traj(trajectory_lengths, hook_obj.Vs)
+        total_sum = self.weighted_score_width(trajectory_lengths, hook_obj.Vs)
 
         # Remove the hooks
         # Step 2: Nonlinearize
