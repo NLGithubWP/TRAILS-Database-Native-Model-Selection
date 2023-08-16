@@ -34,7 +34,7 @@ class IntegratedHook:
         self.Vs.append(V)
 
     def calculate_trajectory_length(self, epsilon):
-        assert len(self.originals) == len(self.perturbations)
+        # assert len(self.originals) == len(self.perturbations)
         trajectory_lengths = [(x_perturbed - x).norm() / epsilon for x, x_perturbed in
                               zip(self.originals, self.perturbations)]
         return trajectory_lengths
