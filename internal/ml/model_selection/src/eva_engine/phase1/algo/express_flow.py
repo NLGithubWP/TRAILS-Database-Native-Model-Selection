@@ -94,10 +94,10 @@ class ExpressFlowEvaluator(Evaluator):
         # directly sum
         torch.sum(out).backward()
 
-        # total_sum = self.compute_score(out, hook_obj.Vs)
+        # total_sum = self.compute_score(trajectory_lengths, hook_obj.Vs)
         # total_sum = self.weighted_score(trajectory_lengths, hook_obj.Vs)
-        total_sum = self.weighted_score_traj(out, hook_obj.Vs)
-        # total_sum = self.weighted_score_width(out, hook_obj.Vs)
+        total_sum = self.weighted_score_traj(trajectory_lengths, hook_obj.Vs)
+        # total_sum = self.weighted_score_width(trajectory_lengths, hook_obj.Vs)
 
         # Remove the hooks
         # Step 2: Nonlinearize
@@ -105,7 +105,7 @@ class ExpressFlowEvaluator(Evaluator):
 
         return total_sum
 
-    def compute_score(self, out, Vs):
+    def compute_score(self, trajectory_lengths, Vs):
         # Vs is a list of tensors, where each tensor corresponds to the product
         # V=z×∣dz∣ (where z is the activation and dz is the gradient) for every ReLU layer in model.
         # Each tensor in Vs has the shape (batch_size, number_of_neurons)
@@ -150,7 +150,7 @@ class ExpressFlowEvaluator(Evaluator):
 
         return total_sum
 
-    def weighted_score_width(self, out, Vs):
+    def weighted_score_width(self, trajectory_lengths, Vs):
         # Vs is a list of tensors, where each tensor corresponds to the product
         # V=z×∣dz∣ (where z is the activation and dz is the gradient) for every ReLU layer in model.
         # Each tensor in Vs has the shape (batch_size, number_of_neurons)
