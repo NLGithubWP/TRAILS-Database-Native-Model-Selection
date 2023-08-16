@@ -35,7 +35,7 @@ class IntegratedHook:
 
     def calculate_trajectory_length(self, epsilon):
         # assert len(self.originals) == len(self.perturbations)
-        trajectory_lengths = [(x_perturbed - x).norm() / epsilon for x, x_perturbed in
+        trajectory_lengths = [abs(x_perturbed - x).norm() / epsilon for x, x_perturbed in
                               zip(self.originals, self.perturbations)]
         return trajectory_lengths
 
@@ -96,8 +96,8 @@ class ExpressFlowEvaluator(Evaluator):
 
         # total_sum = self.compute_score(trajectory_lengths, hook_obj.Vs)
         # total_sum = self.weighted_score(trajectory_lengths, hook_obj.Vs)
-        # total_sum = self.weighted_score_traj(trajectory_lengths, hook_obj.Vs)
-        total_sum = self.weighted_score_width(trajectory_lengths, hook_obj.Vs)
+        total_sum = self.weighted_score_traj(trajectory_lengths, hook_obj.Vs)
+        # total_sum = self.weighted_score_width(trajectory_lengths, hook_obj.Vs)
 
         # Remove the hooks
         # Step 2: Nonlinearize
@@ -118,7 +118,7 @@ class ExpressFlowEvaluator(Evaluator):
         total_sum = total_sum.item()
         return total_sum
 
-    def weighted_score_traj_width(self, trajectory_lengths, Vs):
+    def weighted_score(self, trajectory_lengths, Vs):
         trajectory_lengths.reverse()
         # Modify trajectory_lengths to ensure that deeper layers have smaller weights
         # For example, by taking the inverse of each computed trajectory length.
