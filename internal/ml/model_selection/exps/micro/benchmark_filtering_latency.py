@@ -6,6 +6,26 @@ from exps.shared_args import parse_arguments
 import torch
 from src.tools.res_measure import print_cpu_gpu_usage
 
+args = parse_arguments()
+
+
+# set the log name
+gmt = time.gmtime()
+ts = calendar.timegm(gmt)
+os.environ.setdefault("log_logger_folder_name", f"bm_filter_phase")
+os.environ.setdefault("log_file_name", f"bm_filter_{args.dataset}_{args.device}" + "_" + str(ts) + ".log")
+os.environ.setdefault("base_dir", args.base_dir)
+
+from src.logger import logger
+from src.common.structure import ModelAcquireData
+from src.controller.sampler_all.seq_sampler import SequenceSampler
+from src.eva_engine.phase1.evaluator import P1Evaluator
+from src.search_space.init_search_space import init_search_space
+from src.dataset_utils.structure_data_loader import libsvm_dataloader
+from src.tools.io_tools import write_json, read_json
+from src.dataset_utils import dataset
+from src.common.constant import Config
+
 
 def generate_data_loader():
     if args.dataset in [Config.c10, Config.c100, Config.imgNet]:
@@ -28,25 +48,6 @@ def generate_data_loader():
 
 
 if __name__ == "__main__":
-    args = parse_arguments()
-
-    random.seed(80)
-    # set the log name
-    gmt = time.gmtime()
-    ts = calendar.timegm(gmt)
-    os.environ.setdefault("log_logger_folder_name", f"{args.log_folder}")
-    os.environ.setdefault("log_file_name", args.log_name + "_" + str(ts) + ".log")
-    os.environ.setdefault("base_dir", args.base_dir)
-
-    from src.common.constant import Config
-    from src.common.structure import ModelAcquireData
-    from src.controller.sampler_all.seq_sampler import SequenceSampler
-    from src.eva_engine.phase1.evaluator import P1Evaluator
-    from src.search_space.init_search_space import init_search_space
-    from src.dataset_utils.structure_data_loader import libsvm_dataloader
-    from src.tools.io_tools import write_json, read_json
-    from src.dataset_utils import dataset
-    from src.common.constant import Config
 
     output_file = f"{args.result_dir}/score_{args.search_space}_{args.dataset}_batch_size_{args.batch_size}_{args.device}_{args.tfmem}.json"
     time_output_file = f"{args.result_dir}/time_score_{args.search_space}_{args.dataset}_batch_size_{args.batch_size}_{args.device}_{args.tfmem}.json"
@@ -69,6 +70,7 @@ if __name__ == "__main__":
     explored_n = 0
     result = read_json(output_file)
     print(f"begin to score all, currently we already explored {len(result.keys())}")
+    logger.info(f"begin to score all, currently we already explored {len(result.keys())}")
 
     while True:
         arch_id, arch_micro = sampler.sample_next_arch()
@@ -95,20 +97,24 @@ if __name__ == "__main__":
                 torch.cuda.empty_cache()
                 torch.cuda.synchronize()
                 _evaluator.time_usage["track_io_model_release_each_50"].append(time.time() - begin)
+                logger.info(f"Evaluate {explored_n} models")
 
     if _evaluator.if_cuda_avaiable():
         torch.cuda.synchronize()
 
     # the first two are used for warming up
-    _evaluator.time_usage["io_latency"] = sum(_evaluator.time_usage["track_io_model_load"][2:]) + \
-                                          sum(_evaluator.time_usage["track_io_model_release_each_50"]) + \
-                                          sum(_evaluator.time_usage["track_io_model_init"][2:])
+    _evaluator.time_usage["io_latency"] = \
+        sum(_evaluator.time_usage["track_io_model_load"][2:]) + \
+        sum(_evaluator.time_usage["track_io_model_release_each_50"]) + \
+        sum(_evaluator.time_usage["track_io_model_init"][2:]) + \
+        sum(_evaluator.time_usage["track_io_res_load"][2:])
 
     _evaluator.time_usage["compute_latency"] = sum(_evaluator.time_usage["track_compute"][2:])
     _evaluator.time_usage["latency"] = _evaluator.time_usage["io_latency"] + _evaluator.time_usage["compute_latency"]
 
-    _evaluator.time_usage["avg_compute_latency"] = _evaluator.time_usage["compute_latency"] \
-                                                   / len(_evaluator.time_usage["track_compute"][2:])
+    _evaluator.time_usage["avg_compute_latency"] = \
+        _evaluator.time_usage["compute_latency"] \
+        / len(_evaluator.time_usage["track_compute"][2:])
 
     write_json(output_file, result)
     # compute time

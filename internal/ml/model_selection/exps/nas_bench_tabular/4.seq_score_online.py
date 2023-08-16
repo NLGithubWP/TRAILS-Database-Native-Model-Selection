@@ -41,7 +41,6 @@ def generate_data_loader():
 if __name__ == "__main__":
     args = parse_arguments()
 
-    random.seed(80)
     # set the log name
     gmt = time.gmtime()
     ts = calendar.timegm(gmt)

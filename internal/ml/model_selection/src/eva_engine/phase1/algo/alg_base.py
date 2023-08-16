@@ -76,6 +76,4 @@ class Evaluator:
             else:
                 score = -1e8
 
-        score = round(score, 2)
-
         return score, curr_time

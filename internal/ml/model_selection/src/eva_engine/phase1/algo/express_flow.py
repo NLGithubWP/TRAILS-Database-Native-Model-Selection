@@ -35,7 +35,7 @@ class IntegratedHook:
 
     def calculate_trajectory_length(self, epsilon):
         # assert len(self.originals) == len(self.perturbations)
-        trajectory_lengths = [(x_perturbed - x).norm() / epsilon for x, x_perturbed in
+        trajectory_lengths = [abs(x_perturbed - x).norm() / epsilon for x, x_perturbed in
                               zip(self.originals, self.perturbations)]
         return trajectory_lengths
 
@@ -95,8 +95,8 @@ class ExpressFlowEvaluator(Evaluator):
         torch.sum(out).backward()
 
         # total_sum = self.compute_score(trajectory_lengths, hook_obj.Vs)
-        # total_sum = self.weighted_score(trajectory_lengths, hook_obj.Vs)
-        total_sum = self.weighted_score_traj(trajectory_lengths, hook_obj.Vs)
+        total_sum = self.weighted_score(trajectory_lengths, hook_obj.Vs)
+        # total_sum = self.weighted_score_traj(trajectory_lengths, hook_obj.Vs)
         # total_sum = self.weighted_score_width(trajectory_lengths, hook_obj.Vs)
 
         # Remove the hooks
@@ -115,10 +115,10 @@ class ExpressFlowEvaluator(Evaluator):
         # Sum over the second half of the modules,
         # Vs[i].shape[1]: number of neuron in the layer i
         total_sum = sum(V.flatten().sum() for V in Vs) / 10
-        total_sum = total_sum.item()
+        total_sum = total_sum
         return total_sum
 
-    def weighted_score_traj_width(self, trajectory_lengths, Vs):
+    def weighted_score(self, trajectory_lengths, Vs):
         trajectory_lengths.reverse()
         # Modify trajectory_lengths to ensure that deeper layers have smaller weights
         # For example, by taking the inverse of each computed trajectory length.
@@ -129,8 +129,9 @@ class ExpressFlowEvaluator(Evaluator):
 
         # Use the normalized trajectory lengths as weights for your total_sum
         total_sum = sum(
-            normalized_length * V.flatten().sum() * V.shape[1] for normalized_length, V in zip(normalized_lengths, Vs))
-        total_sum = total_sum.item()
+            normalized_length * V.flatten().sum() * V.shape[1]
+            for normalized_length, V in zip(normalized_lengths, Vs))
+        total_sum = total_sum
 
         return total_sum
 
@@ -146,7 +147,7 @@ class ExpressFlowEvaluator(Evaluator):
         # Use the normalized trajectory lengths as weights for your total_sum
         total_sum = sum(
             normalized_length * V.flatten().sum() for normalized_length, V in zip(normalized_lengths, Vs))
-        total_sum = total_sum.item()
+        total_sum = total_sum
 
         return total_sum
 
@@ -160,5 +161,5 @@ class ExpressFlowEvaluator(Evaluator):
         # Sum over the second half of the modules,
         # Vs[i].shape[1]: number of neuron in the layer i
         total_sum = sum(V.flatten().sum() * V.shape[1] for V in Vs) / 10
-        total_sum = total_sum.item()
+        total_sum = total_sum
         return total_sum
