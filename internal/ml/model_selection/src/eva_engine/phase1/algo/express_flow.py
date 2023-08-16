@@ -83,19 +83,19 @@ class ExpressFlowEvaluator(Evaluator):
             out = arch.forward(batch_data.double())
 
         # Forward pass with perturbed input
-        hook_obj.is_perturbed = True
-        if space_name == Config.MLPSP:
-            _ = arch.forward_wo_embedding(batch_data.double() + delta_x)
-        else:
-            _ = arch.forward(batch_data.double() + delta_x)
+        # hook_obj.is_perturbed = True
+        # if space_name == Config.MLPSP:
+        #     _ = arch.forward_wo_embedding(batch_data.double() + delta_x)
+        # else:
+        #     _ = arch.forward(batch_data.double() + delta_x)
 
         trajectory_lengths = hook_obj.calculate_trajectory_length(epsilon)
 
         # directly sum
         torch.sum(out).backward()
 
-        total_sum = self.weighted_score(trajectory_lengths, hook_obj.Vs)
-        # total_sum = self.compute_score_early_halflayers(out, Vs)
+        # total_sum = self.weighted_score(trajectory_lengths, hook_obj.Vs)
+        total_sum = self.compute_score_early_halflayers(out, hook_obj.Vs)
 
         # Remove the hooks
         # Step 2: Nonlinearize
@@ -110,12 +110,9 @@ class ExpressFlowEvaluator(Evaluator):
         # 1. aggregates the importance of all neurons in that specific ReLU module.
         # 2. only use the first half layers.
 
-        # Determine the half point
-        half_point = len(Vs) // 2
-
         # Sum over the second half of the modules,
         # Vs[i].shape[1]: number of neuron in the layer i
-        total_sum = sum(V.flatten().sum() * V.shape[1] for V in Vs[half_point:]) / 10
+        total_sum = sum(V.flatten().sum() for V in Vs) / 10
         total_sum = total_sum.item()
         return total_sum
 
