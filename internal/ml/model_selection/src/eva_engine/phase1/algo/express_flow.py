@@ -83,11 +83,11 @@ class ExpressFlowEvaluator(Evaluator):
             out = arch.forward(batch_data.double())
 
         # Forward pass with perturbed input
-        # hook_obj.is_perturbed = True
-        # if space_name == Config.MLPSP:
-        #     _ = arch.forward_wo_embedding(batch_data.double() + delta_x)
-        # else:
-        #     _ = arch.forward(batch_data.double() + delta_x)
+        hook_obj.is_perturbed = True
+        if space_name == Config.MLPSP:
+            _ = arch.forward_wo_embedding(batch_data.double() + delta_x)
+        else:
+            _ = arch.forward(batch_data.double() + delta_x)
 
         trajectory_lengths = hook_obj.calculate_trajectory_length(epsilon)
 
@@ -95,7 +95,10 @@ class ExpressFlowEvaluator(Evaluator):
         torch.sum(out).backward()
 
         # total_sum = self.weighted_score(trajectory_lengths, hook_obj.Vs)
-        total_sum = self.compute_score_early_halflayers(out, hook_obj.Vs)
+        # total_sum = self.compute_score_early_halflayers(out, hook_obj.Vs)
+        total_sum = self.weighted_score_traj(out, hook_obj.Vs)
+        # total_sum = self.compute_score_width(out, hook_obj.Vs)
+
 
         # Remove the hooks
         # Step 2: Nonlinearize
@@ -116,7 +119,7 @@ class ExpressFlowEvaluator(Evaluator):
         total_sum = total_sum.item()
         return total_sum
 
-    def weighted_score(self, trajectory_lengths, Vs):
+    def weighted_score_traj_width(self, trajectory_lengths, Vs):
         trajectory_lengths.reverse()
         # Modify trajectory_lengths to ensure that deeper layers have smaller weights
         # For example, by taking the inverse of each computed trajectory length.
@@ -130,4 +133,33 @@ class ExpressFlowEvaluator(Evaluator):
             normalized_length * V.flatten().sum() * V.shape[1] for normalized_length, V in zip(normalized_lengths, Vs))
         total_sum = total_sum.item()
 
+        return total_sum
+
+    def weighted_score_traj(self, trajectory_lengths, Vs):
+        trajectory_lengths.reverse()
+        # Modify trajectory_lengths to ensure that deeper layers have smaller weights
+        # For example, by taking the inverse of each computed trajectory length.
+        inverse_trajectory_lengths = [1.0 / (length + 1e-6) for length in trajectory_lengths]
+
+        # Normalize trajectory lengths if needed (this ensures the weights aren't too large)
+        normalized_lengths = [length / sum(inverse_trajectory_lengths) for length in inverse_trajectory_lengths]
+
+        # Use the normalized trajectory lengths as weights for your total_sum
+        total_sum = sum(
+            normalized_length * V.flatten().sum() for normalized_length, V in zip(normalized_lengths, Vs))
+        total_sum = total_sum.item()
+
+        return total_sum
+
+    def compute_score_width(self, out, Vs):
+        # Vs is a list of tensors, where each tensor corresponds to the product
+        # V=z×∣dz∣ (where z is the activation and dz is the gradient) for every ReLU layer in model.
+        # Each tensor in Vs has the shape (batch_size, number_of_neurons)
+        # 1. aggregates the importance of all neurons in that specific ReLU module.
+        # 2. only use the first half layers.
+
+        # Sum over the second half of the modules,
+        # Vs[i].shape[1]: number of neuron in the layer i
+        total_sum = sum(V.flatten().sum() * V.shape[1] for V in Vs) / 10
+        total_sum = total_sum.item()
         return total_sum
