@@ -21,9 +21,13 @@ pre_score_path_201IMG = os.path.join(base_dir, "score_201_15k_imgNet_bs32_ic16.j
 
 # expreflow
 expreflow_score_path_101C10 = os.path.join(base_dir, "score_nasbench101_cifar10_batch_size_32_cpu.json")
-expreflow_score_path_201C10 = os.path.join(base_dir, "score_nasbench201_cifar10_batch_size_32_cpu.json")
-expreflow_score_path_201C100 = os.path.join(base_dir, "score_nasbench201_cifar100_batch_size_32_cpu.json")
-expreflow_score_path_201IMG = os.path.join(base_dir, "score_nasbench201_ImageNet16-120_batch_size_32_cpu.json")
+# expreflow_score_path_201C10 = os.path.join(base_dir, "score_nasbench201_cifar10_batch_size_32_cpu.json")
+# expreflow_score_path_201C100 = os.path.join(base_dir, "score_nasbench201_cifar100_batch_size_32_cpu.json")
+# expreflow_score_path_201IMG = os.path.join(base_dir, "score_nasbench201_ImageNet16-120_batch_size_32_cpu.json")
+
+expreflow_score_path_201C10 = os.path.join(base_dir_folder, "score_scale_traj_width/score_nasbench201_cifar10_batch_size_32_cpu.json")
+expreflow_score_path_201C100 = os.path.join(base_dir_folder, "score_scale_traj_width/score_nasbench201_cifar100_batch_size_32_cpu.json")
+expreflow_score_path_201IMG = os.path.join(base_dir_folder, "score_scale_traj_width/score_nasbench201_ImageNet16-120_batch_size_32_cpu.json")
 
 # training accuracy result.
 gt201 = os.path.join(base_dir, "ground_truth/201_allEpoch_info")

@@ -21,9 +21,9 @@ mlp_score_criteo = os.path.join(base_dir, "tab_data/criteo/score_criteo_batch_si
 
 #  0.8028456677612497
 # todo: here is for debug expressFlow only
-exp_mlp_score_frappe = os.path.join(base_dir, "tab_data/test_/score_mlp_sp_frappe_batch_size_32_cpu.json")
-exp_mlp_score_uci = os.path.join(base_dir, "tab_data/test_/score_mlp_sp_uci_diabetes_batch_size_32_cpu.json")
-exp_mlp_score_criteo = os.path.join(base_dir, "tab_data/test_/score_mlp_sp_criteo_batch_size_32_cpu.json")
+exp_mlp_score_frappe = os.path.join(base_dir, "score_scale_traj_width/score_mlp_sp_frappe_batch_size_32_cpu.json")
+exp_mlp_score_uci = os.path.join(base_dir, "score_scale_traj_width/score_mlp_sp_uci_diabetes_batch_size_32_cpu.json")
+exp_mlp_score_criteo = os.path.join(base_dir, "score_scale_traj_width/score_mlp_sp_criteo_batch_size_32_cpu.json")
 
 # todo here we use weigth sharing.
 mlp_score_frappe_weight_share = os.path.join(base_dir, "tab_data/weight_share_nas_frappe.json")
