@@ -172,6 +172,8 @@ class P1Evaluator:
                     space_name=self.search_space_ins.name,
                     batch_data=mini_batch,
                     batch_labels=self.mini_batch_targets)
+
+                _score = _score.item()
                 model_score[alg] = abs(_score)
 
                 # clear the cache
