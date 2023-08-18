@@ -229,6 +229,7 @@ class P1Evaluator:
                 torch.cuda.synchronize()
                 self.time_usage["track_io_res_load"].append(time.time() - begin)
             else:
+                _score = _score.item()
                 self.time_usage["track_io_res_load"].append(0)
 
             model_score = {self.metrics: abs(_score)}
