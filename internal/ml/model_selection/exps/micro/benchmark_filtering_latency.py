@@ -100,15 +100,18 @@ if __name__ == "__main__":
         torch.cuda.synchronize()
 
     # the first two are used for warming up
-    _evaluator.time_usage["io_latency"] = sum(_evaluator.time_usage["track_io_model_load"][2:]) + \
-                                          sum(_evaluator.time_usage["track_io_model_release_each_50"]) + \
-                                          sum(_evaluator.time_usage["track_io_model_init"][2:])
+    _evaluator.time_usage["io_latency"] = \
+        sum(_evaluator.time_usage["track_io_model_load"][2:]) + \
+        sum(_evaluator.time_usage["track_io_model_release_each_50"]) + \
+        sum(_evaluator.time_usage["track_io_model_init"][2:]) + \
+        sum(_evaluator.time_usage["track_io_res_load"][2:])
 
     _evaluator.time_usage["compute_latency"] = sum(_evaluator.time_usage["track_compute"][2:])
     _evaluator.time_usage["latency"] = _evaluator.time_usage["io_latency"] + _evaluator.time_usage["compute_latency"]
 
-    _evaluator.time_usage["avg_compute_latency"] = _evaluator.time_usage["compute_latency"] \
-                                                   / len(_evaluator.time_usage["track_compute"][2:])
+    _evaluator.time_usage["avg_compute_latency"] = \
+        _evaluator.time_usage["compute_latency"] \
+        / len(_evaluator.time_usage["track_compute"][2:])
 
     write_json(output_file, result)
     # compute time

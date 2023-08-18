@@ -75,7 +75,8 @@ class P1Evaluator:
             "compute_latency": 0.0,
             "track_compute": [],  # compute time
             "track_io_model_init": [],  # init model weight
-            "track_io_model_load": [],  # load into GPU/CPU
+            "track_io_model_load": [],  # load model into GPU/CPU
+            "track_io_res_load": [],    # load result into GPU/CPU
             "track_io_model_release_each_50": [],  # context switch
             "track_io_data": [],  # context switch
         }
@@ -200,25 +201,35 @@ class P1Evaluator:
 
             self.time_usage["track_io_model_init"].append(time.time() - begin)
 
-            begin = time.time()
-            new_model = new_model.to(self.device)
             if self.if_cuda_avaiable():
+                begin = time.time()
+                new_model = new_model.to(self.device)
                 torch.cuda.synchronize()
-            self.time_usage["track_io_model_load"].append(time.time() - begin)
+                self.time_usage["track_io_model_load"].append(time.time() - begin)
+            else:
+                self.time_usage["track_io_model_load"].append(0)
 
             # measure data load time
             begin = time.time()
             mini_batch = self.data_pre_processing(self.metrics, new_model)
             self.time_usage["track_io_data"].append(time.time() - begin)
 
-            _score, curr_time = evaluator_register[self.metrics].evaluate_wrapper(
+            _score, compute_time = evaluator_register[self.metrics].evaluate_wrapper(
                 arch=new_model,
                 device=self.device,
                 space_name=self.search_space_ins.name,
                 batch_data=mini_batch,
                 batch_labels=self.mini_batch_targets)
 
-            self.time_usage["track_compute"].append(curr_time)
+            self.time_usage["track_compute"].append(compute_time)
+
+            if self.if_cuda_avaiable():
+                begin = time.time()
+                _score = _score.to("cpu")
+                torch.cuda.synchronize()
+                self.time_usage["track_io_res_load"].append(time.time() - begin)
+            else:
+                self.time_usage["track_io_res_load"].append(0)
 
             model_score = {self.metrics: abs(_score)}
         return model_score

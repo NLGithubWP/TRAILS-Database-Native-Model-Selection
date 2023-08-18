@@ -129,7 +129,8 @@ class ExpressFlowEvaluator(Evaluator):
 
         # Use the normalized trajectory lengths as weights for your total_sum
         total_sum = sum(
-            normalized_length * V.flatten().sum() * V.shape[1] for normalized_length, V in zip(normalized_lengths, Vs))
+            normalized_length * V.flatten().sum() * V.shape[1]
+            for normalized_length, V in zip(normalized_lengths, Vs))
         total_sum = total_sum.item()
 
         return total_sum
