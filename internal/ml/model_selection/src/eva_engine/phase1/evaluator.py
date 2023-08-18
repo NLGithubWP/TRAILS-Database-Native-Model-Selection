@@ -225,7 +225,7 @@ class P1Evaluator:
 
             if self.if_cuda_avaiable():
                 begin = time.time()
-                _score = _score.to("cpu")
+                _score = _score.item()
                 torch.cuda.synchronize()
                 self.time_usage["track_io_res_load"].append(time.time() - begin)
             else:
