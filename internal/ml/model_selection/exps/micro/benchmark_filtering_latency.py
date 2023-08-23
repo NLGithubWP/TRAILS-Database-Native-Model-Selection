@@ -6,6 +6,24 @@ from exps.shared_args import parse_arguments
 import torch
 from src.tools.res_measure import print_cpu_gpu_usage
 
+args = parse_arguments()
+
+# set the log name
+gmt = time.gmtime()
+ts = calendar.timegm(gmt)
+os.environ.setdefault("log_logger_folder_name", f"bm_filter_phase")
+os.environ.setdefault("log_file_name", f"bm_filter_{args.dataset}_{args.device}" + "_" + str(ts) + ".log")
+os.environ.setdefault("base_dir", args.base_dir)
+
+from src.common.structure import ModelAcquireData
+from src.controller.sampler_all.seq_sampler import SequenceSampler
+from src.eva_engine.phase1.evaluator import P1Evaluator
+from src.search_space.init_search_space import init_search_space
+from src.dataset_utils.structure_data_loader import libsvm_dataloader
+from src.tools.io_tools import write_json, read_json
+from src.dataset_utils import dataset
+from src.common.constant import Config
+
 
 def generate_data_loader():
     if args.dataset in [Config.c10, Config.c100, Config.imgNet]:
@@ -28,24 +46,6 @@ def generate_data_loader():
 
 
 if __name__ == "__main__":
-    args = parse_arguments()
-
-    # set the log name
-    gmt = time.gmtime()
-    ts = calendar.timegm(gmt)
-    os.environ.setdefault("log_logger_folder_name", f"{args.log_folder}")
-    os.environ.setdefault("log_file_name", args.log_name + "_" + str(ts) + ".log")
-    os.environ.setdefault("base_dir", args.base_dir)
-
-    from src.common.constant import Config
-    from src.common.structure import ModelAcquireData
-    from src.controller.sampler_all.seq_sampler import SequenceSampler
-    from src.eva_engine.phase1.evaluator import P1Evaluator
-    from src.search_space.init_search_space import init_search_space
-    from src.dataset_utils.structure_data_loader import libsvm_dataloader
-    from src.tools.io_tools import write_json, read_json
-    from src.dataset_utils import dataset
-    from src.common.constant import Config
 
     output_file = f"{args.result_dir}/score_{args.search_space}_{args.dataset}_batch_size_{args.batch_size}_{args.device}_{args.tfmem}.json"
     time_output_file = f"{args.result_dir}/time_score_{args.search_space}_{args.dataset}_batch_size_{args.batch_size}_{args.device}_{args.tfmem}.json"
