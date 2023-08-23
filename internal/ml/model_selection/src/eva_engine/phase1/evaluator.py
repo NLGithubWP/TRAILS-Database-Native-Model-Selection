@@ -14,6 +14,7 @@ import time
 from torch import nn
 from src.search_space.core.space import SpaceWrapper
 import gc
+import sys
 
 
 class P1Evaluator:
@@ -236,6 +237,8 @@ class P1Evaluator:
                 self.time_usage["track_io_res_load"].append(0)
 
             model_score = {self.metrics: abs(_score)}
+            # -1 because getrefcount itself creates a temporary reference
+            print("Count reference is", sys.getrefcount(new_model) - 1)
         return model_score
 
     def force_gc(self):
