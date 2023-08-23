@@ -197,6 +197,7 @@ class P1Evaluator:
                     if self.model_cache is None:
                         self.model_cache = new_model.embedding.to(self.device)
                 else:
+                    # init embedding every time created a new model
                     new_model.init_embedding()
 
             # self.explored_model.append(new_model)
@@ -285,6 +286,7 @@ class P1Evaluator:
         else:
             mini_batch = self.mini_batch
 
+        # wait for moving data to GPU
         if self.if_cuda_avaiable():
             torch.cuda.synchronize()
         self.processed_mini_batch = mini_batch
