@@ -111,9 +111,9 @@ if __name__ == "__main__":
         _evaluator.time_usage["compute_latency"] \
         / len(_evaluator.time_usage["track_compute"][2:])
 
-    # write_json(output_file, result)
+    write_json(output_file, result)
     # compute time
-    # write_json(time_output_file, _evaluator.time_usage)
+    write_json(time_output_file, _evaluator.time_usage)
 
     # Then, at the end of your program, you can stop the thread:
     print("Done, time sleep for 10 seconds")
