@@ -79,6 +79,7 @@ class P1Evaluator:
             "track_io_model_load": [],  # load model into GPU/CPU
             "track_io_res_load": [],    # load result into GPU/CPU
             "track_io_model_release_each_50": [],  # context switch
+            "track_io_model_release": [],  # context switch
             "track_io_data": [],  # context switch
         }
 
@@ -232,14 +233,29 @@ class P1Evaluator:
                 _score = _score.item()
                 torch.cuda.synchronize()
                 self.time_usage["track_io_res_load"].append(time.time() - begin)
+                # gc
+                begin = time.time()
+                del new_model
+                gc.collect()
+                torch.cuda.empty_cache()
+                torch.cuda.synchronize()
+                self.time_usage["track_io_model_release"].append(time.time() - begin)
+
             else:
                 _score = _score.item()
                 self.time_usage["track_io_res_load"].append(0)
 
             model_score = {self.metrics: abs(_score)}
-            # -1 because getrefcount itself creates a temporary reference
-            print("Count reference is", sys.getrefcount(new_model) - 1)
-            new_model = None
+
+            # import torch
+            # import gc
+            # for obj in gc.get_objects():
+            #     try:
+            #         if torch.is_tensor(obj) or (hasattr(obj, 'data') and torch.is_tensor(obj.data)):
+            #             print(type(obj), obj.size())
+            #     except:
+            #         pass
+
         return model_score
 
     def force_gc(self):
