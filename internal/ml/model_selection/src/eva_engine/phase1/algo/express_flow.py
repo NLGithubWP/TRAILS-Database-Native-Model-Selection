@@ -2,7 +2,7 @@ from src.eva_engine.phase1.algo.alg_base import Evaluator
 from src.eva_engine.phase1.utils.autograd_hacks import *
 from torch import nn
 from src.common.constant import Config
-
+from functools import partial
 
 class IntegratedHook:
     def __init__(self):
@@ -25,6 +25,7 @@ class IntegratedHook:
 
         # Register backward hook for gradient computation
         # output.register_hook(lambda grad: self.backward_hook(grad, module))
+        output.register_hook(partial(self.backward_hook, module=module))
 
     def backward_hook(self, grad, module):
         dz = grad  # gradient
@@ -43,6 +44,7 @@ class IntegratedHook:
         self.originals.clear()
         self.perturbations.clear()
         self.Vs.clear()
+        self.activation_map.clear()
 
 
 class ExpressFlowEvaluator(Evaluator):
