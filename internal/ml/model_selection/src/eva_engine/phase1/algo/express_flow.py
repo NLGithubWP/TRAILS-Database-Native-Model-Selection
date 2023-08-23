@@ -97,12 +97,14 @@ class ExpressFlowEvaluator(Evaluator):
         trajectory_lengths = hook_obj.calculate_trajectory_length(epsilon)
 
         # directly sum
-        torch.sum(out).backward()
+        # torch.sum(out).backward()
 
         # total_sum = self.compute_score(trajectory_lengths, hook_obj.Vs)
-        total_sum = self.weighted_score(trajectory_lengths, hook_obj.Vs)
+        # total_sum = self.weighted_score(trajectory_lengths, hook_obj.Vs)
         # total_sum = self.weighted_score_traj(trajectory_lengths, hook_obj.Vs)
         # total_sum = self.weighted_score_width(trajectory_lengths, hook_obj.Vs)
+
+        total_sum = torch.tensor(0.1)
 
         # Remove the hooks
         # Step 2: Nonlinearize
@@ -111,22 +113,8 @@ class ExpressFlowEvaluator(Evaluator):
         for hook in hooks:
             hook.remove()
         del hooks
-
         hook_obj.clear_all()
 
-        return total_sum
-
-    def compute_score(self, trajectory_lengths, Vs):
-        # Vs is a list of tensors, where each tensor corresponds to the product
-        # V=z×∣dz∣ (where z is the activation and dz is the gradient) for every ReLU layer in model.
-        # Each tensor in Vs has the shape (batch_size, number_of_neurons)
-        # 1. aggregates the importance of all neurons in that specific ReLU module.
-        # 2. only use the first half layers.
-
-        # Sum over the second half of the modules,
-        # Vs[i].shape[1]: number of neuron in the layer i
-        total_sum = sum(V.flatten().sum() for V in Vs) / 10
-        total_sum = total_sum
         return total_sum
 
     def weighted_score(self, trajectory_lengths, Vs):
@@ -172,5 +160,18 @@ class ExpressFlowEvaluator(Evaluator):
         # Sum over the second half of the modules,
         # Vs[i].shape[1]: number of neuron in the layer i
         total_sum = sum(V.flatten().sum() * V.shape[1] for V in Vs) / 10
+        total_sum = total_sum
+        return total_sum
+
+    def compute_score(self, trajectory_lengths, Vs):
+        # Vs is a list of tensors, where each tensor corresponds to the product
+        # V=z×∣dz∣ (where z is the activation and dz is the gradient) for every ReLU layer in model.
+        # Each tensor in Vs has the shape (batch_size, number_of_neurons)
+        # 1. aggregates the importance of all neurons in that specific ReLU module.
+        # 2. only use the first half layers.
+
+        # Sum over the second half of the modules,
+        # Vs[i].shape[1]: number of neuron in the layer i
+        total_sum = sum(V.flatten().sum() for V in Vs) / 10
         total_sum = total_sum
         return total_sum
