@@ -24,7 +24,7 @@ class IntegratedHook:
         self.activation_map[id(module)] = output
 
         # Register backward hook for gradient computation
-        output.register_hook(lambda grad: self.backward_hook(grad, module))
+        # output.register_hook(lambda grad: self.backward_hook(grad, module))
 
     def backward_hook(self, grad, module):
         dz = grad  # gradient
@@ -104,17 +104,16 @@ class ExpressFlowEvaluator(Evaluator):
         # total_sum = self.weighted_score_traj(trajectory_lengths, hook_obj.Vs)
         # total_sum = self.weighted_score_width(trajectory_lengths, hook_obj.Vs)
 
-        total_sum = torch.tensor(0.1)
-
-        # Remove the hooks
         # Step 2: Nonlinearize
         self.nonlinearize(arch, signs)
 
+        # Remove the hooks
         for hook in hooks:
             hook.remove()
         del hooks
         hook_obj.clear_all()
 
+        total_sum = torch.tensor(0.1)
         return total_sum
 
     def weighted_score(self, trajectory_lengths, Vs):
