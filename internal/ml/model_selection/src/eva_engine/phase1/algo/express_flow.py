@@ -42,6 +42,12 @@ class IntegratedHook:
                               zip(self.originals, self.perturbations)]
         return trajectory_lengths
 
+    def clear_all(self):
+        self.originals.clear()
+        self.perturbations.clear()
+        self.Vs.clear()
+        self.activation_map.clear()
+
 
 class ExpressFlowEvaluator(Evaluator):
 
@@ -105,7 +111,11 @@ class ExpressFlowEvaluator(Evaluator):
         # Step 2: Nonlinearize
         self.nonlinearize(arch, signs)
 
-        return total_sum
+        # Remove the hooks
+        for hook in hooks:
+            hook.remove()
+        del hooks
+        hook_obj.clear_all()
 
         return total_sum
 
