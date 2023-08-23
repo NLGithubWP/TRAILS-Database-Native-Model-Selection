@@ -4,6 +4,7 @@ from torch import nn
 from src.common.constant import Config
 from functools import partial
 
+
 class IntegratedHook:
     def __init__(self):
         self.originals = []
@@ -99,10 +100,10 @@ class ExpressFlowEvaluator(Evaluator):
         trajectory_lengths = hook_obj.calculate_trajectory_length(epsilon)
 
         # directly sum
-        # torch.sum(out).backward()
+        torch.sum(out).backward()
 
         # total_sum = self.compute_score(trajectory_lengths, hook_obj.Vs)
-        # total_sum = self.weighted_score(trajectory_lengths, hook_obj.Vs)
+        total_sum = self.weighted_score(trajectory_lengths, hook_obj.Vs)
         # total_sum = self.weighted_score_traj(trajectory_lengths, hook_obj.Vs)
         # total_sum = self.weighted_score_width(trajectory_lengths, hook_obj.Vs)
 
@@ -115,7 +116,7 @@ class ExpressFlowEvaluator(Evaluator):
         del hooks
         hook_obj.clear_all()
 
-        total_sum = torch.tensor(0.1)
+        # total_sum = torch.tensor(0.1)
         return total_sum
 
     def weighted_score(self, trajectory_lengths, Vs):
