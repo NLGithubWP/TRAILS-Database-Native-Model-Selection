@@ -52,8 +52,7 @@ class Evaluator:
             starter, ender = time.time(), time.time()
 
         # score
-        # score = self.evaluate(arch, device, batch_data, batch_labels, space_name)
-        score = torch.tensor(0.1)
+        score = self.evaluate(arch, device, batch_data, batch_labels, space_name)
 
         if "cuda" in device:
             # ender.record()
