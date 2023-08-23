@@ -1,7 +1,7 @@
 FROM ubuntu:20.04
 
 # Install Python, Vim, and necessary libraries
-RUN apt-get update && \
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
     apt-get install -y software-properties-common wget gnupg2 lsb-release git && \
     add-apt-repository ppa:deadsnakes/ppa && \
     apt-get install -y python3.6 python3-pip vim && \
