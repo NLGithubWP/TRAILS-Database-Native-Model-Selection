@@ -87,9 +87,6 @@ class P1Evaluator:
         self.enable_cache = enable_cache
         self.model_cache = None
 
-        # for gc
-        self.explored_model = []
-
     def if_cuda_avaiable(self):
         if "cuda" in self.device:
             return True
@@ -124,31 +121,31 @@ class P1Evaluator:
         print('FLOPs = ' + str(flops / 1000 ** 3) + 'G')
         print('Params = ' + str(params / 1000 ** 2) + 'M')
 
-    def _p1_evaluate_online(self, model_acquire: ModelAcquireData) -> dict:
+    # # 1. Score NasWot
+    # new_model = self.search_space_ins.new_arch_scratch_with_default_setting(model_encoding, bn=True)
+    # new_model = new_model.to(self.device)
+    # naswot_score, _ = evaluator_register[CommonVars.NAS_WOT].evaluate_wrapper(
+    #     arch=new_model,
+    #     device=self.device,
+    #     space_name = self.search_space_ins.name,
+    #     batch_data=self.mini_batch,
+    #     batch_labels=self.mini_batch_targets)
+    #
+    # # 2. Score SynFlow
+    # new_model = self.search_space_ins.new_arch_scratch_with_default_setting(model_encoding, bn=False)
+    # new_model = new_model.to(self.device)
+    # synflow_score, _ = evaluator_register[CommonVars.PRUNE_SYNFLOW].evaluate_wrapper(
+    #     arch=new_model,
+    #     device=self.device,
+    #     space_name = self.search_space_ins.name,
+    #     batch_data=self.mini_batch,
+    #     batch_labels=self.mini_batch_targets)
+    #
+    # # 3. combine the result and return
+    # model_score = {CommonVars.NAS_WOT: naswot_score,
+    #                CommonVars.PRUNE_SYNFLOW: synflow_score}
 
-        # # 1. Score NasWot
-        # new_model = self.search_space_ins.new_arch_scratch_with_default_setting(model_encoding, bn=True)
-        # new_model = new_model.to(self.device)
-        # naswot_score, _ = evaluator_register[CommonVars.NAS_WOT].evaluate_wrapper(
-        #     arch=new_model,
-        #     device=self.device,
-        #     space_name = self.search_space_ins.name,
-        #     batch_data=self.mini_batch,
-        #     batch_labels=self.mini_batch_targets)
-        #
-        # # 2. Score SynFlow
-        # new_model = self.search_space_ins.new_arch_scratch_with_default_setting(model_encoding, bn=False)
-        # new_model = new_model.to(self.device)
-        # synflow_score, _ = evaluator_register[CommonVars.PRUNE_SYNFLOW].evaluate_wrapper(
-        #     arch=new_model,
-        #     device=self.device,
-        #     space_name = self.search_space_ins.name,
-        #     batch_data=self.mini_batch,
-        #     batch_labels=self.mini_batch_targets)
-        #
-        # # 3. combine the result and return
-        # model_score = {CommonVars.NAS_WOT: naswot_score,
-        #                CommonVars.PRUNE_SYNFLOW: synflow_score}
+    def _p1_evaluate_online(self, model_acquire: ModelAcquireData) -> dict:
 
         model_encoding = model_acquire.model_encoding
         # score all tfmem
@@ -202,8 +199,6 @@ class P1Evaluator:
                     # init embedding every time created a new model
                     new_model.init_embedding()
 
-            # self.explored_model.append(new_model)
-
             self.time_usage["track_io_model_init"].append(time.time() - begin)
 
             if self.if_cuda_avaiable():
@@ -233,13 +228,6 @@ class P1Evaluator:
                 _score = _score.item()
                 torch.cuda.synchronize()
                 self.time_usage["track_io_res_load"].append(time.time() - begin)
-                # gc
-                # begin = time.time()
-                # del new_model
-                # gc.collect()
-                # torch.cuda.empty_cache()
-                # torch.cuda.synchronize()
-                # self.time_usage["track_io_model_release"].append(time.time() - begin)
 
             else:
                 _score = _score.item()
@@ -247,11 +235,6 @@ class P1Evaluator:
 
             model_score = {self.metrics: abs(_score)}
         return model_score
-
-    def force_gc(self):
-        self.explored_model.clear()
-        gc.collect()
-        print(" force gc ... ")
 
     def _p1_evaluate_simu_jacflow(self, model_acquire: ModelAcquireData) -> dict:
         """
