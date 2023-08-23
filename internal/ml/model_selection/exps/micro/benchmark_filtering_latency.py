@@ -93,6 +93,7 @@ if __name__ == "__main__":
             # clear the cache ever 50 models, to prevent the model overflow
             # todo: add those to other functiosn.
             if _evaluator.if_cuda_avaiable():
+                print("free memory!")
                 begin = time.time()
                 torch.cuda.empty_cache()
                 torch.cuda.synchronize()
