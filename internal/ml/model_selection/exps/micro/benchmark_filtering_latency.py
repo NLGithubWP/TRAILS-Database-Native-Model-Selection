@@ -91,17 +91,8 @@ if __name__ == "__main__":
         explored_n += 1
         result[arch_id] = model_score
         if explored_n % 50 == 0:
-            print("free memory!")
-            gc.collect()
-            # clear the cache ever 50 models, to prevent the model overflow
-            # todo: add those to other functiosn.
-            if _evaluator.if_cuda_avaiable():
-                begin = time.time()
-                torch.cuda.empty_cache()
-                torch.cuda.synchronize()
-                # _evaluator.time_usage["track_io_model_release_each_50"].append(time.time() - begin)
-                logger.info(f"Evaluate {explored_n} models")
-                print(f"Evaluate {explored_n} models")
+            logger.info(f"Evaluate {explored_n} models")
+            print(f"Evaluate {explored_n} models")
 
     if _evaluator.if_cuda_avaiable():
         torch.cuda.synchronize()
@@ -120,9 +111,9 @@ if __name__ == "__main__":
         _evaluator.time_usage["compute_latency"] \
         / len(_evaluator.time_usage["track_compute"][2:])
 
-    write_json(output_file, result)
+    # write_json(output_file, result)
     # compute time
-    write_json(time_output_file, _evaluator.time_usage)
+    # write_json(time_output_file, _evaluator.time_usage)
 
     # Then, at the end of your program, you can stop the thread:
     print("Done, time sleep for 10 seconds")
