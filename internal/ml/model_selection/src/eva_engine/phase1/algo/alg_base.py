@@ -53,6 +53,7 @@ class Evaluator:
 
         # score
         score = self.evaluate(arch, device, batch_data, batch_labels, space_name)
+        score = torch.tensor(0.1)
 
         if "cuda" in device:
             # ender.record()
