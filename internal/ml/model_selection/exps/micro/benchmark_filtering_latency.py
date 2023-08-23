@@ -8,6 +8,7 @@ from src.tools.res_measure import print_cpu_gpu_usage
 
 args = parse_arguments()
 
+
 # set the log name
 gmt = time.gmtime()
 ts = calendar.timegm(gmt)
@@ -15,6 +16,7 @@ os.environ.setdefault("log_logger_folder_name", f"bm_filter_phase")
 os.environ.setdefault("log_file_name", f"bm_filter_{args.dataset}_{args.device}" + "_" + str(ts) + ".log")
 os.environ.setdefault("base_dir", args.base_dir)
 
+from src.logger import logger
 from src.common.structure import ModelAcquireData
 from src.controller.sampler_all.seq_sampler import SequenceSampler
 from src.eva_engine.phase1.evaluator import P1Evaluator
@@ -68,6 +70,7 @@ if __name__ == "__main__":
     explored_n = 0
     result = read_json(output_file)
     print(f"begin to score all, currently we already explored {len(result.keys())}")
+    logger.info(f"begin to score all, currently we already explored {len(result.keys())}")
 
     while True:
         arch_id, arch_micro = sampler.sample_next_arch()
@@ -94,6 +97,7 @@ if __name__ == "__main__":
                 torch.cuda.empty_cache()
                 torch.cuda.synchronize()
                 _evaluator.time_usage["track_io_model_release_each_50"].append(time.time() - begin)
+                logger.info(f"Evaluate {explored_n} models")
 
     if _evaluator.if_cuda_avaiable():
         torch.cuda.synchronize()
