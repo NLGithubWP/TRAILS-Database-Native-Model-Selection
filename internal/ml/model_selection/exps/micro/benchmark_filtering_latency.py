@@ -99,8 +99,9 @@ if __name__ == "__main__":
                 begin = time.time()
                 torch.cuda.empty_cache()
                 torch.cuda.synchronize()
-                _evaluator.time_usage["track_io_model_release_each_50"].append(time.time() - begin)
+                # _evaluator.time_usage["track_io_model_release_each_50"].append(time.time() - begin)
                 logger.info(f"Evaluate {explored_n} models")
+                print(f"Evaluate {explored_n} models")
 
     if _evaluator.if_cuda_avaiable():
         torch.cuda.synchronize()
