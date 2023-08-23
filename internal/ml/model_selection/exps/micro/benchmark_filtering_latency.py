@@ -5,6 +5,7 @@ import time
 from exps.shared_args import parse_arguments
 import torch
 from src.tools.res_measure import print_cpu_gpu_usage
+import gc
 
 args = parse_arguments()
 
@@ -90,10 +91,11 @@ if __name__ == "__main__":
         explored_n += 1
         result[arch_id] = model_score
         if explored_n % 50 == 0:
+            print("free memory!")
+            gc.collect()
             # clear the cache ever 50 models, to prevent the model overflow
             # todo: add those to other functiosn.
             if _evaluator.if_cuda_avaiable():
-                print("free memory!")
                 begin = time.time()
                 torch.cuda.empty_cache()
                 torch.cuda.synchronize()
