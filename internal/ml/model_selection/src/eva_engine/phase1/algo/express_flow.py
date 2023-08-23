@@ -117,7 +117,6 @@ class ExpressFlowEvaluator(Evaluator):
         del hooks
         hook_obj.clear_all()
 
-        # total_sum = torch.tensor(0.1)
         return total_sum
 
     def weighted_score(self, trajectory_lengths, Vs):
