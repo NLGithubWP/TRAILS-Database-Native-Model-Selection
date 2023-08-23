@@ -103,6 +103,9 @@ class ExpressFlowEvaluator(Evaluator):
         # Step 2: Nonlinearize
         self.nonlinearize(arch, signs)
 
+        for hook in hooks:
+            hook.remove()
+
         return total_sum
 
     def compute_score(self, trajectory_lengths, Vs):
