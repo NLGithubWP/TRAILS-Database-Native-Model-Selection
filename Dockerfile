@@ -55,10 +55,5 @@ WORKDIR /project
 COPY ./internal/ml/model_selection/requirement.txt ./requirement.txt
 RUN pip install -r requirement.txt
 
-# Initialize PostgreSQL data directory
-RUN mkdir -p ${PGDATA} && chown -R postgres:postgres ${PGDATA} && \
-    service postgresql start && \
-    /usr/lib/postgresql/14/bin/initdb -D ${PGDATA}
-
-# CMD statement to start PostgreSQL when the container starts
-CMD service postgresql start && tail -F /var/log/postgresql/postgresql-14-main.log
+WORKDIR /project/TRAILS/internal/pg_extension
+CMD cargo pgrx run
