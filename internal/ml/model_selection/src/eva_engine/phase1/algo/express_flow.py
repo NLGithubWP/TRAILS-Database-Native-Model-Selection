@@ -25,6 +25,7 @@ class IntegratedHook:
         self.activation_map[id(module)] = output
 
         # Register backward hook for gradient computation
+        # todo: this will messed up the reference, result in the memory leak.
         # output.register_hook(lambda grad: self.backward_hook(grad, module))
         output.register_hook(partial(self.backward_hook, module=module))
 
