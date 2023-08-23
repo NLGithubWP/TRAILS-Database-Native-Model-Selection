@@ -219,13 +219,12 @@ class P1Evaluator:
             mini_batch = self.data_pre_processing(self.metrics, new_model)
             self.time_usage["track_io_data"].append(time.time() - begin)
 
-            # _score, compute_time = evaluator_register[self.metrics].evaluate_wrapper(
-            #     arch=new_model,
-            #     device=self.device,
-            #     space_name=self.search_space_ins.name,
-            #     batch_data=mini_batch,
-            #     batch_labels=self.mini_batch_targets)
-            _score, compute_time = torch.tensor(1.0), 10
+            _score, compute_time = evaluator_register[self.metrics].evaluate_wrapper(
+                arch=new_model,
+                device=self.device,
+                space_name=self.search_space_ins.name,
+                batch_data=mini_batch,
+                batch_labels=self.mini_batch_targets)
 
             self.time_usage["track_compute"].append(compute_time)
 
@@ -247,16 +246,6 @@ class P1Evaluator:
                 self.time_usage["track_io_res_load"].append(0)
 
             model_score = {self.metrics: abs(_score)}
-
-            # import torch
-            # import gc
-            # for obj in gc.get_objects():
-            #     try:
-            #         if torch.is_tensor(obj) or (hasattr(obj, 'data') and torch.is_tensor(obj.data)):
-            #             print(type(obj), obj.size())
-            #     except:
-            #         pass
-
         return model_score
 
     def force_gc(self):
