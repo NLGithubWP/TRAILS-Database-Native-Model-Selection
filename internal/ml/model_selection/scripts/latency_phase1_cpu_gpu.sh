@@ -60,7 +60,7 @@ python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py 
 
 # cifar 10
 python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py \
-  --tfmem=synflow \
+  --tfmem=express_flow \
   --models_explore=5000 \
   --search_space=nasbench201 \
   --api_loc=NAS-Bench-201-v1_1-096897.pth \
@@ -74,7 +74,7 @@ python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py 
 
 # cifar 100
 python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py \
-  --tfmem=synflow \
+  --tfmem=express_flow \
   --models_explore=5000 \
   --search_space=nasbench201 \
   --api_loc=NAS-Bench-201-v1_1-096897.pth \
@@ -88,7 +88,7 @@ python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py 
 
 # imageNet
 python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py \
-  --tfmem=synflow \
+  --tfmem=express_flow \
   --models_explore=5000 \
   --search_space=nasbench201 \
   --api_loc=NAS-Bench-201-v1_1-096897.pth \
@@ -159,7 +159,7 @@ python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py 
 
 # cifar 10
 python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py \
-  --tfmem=synflow \
+  --tfmem=express_flow \
   --models_explore=5000 \
   --search_space=nasbench201 \
   --api_loc=NAS-Bench-201-v1_1-096897.pth \
@@ -173,7 +173,7 @@ python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py 
 
 # cifar 100
 python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py \
-  --tfmem=synflow \
+  --tfmem=express_flow \
   --models_explore=5000 \
   --search_space=nasbench201 \
   --api_loc=NAS-Bench-201-v1_1-096897.pth \
@@ -187,7 +187,7 @@ python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py 
 
 # imageNet
 python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py \
-  --tfmem=synflow \
+  --tfmem=express_flow \
   --models_explore=5000 \
   --search_space=nasbench201 \
   --api_loc=NAS-Bench-201-v1_1-096897.pth \
