@@ -239,6 +239,7 @@ class P1Evaluator:
             model_score = {self.metrics: abs(_score)}
             # -1 because getrefcount itself creates a temporary reference
             print("Count reference is", sys.getrefcount(new_model) - 1)
+            new_model = None
         return model_score
 
     def force_gc(self):
