@@ -2,7 +2,7 @@ from src.eva_engine.phase1.algo.alg_base import Evaluator
 from src.eva_engine.phase1.utils.autograd_hacks import *
 from torch import nn
 from src.common.constant import Config
-
+from functools import partial
 
 class IntegratedHook:
     def __init__(self):
@@ -24,7 +24,8 @@ class IntegratedHook:
         self.activation_map[id(module)] = output
 
         # Register backward hook for gradient computation
-        output.register_hook(lambda grad: self.backward_hook(grad, module))
+        # output.register_hook(lambda grad: self.backward_hook(grad, module))
+        output.register_hook(partial(self.backward_hook, module=module))
 
     def backward_hook(self, grad, module):
         dz = grad  # gradient
@@ -38,6 +39,12 @@ class IntegratedHook:
         trajectory_lengths = [abs(x_perturbed - x).norm() / epsilon for x, x_perturbed in
                               zip(self.originals, self.perturbations)]
         return trajectory_lengths
+
+    def clear_all(self):
+        self.originals.clear()
+        self.perturbations.clear()
+        self.Vs.clear()
+        self.activation_map.clear()
 
 
 class ExpressFlowEvaluator(Evaluator):
@@ -92,30 +99,23 @@ class ExpressFlowEvaluator(Evaluator):
         trajectory_lengths = hook_obj.calculate_trajectory_length(epsilon)
 
         # directly sum
-        torch.sum(out).backward()
+        # torch.sum(out).backward()
 
         # total_sum = self.compute_score(trajectory_lengths, hook_obj.Vs)
-        total_sum = self.weighted_score(trajectory_lengths, hook_obj.Vs)
+        # total_sum = self.weighted_score(trajectory_lengths, hook_obj.Vs)
         # total_sum = self.weighted_score_traj(trajectory_lengths, hook_obj.Vs)
         # total_sum = self.weighted_score_width(trajectory_lengths, hook_obj.Vs)
 
-        # Remove the hooks
         # Step 2: Nonlinearize
         self.nonlinearize(arch, signs)
 
-        return total_sum
+        # Remove the hooks
+        for hook in hooks:
+            hook.remove()
+        del hooks
+        hook_obj.clear_all()
 
-    def compute_score(self, trajectory_lengths, Vs):
-        # Vs is a list of tensors, where each tensor corresponds to the product
-        # V=z×∣dz∣ (where z is the activation and dz is the gradient) for every ReLU layer in model.
-        # Each tensor in Vs has the shape (batch_size, number_of_neurons)
-        # 1. aggregates the importance of all neurons in that specific ReLU module.
-        # 2. only use the first half layers.
-
-        # Sum over the second half of the modules,
-        # Vs[i].shape[1]: number of neuron in the layer i
-        total_sum = sum(V.flatten().sum() for V in Vs) / 10
-        total_sum = total_sum
+        total_sum = torch.tensor(0.1)
         return total_sum
 
     def weighted_score(self, trajectory_lengths, Vs):
@@ -161,5 +161,18 @@ class ExpressFlowEvaluator(Evaluator):
         # Sum over the second half of the modules,
         # Vs[i].shape[1]: number of neuron in the layer i
         total_sum = sum(V.flatten().sum() * V.shape[1] for V in Vs) / 10
+        total_sum = total_sum
+        return total_sum
+
+    def compute_score(self, trajectory_lengths, Vs):
+        # Vs is a list of tensors, where each tensor corresponds to the product
+        # V=z×∣dz∣ (where z is the activation and dz is the gradient) for every ReLU layer in model.
+        # Each tensor in Vs has the shape (batch_size, number_of_neurons)
+        # 1. aggregates the importance of all neurons in that specific ReLU module.
+        # 2. only use the first half layers.
+
+        # Sum over the second half of the modules,
+        # Vs[i].shape[1]: number of neuron in the layer i
+        total_sum = sum(V.flatten().sum() for V in Vs) / 10
         total_sum = total_sum
         return total_sum

@@ -4,7 +4,16 @@ import gpustat
 import threading
 import time
 from src.tools.io_tools import write_json
+import sys
+import torch
 
+
+def get_variable_memory_size(obj):
+    # If it's a PyTorch tensor and on the GPU
+    if torch.is_tensor(obj) and obj.is_cuda:
+        return obj.element_size() * obj.nelement()
+    else:
+        return sys.getsizeof(obj)
 
 def print_cpu_gpu_usage(interval=1, output_file="path_to_folder", stop_event=None):
     def print_usage():

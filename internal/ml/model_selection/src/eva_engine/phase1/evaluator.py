@@ -14,6 +14,7 @@ import time
 from torch import nn
 from src.search_space.core.space import SpaceWrapper
 import gc
+import sys
 
 
 class P1Evaluator:
@@ -78,6 +79,7 @@ class P1Evaluator:
             "track_io_model_load": [],  # load model into GPU/CPU
             "track_io_res_load": [],    # load result into GPU/CPU
             "track_io_model_release_each_50": [],  # context switch
+            "track_io_model_release": [],  # context switch
             "track_io_data": [],  # context switch
         }
 
@@ -231,6 +233,14 @@ class P1Evaluator:
                 _score = _score.item()
                 torch.cuda.synchronize()
                 self.time_usage["track_io_res_load"].append(time.time() - begin)
+                # gc
+                # begin = time.time()
+                # del new_model
+                # gc.collect()
+                # torch.cuda.empty_cache()
+                # torch.cuda.synchronize()
+                # self.time_usage["track_io_model_release"].append(time.time() - begin)
+
             else:
                 _score = _score.item()
                 self.time_usage["track_io_res_load"].append(0)
