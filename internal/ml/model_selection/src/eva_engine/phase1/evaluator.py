@@ -234,12 +234,12 @@ class P1Evaluator:
                 torch.cuda.synchronize()
                 self.time_usage["track_io_res_load"].append(time.time() - begin)
                 # gc
-                begin = time.time()
-                del new_model
-                gc.collect()
-                torch.cuda.empty_cache()
-                torch.cuda.synchronize()
-                self.time_usage["track_io_model_release"].append(time.time() - begin)
+                # begin = time.time()
+                # del new_model
+                # gc.collect()
+                # torch.cuda.empty_cache()
+                # torch.cuda.synchronize()
+                # self.time_usage["track_io_model_release"].append(time.time() - begin)
 
             else:
                 _score = _score.item()
