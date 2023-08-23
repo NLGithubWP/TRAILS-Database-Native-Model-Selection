@@ -5,6 +5,7 @@ export PYTHONPATH=$PYTHONPATH:./internal/ml/model_selection
 
 # frappe
 python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py \
+  --embedding_cache_filtering=False \
   --tfmem=express_flow \
   --models_explore=5000 \
   --search_space=mlp_sp \
@@ -23,6 +24,7 @@ python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py 
 
 #criteo
 python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py \
+  --embedding_cache_filtering=False \
   --tfmem=express_flow \
   --models_explore=5000 \
   --search_space=mlp_sp \
@@ -41,6 +43,7 @@ python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py 
 
 # uci
 python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py \
+  --embedding_cache_filtering=False \
   --tfmem=express_flow \
   --models_explore=5000 \
   --search_space=mlp_sp \
@@ -60,6 +63,7 @@ python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py 
 
 # cifar 10
 python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py \
+  --embedding_cache_filtering=False \
   --tfmem=express_flow \
   --models_explore=5000 \
   --search_space=nasbench201 \
@@ -74,6 +78,7 @@ python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py 
 
 # cifar 100
 python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py \
+  --embedding_cache_filtering=False \
   --tfmem=express_flow \
   --models_explore=5000 \
   --search_space=nasbench201 \
@@ -88,6 +93,7 @@ python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py 
 
 # imageNet
 python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py \
+  --embedding_cache_filtering=False \
   --tfmem=express_flow \
   --models_explore=5000 \
   --search_space=nasbench201 \
@@ -104,6 +110,7 @@ python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py 
 
 # frappe
 python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py \
+  --embedding_cache_filtering=False \
   --tfmem=express_flow \
   --models_explore=5000 \
   --search_space=mlp_sp \
@@ -122,6 +129,7 @@ python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py 
 
 #criteo
 python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py \
+  --embedding_cache_filtering=False \
   --tfmem=express_flow \
   --models_explore=5000 \
   --search_space=mlp_sp \
@@ -140,6 +148,7 @@ python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py 
 
 # uci
 python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py \
+  --embedding_cache_filtering=False \
   --tfmem=express_flow \
   --models_explore=5000 \
   --search_space=mlp_sp \
@@ -159,6 +168,7 @@ python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py 
 
 # cifar 10
 python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py \
+  --embedding_cache_filtering=False \
   --tfmem=express_flow \
   --models_explore=5000 \
   --search_space=nasbench201 \
@@ -173,6 +183,7 @@ python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py 
 
 # cifar 100
 python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py \
+  --embedding_cache_filtering=False \
   --tfmem=express_flow \
   --models_explore=5000 \
   --search_space=nasbench201 \
@@ -187,6 +198,7 @@ python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py 
 
 # imageNet
 python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py \
+  --embedding_cache_filtering=False \
   --tfmem=express_flow \
   --models_explore=5000 \
   --search_space=nasbench201 \
