@@ -39,6 +39,11 @@ class IntegratedHook:
                               zip(self.originals, self.perturbations)]
         return trajectory_lengths
 
+    def clear_all(self):
+        self.originals.clear()
+        self.perturbations.clear()
+        self.Vs.clear()
+
 
 class ExpressFlowEvaluator(Evaluator):
 
@@ -105,6 +110,9 @@ class ExpressFlowEvaluator(Evaluator):
 
         for hook in hooks:
             hook.remove()
+        del hooks
+
+        hook_obj.clear_all()
 
         return total_sum
 
