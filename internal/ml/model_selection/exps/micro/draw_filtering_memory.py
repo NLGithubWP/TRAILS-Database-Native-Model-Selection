@@ -6,6 +6,7 @@ from exps.draw_tab_lib import export_legend
 
 # Set your plot parameters
 bar_width = 0.25
+linewidth=2.5
 opacity = 0.8
 set_font_size = 15  # Set the font size
 set_lgend_size = 15
@@ -86,7 +87,7 @@ def plot_memory_usage(params, interval=0.5):
         gpu_mem_device_0 = gpu_mem_device_0[break_point:]
         # Create a time list
         times = [interval * i for i in range(len(gpu_mem_device_0))]
-        ax_gpu.plot(times, gpu_mem_device_0, label=dataset_name, linestyle=line_styles[idx % len(line_styles)])
+        ax_gpu.plot(times, gpu_mem_device_0, label=dataset_name, linestyle=line_styles[idx % len(line_styles)], linewidth=linewidth)
     ax_gpu.set_ylabel('Memory (MB)', fontsize=set_font_size)
     ax_gpu.legend()
     ax_gpu.set_xticklabels([])  # Hide the x-axis labels for the top plot
@@ -104,7 +105,7 @@ def plot_memory_usage(params, interval=0.5):
         memory_usage = metrics['memory_usage']
         # Create a time list
         times = [interval * i for i in range(len(memory_usage))]
-        ax_cpu.plot(times, memory_usage, label=dataset_name, linestyle=line_styles[idx % len(line_styles)])
+        ax_cpu.plot(times, memory_usage, label=dataset_name, linestyle=line_styles[idx % len(line_styles)], linewidth=linewidth)
 
     ax_cpu.set_ylabel('Memory (MB)', fontsize=set_font_size)
     ax_cpu.set_xlabel('Time (Seconds)', fontsize=set_font_size)
