@@ -10,9 +10,9 @@ datasets_cpu = {
                            '/time_score_mlp_sp_frappe_batch_size_32_cpu_express_flow.json'},
 
     'Diabete': {'cache': './internal/ml/model_selection/exp_result_sever_filtering_cache/'
-                          '/time_score_mlp_sp_uci_diabetes_batch_size_32_cpu_express_flow.json',
-                 'no_cache': './internal/ml/model_selection/exp_result_sever/'
-                             '/time_score_mlp_sp_uci_diabetes_batch_size_32_cpu_express_flow.json'},
+                         '/time_score_mlp_sp_uci_diabetes_batch_size_32_cpu_express_flow.json',
+                'no_cache': './internal/ml/model_selection/exp_result_sever/'
+                            '/time_score_mlp_sp_uci_diabetes_batch_size_32_cpu_express_flow.json'},
 
     'Criteo': {'cache': './internal/ml/model_selection/exp_result_sever_filtering_cache/'
                         '/time_score_mlp_sp_criteo_batch_size_32_cpu_express_flow.json',
@@ -31,7 +31,7 @@ set_lgend_size = 15
 set_tick_size = 20
 cpu_colors = ['#729ECE', '#FFB579', '#E74C3C', '#2ECC71', '#3498DB', '#F39C12', '#8E44AD', '#C0392B']
 gpu_colors = ['#98DF8A', '#D62728', '#1ABC9C', '#9B59B6', '#34495E', '#16A085', '#27AE60', '#2980B9']
-hatches = ['/', '\\', 'x', 'o', 'O', '.', '*', '//', '\\\\',  'xx', 'oo', 'OO', '..', '**']
+hatches = ['/', '\\', 'x', 'o', 'O', '.', '*', '//', '\\\\', 'xx', 'oo', 'OO', '..', '**']
 
 # Load your datasets
 datasets = dict(list(datasets_cpu.items()))
