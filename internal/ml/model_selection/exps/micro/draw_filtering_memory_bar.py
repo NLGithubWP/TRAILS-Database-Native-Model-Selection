@@ -88,11 +88,11 @@ for dataset in datasets:
     cpu_data = load_data(datasets_wo_cache[dataset]['cpu'])
     mem_host_cpu = cpu_data['memory_usage']
 
-    # Appending averages or total, based on what you need
-    gpu_totals.append(np.mean(total_memory_usage_gpu))
-    gpu_mem_device.append(np.mean(gpu_mem_device_0))
-    gpu_mem_host.append(np.mean(mem_host_gpu))
-    cpu_totals.append(np.mean(mem_host_cpu))
+    # Appending pick memory usage
+    gpu_totals.append(max(total_memory_usage_gpu))
+    gpu_mem_device.append(max(gpu_mem_device_0))
+    gpu_mem_host.append(max(mem_host_gpu))
+    cpu_totals.append(max(mem_host_cpu))
 
 # Plotting
 fig, ax = plt.subplots(figsize=(6.4, 4.5))
@@ -100,10 +100,11 @@ fig, ax = plt.subplots(figsize=(6.4, 4.5))
 index = np.arange(len(datasets))
 
 # Left bar - GPU total memory usage split into GPU memory and host memory
-ax.bar(index - bar_width / 2, gpu_mem_device, bar_width, color=gpu_colors, hatch=hatches[0],
-       label='(GPU) GPU Memory', edgecolor='black')
-ax.bar(index - bar_width / 2, gpu_mem_host, bar_width, color=gpu_memory_colors, hatch=hatches[1], bottom=gpu_mem_device,
+ax.bar(index - bar_width / 2, gpu_mem_host, bar_width, color=gpu_colors, hatch=hatches[0],
        label='(GPU) Host Memory', edgecolor='black')
+ax.bar(index - bar_width / 2, gpu_mem_device, bar_width, color=gpu_memory_colors, hatch=hatches[1],
+       bottom=gpu_mem_host,
+       label='(GPU) GPU Memory', edgecolor='black')
 
 # Right bar - CPU host memory
 ax.bar(index + bar_width / 2, cpu_totals, bar_width, color=cpu_colors, hatch=hatches[2],
@@ -111,7 +112,7 @@ ax.bar(index + bar_width / 2, cpu_totals, bar_width, color=cpu_colors, hatch=hat
 
 ax.set_ylabel('Memory (MB)', fontsize=set_font_size)
 ax.set_xticks(index)
-ax.set_yscale('symlog')  # Set y-axis to logarithmic scale
+# ax.set_yscale('symlog')  # Set y-axis to logarithmic scale
 ax.set_xticklabels(datasets, rotation=0, fontsize=set_font_size)
 ax.legend(fontsize=set_lgend_size)
 
