@@ -54,7 +54,6 @@ def plot_memory_usage(params, interval=0.5):
         gpu_mem_device_0 = gpu_mem_device_0[break_point:]
         # Create a time list
         times = [interval * i for i in range(len(gpu_mem_device_0))]
-        # plt.plot(times, metrics['memory_usage'], label='CPU Memory Usage (MB))
         plt.plot(times, gpu_mem_device_0, label=dataset_name)
 
     plt.xlabel('Time (Seconds)', fontsize=set_font_size)
