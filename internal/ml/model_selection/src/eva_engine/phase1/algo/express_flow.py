@@ -112,10 +112,10 @@ class ExpressFlowEvaluator(Evaluator):
         self.nonlinearize(arch, signs)
 
         # Remove the hooks
-        for hook in hooks:
-            hook.remove()
-        del hooks
-        hook_obj.clear_all()
+        # for hook in hooks:
+        #     hook.remove()
+        # del hooks
+        # hook_obj.clear_all()
 
         return total_sum
 
