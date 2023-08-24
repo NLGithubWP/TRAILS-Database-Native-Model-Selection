@@ -2,6 +2,7 @@ from src.tools.io_tools import read_json
 import matplotlib.pyplot as plt
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
+from exps.draw_tab_lib import export_legend
 
 # Set your plot parameters
 bar_width = 0.25
@@ -70,13 +71,6 @@ def plot_memory_usage(params, interval=0.5):
 
     # 1. first plot
     ax_gpu = fig.add_subplot(gs[0])
-    ax_gpu.set_ylabel('Memory Usage (MB)', fontsize=set_font_size)
-    ax_gpu.legend()
-    ax_gpu.set_xticklabels([])  # Hide the x-axis labels for the top plot
-    ax_gpu.tick_params(axis='both', which='major', labelsize=set_tick_size)
-    ax_gpu.set_xscale("symlog")
-    ax_gpu.grid(True)
-
     for dataset_name, value in params.items():
         metrics = read_json(params[dataset_name]["gpu"])
         # Extract GPU memory usage for device 0
@@ -91,17 +85,17 @@ def plot_memory_usage(params, interval=0.5):
         # Create a time list
         times = [interval * i for i in range(len(gpu_mem_device_0))]
         ax_gpu.plot(times, gpu_mem_device_0, label=dataset_name)
+    ax_gpu.set_ylabel('Memory (MB)', fontsize=set_font_size)
+    ax_gpu.legend()
+    ax_gpu.set_xticklabels([])  # Hide the x-axis labels for the top plot
+    ax_gpu.tick_params(axis='both', which='major', labelsize=set_tick_size)
+    ax_gpu.set_xscale("symlog")
+    ax_gpu.set_yscale("symlog")
+    ax_gpu.grid(True)
+    ax_gpu.set_ylim(10, None)
 
     # 2. second plot
     ax_cpu = fig.add_subplot(gs[1], sharex=ax_gpu)
-    ax_cpu.set_ylabel('Memory Usage (MB)', fontsize=set_font_size)
-    ax_cpu.set_xlabel('Time (Seconds)', fontsize=set_font_size)
-    ax_cpu.legend(fontsize=set_lgend_size)
-    # Setting features for ax2
-    ax_cpu.tick_params(axis='both', which='major', labelsize=set_tick_size)
-    ax_cpu.set_xscale("symlog")
-    ax_cpu.grid(True)
-
     for dataset_name, value in params.items():
         metrics = read_json(params[dataset_name]["cpu"])
         # Extract GPU memory usage for device 0
@@ -109,8 +103,19 @@ def plot_memory_usage(params, interval=0.5):
         # Create a time list
         times = [interval * i for i in range(len(memory_usage))]
         ax_cpu.plot(times, memory_usage, label=dataset_name)
+    ax_cpu.set_ylabel('Memory (MB)', fontsize=set_font_size)
+    ax_cpu.set_xlabel('Time (Seconds)', fontsize=set_font_size)
+    ax_cpu.legend()
+    # Setting features for ax2
+    ax_cpu.tick_params(axis='both', which='major', labelsize=set_tick_size)
+    ax_cpu.set_xscale("symlog")
+    ax_cpu.set_yscale("symlog")
+    ax_cpu.grid(True)
+    ax_cpu.set_ylim(10, None)
 
-    # plt.show()
+    # global setting
+    export_legend(fig)
+
     print(f"saving to ./internal/ml/model_selection/exp_result/filter_latency_memory.pdf")
     fig.savefig(f"./internal/ml/model_selection/exp_result/filter_latency_memory.pdf",
                 bbox_inches='tight')
