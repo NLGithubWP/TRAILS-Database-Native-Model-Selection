@@ -56,7 +56,7 @@ def plot_memory_usage(params, interval=0.5):
     plt.tight_layout()
     plt.grid(True)
     # plt.show()
-    print(f"saving to ./internal/ml/model_selection/exp_result/filter_latency_memory.pdf")
+    print(f"saving to ./internal/ml/model_selection/exp_result/filter_latency_memory_cache.pdf")
     fig.savefig(f"./internal/ml/model_selection/exp_result/filter_latency_memory_cache.pdf",
                 bbox_inches='tight')
 
