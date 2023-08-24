@@ -1,5 +1,13 @@
 
 
+# PSQL cmd
+
+```sql
+psql -h localhost -p 5432 -U postgres -d [DATABASE_NAME]
+
+psql -U postgres
+```
+
 # Build and run the container
 
 ```bash
@@ -144,7 +152,7 @@ $$;
 SELECT test_numpy();
 
 CREATE EXTENSION my_extension;
-SELECT hello_my_extension();=
+SELECT hello_my_extension();
 ```
 
 # Container log
@@ -190,6 +198,31 @@ Each line in your output represents a different process that is currently runnin
 13.  `ps aux` : This is the command you ran to display the list of processes.
 
 Each process is part of the PostgreSQL database system and helps it to run efficiently and robustly.
+
+
+
+
+
+# What cargo run do?
+
+Before:
+
+```
+postgres     1  0.1  0.0   2612   588 ?        Ss   14:30   0:00 /bin/sh -c service postgresql start && tail -F /var/log/postgresql/postgresql-14-main.log
+postgres    20  0.1  0.0 214688 29332 ?        Ss   14:30   0:00 /usr/lib/postgresql/14/bin/postgres -D /var/lib/postgresql/14/main -c config_file=/etc/postgresql/14/main/postgresql.conf
+postgres    22  0.0  0.0 214688  6120 ?        Ss   14:30   0:00 postgres: 14/main: checkpointer 
+postgres    23  0.0  0.0 214688  6084 ?        Ss   14:30   0:00 postgres: 14/main: background writer 
+postgres    24  0.0  0.0 214688 10352 ?        Ss   14:30   0:00 postgres: 14/main: walwriter 
+postgres    25  0.0  0.0 215224  8864 ?        Ss   14:30   0:00 postgres: 14/main: autovacuum launcher 
+postgres    26  0.0  0.0  69280  5184 ?        Ss   14:30   0:00 postgres: 14/main: stats collector 
+postgres    27  0.0  0.0 215236  6972 ?        Ss   14:30   0:00 postgres: 14/main: logical replication launcher 
+postgres    38  0.0  0.0   2548   512 ?        S    14:30   0:00 tail -F /var/log/postgresql/postgresql-14-main.log
+postgres    39  0.1  0.0   4112  3424 pts/0    Ss+  14:30   0:00 bash
+postgres    48  0.1  0.0   4112  3424 pts/1    Ss   14:30   0:00 bash
+postgres    59  0.0  0.0   5896  2860 pts/1    R+   14:30   0:00 ps aux
+```
+
+After:
 
 
 
