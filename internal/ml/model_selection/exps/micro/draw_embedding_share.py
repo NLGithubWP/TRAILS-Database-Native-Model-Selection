@@ -4,21 +4,21 @@ import numpy as np
 
 # Assume these are the names and corresponding JSON files of your datasets
 datasets_cpu = {
-    'frappe': {'cache': './internal/ml/model_selection/exp_result_sever_filtering_cache/exp_filter_cache'
-                        '/time_score_mlp_sp_frappe_batch_size_32_cpu.json',
-               'no_cache': './internal/ml/model_selection/exp_result_sever/exp_result'
-                           '/time_score_mlp_sp_frappe_batch_size_32_cpu.json'},
+    'Frappe': {'cache': './internal/ml/model_selection/exp_result_sever_filtering_cache/'
+                        '/time_score_mlp_sp_frappe_batch_size_32_cpu_express_flow.json',
+               'no_cache': './internal/ml/model_selection/exp_result_sever/'
+                           '/time_score_mlp_sp_frappe_batch_size_32_cpu_express_flow.json'},
 
-    'diabetes': {'cache': './internal/ml/model_selection/exp_result_sever_filtering_cache/exp_filter_cache'
-                          '/time_score_mlp_sp_uci_diabetes_batch_size_32_cpu.json',
-                 'no_cache': './internal/ml/model_selection/exp_result_sever/exp_result'
-                             '/time_score_mlp_sp_uci_diabetes_batch_size_32_cpu.json'},
+    'Diabete': {'cache': './internal/ml/model_selection/exp_result_sever_filtering_cache/'
+                         '/time_score_mlp_sp_uci_diabetes_batch_size_32_cpu_express_flow.json',
+                'no_cache': './internal/ml/model_selection/exp_result_sever/'
+                            '/time_score_mlp_sp_uci_diabetes_batch_size_32_cpu_express_flow.json'},
 
-    'criteo': {'cache': './internal/ml/model_selection/exp_result_sever_filtering_cache/exp_filter_cache'
-                        '/time_score_mlp_sp_criteo_batch_size_32_cpu.json',
+    'Criteo': {'cache': './internal/ml/model_selection/exp_result_sever_filtering_cache/'
+                        '/time_score_mlp_sp_criteo_batch_size_32_cpu_express_flow.json',
 
-               'no_cache': './internal/ml/model_selection/exp_result_sever/exp_result'
-                           '/time_score_mlp_sp_criteo_batch_size_32_cpu.json'
+               'no_cache': './internal/ml/model_selection/exp_result_sever/'
+                           '/time_score_mlp_sp_criteo_batch_size_32_cpu_express_flow.json'
                },
 
 }
@@ -31,7 +31,7 @@ set_lgend_size = 15
 set_tick_size = 20
 cpu_colors = ['#729ECE', '#FFB579', '#E74C3C', '#2ECC71', '#3498DB', '#F39C12', '#8E44AD', '#C0392B']
 gpu_colors = ['#98DF8A', '#D62728', '#1ABC9C', '#9B59B6', '#34495E', '#16A085', '#27AE60', '#2980B9']
-hatches = ['/', '\\', 'x', 'o', 'O', '.', '*', '//', '\\\\',  'xx', 'oo', 'OO', '..', '**']
+hatches = ['/', '\\', 'x', 'o', 'O', '.', '*', '//', '\\\\', 'xx', 'oo', 'OO', '..', '**']
 
 # Load your datasets
 datasets = dict(list(datasets_cpu.items()))
@@ -78,8 +78,7 @@ ax.set_ylabel('Latency (s)', fontsize=set_font_size)
 ax.legend(fontsize=set_lgend_size, loc='upper left', ncol=1)
 ax.tick_params(axis='both', which='major', labelsize=set_tick_size)
 plt.tight_layout()
-plt.show()
 
 # Save the plot
-fig.savefig(f"./internal/ml/model_selection/exp_result_sever/exp_result/embedding_cache.pdf",
+fig.savefig(f"./internal/ml/model_selection/exp_result_sever/embedding_cache.pdf",
             bbox_inches='tight')

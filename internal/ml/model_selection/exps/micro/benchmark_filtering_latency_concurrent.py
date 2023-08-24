@@ -20,7 +20,6 @@ os.environ.setdefault("log_logger_folder_name", f"{args.log_folder}")
 os.environ.setdefault("log_file_name", args.log_name + "_" + str(ts) + ".log")
 os.environ.setdefault("base_dir", args.base_dir)
 
-from src.common.constant import Config
 from src.common.structure import ModelAcquireData
 from src.controller.sampler_all.seq_sampler import SequenceSampler
 from src.search_space.init_search_space import init_search_space
@@ -53,13 +52,13 @@ def generate_data_loader():
 
 
 # define func here for import
-def evaluate_model(arch: nn.Module,
-                   args: argparse,
-                   search_space_ins: SpaceWrapper,
-                   _evaluator: ConcurrentP1Evaluator,
-                   explored_n: int,
-                   result: List):
-
+def evaluate_model(
+        arch: nn.Module,
+        args: argparse,
+        search_space_ins: SpaceWrapper,
+        _evaluator: ConcurrentP1Evaluator,
+        explored_n: int,
+        result: List):
     arch_id, arch_micro = arch
     if arch_id in result:
         return None
@@ -113,9 +112,10 @@ if __name__ == "__main__":
     with Pool(processes=args.concurrency) as pool:
         archs_to_evaluate = [sampler.sample_next_arch() for _ in range(args.models_explore)]
         total_to_evaluate = len(archs_to_evaluate)
-        for i, res in enumerate(pool.starmap(evaluate_model,
-                                             [(arch, args, search_space_ins, _evaluator, explored_n, result) for arch in
-                                              archs_to_evaluate])):
+        for i, res in enumerate(pool.starmap(
+                evaluate_model,
+                [(arch, args, search_space_ins, _evaluator, explored_n, result)
+                 for arch in archs_to_evaluate])):
             if i % 100 == 0:
                 print(f"Progress: {i}/{total_to_evaluate}")
             if res is not None:

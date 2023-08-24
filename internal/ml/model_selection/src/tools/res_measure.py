@@ -15,6 +15,7 @@ def get_variable_memory_size(obj):
     else:
         return sys.getsizeof(obj)
 
+
 def print_cpu_gpu_usage(interval=1, output_file="path_to_folder", stop_event=None):
     def print_usage():
         print("Starting to print usage")  # Debugging print
@@ -27,6 +28,7 @@ def print_cpu_gpu_usage(interval=1, output_file="path_to_folder", stop_event=Non
         while not stop_event.is_set():
             cpu_percent = 0
             mem_usage_mb = 0
+            main_process.cpu_percent()
             for process in main_process.children(recursive=True):  # Include all child processes
                 try:
                     cpu_percent += process.cpu_percent()
@@ -34,6 +36,8 @@ def print_cpu_gpu_usage(interval=1, output_file="path_to_folder", stop_event=Non
                 except psutil.NoSuchProcess:
                     # Process does not exist, so add 0 to cpu_percent and mem_usage_mb
                     pass
+            cpu_percent += main_process.cpu_percent()
+            mem_usage_mb += main_process.memory_info().rss / (1024 ** 2)
 
             metrics['cpu_usage'].append(cpu_percent)
             metrics['memory_usage'].append(mem_usage_mb)
@@ -54,6 +58,7 @@ def print_cpu_gpu_usage(interval=1, output_file="path_to_folder", stop_event=Non
 
         print("Stop monitering, flust to disk")
         write_json(output_file, metrics)
+
     stop_event = stop_event or threading.Event()
     thread = threading.Thread(target=print_usage)
     thread.start()

@@ -150,9 +150,12 @@ Clearly, K/N reaches 100 yields better scheduling result in both image and tabul
    nohup bash internal/ml/model_selection/scripts/latency_phase1_cpu_gpu.sh &
    # with embedding cache at the filtering phase (faster)
    nohup bash internal/ml/model_selection/scripts/latency_embedding_cache.sh &
+   # draw graph
+   python ./internal/ml/model_selection/exps/micro/draw_filtering_latency.py
+   python ./internal/ml/model_selection/exps/micro/draw_filtering_memory.py
    ```
 
-   ![image-20230801173120574](./documents/imgs/image-20230801173120574.png)
+   ![image-20230818154905018](documents/imgs/image-20230818154905018.png)
 
 2. Further we measure the end-2-end latency under two CPU, GPU, and Hybrid. 
 
