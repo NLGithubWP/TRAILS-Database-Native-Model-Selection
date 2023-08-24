@@ -78,8 +78,7 @@ ax.set_ylabel('Latency (s)', fontsize=set_font_size)
 ax.legend(fontsize=set_lgend_size, loc='upper left', ncol=1)
 ax.tick_params(axis='both', which='major', labelsize=set_tick_size)
 plt.tight_layout()
-plt.show()
 
 # Save the plot
-fig.savefig(f"./internal/ml/model_selection/exp_result_sever/exp_result_sever/embedding_cache.pdf",
+fig.savefig(f"./internal/ml/model_selection/exp_result_sever/embedding_cache.pdf",
             bbox_inches='tight')
