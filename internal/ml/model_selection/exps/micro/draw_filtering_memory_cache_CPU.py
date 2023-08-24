@@ -52,7 +52,7 @@ def plot_memory_usage(params, interval=0.5):
 
     fig = plt.figure(figsize=(6.4, 4.5))
     # Adjust the space between
-    fig.subplots_adjust(hspace=0.3)
+    fig.subplots_adjust(hspace=0.25)
 
     line_idx = 0
     # 1. first plot
