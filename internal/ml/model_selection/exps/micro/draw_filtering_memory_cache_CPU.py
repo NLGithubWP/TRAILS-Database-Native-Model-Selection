@@ -16,21 +16,20 @@ hatches = ['/', '\\', 'x', 'o', 'O', '.', '*', '//', '\\\\', 'xx', 'oo', 'OO', '
 datasets_wo_cache = {
     'frappe': {
         'with_cache': './internal/ml/model_selection/exp_result_sever_filtering_cache'
-                 '/resource_score_mlp_sp_frappe_batch_size_32_cpu_express_flow.json',
-        'wo_cache': './internal/ml/model_selection/exp_result_sever'
-                    '/resource_score_mlp_sp_frappe_batch_size_32_cpu_express_flow.json'
-    },
+                      '/resource_score_mlp_sp_frappe_batch_size_32_cpu_express_flow.json',
+        'wo_cache': './internal/ml/model_selection/exp_result_sever_wo_cache'
+                    '/resource_score_mlp_sp_frappe_batch_size_32_cpu_express_flow.json'},
 
     'diabetes': {
         'cache': './internal/ml/model_selection/exp_result_sever_filtering_cache'
                  '/resource_score_mlp_sp_uci_diabetes_batch_size_32_cpu_express_flow.json',
-        'wo_cache': './internal/ml/model_selection/exp_result_sever'
+        'wo_cache': './internal/ml/model_selection/exp_result_sever_wo_cache'
                     '/resource_score_mlp_sp_uci_diabetes_batch_size_32_cpu_express_flow.json'},
 
     'criteo': {
         'cache': './internal/ml/model_selection/exp_result_sever_filtering_cache'
                  '/resource_score_mlp_sp_criteo_batch_size_32_cpu_express_flow.json',
-        'wo_cache': './internal/ml/model_selection/exp_result_sever'
+        'wo_cache': './internal/ml/model_selection/exp_result_sever_wo_cache'
                     '/resource_score_mlp_sp_criteo_batch_size_32_cpu_express_flow.json'}
 }
 
@@ -57,7 +56,7 @@ def plot_memory_usage(params, interval=0.5):
     plt.tight_layout()
     plt.grid(True)
     # plt.show()
-    print(f"saving to ./internal/ml/model_selection/exp_result_sever/filter_latency_memory.pdf")
+    print(f"saving to ./internal/ml/model_selection/exp_result_sever_wo_cache/filter_latency_memory.pdf")
     fig.savefig(f"./internal/ml/model_selection/exp_result_sever/filter_latency_memory_cache.pdf",
                 bbox_inches='tight')
 
