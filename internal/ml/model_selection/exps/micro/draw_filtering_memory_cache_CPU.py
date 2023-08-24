@@ -16,7 +16,7 @@ thousands_format = FuncFormatter(thousands_formatter)
 # Set your plot parameters
 bar_width = 0.25
 opacity = 0.8
-set_font_size = 20  # Set the font size
+set_font_size = 15  # Set the font size
 set_lgend_size = 15
 set_tick_size = 15
 cpu_colors = ['#729ECE', '#FFB579', '#E74C3C', '#2ECC71', '#3498DB', '#F39C12', '#8E44AD', '#C0392B']
