@@ -6,7 +6,7 @@ bar_width = 0.25
 opacity = 0.8
 set_font_size = 20  # Set the font size
 set_lgend_size = 15
-set_tick_size = 12
+set_tick_size = 15
 cpu_colors = ['#729ECE', '#FFB579', '#E74C3C', '#2ECC71', '#3498DB', '#F39C12', '#8E44AD', '#C0392B']
 gpu_colors = ['#98DF8A', '#D62728', '#1ABC9C', '#9B59B6', '#34495E', '#16A085', '#27AE60', '#2980B9']
 hatches = ['/', '\\', 'x', 'o', 'O', '.', '*', '//', '\\\\', 'xx', 'oo', 'OO', '..', '**']
@@ -57,8 +57,8 @@ def plot_memory_usage(params, interval=0.5):
         # plt.plot(times, metrics['memory_usage'], label='CPU Memory Usage (MB))
         plt.plot(times, gpu_mem_device_0, label=dataset_name)
 
-    plt.xlabel('Time (seconds)', fontsize=set_tick_size+5)
-    plt.ylabel('GPU Memory Usage (MB)', fontsize=set_tick_size+5)
+    plt.xlabel('Time (Seconds)', fontsize=set_font_size)
+    plt.ylabel('GPU Memory Usage (MB)', fontsize=set_font_size)
     plt.legend(fontsize=set_lgend_size)
 
     # Set tick size
