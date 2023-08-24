@@ -72,7 +72,11 @@ class ExpressFlowEvaluator(Evaluator):
                  space_name: str) -> float:
 
         # Step 1: Linearize
-        signs = self.linearize(arch)
+        if space_name == Config.MLPSP:
+            signs = self.linearize(arch.mlp)
+        else:
+            signs = self.linearize(arch)
+
         arch.double()
 
         hook_obj = IntegratedHook()
@@ -109,7 +113,10 @@ class ExpressFlowEvaluator(Evaluator):
         # total_sum = self.weighted_score_width(trajectory_lengths, hook_obj.Vs)
 
         # Step 2: Nonlinearize
-        self.nonlinearize(arch, signs)
+        if space_name == Config.MLPSP:
+            self.nonlinearize(arch.mlp, signs)
+        else:
+            self.nonlinearize(arch, signs)
 
         # Remove the hooks
         for hook in hooks:
