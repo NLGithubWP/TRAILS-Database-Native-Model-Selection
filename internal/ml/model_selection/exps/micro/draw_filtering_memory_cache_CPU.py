@@ -22,7 +22,6 @@ set_tick_size = 15
 cpu_colors = ['#729ECE', '#FFB579', '#E74C3C', '#2ECC71', '#3498DB', '#F39C12', '#8E44AD', '#C0392B']
 gpu_colors = ['#98DF8A', '#D62728', '#1ABC9C', '#9B59B6', '#34495E', '#16A085', '#27AE60', '#2980B9']
 hatches = ['/', '\\', 'x', 'o', 'O', '.', '*', '//', '\\\\', 'xx', 'oo', 'OO', '..', '**']
-# hatches = ['', '', '', '', '']
 
 # Assume these are the names and corresponding JSON files of your datasets
 datasets_wo_cache = {
@@ -54,6 +53,7 @@ def plot_memory_usage(params, interval=0.5):
     # Adjust the space between
     fig.subplots_adjust(hspace=0.3)
 
+    line_idx = 0
     # 1. first plot
     ax_frappe_uci = fig.add_subplot(gs[0])
     for dataset_name, value in params.items():
@@ -65,7 +65,13 @@ def plot_memory_usage(params, interval=0.5):
             memory_usage_lst = metrics['memory_usage']
             # Create a time list
             times = [interval * i for i in range(len(memory_usage_lst))]
-            ax_frappe_uci.plot(times, memory_usage_lst, label=f"{dataset_name} ({is_cache})")
+
+            if is_cache == "with cache":
+                linestyle = "-"
+            else:
+                linestyle = "--"
+            ax_frappe_uci.plot(times, memory_usage_lst, label=f"{dataset_name} ({is_cache})",
+                               linestyle=linestyle)
 
     ax_frappe_uci.set_ylabel('Memory (MB)', fontsize=set_font_size)
     ax_frappe_uci.legend()
@@ -86,7 +92,12 @@ def plot_memory_usage(params, interval=0.5):
                 memory_usage_lst = metrics['memory_usage']
                 # Create a time list
                 times = [interval * i for i in range(len(memory_usage_lst))]
-                ax_criteo.plot(times, memory_usage_lst, label=f"{dataset_name} ({is_cache})")
+                if is_cache == "with cache":
+                    linestyle = "-"
+                else:
+                    linestyle = "--"
+                ax_criteo.plot(times, memory_usage_lst, label=f"{dataset_name} ({is_cache})",
+                               linestyle=linestyle)
 
     ax_criteo.legend()
     ax_criteo.set_ylabel('Memory (MB)', fontsize=set_font_size)
