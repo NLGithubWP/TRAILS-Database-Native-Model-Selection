@@ -12,7 +12,7 @@ python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py 
   --hidden_choice_len=20 \
   --base_dir=/hdd1/xingnaili/exp_data/ \
   --num_labels=2 \
-  --device=cuda:1 \
+  --device=cuda:0 \
   --batch_size=32 \
   --dataset=frappe \
   --nfeat=5500 \
@@ -31,7 +31,7 @@ python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py 
   --hidden_choice_len=10 \
   --base_dir=/hdd1/xingnaili/exp_data/ \
   --num_labels=2 \
-  --device=cuda:1 \
+  --device=cuda:0 \
   --batch_size=32 \
   --dataset=criteo \
   --nfeat=2100000 \
@@ -50,7 +50,7 @@ python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py 
   --hidden_choice_len=20 \
   --base_dir=/hdd1/xingnaili/exp_data/ \
   --num_labels=2 \
-  --device=cuda:1 \
+  --device=cuda:0 \
   --batch_size=32 \
   --dataset=uci_diabetes \
   --nfeat=369 \
