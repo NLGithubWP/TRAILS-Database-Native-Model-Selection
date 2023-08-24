@@ -14,6 +14,8 @@ cpu_colors = ['#729ECE', '#FFB579', '#E74C3C', '#2ECC71', '#3498DB', '#F39C12', 
 gpu_colors = ['#98DF8A', '#D62728', '#1ABC9C', '#9B59B6', '#34495E', '#16A085', '#27AE60', '#2980B9']
 hatches = ['/', '\\', 'x', 'o', 'O', '.', '*', '//', '\\\\', 'xx', 'oo', 'OO', '..', '**']
 # hatches = ['', '', '', '', '']
+line_styles = ['-', '--', '-.', ':', (0, (3, 5, 1, 5, 1, 5)), (0, (3, 1, 1, 1))]
+
 
 # Assume these are the names and corresponding JSON files of your datasets
 datasets_wo_cache = {
@@ -84,7 +86,7 @@ def plot_memory_usage(params, interval=0.5):
         gpu_mem_device_0 = gpu_mem_device_0[break_point:]
         # Create a time list
         times = [interval * i for i in range(len(gpu_mem_device_0))]
-        ax_gpu.plot(times, gpu_mem_device_0, label=dataset_name)
+        ax_gpu.plot(times, gpu_mem_device_0, label=dataset_name, linestyle=line_styles[idx % len(line_styles)])
     ax_gpu.set_ylabel('Memory (MB)', fontsize=set_font_size)
     ax_gpu.legend()
     ax_gpu.set_xticklabels([])  # Hide the x-axis labels for the top plot
@@ -102,7 +104,8 @@ def plot_memory_usage(params, interval=0.5):
         memory_usage = metrics['memory_usage']
         # Create a time list
         times = [interval * i for i in range(len(memory_usage))]
-        ax_cpu.plot(times, memory_usage, label=dataset_name)
+        ax_cpu.plot(times, memory_usage, label=dataset_name, linestyle=line_styles[idx % len(line_styles)])
+
     ax_cpu.set_ylabel('Memory (MB)', fontsize=set_font_size)
     ax_cpu.set_xlabel('Time (Seconds)', fontsize=set_font_size)
     ax_cpu.legend()
