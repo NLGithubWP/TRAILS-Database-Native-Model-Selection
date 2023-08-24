@@ -35,35 +35,34 @@ datasets_wo_cache = {
 }
 
 datasets_embedding_cache = {
-    # 'frappe': {'cpu': './internal/ml/model_selection_filtering_cache/exp_filter_cache'
-    #                   '/time_score_mlp_sp_frappe_batch_size_32_cpu.json',
-    #            'gpu': './internal/ml/model_selection_filtering_cache/exp_filter_cache'
-    #                   '/time_score_mlp_sp_frappe_batch_size_32_cuda:1.json'},
-    #
-    # 'diabetes': {'cpu': './internal/ml/model_selection_filtering_cache/exp_filter_cache'
-    #                     '/time_score_mlp_sp_uci_diabetes_batch_size_32_cpu.json',
-    #              'gpu': './internal/ml/model_selection_filtering_cache/exp_filter_cache'
-    #                     '/time_score_mlp_sp_uci_diabetes_batch_size_32_cuda:1.json'},
-    #
-    # 'criteo': {'cpu': './internal/ml/model_selection_filtering_cache/exp_filter_cache'
-    #                   '/time_score_mlp_sp_criteo_batch_size_32_cpu.json',
-    #            'gpu': './internal/ml/model_selection_filtering_cache/exp_filter_cache'
-    #                   '/time_score_mlp_sp_criteo_batch_size_32_cuda:1.json'},
-    #
-    # 'c10': {'cpu': './internal/ml/model_selection/exp_result_sever'
-    #                '/time_score_nasbench201_cifar10_batch_size_32_cpu.json',
-    #         'gpu': './internal/ml/model_selection/exp_result_sever'
-    #                '/time_score_nasbench201_cifar10_batch_size_32_cuda:0.json'},
-    #
-    # 'c100': {'cpu': './internal/ml/model_selection/exp_result_sever'
-    #                 '/time_score_nasbench201_cifar100_batch_size_32_cpu.json',
-    #          'gpu': './internal/ml/model_selection/exp_result_sever'
-    #                 '/time_score_nasbench201_cifar100_batch_size_32_cuda:0.json'},
-    #
-    # 'IN-16': {'cpu': './internal/ml/model_selection/exp_result_sever'
-    #                  '/time_score_nasbench201_ImageNet16-120_batch_size_32_cpu.json',
-    #           'gpu': './internal/ml/model_selection/exp_result_sever'
-    #                  '/time_score_nasbench201_ImageNet16-120_batch_size_32_cuda:0.json'},
+    'frappe': {'cpu': './internal/ml/model_selection/exp_result_sever_filtering_cache/'
+                      '/time_score_mlp_sp_frappe_batch_size_32_cpu_express_flow.json',
+               'gpu': './internal/ml/model_selection/exp_result_sever_filtering_cache/'
+                      '/time_score_mlp_sp_frappe_batch_size_32_cuda:0_express_flow.json'},
+
+    'diabetes': {'cpu': './internal/ml/model_selection/exp_result_sever_filtering_cache/'
+                        '/time_score_mlp_sp_uci_diabetes_batch_size_32_cpu_express_flow.json',
+                 'gpu': './internal/ml/model_selection/exp_result_sever_filtering_cache/'
+                        '/time_score_mlp_sp_uci_diabetes_batch_size_32_cuda:0_express_flow.json'},
+
+    'criteo': {'cpu': './internal/ml/model_selection/exp_result_sever_filtering_cache/'
+                      '/time_score_mlp_sp_criteo_batch_size_32_cpu_express_flow.json',
+               'gpu': './internal/ml/model_selection/exp_result_sever_filtering_cache/'
+                      '/time_score_mlp_sp_criteo_batch_size_32_cuda:0_express_flow.json'},
+
+    'c10': {'cpu': './internal/ml/model_selection/exp_result_sever'
+                   '/time_score_nasbench201_cifar10_batch_size_32_cpu_express_flow.json',
+            'gpu': './internal/ml/model_selection/exp_result_sever'
+                   '/time_score_nasbench201_cifar10_batch_size_32_cuda:0_express_flow.json'},
+    'c100': {'cpu': './internal/ml/model_selection/exp_result_sever'
+                    '/time_score_nasbench201_cifar100_batch_size_32_cpu_express_flow.json',
+             'gpu': './internal/ml/model_selection/exp_result_sever'
+                    '/time_score_nasbench201_cifar100_batch_size_32_cuda:0_express_flow.json'},
+
+    'IN-16': {'cpu': './internal/ml/model_selection/exp_result_sever'
+                     '/time_score_nasbench201_ImageNet16-120_batch_size_32_cpu_express_flow.json',
+              'gpu': './internal/ml/model_selection/exp_result_sever'
+                     '/time_score_nasbench201_ImageNet16-120_batch_size_32_cuda:0_express_flow.json'},
 }
 
 # Set your plot parameters
@@ -99,10 +98,12 @@ for img_id, datasets in enumerate([datasets_wo_cache, datasets_embedding_cache])
         # here the no cahced one
         datasets_left = dict(list(datasets.items())[:2])
         datasets_right = dict(list(datasets.items())[2:])
+        name = "wo_cache"
     else:
         # here the cahced one
         datasets_left = dict(list(datasets.items())[:3])
         datasets_right = dict(list(datasets.items())[3:])
+        name = "with_cache"
 
     for idx, datasets in enumerate([datasets_left, datasets_right]):
         # Create a subplot with custom width
@@ -166,10 +167,8 @@ for img_id, datasets in enumerate([datasets_wo_cache, datasets_embedding_cache])
         # increase x size
         ax.tick_params(axis='x', which='major', labelsize=set_tick_size+5)
 
-        print(f"saving to ./internal/ml/model_selection/exp_result_sever/filter_latency_{img_id}.pdf")
-
     fig.tight_layout()
     # plt.show()
-
-    fig.savefig(f"./internal/ml/model_selection/exp_result_sever/filter_latency_{img_id}.pdf",
+    print(f"saving to ./internal/ml/model_selection/exp_result_sever/filter_latency_{name}.pdf")
+    fig.savefig(f"./internal/ml/model_selection/exp_result_sever/filter_latency_{name}.pdf",
                 bbox_inches='tight')
