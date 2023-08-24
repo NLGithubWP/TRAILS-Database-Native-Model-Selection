@@ -15,6 +15,7 @@ from src.query_api.interface import profile_NK_trade_off
 from src.query_api.query_api_img import guess_score_time, guess_train_one_epoch_time
 from torch.utils.data import DataLoader
 from typing import Generator
+from src.tools.res_measure import print_memory_usage
 
 
 class NB201MicroCfg(ModelMicroCfg):
@@ -50,8 +51,10 @@ class NasBench201Space(SpaceWrapper):
     def load(self):
         if NasBench201Space.api is None:
             print("NasBench201Space load begin")
+            print_memory_usage()
             NasBench201Space.api = NASBench201API(self.api_loc)
-            print("NasBench201Space load done")
+            print("NasBench201Space load done, begin to cound the size ")
+            print_memory_usage()
 
     @classmethod
     def serialize_model_encoding(cls, arch_micro: ModelMicroCfg) -> str:

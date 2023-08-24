@@ -105,6 +105,8 @@ def get_dataloader(train_batch_size: int, test_batch_size: int, dataset: int,
         # pin_memory=False
     )
 
+    print("dataset load done")
+
     return train_loader, test_loader, class_num
 
 

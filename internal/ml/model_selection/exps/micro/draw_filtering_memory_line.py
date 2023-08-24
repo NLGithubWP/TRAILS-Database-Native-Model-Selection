@@ -2,9 +2,11 @@ from src.tools.io_tools import read_json
 import matplotlib.pyplot as plt
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
+from exps.draw_tab_lib import export_legend
 
 # Set your plot parameters
 bar_width = 0.25
+linewidth=2.5
 opacity = 0.8
 set_font_size = 15  # Set the font size
 set_lgend_size = 15
@@ -13,6 +15,8 @@ cpu_colors = ['#729ECE', '#FFB579', '#E74C3C', '#2ECC71', '#3498DB', '#F39C12', 
 gpu_colors = ['#98DF8A', '#D62728', '#1ABC9C', '#9B59B6', '#34495E', '#16A085', '#27AE60', '#2980B9']
 hatches = ['/', '\\', 'x', 'o', 'O', '.', '*', '//', '\\\\', 'xx', 'oo', 'OO', '..', '**']
 # hatches = ['', '', '', '', '']
+line_styles = ['-', '--', '-.', (0, (3, 5, 1, 5, 1, 5)), (0, (3, 1, 1, 1))]
+
 
 # Assume these are the names and corresponding JSON files of your datasets
 datasets_wo_cache = {
@@ -66,17 +70,10 @@ def plot_memory_usage(params, interval=0.5):
 
     fig = plt.figure(figsize=(6.4, 4.5))
     # Adjust the space between
-    fig.subplots_adjust(hspace=0.3)
+    fig.subplots_adjust(hspace=0.25)
 
     # 1. first plot
     ax_gpu = fig.add_subplot(gs[0])
-    ax_gpu.set_ylabel('Memory Usage (MB)', fontsize=set_font_size)
-    ax_gpu.legend()
-    ax_gpu.set_xticklabels([])  # Hide the x-axis labels for the top plot
-    ax_gpu.tick_params(axis='both', which='major', labelsize=set_tick_size)
-    ax_gpu.set_xscale("symlog")
-    ax_gpu.grid(True)
-
     for dataset_name, value in params.items():
         metrics = read_json(params[dataset_name]["gpu"])
         # Extract GPU memory usage for device 0
@@ -88,29 +85,44 @@ def plot_memory_usage(params, interval=0.5):
                 break_point = idx
                 break
         gpu_mem_device_0 = gpu_mem_device_0[break_point:]
+        mem_host = metrics['memory_usage'][break_point:]
+        total_memory_usage = [a + b for a, b in zip(gpu_mem_device_0, mem_host)]
+
         # Create a time list
-        times = [interval * i for i in range(len(gpu_mem_device_0))]
-        ax_gpu.plot(times, gpu_mem_device_0, label=dataset_name)
+        times = [interval * i for i in range(len(total_memory_usage))]
+        ax_gpu.plot(times, total_memory_usage, label=dataset_name, linestyle=line_styles[idx % len(line_styles)], linewidth=linewidth)
+    ax_gpu.set_ylabel('Memory (MB)', fontsize=set_font_size)
+    ax_gpu.legend()
+    ax_gpu.set_xticklabels([])  # Hide the x-axis labels for the top plot
+    ax_gpu.tick_params(axis='both', which='major', labelsize=set_tick_size)
+    ax_gpu.set_xscale("symlog")
+    ax_gpu.set_yscale("symlog")
+    ax_gpu.grid(True)
+    ax_gpu.set_ylim(100, 10000)
 
     # 2. second plot
     ax_cpu = fig.add_subplot(gs[1], sharex=ax_gpu)
-    ax_cpu.set_ylabel('Memory Usage (MB)', fontsize=set_font_size)
-    ax_cpu.set_xlabel('Time (Seconds)', fontsize=set_font_size)
-    ax_cpu.legend(fontsize=set_lgend_size)
-    # Setting features for ax2
-    ax_cpu.tick_params(axis='both', which='major', labelsize=set_tick_size)
-    ax_cpu.set_xscale("symlog")
-    ax_cpu.grid(True)
-
     for dataset_name, value in params.items():
         metrics = read_json(params[dataset_name]["cpu"])
         # Extract GPU memory usage for device 0
         memory_usage = metrics['memory_usage']
         # Create a time list
         times = [interval * i for i in range(len(memory_usage))]
-        ax_cpu.plot(times, memory_usage, label=dataset_name)
+        ax_cpu.plot(times, memory_usage, label=dataset_name, linestyle=line_styles[idx % len(line_styles)], linewidth=linewidth)
 
-    # plt.show()
+    ax_cpu.set_ylabel('Memory (MB)', fontsize=set_font_size)
+    ax_cpu.set_xlabel('Time (Seconds)', fontsize=set_font_size)
+    ax_cpu.legend()
+    # Setting features for ax2
+    ax_cpu.tick_params(axis='both', which='major', labelsize=set_tick_size)
+    ax_cpu.set_xscale("symlog")
+    ax_cpu.set_yscale("symlog")
+    ax_cpu.grid(True)
+    # ax_cpu.set_ylim(10, None)
+
+    # global setting
+    export_legend(fig)
+
     print(f"saving to ./internal/ml/model_selection/exp_result/filter_latency_memory.pdf")
     fig.savefig(f"./internal/ml/model_selection/exp_result/filter_latency_memory.pdf",
                 bbox_inches='tight')
