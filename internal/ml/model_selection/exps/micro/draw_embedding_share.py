@@ -4,21 +4,21 @@ import numpy as np
 
 # Assume these are the names and corresponding JSON files of your datasets
 datasets_cpu = {
-    'frappe': {'cache': './internal/ml/model_selection/exp_result_sever_filtering_cache/exp_filter_cache'
-                        '/time_score_mlp_sp_frappe_batch_size_32_cpu.json',
-               'no_cache': './internal/ml/model_selection/exp_result_sever/exp_result'
-                           '/time_score_mlp_sp_frappe_batch_size_32_cpu.json'},
+    'frappe': {'cache': './internal/ml/model_selection/exp_result_sever_filtering_cache/'
+                        '/time_score_mlp_sp_frappe_batch_size_32_cpu_express_flow.json',
+               'no_cache': './internal/ml/model_selection/exp_result_sever/'
+                           '/time_score_mlp_sp_frappe_batch_size_32_cpu_express_flow.json'},
 
-    'diabetes': {'cache': './internal/ml/model_selection/exp_result_sever_filtering_cache/exp_filter_cache'
-                          '/time_score_mlp_sp_uci_diabetes_batch_size_32_cpu.json',
-                 'no_cache': './internal/ml/model_selection/exp_result_sever/exp_result'
-                             '/time_score_mlp_sp_uci_diabetes_batch_size_32_cpu.json'},
+    'diabetes': {'cache': './internal/ml/model_selection/exp_result_sever_filtering_cache/'
+                          '/time_score_mlp_sp_uci_diabetes_batch_size_32_cpu_express_flow.json',
+                 'no_cache': './internal/ml/model_selection/exp_result_sever/'
+                             '/time_score_mlp_sp_uci_diabetes_batch_size_32_cpu_express_flow.json'},
 
-    'criteo': {'cache': './internal/ml/model_selection/exp_result_sever_filtering_cache/exp_filter_cache'
-                        '/time_score_mlp_sp_criteo_batch_size_32_cpu.json',
+    'criteo': {'cache': './internal/ml/model_selection/exp_result_sever_filtering_cache/'
+                        '/time_score_mlp_sp_criteo_batch_size_32_cpu_express_flow.json',
 
-               'no_cache': './internal/ml/model_selection/exp_result_sever/exp_result'
-                           '/time_score_mlp_sp_criteo_batch_size_32_cpu.json'
+               'no_cache': './internal/ml/model_selection/exp_result_sever/'
+                           '/time_score_mlp_sp_criteo_batch_size_32_cpu_express_flow.json'
                },
 
 }
@@ -81,5 +81,5 @@ plt.tight_layout()
 plt.show()
 
 # Save the plot
-fig.savefig(f"./internal/ml/model_selection/exp_result_sever/exp_result/embedding_cache.pdf",
+fig.savefig(f"./internal/ml/model_selection/exp_result_sever/exp_result_sever/embedding_cache.pdf",
             bbox_inches='tight')
