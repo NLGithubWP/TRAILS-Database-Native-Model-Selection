@@ -15,26 +15,26 @@ hatches = ['/', '\\', 'x', 'o', 'O', '.', '*', '//', '\\\\', 'xx', 'oo', 'OO', '
 # Assume these are the names and corresponding JSON files of your datasets
 datasets_wo_cache = {
     'frappe': {
-        'gpu': './internal/ml/model_selection/exp_result_sever'
+        'gpu': './internal/ml/model_selection/exp_result_sever_wo_cache'
                '/resource_score_mlp_sp_frappe_batch_size_32_cuda:0_express_flow.json'},
 
     'diabetes': {
-        'gpu': './internal/ml/model_selection/exp_result_sever'
+        'gpu': './internal/ml/model_selection/exp_result_sever_wo_cache'
                '/resource_score_mlp_sp_uci_diabetes_batch_size_32_cuda:0_express_flow.json'},
 
     'criteo': {
-        'gpu': './internal/ml/model_selection/exp_result_sever'
+        'gpu': './internal/ml/model_selection/exp_result_sever_wo_cache'
                '/resource_score_mlp_sp_criteo_batch_size_32_cuda:0_express_flow.json'},
 
     'c10': {
-        'gpu': './internal/ml/model_selection/exp_result_sever'
+        'gpu': './internal/ml/model_selection/exp_result_sever_wo_cache'
                '/resource_score_nasbench201_cifar10_batch_size_32_cuda:0_express_flow.json'},
     'c100': {
-        'gpu': './internal/ml/model_selection/exp_result_sever'
+        'gpu': './internal/ml/model_selection/exp_result_sever_wo_cache'
                '/resource_score_nasbench201_cifar100_batch_size_32_cuda:0_express_flow.json'},
 
     'IN-16': {
-        'gpu': './internal/ml/model_selection/exp_result_sever'
+        'gpu': './internal/ml/model_selection/exp_result_sever_wo_cache'
                '/resource_score_nasbench201_ImageNet16-120_batch_size_32_cuda:0_express_flow.json'},
 }
 
@@ -66,8 +66,8 @@ def plot_memory_usage(params, interval=0.5):
     plt.tight_layout()
     plt.grid(True)
     # plt.show()
-    print(f"saving to ./internal/ml/model_selection/exp_result_sever/filter_latency_memory.pdf")
-    fig.savefig(f"./internal/ml/model_selection/exp_result_sever/filter_latency_memory.pdf",
+    print(f"saving to ./internal/ml/model_selection/exp_result_sever_wo_cache/filter_latency_memory.pdf")
+    fig.savefig(f"./internal/ml/model_selection/exp_result_sever_wo_cache/filter_latency_memory.pdf",
                 bbox_inches='tight')
 
 
