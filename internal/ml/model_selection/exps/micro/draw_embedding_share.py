@@ -4,17 +4,17 @@ import numpy as np
 
 # Assume these are the names and corresponding JSON files of your datasets
 datasets_cpu = {
-    'frappe': {'cache': './internal/ml/model_selection/exp_result_sever_filtering_cache/'
+    'Frappe': {'cache': './internal/ml/model_selection/exp_result_sever_filtering_cache/'
                         '/time_score_mlp_sp_frappe_batch_size_32_cpu_express_flow.json',
                'no_cache': './internal/ml/model_selection/exp_result_sever/'
                            '/time_score_mlp_sp_frappe_batch_size_32_cpu_express_flow.json'},
 
-    'diabetes': {'cache': './internal/ml/model_selection/exp_result_sever_filtering_cache/'
+    'Diabete': {'cache': './internal/ml/model_selection/exp_result_sever_filtering_cache/'
                           '/time_score_mlp_sp_uci_diabetes_batch_size_32_cpu_express_flow.json',
                  'no_cache': './internal/ml/model_selection/exp_result_sever/'
                              '/time_score_mlp_sp_uci_diabetes_batch_size_32_cpu_express_flow.json'},
 
-    'criteo': {'cache': './internal/ml/model_selection/exp_result_sever_filtering_cache/'
+    'Criteo': {'cache': './internal/ml/model_selection/exp_result_sever_filtering_cache/'
                         '/time_score_mlp_sp_criteo_batch_size_32_cpu_express_flow.json',
 
                'no_cache': './internal/ml/model_selection/exp_result_sever/'

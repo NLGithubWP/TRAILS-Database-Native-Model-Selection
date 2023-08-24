@@ -4,17 +4,17 @@ import numpy as np
 
 # Assume these are the names and corresponding JSON files of your datasets
 datasets_wo_cache = {
-    'frappe': {'cpu': './internal/ml/model_selection/exp_result_sever'
+    'Frappe': {'cpu': './internal/ml/model_selection/exp_result_sever'
                       '/time_score_mlp_sp_frappe_batch_size_32_cpu_express_flow.json',
                'gpu': './internal/ml/model_selection/exp_result_sever'
                       '/time_score_mlp_sp_frappe_batch_size_32_cuda:0_express_flow.json'},
 
-    'diabetes': {'cpu': './internal/ml/model_selection/exp_result_sever'
+    'Diabete': {'cpu': './internal/ml/model_selection/exp_result_sever'
                         '/time_score_mlp_sp_uci_diabetes_batch_size_32_cpu_express_flow.json',
                  'gpu': './internal/ml/model_selection/exp_result_sever'
                         '/time_score_mlp_sp_uci_diabetes_batch_size_32_cuda:0_express_flow.json'},
 
-    'criteo': {'cpu': './internal/ml/model_selection/exp_result_sever'
+    'Criteo': {'cpu': './internal/ml/model_selection/exp_result_sever'
                       '/time_score_mlp_sp_criteo_batch_size_32_cpu_express_flow.json',
                'gpu': './internal/ml/model_selection/exp_result_sever'
                       '/time_score_mlp_sp_criteo_batch_size_32_cuda:0_express_flow.json'},
@@ -35,17 +35,17 @@ datasets_wo_cache = {
 }
 
 datasets_embedding_cache = {
-    'frappe': {'cpu': './internal/ml/model_selection/exp_result_sever_filtering_cache/'
+    'Frappe': {'cpu': './internal/ml/model_selection/exp_result_sever_filtering_cache/'
                       '/time_score_mlp_sp_frappe_batch_size_32_cpu_express_flow.json',
                'gpu': './internal/ml/model_selection/exp_result_sever_filtering_cache/'
                       '/time_score_mlp_sp_frappe_batch_size_32_cuda:0_express_flow.json'},
 
-    'diabetes': {'cpu': './internal/ml/model_selection/exp_result_sever_filtering_cache/'
+    'Diabete': {'cpu': './internal/ml/model_selection/exp_result_sever_filtering_cache/'
                         '/time_score_mlp_sp_uci_diabetes_batch_size_32_cpu_express_flow.json',
                  'gpu': './internal/ml/model_selection/exp_result_sever_filtering_cache/'
                         '/time_score_mlp_sp_uci_diabetes_batch_size_32_cuda:0_express_flow.json'},
 
-    'criteo': {'cpu': './internal/ml/model_selection/exp_result_sever_filtering_cache/'
+    'Criteo': {'cpu': './internal/ml/model_selection/exp_result_sever_filtering_cache/'
                       '/time_score_mlp_sp_criteo_batch_size_32_cpu_express_flow.json',
                'gpu': './internal/ml/model_selection/exp_result_sever_filtering_cache/'
                       '/time_score_mlp_sp_criteo_batch_size_32_cuda:0_express_flow.json'},
