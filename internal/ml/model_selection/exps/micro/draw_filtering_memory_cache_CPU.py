@@ -67,9 +67,9 @@ def plot_memory_usage(params, interval=0.5):
             times = [interval * i for i in range(len(memory_usage_lst))]
 
             if is_cache == "with cache":
-                linestyle = "-"
-            else:
                 linestyle = "--"
+            else:
+                linestyle = "-"
             ax_frappe_uci.plot(times, memory_usage_lst, label=f"{dataset_name} ({is_cache})",
                                linestyle=linestyle)
 
@@ -93,9 +93,9 @@ def plot_memory_usage(params, interval=0.5):
                 # Create a time list
                 times = [interval * i for i in range(len(memory_usage_lst))]
                 if is_cache == "with cache":
-                    linestyle = "-"
-                else:
                     linestyle = "--"
+                else:
+                    linestyle = "-"
                 ax_criteo.plot(times, memory_usage_lst, label=f"{dataset_name} ({is_cache})",
                                linestyle=linestyle)
 
