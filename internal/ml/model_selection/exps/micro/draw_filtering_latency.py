@@ -169,6 +169,6 @@ for img_id, datasets in enumerate([datasets_wo_cache, datasets_embedding_cache])
 
     fig.tight_layout()
     # plt.show()
-    print(f"saving to ./internal/ml/model_selection/exp_result_sever_wo_cache/filter_latency_{name}.pdf")
-    fig.savefig(f"./internal/ml/model_selection/exp_result_sever_wo_cache/filter_latency_{name}.pdf",
+    print(f"saving to ./internal/ml/model_selection/exp_result/filter_latency_{name}.pdf")
+    fig.savefig(f"./internal/ml/model_selection/exp_result/filter_latency_{name}.pdf",
                 bbox_inches='tight')
