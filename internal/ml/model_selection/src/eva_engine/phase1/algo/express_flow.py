@@ -74,10 +74,10 @@ class ExpressFlowEvaluator(Evaluator):
         # Step 1: Linearize
         if space_name == Config.MLPSP:
             signs = self.linearize(arch.mlp)
+            arch.mlp.double()
         else:
             signs = self.linearize(arch)
-
-        arch.double()
+            arch.double()
 
         hook_obj = IntegratedHook()
         hooks = []
