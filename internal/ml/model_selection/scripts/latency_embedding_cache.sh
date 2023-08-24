@@ -19,7 +19,7 @@ python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py 
   --nfield=10 \
   --nemb=10 \
   --workers=0 \
-  --result_dir=./internal/ml/model_selection/exp_filter_cache/
+  --result_dir=./internal/ml/model_selection/exp_result/
 
 #criteo
 python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py \
@@ -38,7 +38,7 @@ python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py 
   --nfield=39 \
   --nemb=10 \
   --workers=0 \
-  --result_dir=./internal/ml/model_selection/exp_filter_cache/
+  --result_dir=./internal/ml/model_selection/exp_result/
 
 # uci
 python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py \
@@ -57,7 +57,7 @@ python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py 
   --nfield=43 \
   --nemb=10 \
   --workers=0 \
-  --result_dir=./internal/ml/model_selection/exp_filter_cache/
+  --result_dir=./internal/ml/model_selection/exp_result/
 
 ########################## CPU ##############################
 # this is run on cpu, only change the device==cpu for all above
@@ -79,7 +79,7 @@ python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py 
   --nfield=10 \
   --nemb=10 \
   --workers=0 \
-  --result_dir=./internal/ml/model_selection/exp_filter_cache/
+  --result_dir=./internal/ml/model_selection/exp_result/
 
 #criteo
 python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py \
@@ -98,7 +98,7 @@ python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py 
   --nfield=39 \
   --nemb=10 \
   --workers=0 \
-  --result_dir=./internal/ml/model_selection/exp_filter_cache/
+  --result_dir=./internal/ml/model_selection/exp_result/
 
 # uci
 python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py \
@@ -117,6 +117,6 @@ python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py 
   --nfield=43 \
   --nemb=10 \
   --workers=0 \
-  --result_dir=./internal/ml/model_selection/exp_filter_cache/
+  --result_dir=./internal/ml/model_selection/exp_result/
 
 
