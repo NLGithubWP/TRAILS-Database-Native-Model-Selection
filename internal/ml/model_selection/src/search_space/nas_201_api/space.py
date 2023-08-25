@@ -53,6 +53,7 @@ class NasBench201Space(SpaceWrapper):
         if NasBench201Space.api is None:
             print("NasBench201Space load begin")
             NasBench201Space.api = NASBench201API(self.api_loc)
+            print("NasBench201Space load done, begin to cound the size ")
             print(f"NasBench201Space load done, with size of "
                   f"{asizeof.asizeof(NasBench201Space.api) / (1024 ** 2)} MB")
 
