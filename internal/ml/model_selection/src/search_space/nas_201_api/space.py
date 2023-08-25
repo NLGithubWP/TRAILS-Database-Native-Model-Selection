@@ -15,6 +15,8 @@ from src.query_api.interface import profile_NK_trade_off
 from src.query_api.query_api_img import guess_score_time, guess_train_one_epoch_time
 from torch.utils.data import DataLoader
 from typing import Generator
+import sys
+from pympler import asizeof
 
 
 class NB201MicroCfg(ModelMicroCfg):
@@ -51,7 +53,8 @@ class NasBench201Space(SpaceWrapper):
         if NasBench201Space.api is None:
             print("NasBench201Space load begin")
             NasBench201Space.api = NASBench201API(self.api_loc)
-            print("NasBench201Space load done")
+            print(f"NasBench201Space load done, with size of "
+                  f"{asizeof.asizeof(NasBench201Space.api) / (1024 ** 2)} MB")
 
     @classmethod
     def serialize_model_encoding(cls, arch_micro: ModelMicroCfg) -> str:
