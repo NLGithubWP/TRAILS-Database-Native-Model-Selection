@@ -17,6 +17,7 @@ from torch.utils.data import DataLoader
 from typing import Generator
 import sys
 from pympler import asizeof
+from src.tools.res_measure import print_memory_usage
 
 
 class NB201MicroCfg(ModelMicroCfg):
@@ -52,8 +53,10 @@ class NasBench201Space(SpaceWrapper):
     def load(self):
         if NasBench201Space.api is None:
             print("NasBench201Space load begin")
+            print_memory_usage()
             NasBench201Space.api = NASBench201API(self.api_loc)
             print("NasBench201Space load done, begin to cound the size ")
+            print_memory_usage()
             print(f"NasBench201Space load done, with size of "
                   f"{asizeof.asizeof(NasBench201Space.api) / (1024 ** 2)} MB")
 
