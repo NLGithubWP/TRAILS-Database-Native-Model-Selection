@@ -66,7 +66,6 @@ def print_cpu_gpu_usage(interval=1, output_file="path_to_folder", stop_event=Non
 
 
 def print_memory_usage():
-    print("Starting to print usage")  # Debugging print
     # Get current process
     main_process = psutil.Process(os.getpid())
     # Create an empty dictionary to store metrics
