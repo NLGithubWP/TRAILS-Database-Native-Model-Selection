@@ -1,5 +1,12 @@
 
 
+# Change the permission
+
+```bash
+chmod -R 777 internal/pg_extension
+chmod -R 777 TRAILS
+```
+
 # PSQL cmd
 
 ```sql
@@ -15,32 +22,54 @@ docker build -t trails .
 
 docker run -d --name trails \
   -v $(pwd)/TRAILS:/project/TRAILS \
-  -v $(pwd)/exp_data:/project/exp_data \
   trails
-```
-
-# MAC locally
-```bash
-conda activate firmest38
-export PYTHON_SYS_EXECUTABLE=/Users/kevin/opt/anaconda3/envs/firmest38/bin/python
-export DYLD_LIBRARY_PATH=/Users/kevin/opt/anaconda3/envs/firmest38/lib/:$DYLD_LIBRARY_PATH
-cargo run --features python
+docker exec -it trails bash 
 ```
 
 # This is in docker image already
+
 ```bash
+# if those are already on docker, skip them.
 cargo install --locked cargo-pgrx
 cargo pgrx init --pg14 /usr/bin/pg_config
 cargo pgrx new my_extension
+# just run this after code updates.
 cargo pgrx run
 ```
 
-# On host after sync.sh
-```bash
-chmod -R 777 internal/pg_extension
-chmod -R 777 TRAILS
-```
+# Test the pg-extension works
 
+```sql
+# switch to a postgres
+su postgres
+
+CREATE EXTENSION plpython3u;
+
+CREATE FUNCTION py_version() RETURNS text AS $$
+import sys
+return sys.version
+$$ LANGUAGE plpython3u;
+
+SELECT py_version();
+
+CREATE OR REPLACE FUNCTION test_numpy()
+  RETURNS text
+LANGUAGE plpython3u
+AS $$
+import numpy
+import torch
+import sklearn
+import torchvision
+import tqdm
+print("asdf")
+return str(numpy.__version__) + " torch: " + str(torch.__version__)
+$$;
+
+SELECT test_numpy();
+
+CREATE EXTENSION my_extension;
+SELECT hello_my_extension();
+```
 # Develop
 
 ## Create dummy data
@@ -102,13 +131,14 @@ E.g, `ARRAY['col1', 'col2', 'col3', 'label']`  => `nfield` = 3
 ```sql
 CREATE EXTENSION pg_extension;
 
-# test if the UDF is there or not
+# Test if the UDF is there or not
 SELECT *  FROM pg_proc  WHERE proname = 'model_selection_workloads';
+
+# Test coordinator
 SELECT coordinator('0.08244', '168.830156', '800', false, '/project/TRAILS/internal/ml/model_selection/config.ini');
 
 # this is database name, columns used, time budget, batch size, and config file
 CALL model_selection_sp('dummy', ARRAY['col1', 'col2', 'col3', 'label'], '30', 32, '/project/TRAILS/internal/ml/model_selection/config.ini');
-
 
 # end2end model selection
 CALL model_selection_end2end('dummy', ARRAY['col1', 'col2', 'col3', 'label'], '15', '/project/TRAILS/internal/ml/model_selection/config.ini');
@@ -116,43 +146,8 @@ CALL model_selection_end2end('dummy', ARRAY['col1', 'col2', 'col3', 'label'], '1
 # filtering & refinement with workloads
 CALL model_selection_workloads('dummy', ARRAY['col1', 'col2', 'col3', 'label'], 300, 3, '/project/TRAILS/internal/ml/model_selection/config.ini');
 
-
 response = requests.post(args.refinement_url, json=data).json()
 
-```
-
-# Test the pg-extension works
-
-```sql
-su postgres
-psql
-
-CREATE EXTENSION plpython3u;
-
-CREATE FUNCTION py_version() RETURNS text AS $$
-import sys
-return sys.version
-$$ LANGUAGE plpython3u;
-
-SELECT py_version();
-
-CREATE OR REPLACE FUNCTION test_numpy()
-  RETURNS text
-LANGUAGE plpython3u
-AS $$
-import numpy
-import torch
-import sklearn
-import torchvision
-import tqdm
-print("asdf")
-return str(numpy.__version__) + " torch: " + str(torch.__version__)
-$$;
-
-SELECT test_numpy();
-
-CREATE EXTENSION my_extension;
-SELECT hello_my_extension();
 ```
 
 # Container log
@@ -199,9 +194,14 @@ Each line in your output represents a different process that is currently runnin
 
 Each process is part of the PostgreSQL database system and helps it to run efficiently and robustly.
 
+# MAC locally
 
-
-
+```bash
+conda activate firmest38
+export PYTHON_SYS_EXECUTABLE=/Users/kevin/opt/anaconda3/envs/firmest38/bin/python
+export DYLD_LIBRARY_PATH=/Users/kevin/opt/anaconda3/envs/firmest38/lib/:$DYLD_LIBRARY_PATH
+cargo run --features python
+```
 
 # What cargo run do?
 

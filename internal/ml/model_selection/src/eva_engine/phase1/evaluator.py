@@ -68,6 +68,7 @@ class P1Evaluator:
                 self.mini_batch_targets = target.to(self.device)
             else:
                 raise NotImplementedError
+
         self.processed_mini_batch = None
 
         self.time_usage = {
@@ -146,9 +147,6 @@ class P1Evaluator:
     #                CommonVars.PRUNE_SYNFLOW: synflow_score}
 
     def _p1_evaluate_online(self, model_acquire: ModelAcquireData) -> dict:
-
-        print("Explore one model, memory usage ")
-        print_memory_usage()
 
         model_encoding = model_acquire.model_encoding
         # score all tfmem
@@ -238,8 +236,6 @@ class P1Evaluator:
 
             model_score = {self.metrics: abs(_score)}
             del new_model
-            print("Explore one model Done, memory usage ")
-            print_memory_usage()
         return model_score
 
     def _p1_evaluate_simu_jacflow(self, model_acquire: ModelAcquireData) -> dict:

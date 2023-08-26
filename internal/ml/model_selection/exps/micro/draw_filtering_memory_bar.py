@@ -25,7 +25,7 @@ def load_data(filepath):
 bar_width = 0.25
 opacity = 0.8
 set_font_size = 15  # Set the font size
-set_lgend_size = 10
+set_lgend_size = 12
 set_tick_size = 12
 cpu_colors = ['#FFB579']
 gpu_colors = ['#3498DB']
@@ -125,9 +125,9 @@ ax.bar(index - bar_width / 2, gpu_mem_device, bar_width, color=gpu_memory_colors
 ax.bar(index + bar_width / 2, cpu_totals, bar_width, color=cpu_colors, hatch=hatches[2],
        label='(CPU) Host Memory', edgecolor='black')
 
-ax.set_ylabel('Memory (MB)', fontsize=set_font_size)
+ax.set_ylabel('Memory (MB)', fontsize=20)
 ax.set_xticks(index)
-# ax.set_yscale('symlog')  # Set y-axis to logarithmic scale
+# ax.set_yscale('log')  # Set y-axis to logarithmic scale
 ax.set_xticklabels(datasets, rotation=10, fontsize=set_font_size)
 ax.legend(fontsize=set_lgend_size)
 ax.yaxis.set_major_formatter(thousands_format)
