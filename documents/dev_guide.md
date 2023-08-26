@@ -21,8 +21,10 @@ psql -U postgres
 docker build -t trails .
 
 docker run -d --name trails \
+  --network="host" \
   -v $(pwd)/TRAILS:/project/TRAILS \
   trails
+
 docker exec -it trails bash 
 ```
 
