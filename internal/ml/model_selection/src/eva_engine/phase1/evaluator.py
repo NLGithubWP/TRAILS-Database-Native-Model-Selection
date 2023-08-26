@@ -15,7 +15,7 @@ from torch import nn
 from src.search_space.core.space import SpaceWrapper
 import gc
 import sys
-
+from src.tools.res_measure import print_memory_usage
 
 class P1Evaluator:
 
@@ -147,6 +147,9 @@ class P1Evaluator:
 
     def _p1_evaluate_online(self, model_acquire: ModelAcquireData) -> dict:
 
+        print("Explore one model, memory usage ")
+        print_memory_usage()
+
         model_encoding = model_acquire.model_encoding
         # score all tfmem
         if self.metrics == CommonVars.ALL_EVALUATOR:
@@ -232,9 +235,11 @@ class P1Evaluator:
             else:
                 _score = _score.item()
                 self.time_usage["track_io_res_load"].append(0)
-            # print_memory_usage()
+
             model_score = {self.metrics: abs(_score)}
             del new_model
+            print("Explore one model Done, memory usage ")
+            print_memory_usage()
         return model_score
 
     def _p1_evaluate_simu_jacflow(self, model_acquire: ModelAcquireData) -> dict:
