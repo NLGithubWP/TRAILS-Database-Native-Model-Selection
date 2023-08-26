@@ -44,4 +44,10 @@ WORKDIR /project
 COPY ./internal/ml/model_selection/requirement.txt ./requirement.txt
 RUN pip install -r requirement.txt
 
+# appendix,
+RUN apt-get update && apt-get install -y \
+    postgresql-client && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 CMD ["tail", "-f", "/dev/null"]
