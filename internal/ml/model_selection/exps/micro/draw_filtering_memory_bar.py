@@ -128,7 +128,7 @@ ax.bar(index + bar_width / 2, cpu_totals, bar_width, color=cpu_colors, hatch=hat
 ax.set_ylabel('Memory (MB)', fontsize=set_font_size)
 ax.set_xticks(index)
 # ax.set_yscale('symlog')  # Set y-axis to logarithmic scale
-ax.set_xticklabels(datasets, rotation=0, fontsize=set_font_size)
+ax.set_xticklabels(datasets, rotation=10, fontsize=set_font_size)
 ax.legend(fontsize=set_lgend_size)
 ax.yaxis.set_major_formatter(thousands_format)
 
