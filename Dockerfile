@@ -51,6 +51,6 @@ RUN apt-get update && apt-get install -y \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-USER postgres \
+USER postgres
 
 CMD ["tail", "-f", "/dev/null"]
