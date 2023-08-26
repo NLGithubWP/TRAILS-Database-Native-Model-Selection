@@ -86,13 +86,18 @@ for dataset in datasets:
 
     # For CPU
     cpu_data = load_data(datasets_wo_cache[dataset]['cpu'])
-    mem_host_cpu = cpu_data['memory_usage']
+    mem_host_cpu = cpu_data['memory_usage'][break_point:]
 
     # Appending pick memory usage
     gpu_totals.append(max(total_memory_usage_gpu))
     gpu_mem_device.append(max(gpu_mem_device_0))
-    gpu_mem_host.append(max(mem_host_gpu))
-    cpu_totals.append(max(mem_host_cpu))
+    if dataset in ['C10', 'C100', 'IN-16']:
+        # here 26780.47265625 is the memory usage of search space of 201
+        gpu_mem_host.append(max(mem_host_gpu) - (26780.47265625 - 581.640625))
+        cpu_totals.append(max(mem_host_cpu) - (26780.47265625 - 581.640625))
+    else:
+        gpu_mem_host.append(max(mem_host_gpu))
+        cpu_totals.append(max(mem_host_cpu))
 
 # Plotting
 fig, ax = plt.subplots(figsize=(6.4, 4.5))
