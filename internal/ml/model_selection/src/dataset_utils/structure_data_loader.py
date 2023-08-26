@@ -118,13 +118,13 @@ def libsvm_dataloader(args, data_dir, nfield, batch_size):
                                   batch_size=batch_size,
                                   shuffle=True,
                                   num_workers=workers,
-                                  pin_memory=True)
+                                  pin_memory=False)
 
         val_loader = DataLoader(LibsvmDatasetReadOnce(valid_file_name),
                                 batch_size=batch_size * 8,
                                 shuffle=False,
                                 num_workers=workers,
-                                pin_memory=True)
+                                pin_memory=False)
 
     return train_loader, val_loader, val_loader
 

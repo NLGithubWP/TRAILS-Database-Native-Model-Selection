@@ -152,7 +152,9 @@ Clearly, K/N reaches 100 yields better scheduling result in both image and tabul
    nohup bash internal/ml/model_selection/scripts/latency_embedding_cache.sh &
    # draw graph
    python ./internal/ml/model_selection/exps/micro/draw_filtering_latency.py
-   python ./internal/ml/model_selection/exps/micro/draw_filtering_memory.py
+   python ./internal/ml/model_selection/exps/micro/draw_filtering_memory_bar.py
+   python ./internal/ml/model_selection/exps/micro/draw_filtering_memory_line.py
+   python ./internal/ml/model_selection/exps/micro/draw_filtering_memory_cache_CPU.py
    ```
 
    ![image-20230818154905018](documents/imgs/image-20230818154905018.png)

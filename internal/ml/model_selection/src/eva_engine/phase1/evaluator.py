@@ -15,6 +15,7 @@ from torch import nn
 from src.search_space.core.space import SpaceWrapper
 import gc
 import sys
+from src.tools.res_measure import print_memory_usage
 
 
 class P1Evaluator:
@@ -36,40 +37,23 @@ class P1Evaluator:
         """
         self.metrics = metrics
         self.is_simulate = is_simulate
-
-        self.dataset_name = dataset_name
-
-        self.search_space_ins = search_space_ins
-        self.train_loader = train_loader
-
-        self.device = device
-        self.num_labels = num_label
-
+        # used only is_simulate = True
         self.score_getter = None
 
-        # get one mini batch
-        if not self.is_simulate:
-            if self.dataset_name in [Config.c10, Config.c100, Config.imgNet]:
-                # for img data
-                self.mini_batch, self.mini_batch_targets = dataset.get_mini_batch(
-                    dataloader=self.train_loader,
-                    sample_alg="random",
-                    batch_size=32,
-                    num_classes=self.num_labels)
-                self.mini_batch.to(self.device)
-                self.mini_batch_targets.to(self.device)
-            elif self.dataset_name in [Config.Criteo, Config.Frappe, Config.UCIDataset]:
-                # this is structure data
-                batch = iter(self.train_loader).__next__()
-                target = batch['y'].type(torch.LongTensor).to(self.device)
-                batch['id'] = batch['id'].to(self.device)
-                batch['value'] = batch['value'].to(self.device)
-                self.mini_batch = batch
-                self.mini_batch_targets = target.to(self.device)
-            else:
-                raise NotImplementedError
-        self.processed_mini_batch = None
+        # dataset settings
+        self.dataset_name = dataset_name
+        self.train_loader = train_loader
+        self.num_labels = num_label
 
+        self.search_space_ins = search_space_ins
+
+        self.device = device
+
+        # this is to do the expeirment
+        self.enable_cache = enable_cache
+        self.model_cache = None
+
+        # performance records
         self.time_usage = {
             "latency": 0.0,
             "io_latency": 0.0,
@@ -77,15 +61,11 @@ class P1Evaluator:
             "track_compute": [],  # compute time
             "track_io_model_init": [],  # init model weight
             "track_io_model_load": [],  # load model into GPU/CPU
-            "track_io_res_load": [],    # load result into GPU/CPU
+            "track_io_res_load": [],  # load result into GPU/CPU
             "track_io_model_release_each_50": [],  # context switch
             "track_io_model_release": [],  # context switch
             "track_io_data": [],  # context switch
         }
-
-        # this is to do the expeirment
-        self.enable_cache = enable_cache
-        self.model_cache = None
 
     def if_cuda_avaiable(self):
         if "cuda" in self.device:
@@ -148,7 +128,11 @@ class P1Evaluator:
     def _p1_evaluate_online(self, model_acquire: ModelAcquireData) -> dict:
 
         model_encoding = model_acquire.model_encoding
-        # score all tfmem
+
+        # 1. Get a batch of data
+        mini_batch, mini_batch_targets = self.retrievel_data()
+
+        # 2. Score all tfmem
         if self.metrics == CommonVars.ALL_EVALUATOR:
             model_score = {}
             for alg, score_evaluator in evaluator_register.items():
@@ -161,16 +145,14 @@ class P1Evaluator:
                     new_model.init_embedding()
                 new_model = new_model.to(self.device)
 
-                # self.explored_model.append(new_model)
-
-                mini_batch = self.data_pre_processing(alg, new_model)
+                mini_batch = self.data_pre_processing(mini_batch, self.metrics, new_model)
 
                 _score, _ = score_evaluator.evaluate_wrapper(
                     arch=new_model,
                     device=self.device,
                     space_name=self.search_space_ins.name,
                     batch_data=mini_batch,
-                    batch_labels=self.mini_batch_targets)
+                    batch_labels=mini_batch_targets)
 
                 _score = _score.item()
                 model_score[alg] = abs(_score)
@@ -178,13 +160,13 @@ class P1Evaluator:
                 # clear the cache
                 if "cuda" in self.device:
                     torch.cuda.empty_cache()
+
+        # 2. score using only one metrics
         else:
-            # score using only one metrics
             if self.metrics == CommonVars.PRUNE_SYNFLOW or self.metrics == CommonVars.ExpressFlow:
                 bn = False
             else:
                 bn = True
-
             # measure model load time
             begin = time.time()
             new_model = self.search_space_ins.new_arch_scratch_with_default_setting(model_encoding, bn=bn)
@@ -211,7 +193,7 @@ class P1Evaluator:
 
             # measure data load time
             begin = time.time()
-            mini_batch = self.data_pre_processing(self.metrics, new_model)
+            mini_batch = self.data_pre_processing(mini_batch, self.metrics, new_model)
             self.time_usage["track_io_data"].append(time.time() - begin)
 
             _score, compute_time = evaluator_register[self.metrics].evaluate_wrapper(
@@ -219,7 +201,7 @@ class P1Evaluator:
                 device=self.device,
                 space_name=self.search_space_ins.name,
                 batch_data=mini_batch,
-                batch_labels=self.mini_batch_targets)
+                batch_labels=mini_batch_targets)
 
             self.time_usage["track_compute"].append(compute_time)
 
@@ -234,6 +216,7 @@ class P1Evaluator:
                 self.time_usage["track_io_res_load"].append(0)
 
             model_score = {self.metrics: abs(_score)}
+            del new_model
         return model_score
 
     def _p1_evaluate_simu_jacflow(self, model_acquire: ModelAcquireData) -> dict:
@@ -260,27 +243,52 @@ class P1Evaluator:
         model_score = {self.metrics: abs(score[self.metrics])}
         return model_score
 
-    def data_pre_processing(self, metrics: str, new_model: nn.Module):
+    def retrievel_data(self):
+        if not self.is_simulate:
+            if self.dataset_name in [Config.c10, Config.c100, Config.imgNet]:
+                if self.train_loader is None:
+                    raise f"self.train_loader is None for {self.dataset_name}"
+                # for img data
+                mini_batch, mini_batch_targets = dataset.get_mini_batch(
+                    dataloader=self.train_loader,
+                    sample_alg="random",
+                    batch_size=32,
+                    num_classes=self.num_labels)
+                mini_batch.to(self.device)
+                mini_batch_targets.to(self.device)
+                return mini_batch, mini_batch_targets
+            elif self.dataset_name in [Config.Criteo, Config.Frappe, Config.UCIDataset]:
+                if self.train_loader is None:
+                    pass
+                else:
+                    # this is structure data
+                    batch = iter(self.train_loader).__next__()
+                    target = batch['y'].type(torch.LongTensor).to(self.device)
+                    batch['id'] = batch['id'].to(self.device)
+                    batch['value'] = batch['value'].to(self.device)
+                    return batch, target
+            else:
+                raise NotImplementedError
+
+    def data_pre_processing(self, mini_batch, metrics: str, new_model: nn.Module):
         """
         To measure the io/compute time more acccuretely, we pick the data pre_processing here.
         """
-        if self.processed_mini_batch is not None:
-            return self.processed_mini_batch
 
         # for those two metrics, we use all one embedding for efficiency (as in their paper)
         if metrics in [CommonVars.ExpressFlow, CommonVars.PRUNE_SYNFLOW]:
-            if isinstance(self.mini_batch, torch.Tensor):
-                feature_dim = list(self.mini_batch[0, :].shape)
+            if isinstance(mini_batch, torch.Tensor):
+                feature_dim = list(mini_batch[0, :].shape)
                 # add one dimension to feature dim, [1] + [3, 32, 32] = [1, 3, 32, 32]
                 mini_batch = torch.ones([1] + feature_dim).float().to(self.device)
             else:
                 # this is for the tabular data,
                 mini_batch = new_model.generate_all_ones_embedding().float().to(self.device)
         else:
-            mini_batch = self.mini_batch
+            # for others, skip preprocessing
+            pass
 
         # wait for moving data to GPU
         if self.if_cuda_avaiable():
             torch.cuda.synchronize()
-        self.processed_mini_batch = mini_batch
-        return self.processed_mini_batch
+        return mini_batch

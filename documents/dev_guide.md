@@ -1,10 +1,26 @@
 
 
+
+
+# Change the permission
+
+```bash
+chmod -R 777 internal/pg_extension
+chmod -R 777 TRAILS
+```
+
 # PSQL cmd
 
 ```sql
-psql -h localhost -p 5432 -U postgres -d [DATABASE_NAME]
-
+psql -h localhost -p 28814 -U postgres 
+\c frappe
+\dt
+\d frappe_train
+DROP TABLE frappe_train;
+SELECT * FROM frappe_train LIMIT 10;
+SELECT * FROM frappe_test LIMIT 10;
+SELECT * FROM frappe_valid LIMIT 10;
+DROP DATABASE frappe;
 psql -U postgres
 ```
 
@@ -14,52 +30,42 @@ psql -U postgres
 docker build -t trails .
 
 docker run -d --name trails \
+  --network="host" \
   -v $(pwd)/TRAILS:/project/TRAILS \
-  -v $(pwd)/exp_data:/project/exp_data \
+  -v /hdd1/xingnaili/exp_data/:/project/exp_data \
   trails
-```
 
-# MAC locally
-```bash
-conda activate firmest38
-export PYTHON_SYS_EXECUTABLE=/Users/kevin/opt/anaconda3/envs/firmest38/bin/python
-export DYLD_LIBRARY_PATH=/Users/kevin/opt/anaconda3/envs/firmest38/lib/:$DYLD_LIBRARY_PATH
-cargo run --features python
+docker exec -it trails bash 
 ```
 
 # This is in docker image already
+
 ```bash
+# if those are already on docker, skip them.
 cargo install --locked cargo-pgrx
 cargo pgrx init --pg14 /usr/bin/pg_config
 cargo pgrx new my_extension
+# just run this after code updates.
 cargo pgrx run
-```
-
-# On host after sync.sh
-```bash
-chmod -R 777 internal/pg_extension
-chmod -R 777 TRAILS
 ```
 
 # Develop
 
+## Load data into database.
+
+```sql
+bash load_data_to_db.sh /project/exp_data/data/structure_data/frappe frappe
+bash load_data_to_db.sh /project/exp_data/data/structure_data/uci_diabetes uci_diabetes
+bash load_data_to_db.sh /project/exp_data/data/structure_data/criteo_full criteo
+```
+
 ## Create dummy data
+
 
 ```sql
 CREATE TABLE dummy (
     id SERIAL PRIMARY KEY,
-    col1 TEXT,
-    col2 TEXT,
-    col3 TEXT,
-    col4 TEXT,
-    col5 TEXT,
-    col6 TEXT,
-    col7 TEXT,
-    col8 TEXT,
-    col9 TEXT,
-    label TEXT
-);
-
+    col1 TEXT, col2 TEXT, col3 TEXT, col4 TEXT, col5 TEXT, col6 TEXT, col7 TEXT, col8 TEXT, col9 TEXT, label TEXT);
 
 INSERT INTO dummy (col1, col2, col3, col4, col5, col6, col7, col8, col9, label)
 SELECT '123:123', '123:123', '123:123', '123:123', '123:123', '123:123', '123:123', '123:123', '123:123',
@@ -68,9 +74,7 @@ SELECT '123:123', '123:123', '123:123', '123:123', '123:123', '123:123', '123:12
             ELSE '1'
        END
 FROM generate_series(1,5000);
-
 select * from dummy limit 10;
-
 ```
 
 ## 1. Compile
@@ -102,13 +106,14 @@ E.g, `ARRAY['col1', 'col2', 'col3', 'label']`  => `nfield` = 3
 ```sql
 CREATE EXTENSION pg_extension;
 
-# test if the UDF is there or not
+# Test if the UDF is there or not
 SELECT *  FROM pg_proc  WHERE proname = 'model_selection_workloads';
+
+# Test coordinator
 SELECT coordinator('0.08244', '168.830156', '800', false, '/project/TRAILS/internal/ml/model_selection/config.ini');
 
 # this is database name, columns used, time budget, batch size, and config file
 CALL model_selection_sp('dummy', ARRAY['col1', 'col2', 'col3', 'label'], '30', 32, '/project/TRAILS/internal/ml/model_selection/config.ini');
-
 
 # end2end model selection
 CALL model_selection_end2end('dummy', ARRAY['col1', 'col2', 'col3', 'label'], '15', '/project/TRAILS/internal/ml/model_selection/config.ini');
@@ -116,16 +121,15 @@ CALL model_selection_end2end('dummy', ARRAY['col1', 'col2', 'col3', 'label'], '1
 # filtering & refinement with workloads
 CALL model_selection_workloads('dummy', ARRAY['col1', 'col2', 'col3', 'label'], 300, 3, '/project/TRAILS/internal/ml/model_selection/config.ini');
 
-
 response = requests.post(args.refinement_url, json=data).json()
 
 ```
 
-# Test the pg-extension works
+# Test the pg-extension works using pippython
 
 ```sql
+# switch to a postgres
 su postgres
-psql
 
 CREATE EXTENSION plpython3u;
 
@@ -199,9 +203,14 @@ Each line in your output represents a different process that is currently runnin
 
 Each process is part of the PostgreSQL database system and helps it to run efficiently and robustly.
 
+# MAC locally
 
-
-
+```bash
+conda activate firmest38
+export PYTHON_SYS_EXECUTABLE=/Users/kevin/opt/anaconda3/envs/firmest38/bin/python
+export DYLD_LIBRARY_PATH=/Users/kevin/opt/anaconda3/envs/firmest38/lib/:$DYLD_LIBRARY_PATH
+cargo run --features python
+```
 
 # What cargo run do?
 

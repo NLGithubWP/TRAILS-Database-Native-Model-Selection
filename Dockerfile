@@ -16,11 +16,25 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Install Rust and init the cargo
+# Install necessary dependencies for pgrx
+RUN apt-get update && \
+    apt-get install -y bison flex libreadline-dev && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Create the postgres user
+USER root
+RUN adduser --disabled-password --gecos "" postgres && \
+    mkdir /project && \
+    adduser postgres sudo && \
+    chown -R postgres:postgres /project
+
+# Switch to the postgres user andInstall Rust and init the cargo
+USER postgres
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && \
     echo 'source $HOME/.cargo/env' >> $HOME/.bashrc && \
     /bin/bash -c "source $HOME/.cargo/env && cargo install cargo-pgrx --version '0.9.7' --locked" && \
-    /bin/bash -c "source $HOME/.cargo/env && cargo pgrx init --pg14 /usr/bin/pg_config"
+    /bin/bash -c "source $HOME/.cargo/env && cargo pgrx init"
 
 # Set environment variables for Rust and Python
 ENV PATH="/root/.cargo/bin:${PATH}"
@@ -30,5 +44,13 @@ WORKDIR /project
 COPY ./internal/ml/model_selection/requirement.txt ./requirement.txt
 RUN pip install -r requirement.txt
 
-WORKDIR /project/TRAILS/internal/pg_extension
-CMD cargo pgrx run pg14
+# appendix
+USER root
+RUN apt-get update && apt-get install -y \
+    postgresql-client && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+USER postgres
+
+CMD ["tail", "-f", "/dev/null"]
