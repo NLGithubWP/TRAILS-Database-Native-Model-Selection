@@ -2,6 +2,17 @@ import json
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import numpy as np
+from matplotlib.ticker import FuncFormatter
+
+
+def thousands_formatter(x, pos):
+    if x >= 1e3:
+        return '{:.1f}k'.format(x * 1e-3)
+    else:
+        return '{:.1f}'.format(x)
+
+
+thousands_format = FuncFormatter(thousands_formatter)
 
 
 # Helper function to load data
@@ -68,7 +79,6 @@ datasets_wo_cache = {
     },
 }
 
-
 # Collecting data for plotting
 datasets = list(datasets_wo_cache.keys())
 gpu_totals, cpu_totals, gpu_mem_device, gpu_mem_host = [], [], [], []
@@ -120,6 +130,7 @@ ax.set_xticks(index)
 # ax.set_yscale('symlog')  # Set y-axis to logarithmic scale
 ax.set_xticklabels(datasets, rotation=0, fontsize=set_font_size)
 ax.legend(fontsize=set_lgend_size)
+ax.yaxis.set_major_formatter(thousands_format)
 
 ax.tick_params(axis='y', which='major', labelsize=set_tick_size + 5)
 
