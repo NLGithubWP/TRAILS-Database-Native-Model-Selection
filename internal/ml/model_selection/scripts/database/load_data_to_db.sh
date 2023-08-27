@@ -26,10 +26,7 @@ echo $create_table_cmd | psql -h $HOST -p $PORT -U $USERNAME -d $DBNAME
 
 # 3. Transform the libsvm format to CSV
 echo "Transforming data to CSV format..."
-awk '{
-    gsub(/ /, ","); # replaces spaces with ,
-    print;
-}' /project/exp_data/data/structure_data/frappe/train.libsvm > /project/exp_data/data/structure_data/frappe/train.csv
+awk 'BEGIN {OFS=","} { $1=$1; print }' /project/exp_data/data/structure_data/frappe/train.libsvm > /project/exp_data/data/structure_data/frappe/train.csv
 
 # 4. Import into PostgreSQL
 columns="label"
