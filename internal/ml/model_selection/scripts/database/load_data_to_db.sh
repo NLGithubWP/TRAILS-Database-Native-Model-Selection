@@ -29,7 +29,7 @@ echo "Transforming data to CSV format..."
 awk '{
     gsub(/:/, ","); # replaces : with ,
     print;
-}' /project/exp_data/data/structure_data/frappe/train.libsvm > train.csv
+}' /project/exp_data/data/structure_data/frappe/train.libsvm > /project/exp_data/data/structure_data/frappe/train.csv
 
 # 4. Import into PostgreSQL
 columns="label"
