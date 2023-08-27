@@ -17,6 +17,7 @@ import gc
 import sys
 from src.tools.res_measure import print_memory_usage
 
+
 class P1Evaluator:
 
     def __init__(self, device: str, num_label: int, dataset_name: str,
@@ -78,7 +79,7 @@ class P1Evaluator:
             "track_compute": [],  # compute time
             "track_io_model_init": [],  # init model weight
             "track_io_model_load": [],  # load model into GPU/CPU
-            "track_io_res_load": [],    # load result into GPU/CPU
+            "track_io_res_load": [],  # load result into GPU/CPU
             "track_io_model_release_each_50": [],  # context switch
             "track_io_model_release": [],  # context switch
             "track_io_data": [],  # context switch
