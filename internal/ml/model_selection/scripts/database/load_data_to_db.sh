@@ -1,8 +1,16 @@
 #!/bin/bash
 
+# Check for proper number of command line args
+if [[ $# -ne 2 ]]; then
+    echo "Usage: $0 <data_path> <db_name>"
+    exit 1
+fi
+
 # Configurations
-DATA_PATH="/project/exp_data/data/structure_data/frappe"   # Edit this path as needed
-DB_NAME="frappe"   # Edit the database name as needed
+DATA_PATH="$1"
+DB_NAME="$2"
+#DATA_PATH="/project/exp_data/data/structure_data/frappe"   # Edit this path as needed
+#DB_NAME="frappe"   # Edit the database name as needed
 
 # Connection details
 HOST="localhost"
