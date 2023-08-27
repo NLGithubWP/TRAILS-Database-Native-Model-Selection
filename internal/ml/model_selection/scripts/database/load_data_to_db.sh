@@ -16,6 +16,10 @@ PORT="28814"
 USERNAME="postgres"
 DBNAME=$DB_NAME
 
+# Create the database
+echo "Creating database..."
+createdb -h $HOST -p $PORT -U $USERNAME $DBNAME
+
 # Define datasets to process
 datasets=("train" "valid" "test")
 
