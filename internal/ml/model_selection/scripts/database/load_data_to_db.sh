@@ -11,7 +11,7 @@ echo "Creating database..."
 createdb -h $HOST -p $PORT -U $USERNAME $DBNAME
 
 # 1. Identify the number of columns
-num_columns=$(awk 'NF > max { max = NF } END { print max }' train.libsvm)
+num_columns=$(awk 'NF > max { max = NF } END { print max }' /project/exp_data/data/structure_data/frappe/train.libsvm)
 
 # 2. Create the table dynamically
 create_table_cmd="CREATE TABLE frappe_train (id SERIAL PRIMARY KEY, label INTEGER"
@@ -29,7 +29,7 @@ echo "Transforming data to CSV format..."
 awk '{
     gsub(/:/, ","); # replaces : with ,
     print;
-}' train.libsvm > train.csv
+}' /project/exp_data/data/structure_data/frappe/train.libsvm > train.csv
 
 # 4. Import into PostgreSQL
 columns="label"
