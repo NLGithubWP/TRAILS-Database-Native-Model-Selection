@@ -6,6 +6,8 @@ PORT="28814"
 USERNAME="postgres"
 DBNAME="frappe"
 
+rm /project/exp_data/data/structure_data/frappe/train.csv
+
 # Create the database
 echo "Creating database..."
 createdb -h $HOST -p $PORT -U $USERNAME $DBNAME
@@ -24,9 +26,13 @@ create_table_cmd+=");"
 echo "Creating table..."
 echo $create_table_cmd | psql -h $HOST -p $PORT -U $USERNAME -d $DBNAME
 
-# 3. Transform the libsvm format to CSV
-echo "Transforming data to CSV format..."
-awk 'BEGIN {OFS=","} { $1=$1; print }' /project/exp_data/data/structure_data/frappe/train.libsvm > /project/exp_data/data/structure_data/frappe/train.csv
+awk '{
+    printf $1;  # print the first field (label)
+    for (i = 2; i <= NF; i++) {
+        printf ",\"%s\"", $i;  # print the remaining fields, enclosed in double quotes
+    }
+    printf "\n";  # end of line
+}' /project/exp_data/data/structure_data/frappe/train.libsvm > /project/exp_data/data/structure_data/frappe/train.csv
 
 # 4. Import into PostgreSQL
 columns="label"
