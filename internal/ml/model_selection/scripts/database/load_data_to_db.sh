@@ -38,6 +38,6 @@ for (( i=2; i<=$num_columns; i++ )); do
 done
 
 echo "Loading data into PostgreSQL..."
-psql -h $HOST -p $PORT -U $USERNAME -d $DBNAME -c "\COPY frappe_train($columns) FROM 'train.csv' DELIMITER ' '"
+psql -h $HOST -p $PORT -U $USERNAME -d $DBNAME -c "\COPY frappe_train($columns) FROM '/project/exp_data/data/structure_data/frappe/train.csv' DELIMITER ' '"
 
 echo "Data load complete."
