@@ -1,5 +1,7 @@
 
 
+
+
 # Change the permission
 
 ```bash
@@ -10,8 +12,15 @@ chmod -R 777 TRAILS
 # PSQL cmd
 
 ```sql
-psql -h localhost -p 5432 -U postgres -d [DATABASE_NAME]
-
+psql -h localhost -p 28814 -U postgres 
+\c frappe
+\dt
+\d frappe_train
+DROP TABLE frappe_train;
+SELECT * FROM frappe_train LIMIT 10;
+SELECT * FROM frappe_test LIMIT 10;
+SELECT * FROM frappe_valid LIMIT 10;
+DROP DATABASE frappe;
 psql -U postgres
 ```
 
@@ -23,6 +32,7 @@ docker build -t trails .
 docker run -d --name trails \
   --network="host" \
   -v $(pwd)/TRAILS:/project/TRAILS \
+  -v /hdd1/xingnaili/exp_data/:/project/exp_data \
   trails
 
 docker exec -it trails bash 
@@ -39,58 +49,23 @@ cargo pgrx new my_extension
 cargo pgrx run
 ```
 
-# Test the pg-extension works
-
-```sql
-# switch to a postgres
-su postgres
-
-CREATE EXTENSION plpython3u;
-
-CREATE FUNCTION py_version() RETURNS text AS $$
-import sys
-return sys.version
-$$ LANGUAGE plpython3u;
-
-SELECT py_version();
-
-CREATE OR REPLACE FUNCTION test_numpy()
-  RETURNS text
-LANGUAGE plpython3u
-AS $$
-import numpy
-import torch
-import sklearn
-import torchvision
-import tqdm
-print("asdf")
-return str(numpy.__version__) + " torch: " + str(torch.__version__)
-$$;
-
-SELECT test_numpy();
-
-CREATE EXTENSION my_extension;
-SELECT hello_my_extension();
-```
 # Develop
 
+## Load data into database.
+
+```sql
+bash load_data_to_db.sh /project/exp_data/data/structure_data/frappe frappe
+bash load_data_to_db.sh /project/exp_data/data/structure_data/uci_diabetes uci_diabetes
+bash load_data_to_db.sh /project/exp_data/data/structure_data/criteo_full criteo
+```
+
 ## Create dummy data
+
 
 ```sql
 CREATE TABLE dummy (
     id SERIAL PRIMARY KEY,
-    col1 TEXT,
-    col2 TEXT,
-    col3 TEXT,
-    col4 TEXT,
-    col5 TEXT,
-    col6 TEXT,
-    col7 TEXT,
-    col8 TEXT,
-    col9 TEXT,
-    label TEXT
-);
-
+    col1 TEXT, col2 TEXT, col3 TEXT, col4 TEXT, col5 TEXT, col6 TEXT, col7 TEXT, col8 TEXT, col9 TEXT, label TEXT);
 
 INSERT INTO dummy (col1, col2, col3, col4, col5, col6, col7, col8, col9, label)
 SELECT '123:123', '123:123', '123:123', '123:123', '123:123', '123:123', '123:123', '123:123', '123:123',
@@ -99,9 +74,7 @@ SELECT '123:123', '123:123', '123:123', '123:123', '123:123', '123:123', '123:12
             ELSE '1'
        END
 FROM generate_series(1,5000);
-
 select * from dummy limit 10;
-
 ```
 
 ## 1. Compile
@@ -150,6 +123,40 @@ CALL model_selection_workloads('dummy', ARRAY['col1', 'col2', 'col3', 'label'], 
 
 response = requests.post(args.refinement_url, json=data).json()
 
+```
+
+# Test the pg-extension works using pippython
+
+```sql
+# switch to a postgres
+su postgres
+
+CREATE EXTENSION plpython3u;
+
+CREATE FUNCTION py_version() RETURNS text AS $$
+import sys
+return sys.version
+$$ LANGUAGE plpython3u;
+
+SELECT py_version();
+
+CREATE OR REPLACE FUNCTION test_numpy()
+  RETURNS text
+LANGUAGE plpython3u
+AS $$
+import numpy
+import torch
+import sklearn
+import torchvision
+import tqdm
+print("asdf")
+return str(numpy.__version__) + " torch: " + str(torch.__version__)
+$$;
+
+SELECT test_numpy();
+
+CREATE EXTENSION my_extension;
+SELECT hello_my_extension();
 ```
 
 # Container log
