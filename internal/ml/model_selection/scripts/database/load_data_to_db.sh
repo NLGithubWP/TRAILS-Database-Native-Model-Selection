@@ -29,7 +29,7 @@ echo $create_table_cmd | psql -h $HOST -p $PORT -U $USERNAME -d $DBNAME
 awk '{
     printf $1;  # print the first field (label)
     for (i = 2; i <= NF; i++) {
-        printf ",\"%s\"", $i;  # print the remaining fields, enclosed in double quotes
+        printf " \"%s\"", $i;  # print the remaining fields, enclosed in double quotes, separated by space
     }
     printf "\n";  # end of line
 }' /project/exp_data/data/structure_data/frappe/train.libsvm > /project/exp_data/data/structure_data/frappe/train.csv
