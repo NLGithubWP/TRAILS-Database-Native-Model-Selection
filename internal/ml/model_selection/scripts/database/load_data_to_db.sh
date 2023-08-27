@@ -1,22 +1,26 @@
 #!/bin/bash
 
+# Configurations
+DATA_PATH="/project/exp_data/data/structure_data/frappe"   # Edit this path as needed
+DB_NAME="frappe"   # Edit the database name as needed
+
 # Connection details
 HOST="localhost"
 PORT="28814"
 USERNAME="postgres"
-DBNAME="frappe"
+DBNAME=$DB_NAME
 
-rm /project/exp_data/data/structure_data/frappe/train.csv
+rm ${DATA_PATH}/train.csv
 
 # Create the database
 echo "Creating database..."
 createdb -h $HOST -p $PORT -U $USERNAME $DBNAME
 
 # 1. Identify the number of columns
-num_columns=$(awk 'NF > max { max = NF } END { print max }' /project/exp_data/data/structure_data/frappe/train.libsvm)
+num_columns=$(awk 'NF > max { max = NF } END { print max }' ${DATA_PATH}/train.libsvm)
 
 # 2. Create the table dynamically
-create_table_cmd="CREATE TABLE frappe_train (id SERIAL PRIMARY KEY, label INTEGER"
+create_table_cmd="CREATE TABLE ${DB_NAME}_train (id SERIAL PRIMARY KEY, label INTEGER"
 
 for (( i=2; i<=$num_columns; i++ )); do
     create_table_cmd+=", col$(($i-1)) TEXT"
@@ -37,8 +41,7 @@ awk '{
         }
     }
     printf "\n";  # end of line
-}' /project/exp_data/data/structure_data/frappe/train.libsvm > /project/exp_data/data/structure_data/frappe/train.csv
-
+}' ${DATA_PATH}/train.libsvm > ${DATA_PATH}/train.csv
 
 # 4. Import into PostgreSQL
 columns="label"
@@ -47,6 +50,6 @@ for (( i=2; i<=$num_columns; i++ )); do
 done
 
 echo "Loading data into PostgreSQL..."
-psql -h $HOST -p $PORT -U $USERNAME -d $DBNAME -c "\COPY frappe_train($columns) FROM '/project/exp_data/data/structure_data/frappe/train.csv' DELIMITER ' '"
+psql -h $HOST -p $PORT -U $USERNAME -d $DBNAME -c "\COPY ${DB_NAME}_train($columns) FROM '${DATA_PATH}/train.csv' DELIMITER ' '"
 
 echo "Data load complete."
