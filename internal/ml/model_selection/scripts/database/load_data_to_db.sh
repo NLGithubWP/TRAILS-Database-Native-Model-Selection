@@ -14,7 +14,7 @@ DB_NAME="$2"
 HOST="localhost"
 PORT="28814"
 USERNAME="postgres"
-DBNAME=$DB_NAME
+DBNAME="pg_extension"
 
 # Create the database
 echo "Creating database..."
