@@ -65,8 +65,7 @@ if __name__ == "__main__":
                                               model_encoding=model_encoding,
                                               is_last=False)
         data_str = model_acquire_data.serialize_model()
-        # model_score = _evaluator.p1_evaluate(data_str)
-        model_score = 0.1
+        model_score = _evaluator.p1_evaluate(data_str)
         explored_n += 1
         result[arch_id] = model_score
         if explored_n % 50 == 0:

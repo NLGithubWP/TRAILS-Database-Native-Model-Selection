@@ -274,17 +274,17 @@ def filtering_phase(params: dict, args: Namespace):
     from src.logger import logger
     logger.info(f"begin run filtering_phase CPU only")
 
-    mini_batch_m = params["mini_batch"]
+    # mini_batch_m = params["mini_batch"]
     n = int(params["n"])
     k = int(params["k"])
 
     from src.eva_engine.run_ms import RunModelSelection
 
-    mini_batch_data = json.loads(mini_batch_m)
-    dataloader = generate_dataloader(mini_batch_data=mini_batch_data, args=args)
+    # mini_batch_data = json.loads(mini_batch_m)
+    # dataloader = generate_dataloader(mini_batch_data=mini_batch_data, args=args)
 
     rms = RunModelSelection(args.search_space, args, is_simulate=args.is_simulate)
-    k_models, _, _, _ = rms.filtering_phase(N=n, K=k, train_loader=dataloader)
+    k_models, _, _, _ = rms.filtering_phase(N=n, K=k)
 
     return orjson.dumps({"k_models": k_models}).decode('utf-8')
 
