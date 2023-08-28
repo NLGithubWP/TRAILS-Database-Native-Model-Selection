@@ -87,6 +87,11 @@ def parse_config_arguments(config_path: str):
     args.refinement_url = parser.get('SERVER', 'refinement_url')
     args.cache_svc_url = parser.get('SERVER', 'cache_svc_url')
 
+    args.db_name = parser.get('DB_CONFIG', 'db_name')
+    args.db_user = parser.get('DB_CONFIG', 'db_user')
+    args.db_host = parser.get('DB_CONFIG', 'db_host')
+    args.db_port = parser.get('DB_CONFIG', 'db_port')
+
     return args
 
 
