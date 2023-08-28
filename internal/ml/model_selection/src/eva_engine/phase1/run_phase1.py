@@ -57,6 +57,14 @@ class RunPhase1:
                                             sample_size=self.args.sample_size)
         self.sampler = SampleController(strategy)
 
+        # generate db config
+        db_config = {
+            "db_name": self.args.db_name,
+            "db_user": self.args.db_user,
+            "db_host": self.args.db_host,
+            "db_port": self.args.db_port,
+        }
+
         # seq: init the phase 1 evaluator,
         self._evaluator = P1Evaluator(device=self.args.device,
                                       num_label=self.args.num_labels,
@@ -64,7 +72,8 @@ class RunPhase1:
                                       search_space_ins=self.search_space_ins,
                                       train_loader=train_loader,
                                       is_simulate=is_simulate,
-                                      metrics=self.args.tfmem)
+                                      metrics=self.args.tfmem,
+                                      db_config=db_config)
 
     def run_phase1(self) -> (list, list, list, list):
         """
