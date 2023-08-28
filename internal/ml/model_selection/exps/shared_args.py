@@ -136,11 +136,11 @@ def tune_interval_NK_rate(parser):
     parser.add_argument('--kn_rate', default=-1, type=int, help="default N/K = 100")
 
 
-# tune interval and schedule NK rate such that it can produce a good result
 def db4nas(parser):
-    parser.add_argument('--db4nas_n', default=100, type=int)
-    parser.add_argument('--db4nas_k', default=3, type=int)
-    parser.add_argument('--batch_data', default="[]", type=str)
+    parser.add_argument('--db_name', default="frappe", type=str)
+    parser.add_argument('--db_user', default="postgres", type=str)
+    parser.add_argument('--db_host', default=100, type=str)
+    parser.add_argument('--db_port', default=100, type=int)
 
 
 def anytime_exp_set(parser):

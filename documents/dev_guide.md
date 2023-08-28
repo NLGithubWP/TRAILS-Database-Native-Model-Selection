@@ -9,7 +9,7 @@ chmod -R 777 internal/pg_extension
 chmod -R 777 TRAILS
 ```
 
-# PSQL cmd
+# PSQL CMD
 
 ```sql
 psql -h localhost -p 28814 -U postgres 

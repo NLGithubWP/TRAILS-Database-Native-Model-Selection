@@ -16,6 +16,8 @@ from src.search_space.core.space import SpaceWrapper
 import gc
 import sys
 from src.tools.res_measure import print_memory_usage
+import psycopg2
+from typing import Any, List, Dict, Tuple
 
 
 class P1Evaluator:
@@ -23,7 +25,7 @@ class P1Evaluator:
     def __init__(self, device: str, num_label: int, dataset_name: str,
                  search_space_ins: SpaceWrapper,
                  train_loader: DataLoader, is_simulate: bool, metrics: str = CommonVars.ExpressFlow,
-                 enable_cache: bool = False):
+                 enable_cache: bool = False, db_config: Dict = None):
         """
         :param device:
         :param num_label:
@@ -34,6 +36,7 @@ class P1Evaluator:
         :param is_simulate:
         :param metrics: which TFMEM to use?
         :param enable_cache: if cache embedding for scoring? only used on structued data
+        :param db_config: how to connect to databaes
         """
         self.metrics = metrics
         self.is_simulate = is_simulate
@@ -67,6 +70,8 @@ class P1Evaluator:
             "track_io_data": [],  # context switch
         }
 
+        self.db_config = db_config
+
     def if_cuda_avaiable(self):
         if "cuda" in self.device:
             return True
@@ -91,13 +96,14 @@ class P1Evaluator:
 
     def measure_model_flops(self, data_str: str, batch_size: int, channel_size: int):
         # todo: check the package
+        mini_batch, mini_batch_targets, _ = self.retrievel_data()
         model_acquire = ModelAcquireData.deserialize(data_str)
         model_encoding = model_acquire.model_encoding
         new_model = self.search_space_ins.new_arch_scratch_with_default_setting(model_encoding, bn=True)
         if self.search_space_ins.name == Config.MLPSP:
             new_model.init_embedding(requires_grad=True)
         new_model = new_model.to(self.device)
-        flops, params = profile(new_model, inputs=(self.mini_batch,))
+        flops, params = profile(new_model, inputs=(mini_batch,))
         print('FLOPs = ' + str(flops / 1000 ** 3) + 'G')
         print('Params = ' + str(params / 1000 ** 2) + 'M')
 
@@ -130,7 +136,7 @@ class P1Evaluator:
         model_encoding = model_acquire.model_encoding
 
         # 1. Get a batch of data
-        mini_batch, mini_batch_targets = self.retrievel_data()
+        mini_batch, mini_batch_targets, data_load_time_usage = self.retrievel_data()
 
         # 2. Score all tfmem
         if self.metrics == CommonVars.ALL_EVALUATOR:
@@ -194,7 +200,7 @@ class P1Evaluator:
             # measure data load time
             begin = time.time()
             mini_batch = self.data_pre_processing(mini_batch, self.metrics, new_model)
-            self.time_usage["track_io_data"].append(time.time() - begin)
+            self.time_usage["track_io_data"].append(data_load_time_usage + (time.time() - begin))
 
             _score, compute_time = evaluator_register[self.metrics].evaluate_wrapper(
                 arch=new_model,
@@ -249,6 +255,7 @@ class P1Evaluator:
                 if self.train_loader is None:
                     raise f"self.train_loader is None for {self.dataset_name}"
                 # for img data
+                begin =  time.time()
                 mini_batch, mini_batch_targets = dataset.get_mini_batch(
                     dataloader=self.train_loader,
                     sample_alg="random",
@@ -256,19 +263,87 @@ class P1Evaluator:
                     num_classes=self.num_labels)
                 mini_batch.to(self.device)
                 mini_batch_targets.to(self.device)
-                return mini_batch, mini_batch_targets
+                # wait for moving data to GPU
+                if self.if_cuda_avaiable():
+                    torch.cuda.synchronize()
+                time_usage = time.time() - begin
+                return mini_batch, mini_batch_targets, time_usage
             elif self.dataset_name in [Config.Criteo, Config.Frappe, Config.UCIDataset]:
                 if self.train_loader is None:
-                    pass
+                    batch, time_usage = self._retrievel_from_db()
+                    begin = time.time()
+                    id_tensor = torch.FloatTensor(batch['id']).to(self.device)
+                    value_tensor = torch.FloatTensor(batch['value']).to(self.device)
+                    y_tensor = torch.LongTensor(batch['y']).to(self.device)
+                    data_tensor = {'id': id_tensor, 'value': value_tensor, 'y': y_tensor}
+                    # wait for moving data to GPU
+                    if self.if_cuda_avaiable():
+                        torch.cuda.synchronize()
+                    time_usage += time.time() - begin
+                    return data_tensor, y_tensor, time_usage
                 else:
                     # this is structure data
+                    begin = time.time()
                     batch = iter(self.train_loader).__next__()
                     target = batch['y'].type(torch.LongTensor).to(self.device)
                     batch['id'] = batch['id'].to(self.device)
                     batch['value'] = batch['value'].to(self.device)
-                    return batch, target
+
+                    # wait for moving data to GPU
+                    if self.if_cuda_avaiable():
+                        torch.cuda.synchronize()
+                    time_usage = time.time() - begin
+                    return batch, target, time_usage
             else:
                 raise NotImplementedError
+
+    def _retrievel_from_db(self):
+
+        def decode_libsvm(columns):
+            map_func = lambda pair: (int(pair[0]), float(pair[1]))
+            # 0 is id, 1 is label
+            id, value = zip(*map(lambda col: map_func(col.split(':')), columns[2:]))
+            sample = {'id': list(id),
+                      'value': list(value),
+                      'y': float(columns[1])}
+            return sample
+
+        def pre_processing(mini_batch_data: List[Tuple]):
+            """
+            mini_batch_data: [('0', '0', '123:123', '123:123', '123:123',)
+            """
+            sample_lines = len(mini_batch_data)
+            feat_id = []
+            feat_value = []
+            y = []
+
+            for i in range(sample_lines):
+                row_value = mini_batch_data[i]
+                sample = decode_libsvm(list(row_value))
+                feat_id.append(sample['id'])
+                feat_value.append(sample['value'])
+                y.append(sample['y'])
+            return {'id': feat_id, 'value': feat_value, 'y': y}
+
+        begin_time = time.time()
+        with psycopg2.connect(database=self.db_config["db_name"],
+                              user=self.db_config["db_user"],
+                              host=self.db_config["db_host"],
+                              port=self.db_config["db_port"]) as conn:
+
+            # fetch and preprocess data from PostgreSQL
+            cur = conn.cursor()
+
+            # columns_str = ', '.join(columns)
+            # Select rows greater than last_id
+            cur.execute(f"SELECT * FROM {self.dataset_name}_train "
+                        f"ORDER BY RANDOM() LIMIT 32")
+
+            rows = cur.fetchall()
+            batch = pre_processing(rows)
+            # block until a free slot is available
+        time_usage = time.time() - begin_time
+        return batch, time_usage
 
     def data_pre_processing(self, mini_batch, metrics: str, new_model: nn.Module):
         """
