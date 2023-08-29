@@ -34,6 +34,13 @@ if __name__ == "__main__":
     # start the resource monitor
     stop_event, thread = print_cpu_gpu_usage(interval=0.5, output_file=res_output_file)
 
+    db_config = {
+        "db_name": args.db_name,
+        "db_user": args.db_user,
+        "db_host": args.db_host,
+        "db_port": args.db_port,
+    }
+
     search_space_ins = init_search_space(args)
     _evaluator = P1Evaluator(device=args.device,
                              num_label=args.num_labels,
@@ -42,7 +49,9 @@ if __name__ == "__main__":
                              train_loader=None,
                              is_simulate=False,
                              metrics=args.tfmem,
-                             enable_cache=args.embedding_cache_filtering)
+                             enable_cache=args.embedding_cache_filtering,
+                             db_config=db_config)
+
     sampler = SequenceSampler(search_space_ins)
     explored_n = 0
     result = read_json(output_file)
@@ -78,7 +87,9 @@ if __name__ == "__main__":
         sum(_evaluator.time_usage["track_io_model_load"][2:]) + \
         sum(_evaluator.time_usage["track_io_model_release_each_50"]) + \
         sum(_evaluator.time_usage["track_io_model_init"][2:]) + \
-        sum(_evaluator.time_usage["track_io_res_load"][2:])
+        sum(_evaluator.time_usage["track_io_res_load"][2:]) + \
+        sum(_evaluator.time_usage["track_io_data_retrievel"][2:]) + \
+        sum(_evaluator.time_usage["track_io_data_preprocess"][2:])
 
     _evaluator.time_usage["compute_latency"] = sum(_evaluator.time_usage["track_compute"][2:])
     _evaluator.time_usage["latency"] = _evaluator.time_usage["io_latency"] + _evaluator.time_usage["compute_latency"]

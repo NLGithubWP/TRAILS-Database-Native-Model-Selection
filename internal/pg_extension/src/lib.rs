@@ -4,7 +4,7 @@ use serde_json::json;
 use std::collections::HashMap;
 
 pub mod bindings;
-
+extern crate serde_derive;
 
 /*
  * @param mini_batch: mini_batch of data. Assume all columns are string type in
@@ -119,8 +119,6 @@ pub fn model_selection_workloads(mini_batch: String, n: i32, k: i32, config_file
 
 
 // this two are filtering + refinement in GPU server
-
-
 #[cfg(feature = "python")]
 #[pg_extern(immutable, parallel_safe, name = "model_selection_trails")]
 #[allow(unused_variables)]
@@ -146,5 +144,27 @@ pub fn model_selection_trails_workloads(mini_batch: String, n: i32, k: i32, conf
     let task_json = json!(task_map).to_string();
     crate::bindings::ms::model_selection_trails_workloads(&task_json).to_string()
 }
+
+// micro benchmarks
+#[cfg(feature = "python")]
+#[pg_extern(immutable, parallel_safe, name = "benchmark_filtering_phase_latency")]
+#[allow(unused_variables)]
+pub fn benchmark_filtering_phase_latency(explore_models: i32, config_file: String) -> String {
+    let mut task_map = HashMap::new();
+    task_map.insert("explore_models", explore_models.to_string());
+    task_map.insert("config_file", config_file);
+    let task_json = json!(task_map).to_string();
+    crate::bindings::ms::benchmark_filtering_phase_latency(&task_json).to_string()
+}
+
+#[cfg(feature = "python")]
+#[pg_extern(immutable, parallel_safe, name = "benchmark_filtering_latency_in_db")]
+#[allow(unused_variables)]
+pub fn benchmark_filtering_latency_in_db(explore_models: i32, config_file: String) -> String {
+    crate::bindings::ms::benchmark_filtering_latency_in_db(explore_models, &config_file).to_string()
+}
+
+
+
 
 

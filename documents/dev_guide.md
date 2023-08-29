@@ -43,7 +43,8 @@ docker exec -it trails bash
 ```bash
 # if those are already on docker, skip them.
 cargo install --locked cargo-pgrx
-cargo pgrx init --pg14 /usr/bin/pg_config
+# run after package update
+cargo pgrx init
 cargo pgrx new my_extension
 # just run this after code updates.
 cargo pgrx run
@@ -53,28 +54,10 @@ cargo pgrx run
 
 ## Load data into database.
 
-```sql
-bash load_data_to_db.sh /project/exp_data/data/structure_data/frappe frappe
-bash load_data_to_db.sh /project/exp_data/data/structure_data/uci_diabetes uci_diabetes
-bash load_data_to_db.sh /project/exp_data/data/structure_data/criteo_full criteo
-```
-
-## Create dummy data
-
-
-```sql
-CREATE TABLE dummy (
-    id SERIAL PRIMARY KEY,
-    col1 TEXT, col2 TEXT, col3 TEXT, col4 TEXT, col5 TEXT, col6 TEXT, col7 TEXT, col8 TEXT, col9 TEXT, label TEXT);
-
-INSERT INTO dummy (col1, col2, col3, col4, col5, col6, col7, col8, col9, label)
-SELECT '123:123', '123:123', '123:123', '123:123', '123:123', '123:123', '123:123', '123:123', '123:123',
-       CASE 
-            WHEN random() < 0.5 THEN '0'
-            ELSE '1'
-       END
-FROM generate_series(1,5000);
-select * from dummy limit 10;
+```bash
+bash internal/ml/model_selection/scripts/database/load_data_to_db.sh /project/exp_data/data/structure_data/frappe frappe
+bash internal/ml/model_selection/scripts/database/load_data_to_db.sh /project/exp_data/data/structure_data/uci_diabetes uci_diabetes
+bash internal/ml/model_selection/scripts/database/load_data_to_db.sh /project/exp_data/data/structure_data/criteo_full criteo
 ```
 
 ## 1. Compile
@@ -82,10 +65,15 @@ select * from dummy limit 10;
 In shell
 
 ```bash
-cd internal/pg_extension/
+cd ./internal/pg_extension/
 cargo clean
-rm -r /usr/lib/postgresql/14/lib/pg_extension.so
+rm -r /home/postgres/.pgrx/14.9/pgrx-install/lib/pg_extension.so
 cargo pgrx run
+rm /home/postgres/.pgrx/14.9/pgrx-install/share/extension/pg_extension--0.1.0.sql
+vi /home/postgres/.pgrx/14.9/pgrx-install/share/extension/pg_extension--0.1.0.sql
+paste the latest sqls
+# generate schema
+cargo pgrx schema >> /home/postgres/.pgrx/14.9/pgrx-install/share/extension/pg_extension--0.1.0.sql
 ```
 
 In SQL
@@ -97,9 +85,7 @@ CREATE EXTENSION pg_extension;
 
 ## 2. Edit the config file
 
-Update the `nfield` in the `config.ini` file, it is == number of columns used.
-
-E.g, `ARRAY['col1', 'col2', 'col3', 'label']`  => `nfield` = 3
+Update the `nfield` in the `config.ini` file, it is == number of columns used. E.g, `ARRAY['col1', 'col2', 'col3', 'label']`  => `nfield` = 3
 
 ## 3. Run it
 
@@ -108,6 +94,11 @@ CREATE EXTENSION pg_extension;
 
 # Test if the UDF is there or not
 SELECT *  FROM pg_proc  WHERE proname = 'model_selection_workloads';
+
+# micro
+select benchmark_filtering_phase_latency(4, '/project/TRAILS/internal/ml/model_selection/config.ini');
+
+select benchmark_filtering_latency_in_db(2, '/project/TRAILS/internal/ml/model_selection/config.ini');
 
 # Test coordinator
 SELECT coordinator('0.08244', '168.830156', '800', false, '/project/TRAILS/internal/ml/model_selection/config.ini');
@@ -125,7 +116,7 @@ response = requests.post(args.refinement_url, json=data).json()
 
 ```
 
-# Test the pg-extension works using pippython
+# Test the pg-extension works using pipython
 
 ```sql
 # switch to a postgres

@@ -9,7 +9,7 @@ from torch.utils.data import Dataset, DataLoader
 import traceback
 import orjson
 from argparse import Namespace
-from internal.ml.model_selection.shared_config import parse_config_arguments
+from shared_config import parse_config_arguments
 
 
 def exception_catcher(func):
@@ -343,7 +343,7 @@ def model_selection_trails_workloads(params: dict, args: Namespace):
 
 ######### benchmarking code here #########
 @exception_catcher
-def benchmark_filtering_phase_ltaency(params: dict, args: Namespace):
+def benchmark_filtering_phase_latency(params: dict, args: Namespace):
     from src.logger import logger
     from src.common.structure import ModelAcquireData
     from src.controller.sampler_all.seq_sampler import SequenceSampler
@@ -353,7 +353,7 @@ def benchmark_filtering_phase_ltaency(params: dict, args: Namespace):
     from src.tools.res_measure import print_cpu_gpu_usage
     logger.info(f"begin run filtering_phase CPU only")
 
-    explore_models = int(params["explore_models"])
+    args.models_explore = int(params["explore_models"])
 
     output_file = f"{args.result_dir}/score_{args.search_space}_{args.dataset}_batch_size_{args.batch_size}_{args.device}_{args.tfmem}.json"
     time_output_file = f"{args.result_dir}/time_score_{args.search_space}_{args.dataset}_batch_size_{args.batch_size}_{args.device}_{args.tfmem}.json"
@@ -361,6 +361,13 @@ def benchmark_filtering_phase_ltaency(params: dict, args: Namespace):
 
     # start the resource monitor
     stop_event, thread = print_cpu_gpu_usage(interval=0.5, output_file=res_output_file)
+
+    db_config = {
+        "db_name": args.db_name,
+        "db_user": args.db_user,
+        "db_host": args.db_host,
+        "db_port": args.db_port,
+    }
 
     search_space_ins = init_search_space(args)
     _evaluator = P1Evaluator(device=args.device,
@@ -370,7 +377,9 @@ def benchmark_filtering_phase_ltaency(params: dict, args: Namespace):
                              train_loader=None,
                              is_simulate=False,
                              metrics=args.tfmem,
-                             enable_cache=args.embedding_cache_filtering)
+                             enable_cache=args.embedding_cache_filtering,
+                             db_config=db_config)
+
     sampler = SequenceSampler(search_space_ins)
     explored_n = 0
     result = read_json(output_file)
@@ -383,7 +392,7 @@ def benchmark_filtering_phase_ltaency(params: dict, args: Namespace):
             break
         if arch_id in result:
             continue
-        if explored_n > explore_models:
+        if explored_n > args.models_explore:
             break
         # run the model selection
         model_encoding = search_space_ins.serialize_model_encoding(arch_micro)
@@ -396,6 +405,7 @@ def benchmark_filtering_phase_ltaency(params: dict, args: Namespace):
         result[arch_id] = model_score
         if explored_n % 50 == 0:
             logger.info(f"Evaluate {explored_n} models")
+            print(f"Evaluate {explored_n} models")
 
     if _evaluator.if_cuda_avaiable():
         torch.cuda.synchronize()
@@ -405,7 +415,9 @@ def benchmark_filtering_phase_ltaency(params: dict, args: Namespace):
         sum(_evaluator.time_usage["track_io_model_load"][2:]) + \
         sum(_evaluator.time_usage["track_io_model_release_each_50"]) + \
         sum(_evaluator.time_usage["track_io_model_init"][2:]) + \
-        sum(_evaluator.time_usage["track_io_res_load"][2:])
+        sum(_evaluator.time_usage["track_io_res_load"][2:]) + \
+        sum(_evaluator.time_usage["track_io_data_retrievel"][2:]) + \
+        sum(_evaluator.time_usage["track_io_data_preprocess"][2:])
 
     _evaluator.time_usage["compute_latency"] = sum(_evaluator.time_usage["track_compute"][2:])
     _evaluator.time_usage["latency"] = _evaluator.time_usage["io_latency"] + _evaluator.time_usage["compute_latency"]
@@ -426,6 +438,68 @@ def benchmark_filtering_phase_ltaency(params: dict, args: Namespace):
     thread.join()
 
     return orjson.dumps({"Write to": time_output_file}).decode('utf-8')
+
+OBJECT_CACHE = {}
+
+######### benchmarking code here #########
+@exception_catcher
+def in_db_filtering_state_init(params: dict, args: Namespace):
+    from src.logger import logger
+    from src.controller.sampler_all.seq_sampler import SequenceSampler
+    from src.eva_engine.phase1.evaluator import P1Evaluator
+    from src.search_space.init_search_space import init_search_space
+    logger.info(f"begin run filtering_phase CPU only")
+
+    logger.info(params)
+    logger.info(OBJECT_CACHE)
+
+    OBJECT_CACHE["test_cache"] = 123
+
+    db_config = {
+        "db_name": args.db_name,
+        "db_user": args.db_user,
+        "db_host": args.db_host,
+        "db_port": args.db_port,
+    }
+
+    search_space_ins = init_search_space(args)
+    _evaluator = P1Evaluator(device=args.device,
+                             num_label=args.num_labels,
+                             dataset_name=args.dataset,
+                             search_space_ins=search_space_ins,
+                             train_loader=None,
+                             is_simulate=False,
+                             metrics=args.tfmem,
+                             enable_cache=args.embedding_cache_filtering,
+                             db_config=db_config)
+
+    sampler = SequenceSampler(search_space_ins)
+    arch_id, arch_micro = sampler.sample_next_arch()
+    model_encoding = search_space_ins.serialize_model_encoding(arch_micro)
+
+    OBJECT_CACHE[id(_evaluator)] = _evaluator
+
+    return orjson.dumps({"model_encoding": model_encoding,
+                         "arch_id": arch_id,
+                         "eva_id": id(_evaluator),
+                         }).decode('utf-8')
+
+@exception_catcher
+def in_db_filtering_evaluate(params: dict, args: Namespace):
+    from src.common.structure import ModelAcquireData
+    from src.logger import logger
+
+    logger.info(params)
+
+    arch_id, model_encoding, _evaluator = 1, 2, 3
+
+    model_acquire_data = ModelAcquireData(model_id=arch_id,
+                                          model_encoding=model_encoding,
+                                          is_last=False)
+    data_str = model_acquire_data.serialize_model()
+    model_score = _evaluator.p1_evaluate(data_str)
+
+    return orjson.dumps({"score": model_score}).decode('utf-8')
 
 
 if __name__ == "__main__":
