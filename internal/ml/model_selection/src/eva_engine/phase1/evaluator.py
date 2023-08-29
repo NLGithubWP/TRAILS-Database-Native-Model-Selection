@@ -302,7 +302,7 @@ class P1Evaluator:
             id, value = zip(*map(lambda col: map_func(col.split(':')), columns[2:]))
             sample = {'id': list(id),
                       'value': list(value),
-                      'y': float(columns[1])}
+                      'y': int(columns[1])}
             return sample
 
         def pre_processing(mini_batch_data: List[Tuple]):

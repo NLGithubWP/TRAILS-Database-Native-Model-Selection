@@ -53,10 +53,10 @@ cargo pgrx run
 
 ## Load data into database.
 
-```sql
-bash load_data_to_db.sh /project/exp_data/data/structure_data/frappe frappe
-bash load_data_to_db.sh /project/exp_data/data/structure_data/uci_diabetes uci_diabetes
-bash load_data_to_db.sh /project/exp_data/data/structure_data/criteo_full criteo
+```bash
+bash internal/ml/model_selection/scripts/database/load_data_to_db.sh /project/exp_data/data/structure_data/frappe frappe
+bash internal/ml/model_selection/scripts/database/load_data_to_db.sh /project/exp_data/data/structure_data/uci_diabetes uci_diabetes
+bash internal/ml/model_selection/scripts/database/load_data_to_db.sh /project/exp_data/data/structure_data/criteo_full criteo
 ```
 
 ## Create dummy data
