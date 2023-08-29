@@ -22,10 +22,8 @@ from src.common.structure import ModelAcquireData
 from src.controller.sampler_all.seq_sampler import SequenceSampler
 from src.eva_engine.phase1.evaluator import P1Evaluator
 from src.search_space.init_search_space import init_search_space
-from src.dataset_utils.structure_data_loader import libsvm_dataloader
 from src.tools.io_tools import write_json, read_json
-from src.dataset_utils import dataset
-from src.common.constant import Config
+
 
 if __name__ == "__main__":
 

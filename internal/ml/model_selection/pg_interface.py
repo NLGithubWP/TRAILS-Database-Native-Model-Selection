@@ -8,91 +8,8 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 import traceback
 import orjson
-import argparse
-import configparser
 from argparse import Namespace
-
-
-def parse_config_arguments(config_path: str):
-    parser = configparser.ConfigParser()
-    parser.read(config_path)
-
-    args = argparse.Namespace()
-
-    # job config under DEFAULT
-    args.log_name = parser.get('DEFAULT', 'log_name')
-    args.budget = parser.getint('DEFAULT', 'budget')
-    args.device = parser.get('DEFAULT', 'device')
-    args.log_folder = parser.get('DEFAULT', 'log_folder')
-    args.result_dir = parser.get('DEFAULT', 'result_dir')
-    args.num_points = parser.getint('DEFAULT', 'num_points')
-    args.max_load = parser.getint('DEFAULT', 'max_load')
-
-    # sampler args
-    args.search_space = parser.get('SAMPLER', 'search_space')
-    args.population_size = parser.getint('SAMPLER', 'population_size')
-    args.sample_size = parser.getint('SAMPLER', 'sample_size')
-    args.simple_score_sum = parser.getboolean('SAMPLER', 'simple_score_sum')
-
-    # nb101 args
-    args.api_loc = parser.get('NB101', 'api_loc')
-    args.init_channels = parser.getint('NB101', 'init_channels')
-    args.bn = parser.getint('NB101', 'bn')
-    args.num_stacks = parser.getint('NB101', 'num_stacks')
-    args.num_modules_per_stack = parser.getint('NB101', 'num_modules_per_stack')
-
-    # nb201 args
-    args.init_w_type = parser.get('NB201', 'init_w_type')
-    args.init_b_type = parser.get('NB201', 'init_b_type')
-    args.arch_size = parser.getint('NB201', 'arch_size')
-
-    # mlp args
-    args.num_layers = parser.getint('MLP', 'num_layers')
-    args.hidden_choice_len = parser.getint('MLP', 'hidden_choice_len')
-
-    # mlp_trainer args
-    args.epoch = parser.getint('MLP_TRAINER', 'epoch')
-    args.batch_size = parser.getint('MLP_TRAINER', 'batch_size')
-    args.lr = parser.getfloat('MLP_TRAINER', 'lr')
-    args.patience = parser.getint('MLP_TRAINER', 'patience')
-    args.iter_per_epoch = parser.getint('MLP_TRAINER', 'iter_per_epoch')
-    args.nfeat = parser.getint('MLP_TRAINER', 'nfeat')
-    args.nfield = parser.getint('MLP_TRAINER', 'nfield')
-    args.nemb = parser.getint('MLP_TRAINER', 'nemb')
-    args.report_freq = parser.getint('MLP_TRAINER', 'report_freq')
-    args.workers = parser.getint('MLP_TRAINER', 'workers')
-
-    # dataset args
-    args.base_dir = parser.get('DATASET', 'base_dir')
-    args.dataset = parser.get('DATASET', 'dataset')
-    args.num_labels = parser.getint('DATASET', 'num_labels')
-
-    # seq_train args
-    args.worker_id = parser.getint('SEQ_TRAIN', 'worker_id')
-    args.total_workers = parser.getint('SEQ_TRAIN', 'total_workers')
-    args.total_models_per_worker = parser.getint('SEQ_TRAIN', 'total_models_per_worker')
-    args.pre_partitioned_file = parser.get('SEQ_TRAIN', 'pre_partitioned_file')
-
-    # dis_train args
-    args.worker_each_gpu = parser.getint('DIS_TRAIN', 'worker_each_gpu')
-    args.gpu_num = parser.getint('DIS_TRAIN', 'gpu_num')
-
-    # tune_interval args
-    args.kn_rate = parser.getint('TUNE_INTERVAL', 'kn_rate')
-
-    # anytime args
-    args.only_phase1 = parser.getboolean('ANYTIME', 'only_phase1')
-    args.is_simulate = parser.getboolean('ANYTIME', 'is_simulate')
-
-    args.refinement_url = parser.get('SERVER', 'refinement_url')
-    args.cache_svc_url = parser.get('SERVER', 'cache_svc_url')
-
-    args.db_name = parser.get('DB_CONFIG', 'db_name')
-    args.db_user = parser.get('DB_CONFIG', 'db_user')
-    args.db_host = parser.get('DB_CONFIG', 'db_host')
-    args.db_port = parser.get('DB_CONFIG', 'db_port')
-
-    return args
+from internal.ml.model_selection.shared_config import parse_config_arguments
 
 
 def exception_catcher(func):
@@ -422,6 +339,93 @@ def model_selection_trails_workloads(params: dict, args: Namespace):
          "best_arch_performance": best_arch_performance,
          "time_usage": real_time_usage
          }).decode('utf-8')
+
+
+######### benchmarking code here #########
+@exception_catcher
+def benchmark_filtering_phase_ltaency(params: dict, args: Namespace):
+    from src.logger import logger
+    from src.common.structure import ModelAcquireData
+    from src.controller.sampler_all.seq_sampler import SequenceSampler
+    from src.eva_engine.phase1.evaluator import P1Evaluator
+    from src.search_space.init_search_space import init_search_space
+    from src.tools.io_tools import write_json, read_json
+    from src.tools.res_measure import print_cpu_gpu_usage
+    logger.info(f"begin run filtering_phase CPU only")
+
+    explore_models = int(params["explore_models"])
+
+    output_file = f"{args.result_dir}/score_{args.search_space}_{args.dataset}_batch_size_{args.batch_size}_{args.device}_{args.tfmem}.json"
+    time_output_file = f"{args.result_dir}/time_score_{args.search_space}_{args.dataset}_batch_size_{args.batch_size}_{args.device}_{args.tfmem}.json"
+    res_output_file = f"{args.result_dir}/resource_score_{args.search_space}_{args.dataset}_batch_size_{args.batch_size}_{args.device}_{args.tfmem}.json"
+
+    # start the resource monitor
+    stop_event, thread = print_cpu_gpu_usage(interval=0.5, output_file=res_output_file)
+
+    search_space_ins = init_search_space(args)
+    _evaluator = P1Evaluator(device=args.device,
+                             num_label=args.num_labels,
+                             dataset_name=args.dataset,
+                             search_space_ins=search_space_ins,
+                             train_loader=None,
+                             is_simulate=False,
+                             metrics=args.tfmem,
+                             enable_cache=args.embedding_cache_filtering)
+    sampler = SequenceSampler(search_space_ins)
+    explored_n = 0
+    result = read_json(output_file)
+    print(f"begin to score all, currently we already explored {len(result.keys())}")
+    logger.info(f"begin to score all, currently we already explored {len(result.keys())}")
+
+    while True:
+        arch_id, arch_micro = sampler.sample_next_arch()
+        if arch_id is None:
+            break
+        if arch_id in result:
+            continue
+        if explored_n > explore_models:
+            break
+        # run the model selection
+        model_encoding = search_space_ins.serialize_model_encoding(arch_micro)
+        model_acquire_data = ModelAcquireData(model_id=arch_id,
+                                              model_encoding=model_encoding,
+                                              is_last=False)
+        data_str = model_acquire_data.serialize_model()
+        model_score = _evaluator.p1_evaluate(data_str)
+        explored_n += 1
+        result[arch_id] = model_score
+        if explored_n % 50 == 0:
+            logger.info(f"Evaluate {explored_n} models")
+
+    if _evaluator.if_cuda_avaiable():
+        torch.cuda.synchronize()
+
+    # the first two are used for warming up
+    _evaluator.time_usage["io_latency"] = \
+        sum(_evaluator.time_usage["track_io_model_load"][2:]) + \
+        sum(_evaluator.time_usage["track_io_model_release_each_50"]) + \
+        sum(_evaluator.time_usage["track_io_model_init"][2:]) + \
+        sum(_evaluator.time_usage["track_io_res_load"][2:])
+
+    _evaluator.time_usage["compute_latency"] = sum(_evaluator.time_usage["track_compute"][2:])
+    _evaluator.time_usage["latency"] = _evaluator.time_usage["io_latency"] + _evaluator.time_usage["compute_latency"]
+
+    _evaluator.time_usage["avg_compute_latency"] = \
+        _evaluator.time_usage["compute_latency"] \
+        / len(_evaluator.time_usage["track_compute"][2:])
+
+    write_json(output_file, result)
+    # compute time
+    write_json(time_output_file, _evaluator.time_usage)
+
+    # Then, at the end of your program, you can stop the thread:
+    print("Done, time sleep for 10 seconds")
+    # wait the resource montor flush
+    time.sleep(10)
+    stop_event.set()
+    thread.join()
+
+    return orjson.dumps({"Write to": time_output_file}).decode('utf-8')
 
 
 if __name__ == "__main__":
