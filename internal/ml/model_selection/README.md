@@ -141,7 +141,7 @@ Clearly, K/N reaches 100 yields better scheduling result in both image and tabul
 
 ![image-20230722205244718](./documents/imgs/image-20230722205244718.png)
 
-## System Motivation Experiments
+## Micro: device placement/embedding cache
 
 1. To measure the time usage for filtering phase on vairous hardware, run the following
 
@@ -157,15 +157,19 @@ Clearly, K/N reaches 100 yields better scheduling result in both image and tabul
    python ./internal/ml/model_selection/exps/micro/draw_filtering_memory_cache_CPU.py
    ```
 
-   ![image-20230818154905018](documents/imgs/image-20230818154905018.png)
-
 2. Further we measure the end-2-end latency under two CPU, GPU, and Hybrid. 
 
    ```bash
    nohup bash internal/ml/model_selection/scripts/latency_phase1_cpu_gpu.sh &
    ```
 
-## Latency
+## Micro: in-database filtering
+
+```bash
+
+```
+
+## Micro: on-the-fly data transmission
 
 
 
