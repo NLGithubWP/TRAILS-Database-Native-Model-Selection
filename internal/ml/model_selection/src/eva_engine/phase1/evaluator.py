@@ -13,9 +13,6 @@ import torch
 import time
 from torch import nn
 from src.search_space.core.space import SpaceWrapper
-import gc
-import sys
-from src.tools.res_measure import print_memory_usage
 import psycopg2
 from typing import Any, List, Dict, Tuple
 
