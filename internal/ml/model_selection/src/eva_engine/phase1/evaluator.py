@@ -252,7 +252,7 @@ class P1Evaluator:
                 if self.train_loader is None:
                     raise f"self.train_loader is None for {self.dataset_name}"
                 # for img data
-                begin =  time.time()
+                begin = time.time()
                 mini_batch, mini_batch_targets = dataset.get_mini_batch(
                     dataloader=self.train_loader,
                     sample_alg="random",

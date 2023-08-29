@@ -166,6 +166,8 @@ Clearly, K/N reaches 100 yields better scheduling result in both image and tabul
 ## Micro: in-database filtering
 
 ```bash
+bash ./internal/ml/model_selection/scripts/latency_phase1_in_db.sh
+
 
 ```
 
