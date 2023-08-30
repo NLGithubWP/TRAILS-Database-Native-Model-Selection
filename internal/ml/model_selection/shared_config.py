@@ -77,10 +77,10 @@ def parse_config_arguments(config_path: str):
     args.is_simulate = parser.getboolean('ANYTIME', 'is_simulate')
 
     # system performance exps
-    args.models_explore = parser.getboolean('SYS_PERFORMANCE', 'models_explore')
-    args.tfmem = parser.getboolean('SYS_PERFORMANCE', 'tfmem')
+    args.models_explore = parser.getint('SYS_PERFORMANCE', 'models_explore')
+    args.tfmem = parser.get('SYS_PERFORMANCE', 'tfmem')
     args.embedding_cache_filtering = parser.getboolean('SYS_PERFORMANCE', 'embedding_cache_filtering')
-    args.concurrency = parser.getboolean('SYS_PERFORMANCE', 'concurrency')
+    args.concurrency = parser.getint('SYS_PERFORMANCE', 'concurrency')
 
     args.refinement_url = parser.get('SERVER', 'refinement_url')
     args.cache_svc_url = parser.get('SERVER', 'cache_svc_url')
