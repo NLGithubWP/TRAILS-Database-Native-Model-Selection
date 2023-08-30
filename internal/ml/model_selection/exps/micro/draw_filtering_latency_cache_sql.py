@@ -39,29 +39,43 @@ for i, (dataset_name, json_files) in enumerate(datasets.items()):
         data_non_cache = json.load(f)
 
     # Plot bars for cpu
-    ax.bar(i - bar_width / 2, data_cache['io_latency'], bar_width,
-           alpha=opacity, color=cpu_colors[0], hatch=hatches[0], edgecolor='black',
-           label='(Emb. Cache) Model Init' if i == 0 else "")
+    data_retrievel_latency = sum(data_cache['track_io_data_retrievel'][2:])
+    sql_overall_latency = data_cache['compute_latency'] + sum(data_cache['track_io_model_init'][2:]) + sum(
+        data_cache['track_io_data_preprocess'][2:])
 
-    ax.bar(i - bar_width / 2, data_cache['compute_latency'], bar_width,
+    ax.bar(i - bar_width / 2, data_retrievel_latency, bar_width,
+           alpha=opacity, color=cpu_colors[0], hatch=hatches[0], edgecolor='black',
+           label='Data Retrievel' if i == 0 else "")
+
+    ax.bar(i - bar_width / 2,
+           sql_overall_latency,
+           bar_width,
            alpha=opacity, color=cpu_colors[1], hatch=hatches[1], edgecolor='black',
-           label='(Emb. Cache) TFMEM' if i == 0 else "",
-           bottom=data_cache['io_latency'])
+           label='TFMEM' if i == 0 else "",
+           bottom=data_retrievel_latency)
 
     # Plot bars for gpu
-    ax.bar(i + bar_width / 2, data_non_cache['io_latency'], bar_width,
-           alpha=opacity, color=gpu_colors[0], hatch=hatches[2], edgecolor='black',
-           label='Model Init' if i == 0 else "")
 
-    ax.bar(i + bar_width / 2, data_non_cache['compute_latency'], bar_width,
+    data_retrievel_latency = sum(data_non_cache['track_io_data_retrievel'][2:])
+
+    sql_overall_latency = data_non_cache['compute_latency'] + sum(data_non_cache['track_io_model_init'][2:]) + sum(
+        data_non_cache['track_io_data_preprocess'][2:])
+
+    ax.bar(i + bar_width / 2, data_retrievel_latency, bar_width,
+           alpha=opacity, color=gpu_colors[0], hatch=hatches[2], edgecolor='black',
+           label='Data Retrievel' if i == 0 else "")
+
+    ax.bar(i + bar_width / 2,
+           sql_overall_latency,
+           bar_width,
            alpha=opacity, color=gpu_colors[2], hatch=hatches[2], edgecolor='black',
            label='TFMEM' if i == 0 else "",
-           bottom=data_non_cache['io_latency'])
+           bottom=data_retrievel_latency)
 
 ax.set_xticks(range(len(datasets)))
 ax.set_xticklabels(datasets.keys(), fontsize=set_font_size)
-ax.set_yscale('symlog')
-ax.set_ylim(0, 3000)
+# ax.set_yscale('symlog')
+# ax.set_ylim(0, 3000)
 
 # Set axis labels and legend
 ax.set_ylabel('Latency (s)', fontsize=set_font_size)
