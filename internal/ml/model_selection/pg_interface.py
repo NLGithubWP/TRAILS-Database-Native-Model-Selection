@@ -9,7 +9,7 @@ from torch.utils.data import Dataset, DataLoader
 import traceback
 import orjson
 from argparse import Namespace
-from internal.ml.model_selection.shared_config import parse_config_arguments
+from shared_config import parse_config_arguments
 
 
 def exception_catcher(func):
