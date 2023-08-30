@@ -70,7 +70,7 @@ class P1Evaluator:
         }
 
         self.db_config = db_config
-        self.last_id = 0
+        self.last_id = -1
 
     def if_cuda_avaiable(self):
         if "cuda" in self.device:
