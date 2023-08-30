@@ -58,13 +58,15 @@ class P1Evaluator:
             "latency": 0.0,
             "io_latency": 0.0,
             "compute_latency": 0.0,
+
             "track_compute": [],  # compute time
             "track_io_model_init": [],  # init model weight
             "track_io_model_load": [],  # load model into GPU/CPU
             "track_io_res_load": [],  # load result into GPU/CPU
             "track_io_model_release_each_50": [],  # context switch
             "track_io_model_release": [],  # context switch
-            "track_io_data": [],  # context switch
+            "track_io_data_retrievel": [],  # context switch
+            "track_io_data_preprocess": [],  # context switch
         }
 
         self.db_config = db_config
@@ -134,6 +136,7 @@ class P1Evaluator:
 
         # 1. Get a batch of data
         mini_batch, mini_batch_targets, data_load_time_usage = self.retrievel_data()
+        self.time_usage["track_io_data_retrievel"].append(data_load_time_usage)
 
         # 2. Score all tfmem
         if self.metrics == CommonVars.ALL_EVALUATOR:
@@ -197,7 +200,8 @@ class P1Evaluator:
             # measure data load time
             begin = time.time()
             mini_batch = self.data_pre_processing(mini_batch, self.metrics, new_model)
-            self.time_usage["track_io_data"].append(data_load_time_usage + (time.time() - begin))
+
+            self.time_usage["track_io_data_preprocess"].append(time.time() - begin)
 
             _score, compute_time = evaluator_register[self.metrics].evaluate_wrapper(
                 arch=new_model,
