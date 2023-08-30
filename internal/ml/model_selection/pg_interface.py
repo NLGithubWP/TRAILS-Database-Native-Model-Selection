@@ -343,7 +343,7 @@ def model_selection_trails_workloads(params: dict, args: Namespace):
 
 ######### benchmarking code here #########
 @exception_catcher
-def benchmark_filtering_phase_ltaency(params: dict, args: Namespace):
+def benchmark_filtering_phase_latency(params: dict, args: Namespace):
     from src.logger import logger
     from src.common.structure import ModelAcquireData
     from src.controller.sampler_all.seq_sampler import SequenceSampler
@@ -353,7 +353,7 @@ def benchmark_filtering_phase_ltaency(params: dict, args: Namespace):
     from src.tools.res_measure import print_cpu_gpu_usage
     logger.info(f"begin run filtering_phase CPU only")
 
-    explore_models = int(params["explore_models"])
+    args.models_explore = int(params["explore_models"])
 
     output_file = f"{args.result_dir}/score_{args.search_space}_{args.dataset}_batch_size_{args.batch_size}_{args.device}_{args.tfmem}.json"
     time_output_file = f"{args.result_dir}/time_score_{args.search_space}_{args.dataset}_batch_size_{args.batch_size}_{args.device}_{args.tfmem}.json"
@@ -379,6 +379,7 @@ def benchmark_filtering_phase_ltaency(params: dict, args: Namespace):
                              metrics=args.tfmem,
                              enable_cache=args.embedding_cache_filtering,
                              db_config=db_config)
+
     sampler = SequenceSampler(search_space_ins)
     explored_n = 0
     result = read_json(output_file)
@@ -391,7 +392,7 @@ def benchmark_filtering_phase_ltaency(params: dict, args: Namespace):
             break
         if arch_id in result:
             continue
-        if explored_n > explore_models:
+        if explored_n > args.models_explore:
             break
         # run the model selection
         model_encoding = search_space_ins.serialize_model_encoding(arch_micro)
@@ -404,6 +405,7 @@ def benchmark_filtering_phase_ltaency(params: dict, args: Namespace):
         result[arch_id] = model_score
         if explored_n % 50 == 0:
             logger.info(f"Evaluate {explored_n} models")
+            print(f"Evaluate {explored_n} models")
 
     if _evaluator.if_cuda_avaiable():
         torch.cuda.synchronize()
@@ -413,7 +415,9 @@ def benchmark_filtering_phase_ltaency(params: dict, args: Namespace):
         sum(_evaluator.time_usage["track_io_model_load"][2:]) + \
         sum(_evaluator.time_usage["track_io_model_release_each_50"]) + \
         sum(_evaluator.time_usage["track_io_model_init"][2:]) + \
-        sum(_evaluator.time_usage["track_io_res_load"][2:])
+        sum(_evaluator.time_usage["track_io_res_load"][2:]) + \
+        sum(_evaluator.time_usage["track_io_data_retrievel"][2:]) + \
+        sum(_evaluator.time_usage["track_io_data_preprocess"][2:])
 
     _evaluator.time_usage["compute_latency"] = sum(_evaluator.time_usage["track_compute"][2:])
     _evaluator.time_usage["latency"] = _evaluator.time_usage["io_latency"] + _evaluator.time_usage["compute_latency"]
