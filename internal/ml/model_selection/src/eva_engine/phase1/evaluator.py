@@ -70,6 +70,7 @@ class P1Evaluator:
         }
 
         self.db_config = db_config
+        self.last_id = 0
 
     def if_cuda_avaiable(self):
         if "cuda" in self.device:
@@ -335,10 +336,16 @@ class P1Evaluator:
             # fetch and preprocess data from PostgreSQL
             cur = conn.cursor()
 
-            # columns_str = ', '.join(columns)
-            # Select rows greater than last_id
             cur.execute(f"SELECT * FROM {self.dataset_name}_train "
-                        f"ORDER BY RANDOM() LIMIT 32")
+                        f"WHERE id > {self.last_id} ORDER BY id ASC LIMIT 32")
+            rows = cur.fetchall()
+
+            if rows:
+                # Update last_id with max id of fetched rows
+                self.last_id = max(row[0] for row in rows)  # assuming 'id' is at index 0
+            else:
+                # If no more new rows, reset last_id to start over scan and return 'end_position'
+                self.last_id = -1
 
             rows = cur.fetchall()
             batch = pre_processing(rows)
