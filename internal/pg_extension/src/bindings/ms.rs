@@ -69,3 +69,11 @@ pub fn model_selection_trails_workloads(
     run_python_function(&PY_MODULE, task, "model_selection_trails_workloads")
 }
 
+
+// micro benchmarks
+pub fn benchmark_filtering_phase_latency(
+    task: &String
+) -> serde_json::Value {
+    run_python_function(&PY_MODULE, task, "benchmark_filtering_phase_latency")
+}
+
