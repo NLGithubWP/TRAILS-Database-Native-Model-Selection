@@ -163,11 +163,11 @@ Clearly, K/N reaches 100 yields better scheduling result in both image and tabul
    nohup bash internal/ml/model_selection/scripts/latency_phase1_cpu_gpu.sh &
    ```
 
-## Micro: in-database filtering
+## Micro: in/out database filtering
 
 ```bash
 bash ./internal/ml/model_selection/scripts/latency_phase1_in_db.sh
-
+select benchmark_filtering_phase_latency(5000, '/project/TRAILS/internal/ml/model_selection/config.ini');
 
 ```
 

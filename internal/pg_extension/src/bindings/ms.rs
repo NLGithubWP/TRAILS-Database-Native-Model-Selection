@@ -1,7 +1,6 @@
 use std::ffi::CString;
 use log::error;
 use once_cell::sync::Lazy;
-use pgx::prelude::*;
 use pyo3::prelude::*;
 use pyo3::types::PyTuple;
 use serde_json::json;
