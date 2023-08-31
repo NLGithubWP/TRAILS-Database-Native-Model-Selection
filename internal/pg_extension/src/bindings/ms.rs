@@ -115,8 +115,8 @@ pub fn benchmark_filtering_latency_in_db(
             }
 
             // Update the last_id based on the latest retrieved IDs
-            if let Some(&max_id_value) = inner_results.iter().max() {
-                last_id = max_id_value as i32;
+            if let Some(max_id_value) = inner_results.iter().max() {
+                last_id = *max_id_value as i32;
             } else {
                 last_id = -1;
             }
