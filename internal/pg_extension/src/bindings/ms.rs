@@ -1,7 +1,7 @@
 use serde_json::json;
 use std::collections::HashMap;
-use pgrx::Spi;
-use pgrx::prelude::*;
+// use pgrx::prelude::*;
+use pgx::prelude::*;
 use crate::bindings::ml_register::PY_MODULE;
 use crate::bindings::ml_register::run_python_function;
 
@@ -106,10 +106,10 @@ pub fn benchmark_filtering_latency_in_db(
                 last_id
             );
 
-            let mut tup_table = client.select(&query, None, None);
+            let mut tup_table = client.select(&query, None, None)?.first().get_one();
 
-            Ok(tup_table).expect("TODO: panic message");
-        });
+            Ok(tup_table);
+        })?;
 
         // Step 3: Data Processing in Python
         let mut eva_task_map = HashMap::new();
