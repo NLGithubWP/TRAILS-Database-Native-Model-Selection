@@ -1,11 +1,5 @@
-use std::ffi::CString;
-use log::error;
-use once_cell::sync::Lazy;
-use pyo3::prelude::*;
-use pyo3::types::PyTuple;
 use serde_json::json;
 use std::collections::HashMap;
-use pgrx::prelude::SetOfIterator;
 use pgrx::Spi;
 use crate::bindings::ml_register::PY_MODULE;
 use crate::bindings::ml_register::run_python_function;
@@ -105,7 +99,7 @@ pub fn benchmark_filtering_latency_in_db(
         // Step 2: Data Retrieval in Rust using SPI
         // Construct the SQL query
         let results = Spi::connect(|client| {
-            let mut results = Vec::new();
+            let mut inner_results = Vec::new();
 
             // Construct the SQL query
             let query = format!(
@@ -117,16 +111,17 @@ pub fn benchmark_filtering_latency_in_db(
 
             while let Some(row) = tup_table.next() {
                 let id = row["id"].value::<i64>()?;
-                results.push(id);
+                inner_results.push(id);
             }
 
             // Update the last_id based on the latest retrieved IDs
-            if let Some(max_id) = results.iter().max() {
-                last_id = *max_id as i32;
+            if let Some(&max_id_value) = inner_results.iter().max() {
+                last_id = max_id_value as i32;
             } else {
                 last_id = -1;
             }
-            Ok(results)
+
+            Ok(inner_results)
         }).expect("TODO: panic message");
 
         let mut eva_task_map = HashMap::new();
