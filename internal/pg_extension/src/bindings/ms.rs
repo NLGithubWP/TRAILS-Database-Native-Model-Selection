@@ -83,9 +83,9 @@ pub fn benchmark_filtering_latency_in_db(
     let mut last_id = 0;
     let mut eva_results = serde_json::Value::Null; // Initializing the eva_results
 
-    // Step 1: Initialize State in Python
     for i in 1..explore_models {
 
+        // Step 1: Initialize State in Python
         let mut task_map = HashMap::new();
         task_map.insert("config_file", config_file.clone());
         task_map.insert("eva_results", eva_results.to_string());
@@ -98,8 +98,8 @@ pub fn benchmark_filtering_latency_in_db(
 
         // Step 2: Data Retrieval in Rust using SPI
         // Construct the SQL query
-        let results = Spi::connect(|client| {
-            let mut inner_results = Vec::new();
+        let (results, max_id) = Spi::connect(|client| {
+            let mut inner_results = Vec::new(); // Assuming row type matches with this
 
             // Construct the SQL query
             let query = format!(
@@ -110,20 +110,19 @@ pub fn benchmark_filtering_latency_in_db(
             let mut tup_table = client.select(&query, None, None)?;
 
             while let Some(row) = tup_table.next() {
-                let id = row["id"].value::<i64>()?;
-                inner_results.push(id);
+                inner_results.push(row.clone());
             }
 
-            // Update the last_id based on the latest retrieved IDs
-            if let Some(max_id_value) = inner_results.iter().max() {
-                last_id = *max_id_value as i32;
+            if let Some(max_id_value) = inner_results.iter().map(|row| row["id"].value::<i64>().unwrap_or(0)).max() {
+                Ok((inner_results, max_id_value))
             } else {
-                last_id = -1;
+                Ok((inner_results, -1i64))
             }
-
-            Ok(inner_results)
         }).expect("TODO: panic message");
 
+        last_id = max_id as i32;
+
+        // Step 3: Data Processing in Python
         let mut eva_task_map = HashMap::new();
         eva_task_map.insert("config_file", config_file.clone());
         eva_task_map.insert("sample_result", sample_result.to_string());
@@ -131,7 +130,6 @@ pub fn benchmark_filtering_latency_in_db(
         eva_task_map.insert("mini_batch", mini_batch_json);
         let eva_task_json = json!(eva_task_map).to_string(); // Corrected this line
 
-        // Step 3: Data Processing in Python
         eva_results = run_python_function(
             &PY_MODULE,
             &eva_task_json,
