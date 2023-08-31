@@ -85,7 +85,7 @@ pub fn benchmark_filtering_phase_latency(
 pub fn benchmark_filtering_latency_in_db(
     explore_models: i32, config_file: &String) -> serde_json::Value {
 
-    let dataset_name = "your_dataset_name"; // Adjust this as per your requirement.
+    let dataset_name = "pg_extension";
     let mut last_id = 0;
     let mut eva_results = serde_json::Value::Null; // Initializing the eva_results
 
@@ -104,7 +104,7 @@ pub fn benchmark_filtering_latency_in_db(
 
         // Step 2: Data Retrieval in Rust using SPI
         // Construct the SQL query
-        Spi::connect(|client| {
+        let results = Spi::connect(|client| {
             let mut results = Vec::new();
 
             // Construct the SQL query
@@ -121,13 +121,12 @@ pub fn benchmark_filtering_latency_in_db(
             }
 
             // Update the last_id based on the latest retrieved IDs
-            if let Some(&max_id) = results.iter().max() {
-                last_id = max_id as i32;
+            if let Some(max_id) = results.iter().max() {
+                last_id = *max_id as i32;
             } else {
                 last_id = -1;
             }
-
-            Ok(Some(SetOfIterator::new(results)))
+            Ok(results)
         }).expect("TODO: panic message");
 
         let mut eva_task_map = HashMap::new();
