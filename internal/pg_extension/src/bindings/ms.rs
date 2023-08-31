@@ -1,6 +1,7 @@
 use serde_json::json;
 use std::collections::HashMap;
 use pgrx::Spi;
+use pgrx::prelude::*;
 use crate::bindings::ml_register::PY_MODULE;
 use crate::bindings::ml_register::run_python_function;
 
@@ -98,33 +99,17 @@ pub fn benchmark_filtering_latency_in_db(
 
         // Step 2: Data Retrieval in Rust using SPI
         // Construct the SQL query
-        let (results, max_id) = Spi::connect(|client| {
-            let mut inner_results = Vec::new(); // Assuming row type matches with this
-
+        let results = Spi::connect(|client| {
             // Construct the SQL query
             let query = format!(
                 "SELECT * FROM frappe_train WHERE id > {} ORDER BY id ASC LIMIT 32",
-                , last_id
+                last_id
             );
 
             let mut tup_table = client.select(&query, None, None)?;
 
-            while let Some(row) = tup_table.next() {
-                let mut map = HashMap::new();
-                map.insert("id".to_string(), row["id"].value::<i64>().unwrap_or(0));
-                // Continue for other columns...
-                // map.insert("columnName".to_string(), row["columnName"].value::<ColumnType>().unwrap_or_default());
-                inner_results.push(map);
-            }
-
-            if let Some(max_id_value) = inner_results.iter().map(|row| row["id"].value::<i64>().unwrap_or(0)).max() {
-                Ok((inner_results, max_id_value))
-            } else {
-                Ok((inner_results, -1i64))
-            }
-        }).expect("TODO: panic message");
-
-        last_id = max_id as i32;
+            Ok(tup_table).expect("TODO: panic message");
+        });
 
         // Step 3: Data Processing in Python
         let mut eva_task_map = HashMap::new();
