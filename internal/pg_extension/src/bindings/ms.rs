@@ -133,7 +133,7 @@ pub fn benchmark_filtering_latency_in_db(
         let mut eva_task_map = HashMap::new();
         eva_task_map.insert("config_file", config_file.clone());
         eva_task_map.insert("sample_result", sample_result.to_string());
-        let mini_batch_json = serde_json::json!(data).to_string();
+        let mini_batch_json = serde_json::json!(results).to_string();
         eva_task_map.insert("mini_batch", mini_batch_json);
         let eva_task_json = json!(eva_task_map).to_string(); // Corrected this line
 
@@ -147,4 +147,3 @@ pub fn benchmark_filtering_latency_in_db(
     // Step 4: Return to PostgreSQL
     return serde_json::json!("Done");
 }
-
