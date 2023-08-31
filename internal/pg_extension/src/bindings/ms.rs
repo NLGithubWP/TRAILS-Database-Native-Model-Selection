@@ -85,7 +85,7 @@ pub fn benchmark_filtering_latency_in_db(
     explore_models: i32, config_file: &String) -> serde_json::Value {
 
     let dataset_name = "your_dataset_name"; // Adjust this as per your requirement.
-
+    let mut last_id = 0;
     let mut eva_results = serde_json::Value::Null; // Initializing the eva_results
 
     // Step 1: Initialize State in Python
