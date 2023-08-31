@@ -102,7 +102,7 @@ pub fn benchmark_filtering_latency_in_db(
             let query = format!("SELECT * FROM frappe_train WHERE id > {} ORDER BY id ASC LIMIT 32", last_id);
             let tup_table = client.select(&query, None, None)?.first().get_one();
             Ok(tup_table)
-        }).map_err(|e| e.to_string())?;
+        });
 
         // Step 3: Data Processing in Python
         let mut eva_task_map = HashMap::new();
