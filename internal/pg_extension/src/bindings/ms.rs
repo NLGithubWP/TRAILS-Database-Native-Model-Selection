@@ -1,11 +1,13 @@
 use std::ffi::CString;
 use log::error;
 use once_cell::sync::Lazy;
-use pgrx::spi;
+use pgx::prelude::*;
 use pyo3::prelude::*;
 use pyo3::types::PyTuple;
 use serde_json::json;
 use std::collections::HashMap;
+use pgrx::prelude::SetOfIterator;
+use pgrx::Spi;
 use crate::bindings::ml_register::PY_MODULE;
 use crate::bindings::ml_register::run_python_function;
 
@@ -103,26 +105,31 @@ pub fn benchmark_filtering_latency_in_db(
 
         // Step 2: Data Retrieval in Rust using SPI
         // Construct the SQL query
-        let sql = format!(
-            "SELECT * FROM {}_train WHERE id > {} ORDER BY id ASC LIMIT 32",
-            dataset_name, last_id
-        );
-        let c_sql = CString::new(sql).unwrap();
+        Spi::connect(|client| {
+            let mut results = Vec::new();
 
-        // SPI call to execute the SQL
-        let data;
-        unsafe {
-            data = spi::SPI_execute(c_sql.as_ptr(), true, 0);
-        }
+            // Construct the SQL query
+            let query = format!(
+                "SELECT * FROM {}_train WHERE id > {} ORDER BY id ASC LIMIT 32",
+                dataset_name, last_id
+            );
 
-        // Process the result
-        if let Some(rows) = data {
-            if !rows.is_empty() {
-                last_id = rows.iter().map(|row| row[0]).max().unwrap_or(last_id);
+            let mut tup_table = client.select(&query, None, None)?;
+
+            while let Some(row) = tup_table.next() {
+                let id = row["id"].value::<i64>()?;
+                results.push(id);
+            }
+
+            // Update the last_id based on the latest retrieved IDs
+            if let Some(&max_id) = results.iter().max() {
+                last_id = max_id as i32;
             } else {
                 last_id = -1;
             }
-        }
+
+            Ok(Some(SetOfIterator::new(results)))
+        }).expect("TODO: panic message");
 
         let mut eva_task_map = HashMap::new();
         eva_task_map.insert("config_file", config_file.clone());
