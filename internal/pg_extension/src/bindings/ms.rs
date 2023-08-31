@@ -99,15 +99,9 @@ pub fn benchmark_filtering_latency_in_db(
         // Step 2: Data Retrieval in Rust using SPI
         // Construct the SQL query
         let results = Spi::connect(|client| {
-            // Construct the SQL query
-            let query = format!(
-                "SELECT * FROM frappe_train WHERE id > {} ORDER BY id ASC LIMIT 32",
-                last_id
-            );
-
-            let mut tup_table = client.select(&query, None, None)?.first().get_one();
-
-            Ok(tup_table);
+            let query = format!("SELECT * FROM frappe_train WHERE id > {} ORDER BY id ASC LIMIT 32", last_id);
+            let tup_table = client.select(&query, None, None)?.first().get_one();
+            Ok(tup_table)
         })?;
 
         // Step 3: Data Processing in Python
