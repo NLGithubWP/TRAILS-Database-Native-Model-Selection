@@ -103,17 +103,17 @@ pub fn benchmark_filtering_latency_in_db(
 
             // Construct the SQL query
             let query = format!(
-                "SELECT * FROM {}_train WHERE id > {} ORDER BY id ASC LIMIT 32",
-                dataset_name, last_id
+                "SELECT * FROM frappe_train WHERE id > {} ORDER BY id ASC LIMIT 32",
+                , last_id
             );
 
             let mut tup_table = client.select(&query, None, None)?;
 
             while let Some(row) = tup_table.next() {
                 let mut map = HashMap::new();
-                for (column_name, value) in row.iter() {  // This is a stub. Replace with the actual method to get columns/values.
-                    map.insert(column_name.to_string(), value.clone());  // Again, this assumes value can be cloned.
-                }
+                map.insert("id".to_string(), row["id"].value::<i64>().unwrap_or(0));
+                // Continue for other columns...
+                // map.insert("columnName".to_string(), row["columnName"].value::<ColumnType>().unwrap_or_default());
                 inner_results.push(map);
             }
 
