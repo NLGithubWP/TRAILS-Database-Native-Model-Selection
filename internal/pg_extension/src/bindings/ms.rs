@@ -106,7 +106,7 @@ pub fn benchmark_filtering_latency_in_db(
                 last_id
             );
 
-            let mut tup_table = client.select(&query, None, None)?;
+            let mut tup_table = client.select(&query, None, None);
 
             Ok(tup_table).expect("TODO: panic message");
         });
