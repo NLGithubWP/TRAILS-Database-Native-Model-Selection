@@ -110,7 +110,11 @@ pub fn benchmark_filtering_latency_in_db(
             let mut tup_table = client.select(&query, None, None)?;
 
             while let Some(row) = tup_table.next() {
-                inner_results.push(row.clone());
+                let mut map = HashMap::new();
+                for (column_name, value) in row.iter() {  // This is a stub. Replace with the actual method to get columns/values.
+                    map.insert(column_name.to_string(), value.clone());  // Again, this assumes value can be cloned.
+                }
+                inner_results.push(map);
             }
 
             if let Some(max_id_value) = inner_results.iter().map(|row| row["id"].value::<i64>().unwrap_or(0)).max() {
