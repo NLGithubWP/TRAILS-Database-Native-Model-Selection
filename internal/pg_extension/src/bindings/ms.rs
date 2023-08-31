@@ -1,7 +1,6 @@
 use serde_json::json;
 use std::collections::HashMap;
-// use pgrx::prelude::*;
-use pgx::prelude::*;
+use pgrx::prelude::*;
 use crate::bindings::ml_register::PY_MODULE;
 use crate::bindings::ml_register::run_python_function;
 

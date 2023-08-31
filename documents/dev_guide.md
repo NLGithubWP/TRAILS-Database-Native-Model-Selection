@@ -43,7 +43,8 @@ docker exec -it trails bash
 ```bash
 # if those are already on docker, skip them.
 cargo install --locked cargo-pgrx
-cargo pgrx init --pg14 /usr/bin/pg_config
+# run after package update
+cargo pgrx init
 cargo pgrx new my_extension
 # just run this after code updates.
 cargo pgrx run
