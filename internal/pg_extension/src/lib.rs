@@ -145,7 +145,6 @@ pub fn model_selection_trails_workloads(mini_batch: String, n: i32, k: i32, conf
     crate::bindings::ms::model_selection_trails_workloads(&task_json).to_string()
 }
 
-
 // micro benchmarks
 #[cfg(feature = "python")]
 #[pg_extern(immutable, parallel_safe, name = "benchmark_filtering_phase_latency")]
@@ -157,6 +156,15 @@ pub fn benchmark_filtering_phase_latency(explore_models: i32, config_file: Strin
     let task_json = json!(task_map).to_string();
     crate::bindings::ms::benchmark_filtering_phase_latency(&task_json).to_string()
 }
+
+#[cfg(feature = "python")]
+#[pg_extern(immutable, parallel_safe, name = "benchmark_filtering_latency_in_db")]
+#[allow(unused_variables)]
+pub fn benchmark_filtering_latency_in_db(explore_models: i32, config_file: String) -> String {
+    crate::bindings::ms::benchmark_filtering_latency_in_db(explore_models, &config_file).to_string()
+}
+
+
 
 
 
