@@ -439,6 +439,65 @@ def benchmark_filtering_phase_latency(params: dict, args: Namespace):
 
     return orjson.dumps({"Write to": time_output_file}).decode('utf-8')
 
+OBJECT_CACHE = {}
+
+######### benchmarking code here #########
+@exception_catcher
+def in_db_filtering_state_init(params: dict, args: Namespace):
+    from src.logger import logger
+    from src.controller.sampler_all.seq_sampler import SequenceSampler
+    from src.eva_engine.phase1.evaluator import P1Evaluator
+    from src.search_space.init_search_space import init_search_space
+    logger.info(f"begin run filtering_phase CPU only")
+
+    logger.info(params)
+
+    db_config = {
+        "db_name": args.db_name,
+        "db_user": args.db_user,
+        "db_host": args.db_host,
+        "db_port": args.db_port,
+    }
+
+    search_space_ins = init_search_space(args)
+    _evaluator = P1Evaluator(device=args.device,
+                             num_label=args.num_labels,
+                             dataset_name=args.dataset,
+                             search_space_ins=search_space_ins,
+                             train_loader=None,
+                             is_simulate=False,
+                             metrics=args.tfmem,
+                             enable_cache=args.embedding_cache_filtering,
+                             db_config=db_config)
+
+    sampler = SequenceSampler(search_space_ins)
+    arch_id, arch_micro = sampler.sample_next_arch()
+    model_encoding = search_space_ins.serialize_model_encoding(arch_micro)
+
+    OBJECT_CACHE[id(_evaluator)] = _evaluator
+
+    return orjson.dumps({"model_encoding": model_encoding,
+                         "arch_id": arch_id,
+                         "eva_id": id(_evaluator),
+                         }).decode('utf-8')
+
+@exception_catcher
+def in_db_filtering_evaluate(params: dict, args: Namespace):
+    from src.common.structure import ModelAcquireData
+    from src.logger import logger
+
+    logger.info(params)
+
+    arch_id, model_encoding, _evaluator = 1, 2, 3
+
+    model_acquire_data = ModelAcquireData(model_id=arch_id,
+                                          model_encoding=model_encoding,
+                                          is_last=False)
+    data_str = model_acquire_data.serialize_model()
+    model_score = _evaluator.p1_evaluate(data_str)
+
+    return orjson.dumps({"score": model_score}).decode('utf-8')
+
 
 if __name__ == "__main__":
     params = {}
