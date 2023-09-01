@@ -99,7 +99,7 @@ pub fn benchmark_filtering_latency_in_db(
 
         // 2. query data via SPI
         let results = Spi::connect(|client| {
-            let query = format!("SELECT * FROM frappe_train LIMIT 32", last_id);
+            let query = format!("SELECT * FROM frappe_train LIMIT 32");
 
             // Open a cursor for the query
             let mut cursor = client.open_cursor(&query, None);
@@ -109,7 +109,7 @@ pub fn benchmark_filtering_latency_in_db(
             let rows = table.into_iter().map(|row| {
                 let col0 = row.get::<i32>(0).unwrap();
                 let col1 = row.get::<i32>(1).unwrap();
-                let texts = (2..12).map(|i| row.get::<&str>(i).unwrap().to_string()).collect::<Vec<_>>();
+                let texts = (2..12).map(|i| row.get::<&str>(i).map(ToString::to_string).unwrap_or_default()).collect::<Vec<_>>();
                 (col0, col1, texts)
             }).collect::<Vec<_>>();
 
