@@ -98,16 +98,16 @@ pub fn benchmark_filtering_latency_in_db(
             &task_json,
             "in_db_filtering_state_init");
 
-        // Step 2: Data Retrieval in Rust using SPI
         let results = Spi::connect(|client| {
             let query = format!("SELECT * FROM frappe_train WHERE id > {} ORDER BY id ASC LIMIT 32", last_id);
+            let spi_result = client.select(&query, None, None)?;
 
-            // This is where the actual change will be. You'd use a method or approach that deserializes the data into FrappeTrain
-            let fetched_data: Result<Option<Frappe>, _> = client.select(&query, None, None)?.first().get_one();
-
-            fetched_data
+            // Now, you'll have to iterate through spi_result and extract data.
+            let frappes = spi_result
+                .map(extract_frappe_from_spi)
+                .collect::<Result<Vec<Frappe>, SomeErrorType>>()?;  // Convert errors while mapping
+            Ok(frappes)
         });
-
 
         let tup_table = match results {
             Ok(Some(table)) => table,  // Handle the case where we have some data

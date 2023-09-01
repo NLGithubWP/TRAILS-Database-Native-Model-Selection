@@ -1,9 +1,9 @@
 
-
+use serde::{Serialize, Deserialize};
 
 
 #[derive(Debug, Serialize, Deserialize)]
-struct Frappe {
+pub(crate) struct Frappe {
     id: i32,
     label: i32,
     col1: String,
