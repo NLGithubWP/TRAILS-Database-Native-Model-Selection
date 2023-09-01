@@ -97,18 +97,29 @@ pub fn benchmark_filtering_latency_in_db(
             "in_db_filtering_state_init");
 
         // Step 2: Data Retrieval in Rust using SPI
-        // Construct the SQL query
         let results = Spi::connect(|client| {
             let query = format!("SELECT * FROM frappe_train WHERE id > {} ORDER BY id ASC LIMIT 32", last_id);
             let tup_table = client.select(&query, None, None)?.first().get_one();
             Ok(tup_table)
         });
 
+        // Handle the result and get the actual fetched rows or handle the error
+        let tup_table = match results {
+            Ok(table) => table,
+            Err(e) => {
+                // Handle error case, you could log it or return early
+                eprintln!("Error while fetching data: {:?}", e);  // This just logs the error
+                return serde_json::json!("Error while fetching data from the database");  // Return an error message or handle it differently as you see fit
+            }
+        };
+
+        // Now serialize the success case
+        let mini_batch_json = serde_json::json!(tup_table).to_string();
+
         // Step 3: Data Processing in Python
         let mut eva_task_map = HashMap::new();
         eva_task_map.insert("config_file", config_file.clone());
         eva_task_map.insert("sample_result", sample_result.to_string());
-        let mini_batch_json = serde_json::json!(results).to_string();
         eva_task_map.insert("mini_batch", mini_batch_json);
         let eva_task_json = json!(eva_task_map).to_string(); // Corrected this line
 
