@@ -451,6 +451,9 @@ def in_db_filtering_state_init(params: dict, args: Namespace):
     logger.info(f"begin run filtering_phase CPU only")
 
     logger.info(params)
+    logger.info(OBJECT_CACHE)
+
+    OBJECT_CACHE["test_cache"] = 123
 
     db_config = {
         "db_name": args.db_name,
