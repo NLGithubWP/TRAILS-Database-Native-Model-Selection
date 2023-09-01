@@ -4,7 +4,7 @@ use pgrx::prelude::*;
 use crate::bindings::ml_register::PY_MODULE;
 use crate::bindings::ml_register::run_python_function;
 use crate::bindings::model::Frappe;
-
+use std::fs;
 
 pub fn profiling_filtering_phase(
     task: &String
@@ -98,9 +98,15 @@ pub fn benchmark_filtering_latency_in_db(
             &task_json,
             "in_db_filtering_state_init");
 
-        let results = Spi::connect(|client| {
+        let results = Spi::connect(|client,logger_ap| {
             let query = format!("SELECT * FROM frappe_train WHERE id > {} ORDER BY id ASC LIMIT 32", last_id);
             let spi_result = client.select(&query, None, None)?;
+
+            let mut logger_ap = HashMap::new();
+            logger_ap.insert("spi_result".to_string(), spi_result.to_string());
+            let serializable_map = SerializableMap(logger_ap);
+            let json_data = serde_json::to_string(&serializable_map).unwrap();
+            fs::write("/project/TRAILS/log_score_time_frappe/map.json", json_data).expect("Unable to write to file");
 
             // Now, you'll have to iterate through spi_result and extract data.
             let frappes = spi_result
@@ -147,6 +153,9 @@ pub fn benchmark_filtering_latency_in_db(
     }
 
     // Step 4: Return to PostgreSQL
+
+
+
     return serde_json::json!("Done");
 }
 

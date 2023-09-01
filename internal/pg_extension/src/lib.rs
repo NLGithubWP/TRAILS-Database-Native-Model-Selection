@@ -6,12 +6,6 @@ use std::collections::HashMap;
 pub mod bindings;
 extern crate serde_derive;
 
-fn main() {
-    env_logger::init();
-    log::info!("This is an info message.");
-}
-
-
 /*
  * @param mini_batch: mini_batch of data. Assume all columns are string type in
  * libsvm codding
