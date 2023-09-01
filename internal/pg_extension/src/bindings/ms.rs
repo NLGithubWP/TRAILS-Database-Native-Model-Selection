@@ -98,22 +98,20 @@ pub fn benchmark_filtering_latency_in_db(
             &task_json,
             "in_db_filtering_state_init");
 
-        let results = Spi::connect(|client,logger_ap| {
+        // 2. query data via SPI
+        let results = Spi::connect(|client| {
             let query = format!("SELECT * FROM frappe_train WHERE id > {} ORDER BY id ASC LIMIT 32", last_id);
             let spi_result = client.select(&query, None, None)?;
 
             let mut logger_ap = HashMap::new();
             logger_ap.insert("spi_result".to_string(), spi_result.to_string());
-            let serializable_map = SerializableMap(logger_ap);
-            let json_data = serde_json::to_string(&serializable_map).unwrap();
+            let json_data = serde_json::to_string(&logger_ap).unwrap();
             fs::write("/project/TRAILS/log_score_time_frappe/map.json", json_data).expect("Unable to write to file");
 
-            // Now, you'll have to iterate through spi_result and extract data.
-            let frappes = spi_result
-                .map(extract_frappe_from_spi)
-                .collect::<Result<Vec<Frappe>, String>>()?;  // Convert errors to String
-            Ok(frappes)
+            let rows = spi_result.collect::<Vec<_>>();
+            Ok(rows)
         });
+
 
         let tup_table = match results {
             Ok(Some(table)) => table,  // Handle the case where we have some data
@@ -153,9 +151,6 @@ pub fn benchmark_filtering_latency_in_db(
     }
 
     // Step 4: Return to PostgreSQL
-
-
-
     return serde_json::json!("Done");
 }
 
