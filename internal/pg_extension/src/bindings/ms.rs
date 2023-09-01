@@ -105,7 +105,7 @@ pub fn benchmark_filtering_latency_in_db(
             // Now, you'll have to iterate through spi_result and extract data.
             let frappes = spi_result
                 .map(extract_frappe_from_spi)
-                .collect::<Result<Vec<Frappe>, SomeErrorType>>()?;  // Convert errors while mapping
+                .collect::<Result<Vec<Frappe>, String>>()?;  // Convert errors to String
             Ok(frappes)
         });
 
@@ -151,20 +151,20 @@ pub fn benchmark_filtering_latency_in_db(
 }
 
 
-fn extract_frappe_from_spi(row: SomeRowType) -> Result<Frappe, SomeErrorType> {
+fn extract_frappe_from_spi(row: SPIDataType) -> Result<Frappe, String> {
     // Example pseudocode to extract data from the row and create a Frappe
     Ok(Frappe {
-        id: row.get("id")?, // assuming some hypothetical get method
-        label: row.get("label")?,
-        col1: row.get("col1")?,
-        col2: row.get("col2")?,
-        col3: row.get("col3")?,
-        col4: row.get("col4")?,
-        col5: row.get("col5")?,
-        col6: row.get("col6")?,
-        col7: row.get("col7")?,
-        col8: row.get("col8")?,
-        col9: row.get("col9")?,
-        col10: row.get("col10")?,
+        id: row.get("id").map_err(|e| format!("Error getting id: {}", e))?,
+        label: row.get("label").map_err(|e| format!("Error getting label: {}", e))?,
+        col1: row.get("col1").map_err(|e| format!("Error getting col1: {}", e))?,
+        col2: row.get("col2").map_err(|e| format!("Error getting col2: {}", e))?,
+        col3: "".to_string(),
+        col4: "".to_string(),
+        col5: "".to_string(),
+        col6: "".to_string(),
+        col7: "".to_string(),
+        col8: "".to_string(),
+        col9: "".to_string(),
+        col10: row.get("col10").map_err(|e| format!("Error getting col10: {}", e))?,
     })
 }
