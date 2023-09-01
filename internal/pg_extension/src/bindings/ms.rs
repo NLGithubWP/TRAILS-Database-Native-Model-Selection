@@ -114,15 +114,7 @@ pub fn benchmark_filtering_latency_in_db(
 
 
         let tup_table = match results {
-            Ok(Some(table)) => table,  // Handle the case where we have some data
-            Ok(None) => {
-                // Handle the case where there's no data (this depends on your needs)
-                eprintln!("No data fetched.");
-                return serde_json::json!({
-            "status": "error",
-            "message": "No data fetched from the database"
-        });
-            },
+            Ok(table) => table,  // Handle the case where we have some data
             Err(e) => {
                 // Handle error case and extract the error message
                 let error_msg = format!("Error while fetching data: {:?}", e);
