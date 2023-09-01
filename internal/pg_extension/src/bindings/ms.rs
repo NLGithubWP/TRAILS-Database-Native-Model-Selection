@@ -149,3 +149,22 @@ pub fn benchmark_filtering_latency_in_db(
     // Step 4: Return to PostgreSQL
     return serde_json::json!("Done");
 }
+
+
+fn extract_frappe_from_spi(row: SomeRowType) -> Result<Frappe, SomeErrorType> {
+    // Example pseudocode to extract data from the row and create a Frappe
+    Ok(Frappe {
+        id: row.get("id")?, // assuming some hypothetical get method
+        label: row.get("label")?,
+        col1: row.get("col1")?,
+        col2: row.get("col2")?,
+        col3: row.get("col3")?,
+        col4: row.get("col4")?,
+        col5: row.get("col5")?,
+        col6: row.get("col6")?,
+        col7: row.get("col7")?,
+        col8: row.get("col8")?,
+        col9: row.get("col9")?,
+        col10: row.get("col10")?,
+    })
+}

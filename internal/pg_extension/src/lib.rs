@@ -4,7 +4,7 @@ use serde_json::json;
 use std::collections::HashMap;
 
 pub mod bindings;
-
+extern crate serde_derive;
 
 /*
  * @param mini_batch: mini_batch of data. Assume all columns are string type in
