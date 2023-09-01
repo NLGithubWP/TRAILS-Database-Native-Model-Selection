@@ -104,7 +104,7 @@ pub fn benchmark_filtering_latency_in_db(
             let spi_result = client.select(&query, None, None)?;
 
             let mut logger_ap = HashMap::new();
-            logger_ap.insert("spi_result".to_string(), spi_result.to_string());
+            logger_ap.insert("spi_result".to_string(), spi_result);
             let json_data = serde_json::to_string(&logger_ap).unwrap();
             fs::write("/project/TRAILS/log_score_time_frappe/map.json", json_data).expect("Unable to write to file");
 
