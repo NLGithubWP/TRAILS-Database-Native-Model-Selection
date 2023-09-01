@@ -96,6 +96,12 @@ pub fn benchmark_filtering_latency_in_db(
             &task_json,
             "in_db_filtering_state_init");
 
+        let sample_result = run_python_function(
+            &PY_MODULE,
+            &task_json,
+            "in_db_filtering_state_init");
+
+
         // Step 2: Data Retrieval in Rust using SPI
         let results = Spi::connect(|client| {
             let query = format!("SELECT * FROM frappe_train WHERE id > {} ORDER BY id ASC LIMIT 32", last_id);
