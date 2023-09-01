@@ -91,16 +91,11 @@ pub fn benchmark_filtering_latency_in_db(
         task_map.insert("eva_results", eva_results.to_string());
         let task_json = json!(task_map).to_string();
 
+        // here it cache a state
         let sample_result = run_python_function(
             &PY_MODULE,
             &task_json,
             "in_db_filtering_state_init");
-
-        let sample_result = run_python_function(
-            &PY_MODULE,
-            &task_json,
-            "in_db_filtering_state_init");
-
 
         // Step 2: Data Retrieval in Rust using SPI
         let results = Spi::connect(|client| {
@@ -113,12 +108,19 @@ pub fn benchmark_filtering_latency_in_db(
             Ok(None) => {
                 // Handle the case where there's no data (this depends on your needs)
                 eprintln!("No data fetched.");
-                return serde_json::json!("No data fetched from the database");
+                return serde_json::json!({
+            "status": "error",
+            "message": "No data fetched from the database"
+        });
             },
             Err(e) => {
-                // Handle error case, you could log it or return early
-                eprintln!("Error while fetching data: {:?}", e);
-                return serde_json::json!("Error while fetching data from the database");
+                // Handle error case and extract the error message
+                let error_msg = format!("Error while fetching data: {:?}", e);
+                eprintln!("{}", &error_msg);
+                return serde_json::json!({
+            "status": "error",
+            "message": error_msg
+        });
             }
         };
 
