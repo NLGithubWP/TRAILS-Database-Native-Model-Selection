@@ -99,17 +99,20 @@ pub fn benchmark_filtering_latency_in_db(
         // Step 2: Data Retrieval in Rust using SPI
         let results = Spi::connect(|client| {
             let query = format!("SELECT * FROM frappe_train WHERE id > {} ORDER BY id ASC LIMIT 32", last_id);
-            let tup_table = client.select(&query, None, None)?.first().get_one();
-            Ok(tup_table)
+            client.select(&query, None, None)?.first().get_one()
         });
 
-        // Handle the result and get the actual fetched rows or handle the error
         let tup_table = match results {
-            Ok(table) => table,
+            Ok(Some(table)) => table,  // Handle the case where we have some data
+            Ok(None) => {
+                // Handle the case where there's no data (this depends on your needs)
+                eprintln!("No data fetched.");
+                return serde_json::json!("No data fetched from the database");
+            },
             Err(e) => {
                 // Handle error case, you could log it or return early
-                eprintln!("Error while fetching data: {:?}", e);  // This just logs the error
-                return serde_json::json!("Error while fetching data from the database");  // Return an error message or handle it differently as you see fit
+                eprintln!("Error while fetching data: {:?}", e);
+                return serde_json::json!("Error while fetching data from the database");
             }
         };
 
