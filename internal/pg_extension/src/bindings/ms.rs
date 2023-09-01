@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use pgrx::prelude::*;
 use crate::bindings::ml_register::PY_MODULE;
 use crate::bindings::ml_register::run_python_function;
+use crate::bindings::model::Frappe;
 
 
 pub fn profiling_filtering_phase(
@@ -102,7 +103,7 @@ pub fn benchmark_filtering_latency_in_db(
             let query = format!("SELECT * FROM frappe_train WHERE id > {} ORDER BY id ASC LIMIT 32", last_id);
 
             // This is where the actual change will be. You'd use a method or approach that deserializes the data into FrappeTrain
-            let fetched_data: Result<Option<FrappeTrain>, _> = client.select(&query, None, None)?.first().get_one();
+            let fetched_data: Result<Option<Frappe>, _> = client.select(&query, None, None)?.first().get_one();
 
             fetched_data
         });
