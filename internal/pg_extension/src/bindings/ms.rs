@@ -99,7 +99,10 @@ pub fn benchmark_filtering_latency_in_db(
         let results: Result<Vec<(String, String, Vec<String>)>, String> = Spi::connect(|client| {
             let query = format!("SELECT * FROM frappe_train LIMIT 32");
             let mut cursor = client.open_cursor(&query, None);
-            let table = cursor.fetch(32)?;
+            let table = match cursor.fetch(32) {
+                Ok(table) => table,
+                Err(e) => return Err(e.to_string()), // Convert the error to a string and return
+            };
 
             let result_rows: Vec<_> = table.into_iter().map(|row| {
                 // Convert potential errors to string representation
