@@ -101,8 +101,6 @@ pub fn benchmark_filtering_latency_in_db(
             let mut cursor = client.open_cursor(&query, None);
             let table = cursor.fetch(32)?;
 
-            let mut errors = Vec::new();
-
             let result_rows: Vec<_> = table.into_iter().map(|row| {
                 let col0 = row.get::<i32>(0);
                 let col1 = row.get::<i32>(1);
@@ -111,19 +109,11 @@ pub fn benchmark_filtering_latency_in_db(
                         match row.get::<&str>(i) {
                             Ok(Some(s)) => Some(s.to_string()),
                             Ok(None) => None,
-                            Err(e) => {
-                                errors.push(e.to_string()); // Capture error message as string
-                                None
-                            }
+                            Err(e) => None
                         }
                     }).collect();
                 (col0, col1, texts)
             }).collect();
-
-            if !errors.is_empty() {
-                // Return the first error as a string
-                return Err(errors[0].to_string());
-            }
 
             Ok(result_rows)
         });
