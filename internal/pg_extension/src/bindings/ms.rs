@@ -102,16 +102,26 @@ pub fn benchmark_filtering_latency_in_db(
             let table = cursor.fetch(32)?;
 
             let result_rows: Vec<_> = table.into_iter().map(|row| {
-                let col0 = row.get::<i32>(0);
-                let col1 = row.get::<i32>(1);
+                // Convert potential errors to string representation
+                let col0 = match row.get::<i32>(0) {
+                    Ok(val) => val.map(|i| i.to_string()).unwrap_or_default(),
+                    Err(e) => e.to_string(),
+                };
+
+                let col1 = match row.get::<i32>(1) {
+                    Ok(val) => val.map(|i| i.to_string()).unwrap_or_default(),
+                    Err(e) => e.to_string(),
+                };
+
                 let texts: Vec<String> = (2..12)
                     .filter_map(|i| {
                         match row.get::<&str>(i) {
                             Ok(Some(s)) => Some(s.to_string()),
                             Ok(None) => None,
-                            Err(e) => None
+                            Err(e) => Some(e.to_string()),  // Convert error to string
                         }
                     }).collect();
+
                 (col0, col1, texts)
             }).collect();
 
@@ -121,15 +131,15 @@ pub fn benchmark_filtering_latency_in_db(
         let tup_table = match results {
             Ok(data) => {
                 serde_json::json!({
-                    "status": "success",
-                    "data": data
-                })
+            "status": "success",
+            "data": data
+        })
             }
             Err(e) => {
                 serde_json::json!({
-                    "status": "error",
-                    "message": format!("Error while connecting: {}", e)
-                })
+            "status": "error",
+            "message": format!("Error while connecting: {}", e)
+        })
             }
         };
 
