@@ -100,14 +100,10 @@ pub fn benchmark_filtering_latency_in_db(
         // 2. query data via SPI
         let results = Spi::connect(|client| {
             let query = format!("SELECT * FROM frappe_train LIMIT 32");
-
-            // Open a cursor for the query
             let mut cursor = client.open_cursor(&query, None);
             let table = cursor.fetch(32)?;
-
-            // Convert the table into a more suitable format
             table.into_iter().map(|row| {
-                let col0 = row.get::<i32>(0)?;  // Here the ? will propagate the error if there's any
+                let col0 = row.get::<i32>(0)?;
                 let col1 = row.get::<i32>(1)?;
                 let texts = (2..12)
                     .filter_map(|i| {
@@ -118,23 +114,24 @@ pub fn benchmark_filtering_latency_in_db(
                         }
                     })
                     .collect::<Vec<_>>();
-
                 Ok((col0, col1, texts))
-            }).collect::<Result<Vec<_>, _>>()  // This collects the results, forming a Result<Vec<(i32, i32, Vec<String>)>, Error>
-        })?;
+            }).collect::<Result<Vec<_>, _>>()
+        });
 
-        let tup_table = match results {
-            Ok(table) => table,  // Handle the case where we have some data
-            Err(e) => {
-                // Handle error case and extract the error message
-                let error_msg = format!("Error while fetching data: {:?}", e);
-                eprintln!("{}", &error_msg);
-                return serde_json::json!({
-                        "status": "error",
-                        "message": error_msg
-                    });
+        match results {
+            Ok(data) => {
+                serde_json::json!({
+                "status": "success",
+                "data": data
+            })
             }
-        };
+            Err(e) => {
+                serde_json::json!({
+                "status": "error",
+                "message": format!("Error while connecting: {:?}", e)
+            })
+            }
+        }
 
         // Now serialize the success case
         let mini_batch_json = serde_json::json!(tup_table).to_string();
