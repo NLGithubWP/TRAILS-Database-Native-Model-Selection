@@ -103,31 +103,32 @@ pub fn benchmark_filtering_latency_in_db(
             table.into_iter().map(|row| {
                 let col0 = row.get::<i32>(0)?;
                 let col1 = row.get::<i32>(1)?;
-                let texts = (2..12)
-                    .filter_map(|i| {
+                let text_results: Result<Vec<_>, _> = (2..12)
+                    .map(|i| {
                         match row.get::<&str>(i) {
-                            Ok(Some(s)) => Some(s.to_string()),
-                            Ok(None) => None,
-                            Err(_) => None
+                            Ok(Some(s)) => Ok(Some(s.to_string())),
+                            Ok(None) => Ok(None),
+                            Err(e) => Err(e),
                         }
                     })
-                    .collect::<Vec<_>>();
+                    .collect(); // This will short-circuit on the first Err and return it
+
+                let texts: Vec<_> = text_results?.into_iter().flatten().collect();
                 Ok((col0, col1, texts))
             }).collect::<Result<Vec<_>, _>>()
         });
+
 
         let tup_table = match results {
             Ok(data) => {
                 serde_json::json!({
                 "status": "success",
-                "data": data
-            })
+                "data": data})
             }
             Err(e) => {
                 serde_json::json!({
                 "status": "error",
-                "message": format!("Error while connecting: {:?}", e)
-            })
+                "message": format!("Error while connecting: {:?}", e)})
             }
         };
 
