@@ -112,26 +112,34 @@ pub fn benchmark_filtering_latency_in_db(
                             Ok(Some(s)) => Some(s.to_string()),
                             Ok(None) => None,
                             Err(e) => {
-                                errors.push(e);
+                                errors.push(e.to_string()); // Capture error message as string
                                 None
                             }
                         }
                     }).collect();
                 (col0, col1, texts)
             }).collect();
+
+            if !errors.is_empty() {
+                // Return the first error as a string
+                return Err(errors[0].to_string());
+            }
+
             Ok(result_rows)
         });
 
         let tup_table = match results {
             Ok(data) => {
                 serde_json::json!({
-                "status": "success",
-                "data": data})
+                    "status": "success",
+                    "data": data
+                })
             }
             Err(e) => {
                 serde_json::json!({
-                "status": "error",
-                "message": format!("Error while connecting: {:?}", e)})
+                    "status": "error",
+                    "message": format!("Error while connecting: {}", e)
+                })
             }
         };
 
