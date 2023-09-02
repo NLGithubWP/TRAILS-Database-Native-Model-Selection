@@ -103,27 +103,25 @@ pub fn benchmark_filtering_latency_in_db(
 
             // Open a cursor for the query
             let mut cursor = client.open_cursor(&query, None);
-            let table = cursor.fetch(32)?; // Assuming you only want 32 rows
+            let table = cursor.fetch(32)?;
 
             // Convert the table into a more suitable format
-            let rows = table.into_iter().map(|row| {
-                let col0 = row.get::<i32>(0).unwrap();
-                let col1 = row.get::<i32>(1).unwrap();
+            table.into_iter().map(|row| {
+                let col0 = row.get::<i32>(0)?;  // Here the ? will propagate the error if there's any
+                let col1 = row.get::<i32>(1)?;
                 let texts = (2..12)
                     .filter_map(|i| {
                         match row.get::<&str>(i) {
                             Ok(Some(s)) => Some(s.to_string()),
                             Ok(None) => None,
-                            Err(_) => None  // you can replace this with handling or logging the error if needed
+                            Err(_) => None
                         }
                     })
                     .collect::<Vec<_>>();
 
-                (col0, col1, texts)
-            }).collect::<Vec<_>>();
-
-            Ok(rows)
-        });
+                Ok((col0, col1, texts))
+            }).collect::<Result<Vec<_>, _>>()  // This collects the results, forming a Result<Vec<(i32, i32, Vec<String>)>, Error>
+        })?;
 
         let tup_table = match results {
             Ok(table) => table,  // Handle the case where we have some data
