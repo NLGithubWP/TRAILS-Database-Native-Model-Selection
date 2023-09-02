@@ -121,9 +121,8 @@ pub fn benchmark_filtering_latency_in_db(
             }).collect();
 
             if !errors.is_empty() {
-                // Here, handle the first error as an example.
-                // Alternatively, you could handle all errors, or aggregate them in some way.
-                return Err(errors[0].clone());
+                // Convert the error to a string and return it.
+                return Err(errors[0].to_string());
             }
             Ok(result_rows)
         });
