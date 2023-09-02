@@ -100,24 +100,33 @@ pub fn benchmark_filtering_latency_in_db(
             let query = format!("SELECT * FROM frappe_train LIMIT 32");
             let mut cursor = client.open_cursor(&query, None);
             let table = cursor.fetch(32)?;
-            table.into_iter().map(|row| {
-                let col0 = row.get::<i32>(0)?;
-                let col1 = row.get::<i32>(1)?;
-                let text_results: Result<Vec<_>, _> = (2..12)
-                    .map(|i| {
+
+            let mut errors = Vec::new();
+
+            let result_rows: Vec<_> = table.into_iter().map(|row| {
+                let col0 = row.get::<i32>(0);
+                let col1 = row.get::<i32>(1);
+                let texts: Vec<String> = (2..12)
+                    .filter_map(|i| {
                         match row.get::<&str>(i) {
-                            Ok(Some(s)) => Ok(Some(s.to_string())),
-                            Ok(None) => Ok(None),
-                            Err(e) => Err(e),
+                            Ok(Some(s)) => Some(s.to_string()),
+                            Ok(None) => None,
+                            Err(e) => {
+                                errors.push(e);
+                                None
+                            }
                         }
-                    })
-                    .collect(); // This will short-circuit on the first Err and return it
+                    }).collect();
+                (col0, col1, texts)
+            }).collect();
 
-                let texts: Vec<_> = text_results?.into_iter().flatten().collect();
-                Ok((col0, col1, texts))
-            }).collect::<Result<Vec<_>, _>>()
+            if !errors.is_empty() {
+                // Here, handle the first error as an example.
+                // Alternatively, you could handle all errors, or aggregate them in some way.
+                return Err(errors[0].clone());
+            }
+            Ok(result_rows)
         });
-
 
         let tup_table = match results {
             Ok(data) => {
