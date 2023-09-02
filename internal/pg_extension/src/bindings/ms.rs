@@ -3,8 +3,6 @@ use std::collections::HashMap;
 use pgrx::prelude::*;
 use crate::bindings::ml_register::PY_MODULE;
 use crate::bindings::ml_register::run_python_function;
-use crate::bindings::model::Frappe;
-use std::fs;
 
 pub fn profiling_filtering_phase(
     task: &String
@@ -118,7 +116,7 @@ pub fn benchmark_filtering_latency_in_db(
             }).collect::<Result<Vec<_>, _>>()
         });
 
-        match results {
+        let tup_table = match results {
             Ok(data) => {
                 serde_json::json!({
                 "status": "success",
@@ -131,7 +129,7 @@ pub fn benchmark_filtering_latency_in_db(
                 "message": format!("Error while connecting: {:?}", e)
             })
             }
-        }
+        };
 
         // Now serialize the success case
         let mini_batch_json = tup_table.to_string();
