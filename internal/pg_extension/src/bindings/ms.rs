@@ -97,7 +97,7 @@ pub fn benchmark_filtering_latency_in_db(
 
         // 2. query data via SPI
         let results: Result<Vec<(String, String, Vec<String>)>, String> = Spi::connect(|client| {
-            let query = format!("SELECT * FROM frappe_train LIMIT 32");
+            let query = format!("SELECT * FROM frappe_train LIMIT 1");
             let mut cursor = client.open_cursor(&query, None);
             let table = match cursor.fetch(32) {
                 Ok(table) => table,
