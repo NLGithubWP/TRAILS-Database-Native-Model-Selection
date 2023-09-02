@@ -97,7 +97,7 @@ pub fn benchmark_filtering_latency_in_db(
 
         // 2. query data via SPI
         let results: Result<Vec<String>, String> = Spi::connect(|client| {
-            let query = format!("SELECT * FROM frappe_train LIMIT 1");
+            let query = format!("SELECT * FROM frappe_train LIMIT 3");
             let mut cursor = client.open_cursor(&query, None);
             let table = match cursor.fetch(32) {
                 Ok(table) => table,
@@ -107,19 +107,19 @@ pub fn benchmark_filtering_latency_in_db(
             let mut result_strings = Vec::new();
 
             for row in table.into_iter() {
-                // Convert potential errors to string representation
+                // add primary key
                 let col0 = match row.get::<i32>(1) {
                     Ok(val) => val.map(|i| i.to_string()).unwrap_or_default(),
                     Err(e) => e.to_string(),
                 };
                 result_strings.push(col0);
-
+                // add label
                 let col1 = match row.get::<i32>(2) {
                     Ok(val) => val.map(|i| i.to_string()).unwrap_or_default(),
                     Err(e) => e.to_string(),
                 };
                 result_strings.push(col1);
-
+                // add fields
                 let texts: Vec<String> = (3..13)
                     .filter_map(|i| {
                         match row.get::<&str>(i) {
@@ -128,35 +128,33 @@ pub fn benchmark_filtering_latency_in_db(
                             Err(e) => Some(e.to_string()),  // Convert error to string
                         }
                     }).collect();
-
                 result_strings.extend(texts);
             }
-
+            // return
             Ok(result_strings)
         });
-
+        // serialize the mini-batch data
         let tup_table = match results {
             Ok(data) => {
                 serde_json::json!({
-            "status": "success",
-            "data": data
-        })
+                        "status": "success",
+                        "data": data
+                    })
             }
             Err(e) => {
                 serde_json::json!({
-            "status": "error",
-            "message": format!("Error while connecting: {}", e)
-        })
+                    "status": "error",
+                    "message": format!("Error while connecting: {}", e)
+                })
             }
         };
 
-        // Now serialize the success case
-        let mini_batch_json = tup_table.to_string();
 
         // Step 3: Data Processing in Python
         let mut eva_task_map = HashMap::new();
         eva_task_map.insert("config_file", config_file.clone());
         eva_task_map.insert("sample_result", sample_result.to_string());
+        let mini_batch_json = tup_table.to_string();
         eva_task_map.insert("mini_batch", mini_batch_json);
         let eva_task_json = json!(eva_task_map).to_string(); // Corrected this line
 
