@@ -119,11 +119,6 @@ pub fn benchmark_filtering_latency_in_db(
                     }).collect();
                 (col0, col1, texts)
             }).collect();
-
-            if !errors.is_empty() {
-                // Convert the error to a string and return it.
-                return Err(errors[0].to_string());
-            }
             Ok(result_rows)
         });
 
