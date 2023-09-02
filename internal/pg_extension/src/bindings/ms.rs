@@ -106,17 +106,17 @@ pub fn benchmark_filtering_latency_in_db(
 
             let result_rows: Vec<_> = table.into_iter().map(|row| {
                 // Convert potential errors to string representation
-                let col0 = match row.get::<i32>(0) {
+                let col0 = match row.get::<i32>(1) {
                     Ok(val) => val.map(|i| i.to_string()).unwrap_or_default(),
                     Err(e) => e.to_string(),
                 };
 
-                let col1 = match row.get::<i32>(1) {
+                let col1 = match row.get::<i32>(2) {
                     Ok(val) => val.map(|i| i.to_string()).unwrap_or_default(),
                     Err(e) => e.to_string(),
                 };
 
-                let texts: Vec<String> = (2..12)
+                let texts: Vec<String> = (3..13)
                     .filter_map(|i| {
                         match row.get::<&str>(i) {
                             Ok(Some(s)) => Some(s.to_string()),
