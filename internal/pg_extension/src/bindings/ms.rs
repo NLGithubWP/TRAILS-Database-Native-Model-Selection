@@ -96,7 +96,7 @@ pub fn benchmark_filtering_latency_in_db(
             "in_db_filtering_state_init");
 
         // 2. query data via SPI
-        let results: Result<Vec<String>, String> = Spi::connect(|client| {
+        let results: Result<Vec<Vec<String>>, String> = Spi::connect(|client| {
             let query = format!("SELECT * FROM frappe_train LIMIT 3");
             let mut cursor = client.open_cursor(&query, None);
             let table = match cursor.fetch(32) {
@@ -104,21 +104,22 @@ pub fn benchmark_filtering_latency_in_db(
                 Err(e) => return Err(e.to_string()), // Convert the error to a string and return
             };
 
-            let mut result_strings = Vec::new();
+            let mut mini_batch = Vec::new();
 
             for row in table.into_iter() {
+                let mut each_row = Vec::new();
                 // add primary key
                 let col0 = match row.get::<i32>(1) {
                     Ok(val) => val.map(|i| i.to_string()).unwrap_or_default(),
                     Err(e) => e.to_string(),
                 };
-                result_strings.push(col0);
+                each_row.push(col0);
                 // add label
                 let col1 = match row.get::<i32>(2) {
                     Ok(val) => val.map(|i| i.to_string()).unwrap_or_default(),
                     Err(e) => e.to_string(),
                 };
-                result_strings.push(col1);
+                each_row.push(col1);
                 // add fields
                 let texts: Vec<String> = (3..13)
                     .filter_map(|i| {
@@ -128,10 +129,11 @@ pub fn benchmark_filtering_latency_in_db(
                             Err(e) => Some(e.to_string()),  // Convert error to string
                         }
                     }).collect();
-                result_strings.extend(texts);
+                each_row.extend(texts);
+                mini_batch.push(each_row)
             }
             // return
-            Ok(result_strings)
+            Ok(mini_batch)
         });
         // serialize the mini-batch data
         let tup_table = match results {
