@@ -134,7 +134,7 @@ pub fn benchmark_filtering_latency_in_db(
         }
 
         // Now serialize the success case
-        let mini_batch_json = serde_json::json!(tup_table).to_string();
+        let mini_batch_json = tup_table.to_string();
 
         // Step 3: Data Processing in Python
         let mut eva_task_map = HashMap::new();
