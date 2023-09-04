@@ -1,13 +1,10 @@
-
-
-
 import json
 import matplotlib.pyplot as plt
 import numpy as np
 
 # Assume these are the names and corresponding JSON files of your datasets
 datasets_cpu = {
-    'Frappe': {'in_db': './internal/ml/model_selection/exp_result_sever_cache_sql/'
+    'Frappe': {'in_db': './internal/ml/model_selection/exp_result_sever_cache_sql_indb/'
                         '/time_score_mlp_sp_frappe_batch_size_32_cpu_express_flow.json',
                'out_db': './internal/ml/model_selection/exp_result_sever_cache_sql/'
                          '/time_score_mlp_sp_frappe_batch_size_32_cpu_express_flow.json'},
@@ -32,34 +29,32 @@ fig, ax = plt.subplots(figsize=(6.4, 4.5))
 for i, (dataset_name, json_files) in enumerate(datasets.items()):
     # Load the JSON data for cpu
     with open(json_files['in_db']) as f:
-        data_cache = json.load(f)
+        data_in_db = json.load(f)
 
     # Load the JSON data for gpu
     with open(json_files['out_db']) as f:
-        data_non_cache = json.load(f)
+        data_out_db = json.load(f)
 
     # Plot bars for cpu
-    data_retrievel_latency = sum(data_cache['track_io_data_retrievel'][2:])
-    sql_overall_latency = data_cache['compute_latency'] + sum(data_cache['track_io_model_init'][2:]) + sum(
-        data_cache['track_io_data_preprocess'][2:])
+    data_retrievel_latency = sum(data_in_db['track_io_data_retrievel'][2:])
+    sql_overall_latency = data_in_db['compute_latency'] + sum(data_in_db['track_io_model_init'][2:]) + \
+                          sum(data_in_db['track_io_data_preprocess'][2:])
 
     ax.bar(i - bar_width / 2, data_retrievel_latency, bar_width,
            alpha=opacity, color=cpu_colors[0], hatch=hatches[0], edgecolor='black',
-           label='Data Retrievel' if i == 0 else "")
+           label='(In-DB) Data Retrievel' if i == 0 else "")
 
     ax.bar(i - bar_width / 2,
            sql_overall_latency,
            bar_width,
            alpha=opacity, color=cpu_colors[1], hatch=hatches[1], edgecolor='black',
-           label='TFMEM' if i == 0 else "",
+           label='(In-DB) TFMEM' if i == 0 else "",
            bottom=data_retrievel_latency)
 
     # Plot bars for gpu
-
-    data_retrievel_latency = sum(data_non_cache['track_io_data_retrievel'][2:])
-
-    sql_overall_latency = data_non_cache['compute_latency'] + sum(data_non_cache['track_io_model_init'][2:]) + sum(
-        data_non_cache['track_io_data_preprocess'][2:])
+    data_retrievel_latency = sum(data_out_db['track_io_data_retrievel'][2:])
+    sql_overall_latency = data_out_db['compute_latency'] + sum(data_out_db['track_io_model_init'][2:]) + \
+                          sum(data_out_db['track_io_data_preprocess'][2:])
 
     ax.bar(i + bar_width / 2, data_retrievel_latency, bar_width,
            alpha=opacity, color=gpu_colors[0], hatch=hatches[2], edgecolor='black',
