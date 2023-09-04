@@ -263,6 +263,36 @@ class MlpSpace(SpaceWrapper):
         model_micro = MlpSpace.deserialize_model_encoding(model_encoding)
         return MlpSpace.new_arch_scratch(self.model_cfg, model_micro, bn)
 
+    def new_architecture(self, arch_id: str):
+        assert isinstance(self.model_cfg, MlpMacroCfg)
+        """
+        Args:
+            arch_id: arch id is the same as encoding.
+        Returns:
+        """
+        arch_micro = MlpSpace.deserialize_model_encoding(arch_id)
+        assert isinstance(arch_micro, MlpMicroCfg)
+        mlp = DNNModel(
+            nfield=self.model_cfg.nfield,
+            nfeat=self.model_cfg.nfeat,
+            nemb=self.model_cfg.nemb,
+            hidden_layer_list=arch_micro.hidden_layer_list,
+            dropout_rate=0,
+            noutput=self.model_cfg.num_labels)
+        return mlp
+
+    def new_architecture_with_micro_cfg(self, arch_micro: ModelMicroCfg):
+        assert isinstance(arch_micro, MlpMicroCfg)
+        assert isinstance(self.model_cfg, MlpMacroCfg)
+        mlp = DNNModel(
+            nfield=self.model_cfg.nfield,
+            nfeat=self.model_cfg.nfeat,
+            nemb=self.model_cfg.nemb,
+            hidden_layer_list=arch_micro.hidden_layer_list,
+            dropout_rate=0,
+            noutput=self.model_cfg.num_labels)
+        return mlp
+
     def profiling_score_time(
             self, dataset: str,
             train_loader: DataLoader = None, val_loader: DataLoader = None,
@@ -475,36 +505,6 @@ class MlpSpace(SpaceWrapper):
     def micro_to_id(self, arch_struct: ModelMicroCfg) -> str:
         assert isinstance(arch_struct, MlpMicroCfg)
         return str(arch_struct.hidden_layer_list)
-
-    def new_architecture(self, arch_id: str):
-        assert isinstance(self.model_cfg, MlpMacroCfg)
-        """
-        Args:
-            arch_id: arch id is the same as encoding.
-        Returns:
-        """
-        arch_micro = MlpSpace.deserialize_model_encoding(arch_id)
-        assert isinstance(arch_micro, MlpMicroCfg)
-        mlp = DNNModel(
-            nfield=self.model_cfg.nfield,
-            nfeat=self.model_cfg.nfeat,
-            nemb=self.model_cfg.nemb,
-            hidden_layer_list=arch_micro.hidden_layer_list,
-            dropout_rate=0,
-            noutput=self.model_cfg.num_labels)
-        return mlp
-
-    def new_architecture_with_micro_cfg(self, arch_micro: ModelMicroCfg):
-        assert isinstance(arch_micro, MlpMicroCfg)
-        assert isinstance(self.model_cfg, MlpMacroCfg)
-        mlp = DNNModel(
-            nfield=self.model_cfg.nfield,
-            nfeat=self.model_cfg.nfeat,
-            nemb=self.model_cfg.nemb,
-            hidden_layer_list=arch_micro.hidden_layer_list,
-            dropout_rate=0,
-            noutput=self.model_cfg.num_labels)
-        return mlp
 
     def __len__(self):
         assert isinstance(self.model_cfg, MlpMacroCfg)

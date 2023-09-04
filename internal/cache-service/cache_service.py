@@ -26,13 +26,15 @@ CACHE_SIZE = 10
 
 
 class CacheService:
-    def __init__(self, database: str, table: str, columns: List, batch_size: int, max_size: int = CACHE_SIZE):
+    def __init__(self, name_space: str, database: str, table: str, columns: List, batch_size: int, max_size: int = CACHE_SIZE):
         """
+        name_space: train, valid, test
         database: database to use
         table: which table
         columns: selected cols
         max_size: max batches to cache
         """
+        self.name_space = name_space
         self.batch_size = batch_size
         self.last_id = -1
         self.database = database
@@ -44,26 +46,25 @@ class CacheService:
 
     def decode_libsvm(self, columns):
         map_func = lambda pair: (int(pair[0]), float(pair[1]))
-        # 1 is id, -1 is label
-        id, value = zip(*map(lambda col: map_func(col.split(':')), columns[1:-1]))
+        # 0 is id, 1 is label
+        id, value = zip(*map(lambda col: map_func(col.split(':')), columns[2:]))
         sample = {'id': list(id),
                   'value': list(value),
-                  'y': float(columns[-1])}
+                  'y': int(columns[1])}
         return sample
 
     def pre_processing(self, mini_batch_data: List[Tuple]):
         """
-        mini_batch_data: [('123:123', '123:123', '123:123', '0')
+        mini_batch_data: [('0', '0', '123:123', '123:123', '123:123',)
         """
         sample_lines = len(mini_batch_data)
-        nfields = len(mini_batch_data[0]) - 2
         feat_id = []
         feat_value = []
         y = []
 
         for i in range(sample_lines):
             row_value = mini_batch_data[i]
-            sample = self.decode_libsvm(list(row_value))
+            sample = self.decode_libsvm(row_value)
             feat_id.append(sample['id'])
             feat_value.append(sample['value'])
             y.append(sample['y'])
@@ -74,9 +75,11 @@ class CacheService:
             while True:
                 try:
                     # fetch and preprocess data from PostgreSQL
-                    batch = self.fetch_and_preprocess(conn)
-                    # block until a free slot is available
+                    batch, time_usg = self.fetch_and_preprocess(conn)
                     self.queue.put(batch)
+                    print(f"Data is fetched, {self.name_space} queue_size={self.queue.qsize()}, time_usg={time_usg}")
+                    logger.info(f"Data is fetched, queue_size={self.queue.qsize()}, time_usg={time_usg}")
+                    # block until a free slot is available
                     time.sleep(0.1)
                 except psycopg2.OperationalError:
                     logger.exception("Lost connection to the database, trying to reconnect...")
@@ -99,11 +102,10 @@ class CacheService:
         else:
             # If no more new rows, reset last_id to start over scan and return 'end_position'
             self.last_id = -1
-            return "end_position"
+            return "end_position", time.time() - begin_time
 
         batch = self.pre_processing(rows)
-        logger.info(f"Data is fetched {time.time() - begin_time}")
-        return batch
+        return batch, time.time() - begin_time
 
     def get(self):
         return self.queue.get()
@@ -134,7 +136,7 @@ async def start_service(request):
 
         if not hasattr(app.ctx, f'{table_name}_{name_space}_cache'):
             setattr(app.ctx, f'{table_name}_{name_space}_cache',
-                    CacheService(DB_NAME, table_name, columns, batch_size, CACHE_SIZE))
+                    CacheService(name_space, DB_NAME, table_name, columns, batch_size, CACHE_SIZE))
 
         return json("OK")
     except Exception as e:

@@ -160,8 +160,9 @@ pub fn benchmark_filtering_phase_latency(explore_models: i32, config_file: Strin
 #[cfg(feature = "python")]
 #[pg_extern(immutable, parallel_safe, name = "benchmark_filtering_latency_in_db")]
 #[allow(unused_variables)]
-pub fn benchmark_filtering_latency_in_db(explore_models: i32, config_file: String) -> String {
-    crate::bindings::ms::benchmark_filtering_latency_in_db(explore_models, &config_file).to_string()
+pub fn benchmark_filtering_latency_in_db(
+    explore_models: i32, dataset: String, config_file: String) -> String {
+    crate::bindings::ms::benchmark_filtering_latency_in_db(explore_models, &dataset, &config_file).to_string()
 }
 
 

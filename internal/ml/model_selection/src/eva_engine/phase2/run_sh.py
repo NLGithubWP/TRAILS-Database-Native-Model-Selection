@@ -47,6 +47,7 @@ class BudgetAwareControllerSH:
         :param is_simulate:
         :param eta: 1/mu to keep in each iteration
         """
+        self.is_simulate = is_simulate
         self._evaluator = P2Evaluator(search_space_ins, dataset_name,
                                       is_simulate=is_simulate,
                                       train_loader=train_loader, val_loader=val_loader,
@@ -119,7 +120,8 @@ class BudgetAwareControllerSH:
 
         # If the models are fully trained and there is more than one candidate, select the top one
         if cur_cand_num > 1 and cur_epoch >= max_unit_per_model:
-            logger.info(f"4. [trails] Running phase2: train {len(candidates_m)} models each with {max_unit_per_model} epochs")
+            logger.info(
+                f"4. [trails] Running phase2: train {len(candidates_m)} models each with {max_unit_per_model} epochs")
             scores = []
             for cand in candidates_m:
                 score, _ = self._evaluator.p2_evaluate(cand, max_unit_per_model)
@@ -128,7 +130,17 @@ class BudgetAwareControllerSH:
             scores.sort(reverse=True, key=lambda x: x[0])
             candidates_m = [scores[0][1]]
 
-        best_perform, _ = self._evaluator.p2_evaluate(candidates_m[0], self.max_unit_per_model)
+        # only return the performance when simulating, skip the training, just return model
+        if self.is_simulate:
+            logger.info(
+                f"5. [trails] Phase2 Done, Select {candidates_m[0]}, "
+                f"simulate={self.is_simulate}. Acqure the ground truth")
+            best_perform, _ = self._evaluator.p2_evaluate(candidates_m[0], self.max_unit_per_model)
+        else:
+            logger.info(
+                f"5. [trails] Phase2 Done, Select {candidates_m[0]}, "
+                f"simulate={self.is_simulate}, Skip training")
+            best_perform = 0
         # Return the best model and the total epochs used
         return candidates_m[0], best_perform, total_epochs
 

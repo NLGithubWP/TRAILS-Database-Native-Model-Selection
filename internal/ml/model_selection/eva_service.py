@@ -13,14 +13,22 @@ os.environ.setdefault("log_file_name", "eval_service_" + str(ts) + ".log")
 from src.logger import logger
 from src.eva_engine.run_ms import RunModelSelection
 from src.dataset_utils.stream_dataloader import StreamingDataLoader
-from internal.ml.model_selection.shared_config import parse_config_arguments
+from shared_config import parse_config_arguments
+from typing import Any, List, Dict, Tuple
 
 
-def refinement_phase(u, k_models, table_name, config_file):
+def refinement_phase(u: int, k_models: List, dataset_name: str, config_file: str):
+    """
+    U: training-epoches
+    K-Models: k models to train
+    config_file: config file path
+    """
     args = parse_config_arguments(config_file)
-
-    train_dataloader = StreamingDataLoader(cache_svc_url=args.cache_svc_url, table_name=table_name, name_space="train")
-    eval_dataloader = StreamingDataLoader(cache_svc_url=args.cache_svc_url, table_name=table_name, name_space="valid")
+    args.device = "cuda:7"
+    train_dataloader = StreamingDataLoader(
+        cache_svc_url=args.cache_svc_url, table_name=f"{dataset_name}_train", name_space="train")
+    eval_dataloader = StreamingDataLoader(
+        cache_svc_url=args.cache_svc_url, table_name=f"{dataset_name}_valid", name_space="valid")
 
     try:
         rms = RunModelSelection(args.search_space, args, is_simulate=args.is_simulate)
@@ -35,7 +43,7 @@ def refinement_phase(u, k_models, table_name, config_file):
     return {"best_arch": best_arch, "best_arch_performance": best_arch_performance}
 
 
-app = Sanic("CacheServiceApp")
+app = Sanic("evaApp")
 
 
 @app.route("/", methods=["POST"])
@@ -47,42 +55,24 @@ async def start_refinement_phase(request):
 
     u = request.json.get('u')
     k_models = request.json.get('k_models')
-    table_name = request.json.get('table_name')
+    dataset_name = request.json.get('dataset_name')
     config_file = request.json.get('config_file')
 
     if u is None or k_models is None or config_file is None:
         logger.info(f"Missing 'u' or 'k_models' in JSON payload, {request.json}")
         raise InvalidUsage("Missing 'u' or 'k_models' in JSON payload")
 
-    result = refinement_phase(u, k_models, table_name, config_file)
+    result = refinement_phase(u, k_models, dataset_name, config_file)
 
     return json(result)
 
 
 if __name__ == "__main__":
-    import requests
 
-    url = 'http://localhost:8093/'
-    columns = ['col1', 'col2', 'col3', 'label']
-    response = requests.post(
-        url, json={'columns': columns,
-                   'name_space': "train",
-                   'table_name': "dummy",
-                   "batch_size": 32})
-    print(response.json())
-
-    response = requests.post(
-        url, json={'columns': columns,
-                   'name_space': "valid",
-                   'table_name': "dummy",
-                   "batch_size": 32})
-    print(response.json())
-
-    # this is filtering phase
-    time.sleep(5)
-
-    result = refinement_phase(1, ["8-8-8-8", "16-16-16-16"],
-                              "dummy",
-                              "/project/TRAILS/internal/ml/model_selection/config.ini")
+    result = refinement_phase(
+        u=1,
+        k_models=["8-8-8-8", "16-16-16-16"],
+        dataset_name="frappe",
+        config_file="/home/xingnaili/firmest_docker/TRAILS/internal/ml/model_selection/config.ini")
 
     # app.run(host="0.0.0.0", port=8095)

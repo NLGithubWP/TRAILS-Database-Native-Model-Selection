@@ -130,8 +130,10 @@ AS 'MODULE_PATHNAME', 'benchmark_filtering_phase_latency_wrapper';
 -- pg_extension::benchmark_filtering_latency_in_db
 CREATE  FUNCTION "benchmark_filtering_latency_in_db"(
     "explore_models" INT, /* i32 */
+    "dataset" TEXT, /* alloc::string::String */
     "config_file" TEXT /* alloc::string::String */
 ) RETURNS TEXT /* alloc::string::String */
     IMMUTABLE STRICT PARALLEL SAFE
 LANGUAGE c /* Rust */
 AS 'MODULE_PATHNAME', 'benchmark_filtering_latency_in_db_wrapper';
+

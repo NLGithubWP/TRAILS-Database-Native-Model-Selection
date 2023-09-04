@@ -40,9 +40,9 @@ https://drive.google.com/file/d/1TGii9ymbmX81c9-GKWXbe_4Z64R8Btz1/view?usp=shari
 ```python
 # Construct NAS-Bench-Tabular: 
 ## 1. Training all models.
-bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_frappe.sh
-bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_uci.sh
-bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_criteo.sh
+bash internal/ml/model_selection/scripts/nas-bench-tabular/train_all_models_frappe.sh
+bash internal/ml/model_selection/scripts/nas-bench-tabular/train_all_models_diabetes.sh
+bash internal/ml/model_selection/scripts/nas-bench-tabular/train_all_models_criteo.sh
 
 ## 2. Scoring all models using all TFMEMs.
 bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_frappe.sh
@@ -102,7 +102,6 @@ python internal/ml/model_selection/exps/macro/anytime_img_draw.py
 ```bash
 export PYTHONPATH=$PYTHONPATH:./internal/ml/model_selection
 conda activate trails
-
 python ./internal/ml/model_selection/exps/micro/benchmark_correlation.py
 ```
 
@@ -141,16 +140,16 @@ Clearly, K/N reaches 100 yields better scheduling result in both image and tabul
 
 ![image-20230722205244718](./documents/imgs/image-20230722205244718.png)
 
-## Micro: device placement/embedding cache
+## Micro: Device Placement & Embedding Cache
 
 1. To measure the time usage for filtering phase on vairous hardware, run the following
 
    ```bash
-   # without embedding cache at the filtering phase
+   # Without embedding cache at the filtering phase
    nohup bash internal/ml/model_selection/scripts/latency_phase1_cpu_gpu.sh &
-   # with embedding cache at the filtering phase (faster)
+   # With embedding cache at the filtering phase (faster)
    nohup bash internal/ml/model_selection/scripts/latency_embedding_cache.sh &
-   # draw graph
+   # Draw graph
    python ./internal/ml/model_selection/exps/micro/draw_filtering_latency.py
    python ./internal/ml/model_selection/exps/micro/draw_filtering_memory_bar.py
    python ./internal/ml/model_selection/exps/micro/draw_filtering_memory_line.py
@@ -163,21 +162,30 @@ Clearly, K/N reaches 100 yields better scheduling result in both image and tabul
    nohup bash internal/ml/model_selection/scripts/latency_phase1_cpu_gpu.sh &
    ```
 
-## Micro: in/out database filtering
+## Micro: In-DB vs Out-DB filtering phase
 
 ```bash
+# run out-of db, read data via psycopg2
 bash ./internal/ml/model_selection/scripts/latency_phase1_in_db.sh
-select benchmark_filtering_phase_latency(5000, '/project/TRAILS/internal/ml/model_selection/config.ini');
 
+# run in-db query, read data via SPI
+select benchmark_filtering_latency_in_db(5000, 'frappe', '/project/TRAILS/internal/ml/model_selection/config.ini');
+
+select benchmark_filtering_latency_in_db(5000, 'uci_diabetes', '/project/TRAILS/internal/ml/model_selection/config.ini');
+
+select benchmark_filtering_latency_in_db(5000, 'criteo', '/project/TRAILS/internal/ml/model_selection/config.ini');
 ```
 
-## Micro: on-the-fly data transmission
+## Micro: On-the-Fly Data transmission, Refinement
+
+```bash
+# start cache service
+python ./internal/cache-service/cache_service.py 
+python ./internal/cache-service/trigger_cache_svc.py
+# consume from the cache-svc
 
 
-
-## Memory Usage
-
-
+```
 
 ## Reproduce Figure7
 

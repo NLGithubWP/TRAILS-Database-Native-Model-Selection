@@ -41,6 +41,7 @@ if __name__ == "__main__":
         "db_port": args.db_port,
     }
 
+    overall_begin = time.time()
     search_space_ins = init_search_space(args)
     _evaluator = P1Evaluator(device=args.device,
                              num_label=args.num_labels,
@@ -50,7 +51,8 @@ if __name__ == "__main__":
                              is_simulate=False,
                              metrics=args.tfmem,
                              enable_cache=args.embedding_cache_filtering,
-                             db_config=db_config)
+                             db_config=db_config,
+                             data_retrievel="sql")
 
     sampler = SequenceSampler(search_space_ins)
     explored_n = 0
@@ -101,6 +103,10 @@ if __name__ == "__main__":
     write_json(output_file, result)
     # compute time
     write_json(time_output_file, _evaluator.time_usage)
+
+    overall_end = time.time()
+
+    print(overall_end - overall_begin)
 
     # Then, at the end of your program, you can stop the thread:
     print("Done, time sleep for 10 seconds")

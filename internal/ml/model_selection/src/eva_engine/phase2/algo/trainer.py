@@ -72,17 +72,19 @@ class ModelTrainer:
             logger.info(f'Epoch [{epoch:3d}/{epoch_num:3d}]')
             # train and eval
             # print("begin to train...")
+            logger.info(f"Begin to train.....")
             train_auc, train_loss = ModelTrainer.run(logger,
                                                      epoch, iter_per_epoch, model, train_loader, opt_metric, args,
                                                      optimizer=optimizer, namespace='train')
             scheduler.step()
-
+            logger.info(f"Begin to evaluate on valid.....")
             # print("begin to evaluate...")
             valid_auc, valid_loss = ModelTrainer.run(logger,
                                                      epoch, iter_per_epoch, model, val_loader,
                                                      opt_metric, args, namespace='val')
 
             if use_test_acc:
+                logger.info(f"Begin to evaluate on test.....")
                 test_auc, test_loss = ModelTrainer.run(logger,
                                                        epoch, iter_per_epoch, model, test_loader,
                                                        opt_metric, args, namespace='test')
