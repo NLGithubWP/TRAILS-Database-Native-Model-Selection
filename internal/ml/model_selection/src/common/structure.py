@@ -32,15 +32,23 @@ class ModelAcquireData:
     The serialize/deserialize is for good scalability. The project can be decouple into multiple service
     """
 
-    def __init__(self, model_id: str, model_encoding: str, is_last: bool = False):
+    def __init__(self, model_id: str, model_encoding: str, is_last: bool = False,
+                 spi_seconds=None, spi_mini_batch=None):
         self.is_last = is_last
         self.model_id = model_id
         self.model_encoding = model_encoding
 
+        # this is when using spi
+        self.spi_seconds = spi_seconds
+        self.spi_mini_batch = spi_mini_batch
+
     def serialize_model(self) -> str:
         data = {"is_last": self.is_last,
                 "model_id": self.model_id,
-                "model_encoding": self.model_encoding}
+                "model_encoding": self.model_encoding,
+                "spi_seconds": self.spi_seconds,
+                "spi_mini_batch": self.spi_mini_batch}
+
         return json.dumps(data)
 
     @classmethod
@@ -49,7 +57,9 @@ class ModelAcquireData:
         res = cls(
             data["model_id"],
             data["model_encoding"],
-            data["is_last"])
+            data["is_last"],
+            data["spi_mini_batch"],
+            data["spi_seconds"])
         return res
 
 

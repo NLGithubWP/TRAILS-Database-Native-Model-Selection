@@ -453,9 +453,6 @@ def in_db_filtering_state_init(params: dict, args: Namespace):
     from src.controller.sampler_all.seq_sampler import SequenceSampler
     from src.eva_engine.phase1.evaluator import P1Evaluator
     from src.search_space.init_search_space import init_search_space
-    logger.info(f"begin run filtering_phase CPU only")
-
-    logger.info(params)
 
     db_config = {
         "db_name": args.db_name,
@@ -465,27 +462,26 @@ def in_db_filtering_state_init(params: dict, args: Namespace):
     }
 
     # init once
-    if search_space_ins is None and _evaluator is None and sampler is None:
-        logger.info("search_space_ins is None, init them")
+    # params["eva_results"] == "null" means it a new job
+    if params["eva_results"] == "null" or (search_space_ins is None and _evaluator is None and sampler is None):
+        logger.info(f'New job = {params["eva_results"]}, search_space_ins = {search_space_ins}')
         search_space_ins = init_search_space(args)
         _evaluator = P1Evaluator(device=args.device,
                                  num_label=args.num_labels,
-                                 dataset_name=args.dataset,
+                                 dataset_name=params["dataset"],
                                  search_space_ins=search_space_ins,
                                  train_loader=None,
                                  is_simulate=False,
                                  metrics=args.tfmem,
                                  enable_cache=args.embedding_cache_filtering,
-                                 db_config=db_config)
+                                 db_config=db_config,
+                                 data_retrievel="spi")
         sampler = SequenceSampler(search_space_ins)
-    else:
-        logger.info("load global search_space_ins, evaluator and sampler")
 
     arch_id, arch_micro = sampler.sample_next_arch()
     model_encoding = search_space_ins.serialize_model_encoding(arch_micro)
 
-    return orjson.dumps({"model_encoding": model_encoding,
-                         "arch_id": arch_id}).decode('utf-8')
+    return orjson.dumps({"model_encoding": model_encoding, "arch_id": arch_id}).decode('utf-8')
 
 
 @exception_catcher
@@ -493,21 +489,75 @@ def in_db_filtering_evaluate(params: dict, args: Namespace):
     global search_space_ins, _evaluator, sampler
     from src.common.structure import ModelAcquireData
     from src.logger import logger
+    try:
+        if search_space_ins is None and _evaluator is None and sampler is None:
+            logger.info("search_space_ins, _evaluator, sampler is None")
+            return orjson.dumps({"error": "erroed, plz call init first"}).decode('utf-8')
 
-    logger.info(params)
-    if search_space_ins is None and _evaluator is None and sampler is None:
-        return orjson.dumps({"res":"erroed, plz call init first"}).decode('utf-8')
+        sampled_result = json.loads(params["sample_result"])
+        arch_id, model_encoding = str(sampled_result["arch_id"]), str(sampled_result["model_encoding"])
 
-    sampled_result = json.loads(params["sample_result"])
-    arch_id, model_encoding = str(sampled_result["arch_id"]), str(sampled_result["model_encoding"])
+        mini_batch = json.loads(params["mini_batch"])
+        if mini_batch["status"] == "error":
+            return orjson.dumps({"error": mini_batch["message"]}).decode('utf-8')
+        logger.info(f"Begin evaluate {params['model_index']}, "
+                    f"with size of batch = {len(mini_batch['data'])}, "
+                    f"size of columns = {len(mini_batch['data'][0])}")
+        model_acquire_data = ModelAcquireData(model_id=arch_id,
+                                              model_encoding=model_encoding,
+                                              is_last=False,
+                                              spi_seconds=float(params["spi_seconds"]),
+                                              spi_mini_batch=mini_batch["data"],
+                                              )
 
-    model_acquire_data = ModelAcquireData(model_id=arch_id,
-                                          model_encoding=model_encoding,
-                                          is_last=False)
-    data_str = model_acquire_data.serialize_model()
-    model_score = _evaluator.p1_evaluate(data_str)
+        model_score = _evaluator._p1_evaluate_online(model_acquire_data)
+        logger.info(f'Done evaluate {params["model_index"]}, '
+                    f'with {orjson.dumps({"index": params["model_index"], "score": model_score}).decode("utf-8")}')
+    except:
+        logger.info(orjson.dumps(
+            {"Errored": traceback.format_exc()}).decode('utf-8'))
 
-    return orjson.dumps({"score": model_score}).decode('utf-8')
+        return orjson.dumps(
+            {"Errored": traceback.format_exc()}).decode('utf-8')
+
+    return orjson.dumps({"index": params["model_index"], "score": model_score}).decode('utf-8')
+
+
+@exception_catcher
+def records_results(params: dict, args: Namespace):
+    global search_space_ins, _evaluator, sampler
+    from src.tools.io_tools import write_json
+    from src.logger import logger
+
+    try:
+        time_output_file = f"{args.result_dir}/time_score_{args.search_space}_{params['dataset']}_batch_size_{args.batch_size}_{args.device}_{args.tfmem}.json"
+        _evaluator.time_usage["io_latency"] = \
+            sum(_evaluator.time_usage["track_io_model_load"][2:]) + \
+            sum(_evaluator.time_usage["track_io_model_release_each_50"]) + \
+            sum(_evaluator.time_usage["track_io_model_init"][2:]) + \
+            sum(_evaluator.time_usage["track_io_res_load"][2:]) + \
+            sum(_evaluator.time_usage["track_io_data_retrievel"][2:]) + \
+            sum(_evaluator.time_usage["track_io_data_preprocess"][2:])
+
+        _evaluator.time_usage["compute_latency"] = sum(_evaluator.time_usage["track_compute"][2:])
+        _evaluator.time_usage["latency"] = _evaluator.time_usage["io_latency"] + _evaluator.time_usage[
+            "compute_latency"]
+
+        _evaluator.time_usage["avg_compute_latency"] = \
+            _evaluator.time_usage["compute_latency"] \
+            / len(_evaluator.time_usage["track_compute"][2:])
+
+        logger.info(f"Saving time usag to {time_output_file}")
+        # compute time
+        write_json(time_output_file, _evaluator.time_usage)
+    except:
+        logger.info(orjson.dumps(
+            {"Errored": traceback.format_exc()}).decode('utf-8'))
+
+        return orjson.dumps(
+            {"Errored": traceback.format_exc()}).decode('utf-8')
+
+    return orjson.dumps({"Done": 1}).decode('utf-8')
 
 
 if __name__ == "__main__":

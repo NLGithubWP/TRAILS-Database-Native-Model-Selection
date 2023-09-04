@@ -167,7 +167,13 @@ Clearly, K/N reaches 100 yields better scheduling result in both image and tabul
 
 ```bash
 bash ./internal/ml/model_selection/scripts/latency_phase1_in_db.sh
-select benchmark_filtering_phase_latency(5000, '/project/TRAILS/internal/ml/model_selection/config.ini');
+
+# run in-db query
+select benchmark_filtering_latency_in_db(4, 'frappe', '/project/TRAILS/internal/ml/model_selection/config.ini');
+
+select benchmark_filtering_latency_in_db(4, 'uci_diabetes', '/project/TRAILS/internal/ml/model_selection/config.ini');
+
+select benchmark_filtering_latency_in_db(4, 'criteo', '/project/TRAILS/internal/ml/model_selection/config.ini');
 
 ```
 

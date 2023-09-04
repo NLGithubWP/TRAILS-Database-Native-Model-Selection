@@ -3,6 +3,8 @@ use std::collections::HashMap;
 use pgrx::prelude::*;
 use crate::bindings::ml_register::PY_MODULE;
 use crate::bindings::ml_register::run_python_function;
+use std::time::{Instant, Duration};
+
 
 pub fn profiling_filtering_phase(
     task: &String
@@ -76,8 +78,11 @@ pub fn benchmark_filtering_phase_latency(
 }
 
 pub fn benchmark_filtering_latency_in_db(
-    explore_models: i32, config_file: &String) -> serde_json::Value {
-    let dataset_name = "pg_extension";
+    explore_models: i32, dataset: &String, config_file: &String) -> serde_json::Value {
+
+    let overall_start_time = Instant::now();
+
+    let database_name = "pg_extension";
     let mut last_id = 0;
     let mut eva_results = serde_json::Value::Null; // Initializing the eva_results
 
@@ -86,6 +91,7 @@ pub fn benchmark_filtering_latency_in_db(
         // Step 1: Initialize State in Python
         let mut task_map = HashMap::new();
         task_map.insert("config_file", config_file.clone());
+        task_map.insert("dataset", dataset.clone());
         task_map.insert("eva_results", eva_results.to_string());
         let task_json = json!(task_map).to_string();
 
@@ -96,8 +102,9 @@ pub fn benchmark_filtering_latency_in_db(
             "in_db_filtering_state_init");
 
         // 2. query data via SPI
+        let start_time = Instant::now();
         let results: Result<Vec<Vec<String>>, String> = Spi::connect(|client| {
-            let query = format!("SELECT * FROM frappe_train LIMIT 3");
+            let query = format!("SELECT * FROM {}_train WHERE id > {} ORDER BY id ASC LIMIT 32", dataset, last_id);
             let mut cursor = client.open_cursor(&query, None);
             let table = match cursor.fetch(32) {
                 Ok(table) => table,
@@ -110,7 +117,16 @@ pub fn benchmark_filtering_latency_in_db(
                 let mut each_row = Vec::new();
                 // add primary key
                 let col0 = match row.get::<i32>(1) {
-                    Ok(val) => val.map(|i| i.to_string()).unwrap_or_default(),
+                    Ok(Some(val)) => {
+                        // Update last_id with the retrieved value
+                        if val > 100000{
+                            last_id = 0;
+                        }else{
+                            last_id = val
+                        }
+                        val.to_string()
+                    }
+                    Ok(None) => "".to_string(), // Handle the case when there's no valid value
                     Err(e) => e.to_string(),
                 };
                 each_row.push(col0);
@@ -121,7 +137,7 @@ pub fn benchmark_filtering_latency_in_db(
                 };
                 each_row.push(col1);
                 // add fields
-                let texts: Vec<String> = (3..13)
+                let texts: Vec<String> = (3..row.columns()+1)
                     .filter_map(|i| {
                         match row.get::<&str>(i) {
                             Ok(Some(s)) => Some(s.to_string()),
@@ -151,13 +167,19 @@ pub fn benchmark_filtering_latency_in_db(
             }
         };
 
+        let end_time = Instant::now();
+        let elapsed_time = end_time.duration_since(start_time);
+        let elapsed_seconds = elapsed_time.as_secs_f64();
 
-        // Step 3: Data Processing in Python
+        // Step 3: model evaluate in Python
         let mut eva_task_map = HashMap::new();
         eva_task_map.insert("config_file", config_file.clone());
         eva_task_map.insert("sample_result", sample_result.to_string());
         let mini_batch_json = tup_table.to_string();
         eva_task_map.insert("mini_batch", mini_batch_json);
+        eva_task_map.insert("spi_seconds", elapsed_seconds.to_string());
+        eva_task_map.insert("model_index", i.to_string());
+
         let eva_task_json = json!(eva_task_map).to_string(); // Corrected this line
 
         eva_results = run_python_function(
@@ -166,7 +188,20 @@ pub fn benchmark_filtering_latency_in_db(
             "in_db_filtering_evaluate");
     }
 
-    // Step 4: Return to PostgreSQL
-    return serde_json::json!("Done");
+    let mut record_task_map = HashMap::new();
+    record_task_map.insert("config_file", config_file.clone());
+    record_task_map.insert("dataset", dataset.clone());
+    let record_task_json = json!(record_task_map).to_string();
+    run_python_function(
+        &PY_MODULE,
+        &record_task_json,
+        "records_results");
+
+    let overall_end_time = Instant::now();
+    let overall_elapsed_time = overall_end_time.duration_since(overall_start_time);
+    let overall_elapsed_seconds = overall_elapsed_time.as_secs_f64();
+
+    // Step 4: Return to PostgresSQL
+    return serde_json::json!(overall_elapsed_seconds.to_string());
 }
 

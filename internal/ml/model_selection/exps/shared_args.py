@@ -139,7 +139,7 @@ def tune_interval_NK_rate(parser):
 def db4nas(parser):
     parser.add_argument('--db_name', default="pg_extension", type=str)
     parser.add_argument('--db_user', default="postgres", type=str)
-    parser.add_argument('--db_host', default="127.0.0.1", type=str)
+    parser.add_argument('--db_host', default="localhost", type=str)
     parser.add_argument('--db_port', default=28814, type=int)
 
 

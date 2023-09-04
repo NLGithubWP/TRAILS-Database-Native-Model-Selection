@@ -55,9 +55,9 @@ cargo pgrx run
 ## Load data into database.
 
 ```bash
-bash internal/ml/model_selection/scripts/database/load_data_to_db.sh /project/exp_data/data/structure_data/frappe frappe
-bash internal/ml/model_selection/scripts/database/load_data_to_db.sh /project/exp_data/data/structure_data/uci_diabetes uci_diabetes
-bash internal/ml/model_selection/scripts/database/load_data_to_db.sh /project/exp_data/data/structure_data/criteo_full criteo
+bash /project/TRAILS/internal/ml/model_selection/scripts/database/load_data_to_db.sh /project/exp_data/data/structure_data/frappe frappe
+bash /project/TRAILS/internal/ml/model_selection/scripts/database/load_data_to_db.sh /project/exp_data/data/structure_data/uci_diabetes uci_diabetes
+bash /project/TRAILS/internal/ml/model_selection/scripts/database/load_data_to_db.sh /project/exp_data/data/structure_data/criteo_full criteo
 ```
 
 ## 1. Compile
@@ -98,7 +98,11 @@ SELECT *  FROM pg_proc  WHERE proname = 'model_selection_workloads';
 # micro
 select benchmark_filtering_phase_latency(4, '/project/TRAILS/internal/ml/model_selection/config.ini');
 
-select benchmark_filtering_latency_in_db(2, '/project/TRAILS/internal/ml/model_selection/config.ini');
+select benchmark_filtering_latency_in_db(5000, 'frappe', '/project/TRAILS/internal/ml/model_selection/config.ini');
+
+select benchmark_filtering_latency_in_db(5000, 'uci_diabetes', '/project/TRAILS/internal/ml/model_selection/config.ini');
+
+select benchmark_filtering_latency_in_db(4, 'criteo', '/project/TRAILS/internal/ml/model_selection/config.ini');
 
 # Test coordinator
 SELECT coordinator('0.08244', '168.830156', '800', false, '/project/TRAILS/internal/ml/model_selection/config.ini');
