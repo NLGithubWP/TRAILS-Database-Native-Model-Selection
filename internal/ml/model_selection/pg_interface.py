@@ -439,11 +439,16 @@ def benchmark_filtering_phase_latency(params: dict, args: Namespace):
 
     return orjson.dumps({"Write to": time_output_file}).decode('utf-8')
 
-OBJECT_CACHE = {}
+
+search_space_ins = None
+_evaluator = None
+sampler = None
+
 
 ######### benchmarking code here #########
 @exception_catcher
 def in_db_filtering_state_init(params: dict, args: Namespace):
+    global search_space_ins, _evaluator, sampler
     from src.logger import logger
     from src.controller.sampler_all.seq_sampler import SequenceSampler
     from src.eva_engine.phase1.evaluator import P1Evaluator
@@ -451,9 +456,6 @@ def in_db_filtering_state_init(params: dict, args: Namespace):
     logger.info(f"begin run filtering_phase CPU only")
 
     logger.info(params)
-    logger.info(OBJECT_CACHE)
-
-    OBJECT_CACHE["test_cache"] = 123
 
     db_config = {
         "db_name": args.db_name,
@@ -462,36 +464,42 @@ def in_db_filtering_state_init(params: dict, args: Namespace):
         "db_port": args.db_port,
     }
 
-    search_space_ins = init_search_space(args)
-    _evaluator = P1Evaluator(device=args.device,
-                             num_label=args.num_labels,
-                             dataset_name=args.dataset,
-                             search_space_ins=search_space_ins,
-                             train_loader=None,
-                             is_simulate=False,
-                             metrics=args.tfmem,
-                             enable_cache=args.embedding_cache_filtering,
-                             db_config=db_config)
+    # init once
+    if search_space_ins is None and _evaluator is None and sampler is None:
+        logger.info("search_space_ins is None, init them")
+        search_space_ins = init_search_space(args)
+        _evaluator = P1Evaluator(device=args.device,
+                                 num_label=args.num_labels,
+                                 dataset_name=args.dataset,
+                                 search_space_ins=search_space_ins,
+                                 train_loader=None,
+                                 is_simulate=False,
+                                 metrics=args.tfmem,
+                                 enable_cache=args.embedding_cache_filtering,
+                                 db_config=db_config)
+        sampler = SequenceSampler(search_space_ins)
+    else:
+        logger.info("load global search_space_ins, evaluator and sampler")
 
-    sampler = SequenceSampler(search_space_ins)
     arch_id, arch_micro = sampler.sample_next_arch()
     model_encoding = search_space_ins.serialize_model_encoding(arch_micro)
 
-    OBJECT_CACHE[id(_evaluator)] = _evaluator
-
     return orjson.dumps({"model_encoding": model_encoding,
-                         "arch_id": arch_id,
-                         "eva_id": id(_evaluator),
-                         }).decode('utf-8')
+                         "arch_id": arch_id}).decode('utf-8')
+
 
 @exception_catcher
 def in_db_filtering_evaluate(params: dict, args: Namespace):
+    global search_space_ins, _evaluator, sampler
     from src.common.structure import ModelAcquireData
     from src.logger import logger
 
     logger.info(params)
+    if search_space_ins is None and _evaluator is None and sampler is None:
+        return orjson.dumps({"res":"erroed, plz call init first"}).decode('utf-8')
 
-    arch_id, model_encoding, _evaluator = 1, 2, 3
+    sampled_result = json.loads(params["sample_result"])
+    arch_id, model_encoding = str(sampled_result["arch_id"]), str(sampled_result["model_encoding"])
 
     model_acquire_data = ModelAcquireData(model_id=arch_id,
                                           model_encoding=model_encoding,
