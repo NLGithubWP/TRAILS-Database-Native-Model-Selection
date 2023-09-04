@@ -98,7 +98,7 @@ SELECT *  FROM pg_proc  WHERE proname = 'model_selection_workloads';
 # micro
 select benchmark_filtering_phase_latency(4, '/project/TRAILS/internal/ml/model_selection/config.ini');
 
-select benchmark_filtering_latency_in_db(4, '/project/TRAILS/internal/ml/model_selection/config.ini');
+select benchmark_filtering_latency_in_db(2, '/project/TRAILS/internal/ml/model_selection/config.ini');
 
 # Test coordinator
 SELECT coordinator('0.08244', '168.830156', '800', false, '/project/TRAILS/internal/ml/model_selection/config.ini');
@@ -116,7 +116,7 @@ response = requests.post(args.refinement_url, json=data).json()
 
 ```
 
-# Test the pg-extension works using pippython
+# Test the pg-extension works using pipython
 
 ```sql
 # switch to a postgres
