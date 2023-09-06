@@ -47,6 +47,7 @@ class BudgetAwareControllerSH:
         :param is_simulate:
         :param eta: 1/mu to keep in each iteration
         """
+        self.is_simulate = is_simulate
         self._evaluator = P2Evaluator(search_space_ins, dataset_name,
                                       is_simulate=is_simulate,
                                       train_loader=train_loader, val_loader=val_loader,
@@ -129,7 +130,11 @@ class BudgetAwareControllerSH:
             candidates_m = [scores[0][1]]
 
         logger.info(f"5. [trails] Phase2 Done, get {candidates_m[0]} now acqure the ground truth")
-        best_perform, _ = self._evaluator.p2_evaluate(candidates_m[0], self.max_unit_per_model)
+        # only return the performance when simulating, skip the training, just return model
+        if self.is_simulate:
+            best_perform, _ = self._evaluator.p2_evaluate(candidates_m[0], self.max_unit_per_model)
+        else:
+            best_perform = 0
         # Return the best model and the total epochs used
         return candidates_m[0], best_perform, total_epochs
 
