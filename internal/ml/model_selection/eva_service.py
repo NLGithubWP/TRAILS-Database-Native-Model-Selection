@@ -13,7 +13,7 @@ os.environ.setdefault("log_file_name", "eval_service_" + str(ts) + ".log")
 from src.logger import logger
 from src.eva_engine.run_ms import RunModelSelection
 from src.dataset_utils.stream_dataloader import StreamingDataLoader
-from internal.ml.model_selection.shared_config import parse_config_arguments
+from shared_config import parse_config_arguments
 from typing import Any, List, Dict, Tuple
 
 
