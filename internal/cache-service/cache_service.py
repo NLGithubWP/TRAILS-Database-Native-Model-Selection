@@ -73,9 +73,10 @@ class CacheService:
             while True:
                 try:
                     # fetch and preprocess data from PostgreSQL
-                    batch = self.fetch_and_preprocess(conn)
-                    # block until a free slot is available
+                    batch, time_usg = self.fetch_and_preprocess(conn)
                     self.queue.put(batch)
+                    logger.info(f"Data is fetched, queue_size={self.queue.qsize()}, time_usg={time.time() - time_usg}")
+                    # block until a free slot is available
                     time.sleep(0.1)
                 except psycopg2.OperationalError:
                     logger.exception("Lost connection to the database, trying to reconnect...")
@@ -101,8 +102,7 @@ class CacheService:
             return "end_position"
 
         batch = self.pre_processing(rows)
-        logger.info(f"Data is fetched {time.time() - begin_time}")
-        return batch
+        return batch, time.time() - begin_time
 
     def get(self):
         return self.queue.get()
