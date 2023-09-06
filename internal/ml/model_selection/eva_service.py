@@ -71,6 +71,6 @@ if __name__ == "__main__":
         u=1,
         k_models=["8-8-8-8", "16-16-16-16"],
         table_name="frappe_train",
-        config_file="/project/TRAILS/internal/ml/model_selection/config.ini")
+        config_file="/home/xingnaili/firmest_docker/TRAILS/internal/ml/model_selection/config.ini")
 
     # app.run(host="0.0.0.0", port=8095)
