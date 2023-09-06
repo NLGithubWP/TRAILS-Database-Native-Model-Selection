@@ -14,9 +14,15 @@ from src.logger import logger
 from src.eva_engine.run_ms import RunModelSelection
 from src.dataset_utils.stream_dataloader import StreamingDataLoader
 from internal.ml.model_selection.shared_config import parse_config_arguments
+from typing import Any, List, Dict, Tuple
 
 
-def refinement_phase(u, k_models, table_name, config_file):
+def refinement_phase(u: int, k_models: List, table_name: str, config_file: str):
+    """
+    U: training-epoches
+    K-Models: k models to train
+    config_file: config file path
+    """
     args = parse_config_arguments(config_file)
 
     train_dataloader = StreamingDataLoader(cache_svc_url=args.cache_svc_url, table_name=table_name, name_space="train")
@@ -35,7 +41,7 @@ def refinement_phase(u, k_models, table_name, config_file):
     return {"best_arch": best_arch, "best_arch_performance": best_arch_performance}
 
 
-app = Sanic("CacheServiceApp")
+app = Sanic("evaApp")
 
 
 @app.route("/", methods=["POST"])

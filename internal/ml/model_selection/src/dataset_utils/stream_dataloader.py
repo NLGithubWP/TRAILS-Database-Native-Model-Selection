@@ -7,6 +7,10 @@ from src.logger import logger
 
 
 class StreamingDataLoader:
+    """
+    This will preoritically query data from cache-service
+    """
+
     def __init__(self, cache_svc_url, table_name, name_space):
         self.table_name = table_name
         # train, valid, test
