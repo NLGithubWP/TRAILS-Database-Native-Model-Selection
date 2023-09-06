@@ -69,26 +69,28 @@ if __name__ == "__main__":
     import requests
 
     url = 'http://localhost:8093/'
-    columns = ['col1', 'col2', 'col3', 'label']
+    columns = ['label', 'col1', 'col2', 'col3', 'col4', 'col5', 'col6', 'col7', 'col8', 'col9', 'col10']
     response = requests.post(
         url, json={'columns': columns,
                    'name_space': "train",
-                   'table_name': "dummy",
+                   'table_name': "frappe_train",
                    "batch_size": 32})
     print(response.json())
 
     response = requests.post(
         url, json={'columns': columns,
                    'name_space': "valid",
-                   'table_name': "dummy",
+                   'table_name': "frappe_train",
                    "batch_size": 32})
     print(response.json())
 
     # this is filtering phase
     time.sleep(5)
 
-    result = refinement_phase(1, ["8-8-8-8", "16-16-16-16"],
-                              "dummy",
-                              "/project/TRAILS/internal/ml/model_selection/config.ini")
+    result = refinement_phase(
+        u=1,
+        k_models=["8-8-8-8", "16-16-16-16"],
+        table_name="frappe_train",
+        config_file="/project/TRAILS/internal/ml/model_selection/config.ini")
 
     # app.run(host="0.0.0.0", port=8095)

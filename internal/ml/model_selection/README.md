@@ -179,6 +179,9 @@ select benchmark_filtering_latency_in_db(5000, 'criteo', '/project/TRAILS/intern
 ## Micro: On-the-Fly Data transmission, Refinement
 
 ```bash
+# start cache service
+python internal/cache-service/cache_service.py 
+# send a request to trigger it
 
 ```
 
