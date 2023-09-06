@@ -102,7 +102,7 @@ class CacheService:
         else:
             # If no more new rows, reset last_id to start over scan and return 'end_position'
             self.last_id = -1
-            return "end_position"
+            return "end_position", time.time() - begin_time
 
         batch = self.pre_processing(rows)
         return batch, time.time() - begin_time
