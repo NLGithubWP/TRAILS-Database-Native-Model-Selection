@@ -341,7 +341,7 @@ def model_selection_trails_workloads(params: dict, args: Namespace):
          }).decode('utf-8')
 
 
-######### benchmarking code here #########
+# benchmarking code here
 @exception_catcher
 def benchmark_filtering_phase_latency(params: dict, args: Namespace):
     from src.logger import logger
@@ -440,12 +440,12 @@ def benchmark_filtering_phase_latency(params: dict, args: Namespace):
     return orjson.dumps({"Write to": time_output_file}).decode('utf-8')
 
 
+# Micro benchmarking filterting phaes
 search_space_ins = None
 _evaluator = None
 sampler = None
 
 
-######### benchmarking code here #########
 @exception_catcher
 def in_db_filtering_state_init(params: dict, args: Namespace):
     global search_space_ins, _evaluator, sampler
