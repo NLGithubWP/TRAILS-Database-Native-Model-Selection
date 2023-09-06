@@ -44,26 +44,25 @@ class CacheService:
 
     def decode_libsvm(self, columns):
         map_func = lambda pair: (int(pair[0]), float(pair[1]))
-        # 1 is id, -1 is label
-        id, value = zip(*map(lambda col: map_func(col.split(':')), columns[1:-1]))
+        # 0 is id, 1 is label
+        id, value = zip(*map(lambda col: map_func(col.split(':')), columns[2:]))
         sample = {'id': list(id),
                   'value': list(value),
-                  'y': float(columns[-1])}
+                  'y': int(columns[1])}
         return sample
 
     def pre_processing(self, mini_batch_data: List[Tuple]):
         """
-        mini_batch_data: [('123:123', '123:123', '123:123', '0')
+        mini_batch_data: [('0', '0', '123:123', '123:123', '123:123',)
         """
         sample_lines = len(mini_batch_data)
-        nfields = len(mini_batch_data[0]) - 2
         feat_id = []
         feat_value = []
         y = []
 
         for i in range(sample_lines):
             row_value = mini_batch_data[i]
-            sample = self.decode_libsvm(list(row_value))
+            sample = self.decode_libsvm(row_value)
             feat_id.append(sample['id'])
             feat_value.append(sample['value'])
             y.append(sample['y'])
