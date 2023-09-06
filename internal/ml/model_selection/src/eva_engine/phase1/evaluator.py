@@ -100,7 +100,7 @@ class P1Evaluator:
 
     def measure_model_flops(self, data_str: str, batch_size: int, channel_size: int):
         # todo: check the package
-        mini_batch, mini_batch_targets, _ = self.retrievel_data()
+        mini_batch, mini_batch_targets, _ = self.retrievel_data(None)
         model_acquire = ModelAcquireData.deserialize(data_str)
         model_encoding = model_acquire.model_encoding
         new_model = self.search_space_ins.new_arch_scratch_with_default_setting(model_encoding, bn=True)
