@@ -128,6 +128,7 @@ class BudgetAwareControllerSH:
             scores.sort(reverse=True, key=lambda x: x[0])
             candidates_m = [scores[0][1]]
 
+        logger.info(f"5. [trails] Phase2 Done, get {candidates_m[0]} now acqure the ground truth")
         best_perform, _ = self._evaluator.p2_evaluate(candidates_m[0], self.max_unit_per_model)
         # Return the best model and the total epochs used
         return candidates_m[0], best_perform, total_epochs
