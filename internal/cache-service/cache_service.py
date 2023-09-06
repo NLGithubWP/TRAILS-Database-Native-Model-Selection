@@ -75,7 +75,8 @@ class CacheService:
                     # fetch and preprocess data from PostgreSQL
                     batch, time_usg = self.fetch_and_preprocess(conn)
                     self.queue.put(batch)
-                    logger.info(f"Data is fetched, queue_size={self.queue.qsize()}, time_usg={time.time() - time_usg}")
+                    print(f"Data is fetched, queue_size={self.queue.qsize()}, time_usg={time_usg}")
+                    logger.info(f"Data is fetched, queue_size={self.queue.qsize()}, time_usg={time_usg}")
                     # block until a free slot is available
                     time.sleep(0.1)
                 except psycopg2.OperationalError:
