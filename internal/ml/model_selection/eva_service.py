@@ -17,7 +17,7 @@ from shared_config import parse_config_arguments
 from typing import Any, List, Dict, Tuple
 
 
-def refinement_phase(u: int, k_models: List, table_name: str, config_file: str):
+def refinement_phase(u: int, k_models: List, dataset_name: str, config_file: str):
     """
     U: training-epoches
     K-Models: k models to train
@@ -25,8 +25,10 @@ def refinement_phase(u: int, k_models: List, table_name: str, config_file: str):
     """
     args = parse_config_arguments(config_file)
     args.device = "cuda:7"
-    train_dataloader = StreamingDataLoader(cache_svc_url=args.cache_svc_url, table_name=table_name, name_space="train")
-    eval_dataloader = StreamingDataLoader(cache_svc_url=args.cache_svc_url, table_name=table_name, name_space="valid")
+    train_dataloader = StreamingDataLoader(
+        cache_svc_url=args.cache_svc_url, table_name=f"{dataset_name}_train", name_space="train")
+    eval_dataloader = StreamingDataLoader(
+        cache_svc_url=args.cache_svc_url, table_name=f"{dataset_name}_valid", name_space="valid")
 
     try:
         rms = RunModelSelection(args.search_space, args, is_simulate=args.is_simulate)
@@ -53,14 +55,14 @@ async def start_refinement_phase(request):
 
     u = request.json.get('u')
     k_models = request.json.get('k_models')
-    table_name = request.json.get('table_name')
+    dataset_name = request.json.get('dataset_name')
     config_file = request.json.get('config_file')
 
     if u is None or k_models is None or config_file is None:
         logger.info(f"Missing 'u' or 'k_models' in JSON payload, {request.json}")
         raise InvalidUsage("Missing 'u' or 'k_models' in JSON payload")
 
-    result = refinement_phase(u, k_models, table_name, config_file)
+    result = refinement_phase(u, k_models, dataset_name, config_file)
 
     return json(result)
 
@@ -70,7 +72,7 @@ if __name__ == "__main__":
     result = refinement_phase(
         u=1,
         k_models=["8-8-8-8", "16-16-16-16"],
-        table_name="frappe_train",
+        dataset_name="frappe",
         config_file="/home/xingnaili/firmest_docker/TRAILS/internal/ml/model_selection/config.ini")
 
     # app.run(host="0.0.0.0", port=8095)
