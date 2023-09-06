@@ -13,7 +13,7 @@ print(response.json())
 response = requests.post(
     url, json={'columns': columns,
                'name_space': "valid",
-               'table_name': "frappe_train",
-               "batch_size": 32})
+               'table_name': "frappe_valid",
+               "batch_size": 1024})
 print(response.json())
 

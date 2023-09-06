@@ -24,7 +24,7 @@ def refinement_phase(u: int, k_models: List, table_name: str, config_file: str):
     config_file: config file path
     """
     args = parse_config_arguments(config_file)
-
+    args.device = "cuda:7"
     train_dataloader = StreamingDataLoader(cache_svc_url=args.cache_svc_url, table_name=table_name, name_space="train")
     eval_dataloader = StreamingDataLoader(cache_svc_url=args.cache_svc_url, table_name=table_name, name_space="valid")
 

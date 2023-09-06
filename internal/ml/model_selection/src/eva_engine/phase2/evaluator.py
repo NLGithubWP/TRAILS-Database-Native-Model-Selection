@@ -65,7 +65,7 @@ class P2Evaluator:
         """
         model = self.search_space_ins.new_architecture(cand).to(self.args.device)
         if self.search_space_ins.name == Config.MLPSP:
-            model.init_embedding(cached_embedding=None, requires_grad=True)
+            model.init_embedding(cached_embedding=None, requires_grad=True).to(self.args.device)
         valid_auc, total_run_time, train_log = ModelTrainer.fully_train_arch(
            model=model,
            use_test_acc=False,
