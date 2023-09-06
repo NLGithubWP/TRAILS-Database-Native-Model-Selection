@@ -180,8 +180,8 @@ select benchmark_filtering_latency_in_db(5000, 'criteo', '/project/TRAILS/intern
 
 ```bash
 # start cache service
-python internal/cache-service/cache_service.py 
-python internal/cache-service/trigger_cache_svc.py
+python ./internal/cache-service/cache_service.py 
+python ./internal/cache-service/trigger_cache_svc.py
 # consume from the cache-svc
 
 

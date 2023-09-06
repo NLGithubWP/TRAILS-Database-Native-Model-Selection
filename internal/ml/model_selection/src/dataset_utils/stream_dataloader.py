@@ -12,6 +12,7 @@ class StreamingDataLoader:
     """
 
     def __init__(self, cache_svc_url, table_name, name_space):
+        self.last_fetch_time = 0
         self.table_name = table_name
         # train, valid, test
         self.name_space = name_space
@@ -57,6 +58,8 @@ class StreamingDataLoader:
         return self
 
     def __next__(self):
+        print("compute time = ", time.time() - self.last_fetch_time)
+        self.last_fetch_time = time.time()
         if self.data_queue.empty() and not self.thread.is_alive():
             raise StopIteration
         else:
