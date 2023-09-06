@@ -26,13 +26,15 @@ CACHE_SIZE = 10
 
 
 class CacheService:
-    def __init__(self, database: str, table: str, columns: List, batch_size: int, max_size: int = CACHE_SIZE):
+    def __init__(self, name_space: str, database: str, table: str, columns: List, batch_size: int, max_size: int = CACHE_SIZE):
         """
+        name_space: train, valid, test
         database: database to use
         table: which table
         columns: selected cols
         max_size: max batches to cache
         """
+        self.name_space = name_space
         self.batch_size = batch_size
         self.last_id = -1
         self.database = database
@@ -75,7 +77,7 @@ class CacheService:
                     # fetch and preprocess data from PostgreSQL
                     batch, time_usg = self.fetch_and_preprocess(conn)
                     self.queue.put(batch)
-                    print(f"Data is fetched, queue_size={self.queue.qsize()}, time_usg={time_usg}")
+                    print(f"Data is fetched, {self.name_space} queue_size={self.queue.qsize()}, time_usg={time_usg}")
                     logger.info(f"Data is fetched, queue_size={self.queue.qsize()}, time_usg={time_usg}")
                     # block until a free slot is available
                     time.sleep(0.1)
@@ -134,7 +136,7 @@ async def start_service(request):
 
         if not hasattr(app.ctx, f'{table_name}_{name_space}_cache'):
             setattr(app.ctx, f'{table_name}_{name_space}_cache',
-                    CacheService(DB_NAME, table_name, columns, batch_size, CACHE_SIZE))
+                    CacheService(name_space, DB_NAME, table_name, columns, batch_size, CACHE_SIZE))
 
         return json("OK")
     except Exception as e:
