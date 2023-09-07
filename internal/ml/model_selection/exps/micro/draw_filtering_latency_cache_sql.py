@@ -60,6 +60,31 @@ for i, (dataset_name, json_files) in enumerate(datasets.items()):
                         f"track_io_data_preprocess={sum(data_out_db['track_io_data_preprocess'][2:])}",
           )
 
+    # Plot bars for gpu
+    data_retrievel_latency = sum(data_out_db['track_io_data_retrievel'][2:])
+    data_pre_processing_latency = sum(data_out_db['track_io_data_preprocess'][2:])
+    sql_overall_latency = data_out_db['latency'] - \
+                          sum(data_out_db['track_io_data_retrievel'][2:])
+                          # - sum(data_out_db['track_io_data_preprocess'][2:])
+
+    ax.bar(i - bar_width / 2, data_retrievel_latency, bar_width,
+           alpha=opacity, color=gpu_colors[0], hatch=hatches[2], edgecolor='black',
+           label='(Out-DB) Data Retrievel' if i == 0 else "")
+
+    # ax.bar(i + bar_width / 2,
+    #        data_pre_processing_latency,
+    #        bar_width,
+    #        alpha=opacity, color=gpu_colors[3], hatch=hatches[1], edgecolor='black',
+    #        label='Data Processing' if i == 0 else "",
+    #        bottom=data_retrievel_latency)
+
+    ax.bar(i - bar_width / 2,
+           sql_overall_latency,
+           bar_width,
+           alpha=opacity, color=gpu_colors[2], hatch=hatches[7], edgecolor='black',
+           label='(Out-DB) Data Proc & Model Init & TFMEM' if i == 0 else "",
+           bottom=data_retrievel_latency)
+
     # Plot bars for cpu
     data_retrievel_latency = sum(data_in_db['track_io_data_retrievel'][2:])
     data_pre_processing_latency = sum(data_in_db['track_io_data_preprocess'][2:])
@@ -67,7 +92,7 @@ for i, (dataset_name, json_files) in enumerate(datasets.items()):
                           sum(data_in_db['track_io_data_retrievel'][2:])
                           # - sum(data_in_db['track_io_data_preprocess'][2:])
 
-    ax.bar(i - bar_width / 2, data_retrievel_latency, bar_width,
+    ax.bar(i + bar_width / 2, data_retrievel_latency, bar_width,
            alpha=opacity, color=cpu_colors[0], hatch=hatches[0], edgecolor='black',
            label='(In-DB) Data Retrievel' if i == 0 else "")
 
@@ -78,37 +103,13 @@ for i, (dataset_name, json_files) in enumerate(datasets.items()):
     #        label='(In-DB) Data Processing' if i == 0 else "",
     #        bottom=data_retrievel_latency)
 
-    ax.bar(i - bar_width / 2,
+    ax.bar(i + bar_width / 2,
            sql_overall_latency,
            bar_width,
            alpha=opacity, color=cpu_colors[2], hatch=hatches[1], edgecolor='black',
            label='(In-DB) Data Proc & Model Init & TFMEM' if i == 0 else "",
            bottom=data_retrievel_latency)
 
-    # Plot bars for gpu
-    data_retrievel_latency = sum(data_out_db['track_io_data_retrievel'][2:])
-    data_pre_processing_latency = sum(data_out_db['track_io_data_preprocess'][2:])
-    sql_overall_latency = data_out_db['latency'] - \
-                          sum(data_out_db['track_io_data_retrievel'][2:])
-                          # - sum(data_out_db['track_io_data_preprocess'][2:])
-
-    ax.bar(i + bar_width / 2, data_retrievel_latency, bar_width,
-           alpha=opacity, color=gpu_colors[0], hatch=hatches[2], edgecolor='black',
-           label='Data Retrievel' if i == 0 else "")
-
-    # ax.bar(i + bar_width / 2,
-    #        data_pre_processing_latency,
-    #        bar_width,
-    #        alpha=opacity, color=gpu_colors[3], hatch=hatches[1], edgecolor='black',
-    #        label='Data Processing' if i == 0 else "",
-    #        bottom=data_retrievel_latency)
-
-    ax.bar(i + bar_width / 2,
-           sql_overall_latency,
-           bar_width,
-           alpha=opacity, color=gpu_colors[2], hatch=hatches[7], edgecolor='black',
-           label='Data Proc & Model Init & TFMEM' if i == 0 else "",
-           bottom=data_retrievel_latency)
 
 ax.set_xticks(range(len(datasets)))
 ax.set_xticklabels(datasets.keys(), fontsize=set_font_size)
