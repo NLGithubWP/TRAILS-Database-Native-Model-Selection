@@ -208,7 +208,7 @@ python exps/main_v2/analysis/6.draw_IDMS_dataloading.py
 ![image-20230702035639502](documents/imgs/image-20230702035639502.png)
 # Baselines
 
-We compare with Training-Based MS, TabNAS, and Training-Free ms etc. 
+We compare with Training-Based MS, TabNAS, and training-free MS etc. 
 
 For image data, it already generated at the NAS-Bench-Img part, see above.
 
