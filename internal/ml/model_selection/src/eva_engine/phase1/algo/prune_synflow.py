@@ -69,7 +69,6 @@ class SynFlowEvaluator(Evaluator):
         nonlinearize(arch, signs)
 
         # 5. Sum over all parameter's results to get the final score.
-        score = 0.
-        for i in range(len(grads_abs)):
-            score += grads_abs[i].sum().item()
+        # 5. Sum over all parameter's results to get the final score.
+        score = sum([grad.sum() for grad in grads_abs])
         return score
