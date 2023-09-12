@@ -2,6 +2,23 @@
 
 
 
+# Module management
+
+```bash
+git submodule add git@github.com:NLGithubWP/SAMS.git ./internal/ml/model_slicing
+git submodule update --init --recursive
+git add .gitmodules ./internal/ml/model_slicing
+```
+
+Further clone with this
+
+```bash
+git clone --recursive https://github.com/username/main-repo.git
+git submodule update --init --recursive
+```
+
+
+
 # Change the permission
 
 ```bash
