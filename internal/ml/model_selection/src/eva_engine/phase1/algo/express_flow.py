@@ -119,7 +119,9 @@ class ExpressFlowEvaluator(Evaluator):
         # total_sum = self.weighted_score(trajectory_lengths, hook_obj.Vs)
         # total_sum = self.weighted_score_traj(trajectory_lengths, hook_obj.Vs)
         # total_sum = self.weighted_score_width(trajectory_lengths, hook_obj.Vs)
-        total_sum = self.weighted_score_lower_bound(trajectory_lengths, hook_obj.Vs)
+        # total_sum = self.weighted_score_lower_bound(trajectory_lengths, hook_obj.Vs)
+        total_sum = self.weighted_score_traj_regurization(trajectory_lengths, hook_obj.Vs)
+        # total_sum = self.weighted_score_width_traj_regurization(trajectory_lengths, hook_obj.Vs)
 
         # Step 2: Nonlinearize
         if space_name == Config.MLPSP:
@@ -162,6 +164,32 @@ class ExpressFlowEvaluator(Evaluator):
         total_sum = sum(result)
         total_sum = total_sum
 
+        return total_sum
+
+    def weighted_score_width_traj_regurization(self, trajectory_lengths, Vs):
+        Vs.reverse()
+        lxt = trajectory_lengths[0]
+
+        result = []
+        for index in range(len(Vs)):
+            V = Vs[index]
+            weight = V.shape[1] * lxt / trajectory_lengths[index]
+            value = V.flatten().sum()
+            result.append(weight * value)
+        total_sum = sum(result)
+        return total_sum
+
+    def weighted_score_traj_regurization(self, trajectory_lengths, Vs):
+        Vs.reverse()
+        lxt = trajectory_lengths[0]
+
+        result = []
+        for index in range(len(Vs)):
+            V = Vs[index]
+            weight = lxt / trajectory_lengths[index]
+            value = V.flatten().sum()
+            result.append(weight * value)
+        total_sum = sum(result)
         return total_sum
 
     def weighted_score(self, trajectory_lengths, Vs):
