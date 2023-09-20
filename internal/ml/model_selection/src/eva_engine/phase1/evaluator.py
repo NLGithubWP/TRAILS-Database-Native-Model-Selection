@@ -76,6 +76,10 @@ class P1Evaluator:
         self.last_id = -1
         self.data_retrievel = data_retrievel
 
+        # at the benchmarking, we only use one batch for fast evaluate
+        self.cached_mini_batch = None
+        self.cached_mini_batch_target = None
+
     def if_cuda_avaiable(self):
         if "cuda" in self.device:
             return True
@@ -285,18 +289,23 @@ class P1Evaluator:
                         data_tensor, y_tensor, process_time = self.batch_data_pre_processing(batch)
                         return data_tensor, y_tensor, time_usage, process_time
                 else:
-                    # this is structure data
-                    begin = time.time()
-                    batch = iter(self.train_loader).__next__()
-                    target = batch['y'].type(torch.LongTensor).to(self.device)
-                    batch['id'] = batch['id'].to(self.device)
-                    batch['value'] = batch['value'].to(self.device)
+                    if self.cached_mini_batch is None and self.cached_mini_batch_target is None:
+                        # this is structure data
+                        begin = time.time()
+                        batch = iter(self.train_loader).__next__()
+                        target = batch['y'].type(torch.LongTensor).to(self.device)
+                        batch['id'] = batch['id'].to(self.device)
+                        batch['value'] = batch['value'].to(self.device)
 
-                    # wait for moving data to GPU
-                    if self.if_cuda_avaiable():
-                        torch.cuda.synchronize()
-                    time_usage = time.time() - begin
-                    return batch, target, time_usage, 0
+                        # wait for moving data to GPU
+                        if self.if_cuda_avaiable():
+                            torch.cuda.synchronize()
+                        time_usage = time.time() - begin
+                        self.cached_mini_batch = batch
+                        self.cached_mini_batch_target = target
+                        return batch, target, time_usage, 0
+                    else:
+                        return self.cached_mini_batch, self.cached_mini_batch_target, 0, 0
             else:
                 raise NotImplementedError
 
