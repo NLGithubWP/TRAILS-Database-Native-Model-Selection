@@ -71,20 +71,20 @@ class ExpressFlowEvaluator(Evaluator):
     def evaluate(self, arch: nn.Module, device, batch_data: object, batch_labels: torch.Tensor,
                  space_name: str) -> float:
 
+        self.n_in = batch_data.shape[1]
+
         # Step 1: Linearize
         if space_name == Config.MLPSP:
             signs = self.linearize(arch.mlp)
             arch.mlp.double()
             # 'lecun':
             # 'xavier':
-            self.delta_w = math.sqrt(6) / math.sqrt(batch_data.shape[1] + 2)
             # 'he':
         else:
             signs = self.linearize(arch)
             arch.double()
             # 'lecun':
             # 'xavier':
-            self.delta_w = math.sqrt(6) / math.sqrt(batch_data.shape[1] + batch_labels.shape(2))
             # 'he':
 
         hook_obj = IntegratedHook()
@@ -135,21 +135,31 @@ class ExpressFlowEvaluator(Evaluator):
 
         return total_sum
 
-    def _lower_bounded(self, k: int, d):
-        return (self.delta_w * math.sqrt(k) / math.sqrt(k + 1)) ** d
+    def compute_sigma_w(self, n_in, n_out):
+        factor = (6 / (n_in + n_out)) ** 0.5
+        variance = (1 / 3) * factor ** 2
+        sigma_w_squared = n_out * variance
+        sigma_w = sigma_w_squared ** 0.5
+        return sigma_w
+
+    def _lower_bounded(self, n_in: int, k: int, d: int):
+        return (self.compute_sigma_w(n_in, k) * math.sqrt(k) / math.sqrt(k + 1)) ** d
 
     def weighted_score_lower_bound(self, trajectory_lengths, Vs):
+        Vs.reverse()
         lxt = trajectory_lengths[0]
 
         result = []
-        for index, V in enumerate(Vs):
-            weight = lxt * (self._lower_bounded(V.shape[1], 4-index))
+        for index in range(len(Vs)):
+            V = Vs[index]
+            if index == 0:
+                n_in = self.n_in
+            else:
+                n_in = Vs[index-1].shape[1]
+            weight = lxt * (self._lower_bounded(n_in, V.shape[1], index+1))
             value = V.flatten().sum()
             result.append(weight * value)
         total_sum = sum(result)
-        # total_sum = sum(
-        #     normalized_length * V.flatten().sum() * V.shape[1]
-        #     for normalized_length, V in zip(normalized_lengths, Vs))
         total_sum = total_sum
 
         return total_sum
