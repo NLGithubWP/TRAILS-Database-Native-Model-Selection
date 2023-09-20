@@ -1,7 +1,5 @@
 
 
-
-
 # Module management
 
 ```bash
@@ -10,14 +8,12 @@ git submodule update --init --recursive
 git add .gitmodules ./internal/ml/model_slicing
 ```
 
-Further clone with this
+Further, clone with this
 
 ```bash
 git clone --recursive https://github.com/username/main-repo.git
 git submodule update --init --recursive
 ```
-
-
 
 # Change the permission
 
