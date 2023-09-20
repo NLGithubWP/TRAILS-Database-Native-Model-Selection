@@ -3,7 +3,7 @@ from src.eva_engine.phase1.utils.autograd_hacks import *
 from torch import nn
 from src.common.constant import Config
 from functools import partial
-
+import math
 
 class IntegratedHook:
     def __init__(self):
@@ -75,9 +75,17 @@ class ExpressFlowEvaluator(Evaluator):
         if space_name == Config.MLPSP:
             signs = self.linearize(arch.mlp)
             arch.mlp.double()
+            # 'lecun':
+            # 'xavier':
+            self.delta_w = math.sqrt(6) / math.sqrt(batch_data.shape[1] + 2)
+            # 'he':
         else:
             signs = self.linearize(arch)
             arch.double()
+            # 'lecun':
+            # 'xavier':
+            self.delta_w = math.sqrt(6) / math.sqrt(batch_data.shape[1] + batch_labels.shape(2))
+            # 'he':
 
         hook_obj = IntegratedHook()
         hooks = []
@@ -126,6 +134,9 @@ class ExpressFlowEvaluator(Evaluator):
 
         return total_sum
 
+    def _lower_bounded(self, k: int, d):
+        return (self.delta_w * math.sqrt(k) / math.sqrt(k + 1)) ** d
+
     def weighted_score(self, trajectory_lengths, Vs):
         trajectory_lengths.reverse()
         # Modify trajectory_lengths to ensure that deeper layers have smaller weights
@@ -136,9 +147,14 @@ class ExpressFlowEvaluator(Evaluator):
         normalized_lengths = [length / sum(inverse_trajectory_lengths) for length in inverse_trajectory_lengths]
 
         # Use the normalized trajectory lengths as weights for your total_sum
-        total_sum = sum(
-            normalized_length * V.flatten().sum() * V.shape[1]
-            for normalized_length, V in zip(normalized_lengths, Vs))
+        result = []
+        for index, (normalized_length, V) in enumerate(zip(normalized_lengths, Vs)):
+            weight = normalized_lengths[-1] * 1/(self._lower_bounded(V.shape[1], 4-index) + 1e-6)
+            result.append(weight)
+        total_sum = sum(result)
+        # total_sum = sum(
+        #     normalized_length * V.flatten().sum() * V.shape[1]
+        #     for normalized_length, V in zip(normalized_lengths, Vs))
         total_sum = total_sum
 
         return total_sum
