@@ -116,9 +116,10 @@ class ExpressFlowEvaluator(Evaluator):
         torch.sum(out).backward()
 
         # total_sum = self.compute_score(trajectory_lengths, hook_obj.Vs)
-        total_sum = self.weighted_score(trajectory_lengths, hook_obj.Vs)
+        # total_sum = self.weighted_score(trajectory_lengths, hook_obj.Vs)
         # total_sum = self.weighted_score_traj(trajectory_lengths, hook_obj.Vs)
         # total_sum = self.weighted_score_width(trajectory_lengths, hook_obj.Vs)
+        total_sum = self.weighted_score_lower_bound(trajectory_lengths, hook_obj.Vs)
 
         # Step 2: Nonlinearize
         if space_name == Config.MLPSP:
@@ -137,6 +138,22 @@ class ExpressFlowEvaluator(Evaluator):
     def _lower_bounded(self, k: int, d):
         return (self.delta_w * math.sqrt(k) / math.sqrt(k + 1)) ** d
 
+    def weighted_score_lower_bound(self, trajectory_lengths, Vs):
+        lxt = trajectory_lengths[0]
+
+        result = []
+        for index, V in enumerate(Vs):
+            weight = lxt * (self._lower_bounded(V.shape[1], 4-index))
+            value = V.flatten().sum()
+            result.append(weight * value)
+        total_sum = sum(result)
+        # total_sum = sum(
+        #     normalized_length * V.flatten().sum() * V.shape[1]
+        #     for normalized_length, V in zip(normalized_lengths, Vs))
+        total_sum = total_sum
+
+        return total_sum
+
     def weighted_score(self, trajectory_lengths, Vs):
         trajectory_lengths.reverse()
         # Modify trajectory_lengths to ensure that deeper layers have smaller weights
@@ -147,14 +164,9 @@ class ExpressFlowEvaluator(Evaluator):
         normalized_lengths = [length / sum(inverse_trajectory_lengths) for length in inverse_trajectory_lengths]
 
         # Use the normalized trajectory lengths as weights for your total_sum
-        result = []
-        for index, (normalized_length, V) in enumerate(zip(normalized_lengths, Vs)):
-            weight = normalized_lengths[-1] * 1/(self._lower_bounded(V.shape[1], 4-index) + 1e-6)
-            result.append(weight)
-        total_sum = sum(result)
-        # total_sum = sum(
-        #     normalized_length * V.flatten().sum() * V.shape[1]
-        #     for normalized_length, V in zip(normalized_lengths, Vs))
+        total_sum = sum(
+            normalized_length * V.flatten().sum() * V.shape[1]
+            for normalized_length, V in zip(normalized_lengths, Vs))
         total_sum = total_sum
 
         return total_sum
