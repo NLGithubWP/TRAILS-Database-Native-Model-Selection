@@ -106,6 +106,10 @@ if __name__ == "__main__":
                   + "Total explored " + str(len(result)) +
                   " model, model_id = " + str(arch_id) +
                   " model_scores = " + json.dumps(model_score))
+            logger.info("3. [trails] Phase 1: filter phase explored " + str(explored_n)
+                  + "Total explored " + str(len(result)) +
+                  " model, model_id = " + str(arch_id) +
+                  " model_scores = " + json.dumps(model_score))
         if explored_n % 1000 == 0:
             # print_memory_usg()
             # _evaluator.force_gc()
