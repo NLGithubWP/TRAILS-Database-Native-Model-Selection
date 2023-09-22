@@ -66,12 +66,13 @@ if __name__ == "__main__":
             break
         if arch_id in result:
             continue
-        if explored_n > args.models_explore:
+        if explored_n >= args.models_explore:
             break
         # run the model selection
         model_encoding = search_space_ins.serialize_model_encoding(arch_micro)
         model_acquire_data = ModelAcquireData(model_id=arch_id,
                                               model_encoding=model_encoding,
+                                              batch_size=args.batch_size,
                                               is_last=False)
         data_str = model_acquire_data.serialize_model()
         model_score = _evaluator.p1_evaluate(data_str)
@@ -87,7 +88,6 @@ if __name__ == "__main__":
     # the first two are used for warming up
     _evaluator.time_usage["io_latency"] = \
         sum(_evaluator.time_usage["track_io_model_load"][2:]) + \
-        sum(_evaluator.time_usage["track_io_model_release_each_50"]) + \
         sum(_evaluator.time_usage["track_io_model_init"][2:]) + \
         sum(_evaluator.time_usage["track_io_res_load"][2:]) + \
         sum(_evaluator.time_usage["track_io_data_retrievel"][2:]) + \

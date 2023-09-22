@@ -42,11 +42,13 @@ class SynFlowEvaluator(Evaluator):
                 if 'weight_mask' not in name:
                     param.mul_(signs[name])
 
-        # record signs of all params
-        signs = linearize(arch)
-
-        # 2. Compute gradients with input of one dummy example ( 1-vector with dimension [1, c, h, w] )
-        arch.double()
+        # Step 1: Linearize
+        if space_name == Config.MLPSP:
+            signs = linearize(arch.mlp)
+            arch.mlp.double()
+        else:
+            signs = linearize(arch)
+            arch.double()
 
         if space_name == Config.MLPSP:
             output = arch.forward_wo_embedding(batch_data.double())
@@ -66,9 +68,16 @@ class SynFlowEvaluator(Evaluator):
         grads_abs = get_layer_metric_array(arch, synflow, "param")
 
         # apply signs of all params, get original
-        nonlinearize(arch, signs)
+        if space_name == Config.MLPSP:
+            nonlinearize(arch.mlp, signs)
+        else:
+            nonlinearize(arch, signs)
 
         # 5. Sum over all parameter's results to get the final score.
         # 5. Sum over all parameter's results to get the final score.
         score = sum([grad.sum() for grad in grads_abs])
+        if space_name == Config.MLPSP:
+            arch.mlp = arch.mlp.float()
+        else:
+            arch = arch.float()
         return score

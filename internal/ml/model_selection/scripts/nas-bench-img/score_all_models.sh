@@ -8,6 +8,7 @@ for i in {1..4}
 do
     # cifar10 + nb101
 #    /home/xingnaili/miniconda3/envs/trails/bin/python ./internal/ml/model_selection/exps/nas_bench_tabular/4.seq_score_online.py \
+--#      tfmem=jacflow \
 #      --models_explore=1200 \
 #      --search_space=nasbench101 \
 #      --api_loc=nasbench_only108.pkl \
@@ -21,6 +22,8 @@ do
 
     # cifar10 + nb201
     /home/xingnaili/miniconda3/envs/trails/bin/python ./internal/ml/model_selection/exps/nas_bench_tabular/4.seq_score_online.py \
+      --is_simulate False \
+      --tfmem=jacflow \
       --models_explore=1200 \
       --search_space=nasbench201 \
       --api_loc=NAS-Bench-201-v1_1-096897.pth \
@@ -34,6 +37,8 @@ do
 
     # cifar100 + nb201
     /home/xingnaili/miniconda3/envs/trails/bin/python ./internal/ml/model_selection/exps/nas_bench_tabular/4.seq_score_online.py \
+      --is_simulate False \
+      --tfmem=jacflow \
       --models_explore=1200 \
       --search_space=nasbench201 \
       --api_loc=NAS-Bench-201-v1_1-096897.pth \
@@ -46,7 +51,9 @@ do
       --result_dir=./internal/ml/model_selection/exp_result/
 
     # imgnet + nb201
-    /home/xingnaili/miniconda3/envs/trails/bin/python ./internal/ml/model_selection/exps/nas_bench_tabular/4.seq_score_online.py \
+    python ./internal/ml/model_selection/exps/nas_bench_tabular/4.seq_score_online.py \
+      --is_simulate False \
+      --tfmem=jacflow \
       --models_explore=1200 \
       --search_space=nasbench201 \
       --api_loc=NAS-Bench-201-v1_1-096897.pth \

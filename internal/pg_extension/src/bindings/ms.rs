@@ -3,8 +3,9 @@ use std::collections::HashMap;
 use pgrx::prelude::*;
 use crate::bindings::ml_register::PY_MODULE;
 use crate::bindings::ml_register::run_python_function;
-use std::time::{Instant, Duration};
-
+use std::time::{Instant};
+use shared_memory::*;
+use std::mem;
 
 pub fn profiling_filtering_phase(
     task: &String
@@ -78,115 +79,155 @@ pub fn benchmark_filtering_phase_latency(
 }
 
 pub fn benchmark_filtering_latency_in_db(
-    explore_models: i32, dataset: &String, config_file: &String) -> serde_json::Value {
+    explore_models: i32, dataset: &String, batch_size_m: i32, config_file: &String) -> serde_json::Value {
+    let mut return_result = HashMap::new();
+
+
+    let mut total_columns: i32 = 0;
+    match dataset.as_str() {  // assuming dataset is a String
+        "frappe" => total_columns = 12,
+        "criteo" => total_columns = 41,
+        "uci_diabetes" => total_columns = 45,
+        _ => {}
+    }
+
+    let mut num_columns: i64 = 0;
+    match dataset.as_str() {  // assuming dataset is a String
+        "frappe" => num_columns = 10 * 2 + 1,
+        "criteo" => num_columns = 39 * 2 + 1,
+        "uci_diabetes" => num_columns = 43 * 2 + 1,
+        _ => {}
+    }
+
+    let batch_size: i64 = batch_size_m as i64;
+
+    let call_time_begin = Instant::now();
+    for i in 1..=5000 {
+        run_python_function(
+            &PY_MODULE,
+            &"".to_string(),
+            "measure_call_overheads");
+    }
+    let _end_time = Instant::now();
+    let call_time = _end_time.duration_since(call_time_begin).as_secs_f64();
+    return_result.insert("call_time", call_time.to_string());
+
 
     let overall_start_time = Instant::now();
 
-    let database_name = "pg_extension";
     let mut last_id = 0;
     let mut eva_results = serde_json::Value::Null; // Initializing the eva_results
 
-    for i in 1..explore_models {
+    // Step 3: Putting all data to he shared memory
+    let shmem_name = "my_shared_memory";
+    let my_shmem = ShmemConf::new()
+        .size((4 * batch_size * num_columns) as usize)
+        .os_id(shmem_name)
+        .create()
+        .unwrap();
 
-        // Step 1: Initialize State in Python
-        let mut task_map = HashMap::new();
-        task_map.insert("config_file", config_file.clone());
-        task_map.insert("dataset", dataset.clone());
-        task_map.insert("eva_results", eva_results.to_string());
-        let task_json = json!(task_map).to_string();
+    let mut numbers: Vec<f32> = Vec::with_capacity((num_columns - 1) as usize );
 
-        // here it cache a state
-        let sample_result = run_python_function(
-            &PY_MODULE,
-            &task_json,
-            "in_db_filtering_state_init");
+    let _ = Spi::connect(|client| {
+        for i in 1..explore_models + 1 {
+            // Step 1: Initialize State in Python
+            let mut task_map = HashMap::new();
+            task_map.insert("config_file", config_file.clone());
+            task_map.insert("dataset", dataset.clone());
+            task_map.insert("eva_results", eva_results.to_string());
+            let task_json = json!(task_map).to_string();
 
-        // 2. query data via SPI
-        let start_time = Instant::now();
-        let results: Result<Vec<Vec<String>>, String> = Spi::connect(|client| {
-            let query = format!("SELECT * FROM {}_train WHERE id > {} ORDER BY id ASC LIMIT 32", dataset, last_id);
+            // here it cache a state
+            let sample_result = run_python_function(
+                &PY_MODULE,
+                &task_json,
+                "in_db_filtering_state_init");
+
+            // 2. query data via SPI
+            let start_time = Instant::now();
+            let mut mini_batch = Vec::new();
+
+            let query = format!("SELECT * FROM {}_train WHERE id > {} ORDER BY id ASC LIMIT {}", dataset, last_id, batch_size);
             let mut cursor = client.open_cursor(&query, None);
-            let table = match cursor.fetch(32) {
+            let table = match cursor.fetch(batch_size) {
                 Ok(table) => table,
                 Err(e) => return Err(e.to_string()), // Convert the error to a string and return
             };
 
-            let mut mini_batch = Vec::new();
-
             for row in table.into_iter() {
-                let mut each_row = Vec::new();
                 // add primary key
-                let col0 = match row.get::<i32>(1) {
-                    Ok(Some(val)) => {
-                        // Update last_id with the retrieved value
-                        if val > 100000{
-                            last_id = 0;
-                        }else{
-                            last_id = val
-                        }
-                        val.to_string()
-                    }
-                    Ok(None) => "".to_string(), // Handle the case when there's no valid value
-                    Err(e) => e.to_string(),
-                };
-                each_row.push(col0);
+                let val = row.get::<i32>(1)
+                    .expect("Failed to retrieve value")  // This will panic if it encounters `Err`
+                    .expect("Retrieved value is NULL");  // This will panic if it encounters `None`
+
+                if val > 80000 {
+                    last_id = 0;
+                } else {
+                    last_id = val;
+                }
+
                 // add label
-                let col1 = match row.get::<i32>(2) {
-                    Ok(val) => val.map(|i| i.to_string()).unwrap_or_default(),
-                    Err(e) => e.to_string(),
+                if let Ok(Some(col1)) = row.get::<i32>(2) {
+                    mini_batch.push(col1 as f32);
                 };
-                each_row.push(col1);
-                // add fields
-                let texts: Vec<String> = (3..row.columns()+1)
-                    .filter_map(|i| {
-                        match row.get::<&str>(i) {
-                            Ok(Some(s)) => Some(s.to_string()),
-                            Ok(None) => None,
-                            Err(e) => Some(e.to_string()),  // Convert error to string
+
+                numbers.clear();
+                for i in 3..= total_columns as usize {
+                    if let Some(s) = row.get::<&str>(i).ok().flatten() { // Ensuring it's Some(&str)
+                        for part in s.split(':') {
+                            match part.parse::<f32>() {
+                                Ok(num) => numbers.push(num),
+                                Err(_) => eprintln!("Failed to parse part as f32"), // Handle the error as appropriate for your application.
+                            }
                         }
-                    }).collect();
-                each_row.extend(texts);
-                mini_batch.push(each_row)
+                    }
+                }
+
+                mini_batch.extend_from_slice(&numbers);
             }
-            // return
-            Ok(mini_batch)
-        });
-        // serialize the mini-batch data
-        let tup_table = match results {
-            Ok(data) => {
-                serde_json::json!({
-                        "status": "success",
-                        "data": data
-                    })
+
+            unsafe {
+                let shmem_ptr = my_shmem.as_ptr() as *mut f32;
+                // Copy data into shared memory
+                std::ptr::copy_nonoverlapping(
+                    mini_batch.as_ptr(),
+                    shmem_ptr as *mut f32,
+                    mini_batch.len(),
+                );
             }
-            Err(e) => {
-                serde_json::json!({
-                    "status": "error",
-                    "message": format!("Error while connecting: {}", e)
-                })
-            }
+
+            let end_time = Instant::now();
+            let elapsed_time = end_time.duration_since(start_time);
+            let elapsed_seconds = elapsed_time.as_secs_f64();
+
+            // Step 3: model evaluate in Python
+            let mut eva_task_map = HashMap::new();
+            eva_task_map.insert("config_file", config_file.clone());
+            eva_task_map.insert("sample_result", sample_result.to_string());
+            eva_task_map.insert("spi_seconds", elapsed_seconds.to_string());
+            eva_task_map.insert("rows", batch_size.to_string());
+            eva_task_map.insert("model_index", i.to_string());
+            let eva_task_json = json!(eva_task_map).to_string(); // Corrected this line
+
+            eva_results = run_python_function(
+                &PY_MODULE,
+                &eva_task_json,
+                "in_db_filtering_evaluate");
+
+            // debug the fetched data
+            // if i == 1{
+            //     let serialized_data = json!(mini_batch).to_string();
+            //     return_result.insert("serialized_data", serialized_data);
+            // };
         };
+        Ok(())
+    });
 
-        let end_time = Instant::now();
-        let elapsed_time = end_time.duration_since(start_time);
-        let elapsed_seconds = elapsed_time.as_secs_f64();
+    let overall_end_time = Instant::now();
+    let overall_elapsed_time = overall_end_time.duration_since(overall_start_time);
+    let overall_elapsed_seconds = overall_elapsed_time.as_secs_f64();
 
-        // Step 3: model evaluate in Python
-        let mut eva_task_map = HashMap::new();
-        eva_task_map.insert("config_file", config_file.clone());
-        eva_task_map.insert("sample_result", sample_result.to_string());
-        let mini_batch_json = tup_table.to_string();
-        eva_task_map.insert("mini_batch", mini_batch_json);
-        eva_task_map.insert("spi_seconds", elapsed_seconds.to_string());
-        eva_task_map.insert("model_index", i.to_string());
-
-        let eva_task_json = json!(eva_task_map).to_string(); // Corrected this line
-
-        eva_results = run_python_function(
-            &PY_MODULE,
-            &eva_task_json,
-            "in_db_filtering_evaluate");
-    }
+    return_result.insert("overall_elapsed_seconds", overall_elapsed_seconds.to_string());
 
     let mut record_task_map = HashMap::new();
     record_task_map.insert("config_file", config_file.clone());
@@ -197,11 +238,7 @@ pub fn benchmark_filtering_latency_in_db(
         &record_task_json,
         "records_results");
 
-    let overall_end_time = Instant::now();
-    let overall_elapsed_time = overall_end_time.duration_since(overall_start_time);
-    let overall_elapsed_seconds = overall_elapsed_time.as_secs_f64();
-
     // Step 4: Return to PostgresSQL
-    return serde_json::json!(overall_elapsed_seconds.to_string());
+    return serde_json::json!(return_result);
 }
 

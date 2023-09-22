@@ -5,6 +5,7 @@ from src.common.constant import Config
 from functools import partial
 import math
 
+
 class IntegratedHook:
     def __init__(self):
         self.originals = []
@@ -116,12 +117,12 @@ class ExpressFlowEvaluator(Evaluator):
         torch.sum(out).backward()
 
         # total_sum = self.compute_score(trajectory_lengths, hook_obj.Vs)
-        # total_sum = self.weighted_score(trajectory_lengths, hook_obj.Vs)
+        total_sum = self.weighted_score(trajectory_lengths, hook_obj.Vs)
         # total_sum = self.weighted_score_traj(trajectory_lengths, hook_obj.Vs)
         # total_sum = self.weighted_score_width(trajectory_lengths, hook_obj.Vs)
         # total_sum = self.weighted_score_lower_bound(trajectory_lengths, hook_obj.Vs)
         # total_sum = self.weighted_score_traj_regurization(trajectory_lengths, hook_obj.Vs)
-        total_sum = self.weighted_score_width_traj_regurization(trajectory_lengths, hook_obj.Vs)
+        # total_sum = self.weighted_score_width_traj_regurization(trajectory_lengths, hook_obj.Vs)
         # total_sum = self.weighted_score_remain_depth(trajectory_lengths, hook_obj.Vs)
 
         # Step 2: Nonlinearize

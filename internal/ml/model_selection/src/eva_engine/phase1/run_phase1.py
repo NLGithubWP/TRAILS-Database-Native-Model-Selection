@@ -10,6 +10,7 @@ from src.query_api.img_explore_ea import fetch_from_db
 from torch.utils.data import DataLoader
 from src.controller.sampler_ea.regularized_ea import RegularizedEASampler
 from src.search_space.core.space import SpaceWrapper
+from src.common.constant import Config
 
 
 # this is for image only
@@ -48,7 +49,10 @@ class RunPhase1:
         self.search_space_ins = search_space_ins
 
         # seq: init the search strategy and controller,
-        if self.N >= len(self.search_space_ins):
+        if self.search_space_ins.name == Config.MLPSP and self.N >= min(len(self.search_space_ins), 100000):
+            print("Explore all models")
+            strategy = SequenceSampler(self.search_space_ins)
+        elif self.search_space_ins.name != Config.MLPSP and self.N >= min(len(self.search_space_ins), 8000):
             print("Explore all models")
             strategy = SequenceSampler(self.search_space_ins)
         else:
@@ -109,8 +113,8 @@ class RunPhase1:
             try:
                 model_eva.model_id = str(arch_id)
                 model_eva.model_score = self._evaluator.p1_evaluate(data_str)
-            except KeyError:
-                # when it is simulate, it could be keyerror
+            except KeyError as e:
+                # when it is simulate, it could be keyerror, since some arch is not scored yet
                 continue
 
             if explored_n % 100 == 0:

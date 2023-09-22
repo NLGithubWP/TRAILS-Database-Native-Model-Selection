@@ -39,7 +39,7 @@ if __name__ == "__main__":
     for K in [1, 2, 5, 10, 20, 50, 100, 200]:
         time_per_epoch = rms.profile_refinement()
         # calculate time (simulate)
-        _, _, B2_actual_epoch_use = \
+        _, _, B2_actual_epoch_use , _= \
             rms.refinement_phase(
                 U=1,
                 k_models=K*["512-512-512-512"],
@@ -68,15 +68,14 @@ if __name__ == "__main__":
             explore_all_cache = all_models
 
         # real refinement phase (simulate)
-        p2_best_arch, p2_best_arch_performance, p2_actual_epoch_use = \
+        p2_best_arch, p2_best_arch_performance, p2_actual_epoch_use, _ = \
             rms.sh.run_phase2(1, k_models)
 
         print(f"K={K}, AUC={p2_best_arch_performance}, AUC (ATLAS) = {best_arch_performance_coord}")
 
         # (0.9798742301833366,
         #  K=1, AUC=0.9788888113938895, AUC (ATLAS) = 0.9805218764664727
-        # run
-        # with fix_time_budget=6000, K=2, N=283125.7647915072
+        # run with fix_time_budget=6000, K=2, N=283125.7647915072
         # K=2, AUC=0.9794521659560285, AUC (ATLAS) = 0.9805218764664727
         # run with fix_time_budget=6000, K=5, N=282399.4107822884
         # K=5, AUC=0.9794521659560285, AUC (ATLAS) = 0.9805218764664727

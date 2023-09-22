@@ -6,9 +6,12 @@ from src.eva_engine import coordinator
 from src.eva_engine.phase1.run_phase1 import RunPhase1, p1_evaluate_query
 from torch.utils.data import DataLoader
 from src.eva_engine.phase2.run_sh import BudgetAwareControllerSH
+from src.eva_engine.phase2.run_sr import BudgetAwareControllerSR
+from src.eva_engine.phase2.run_uniform import UniformAllocation
 from src.logger import logger
 from src.search_space.init_search_space import init_search_space
 from src.query_api.interface import profile_NK_trade_off
+from src.common.constant import Config
 
 
 class RunModelSelection:
@@ -59,7 +62,7 @@ class RunModelSelection:
         k_models, B1_actual_time_use = p1_evaluate_query(self.search_space_name, self.dataset, run_id, N, K)
 
         # 3. run phase-2 to determine the final model
-        best_arch, best_arch_performance, B2_actual_epoch_use = self.sh.run_phase2(U, k_models)
+        best_arch, best_arch_performance, B2_actual_epoch_use, _ = self.sh.run_phase2(U, k_models)
         # print("best model returned from Phase2 = ", k_models)
 
         return best_arch, B1_actual_time_use + B2_actual_epoch_use * train_time_per_epoch, \
@@ -81,7 +84,7 @@ class RunModelSelection:
         K, U, N = self.coordination(budget, score_time_per_model, train_time_per_epoch, only_phase1)
         k_models, all_models, p1_trace_highest_score, p1_trace_highest_scored_models_id = self.filtering_phase(
             N, K, train_loader=data_loader[0])
-        best_arch, best_arch_performance, _ = self.refinement_phase(
+        best_arch, best_arch_performance, _, _ = self.refinement_phase(
             U, k_models, data_loader[0], data_loader[1])
 
         end_time = time.time()
@@ -155,7 +158,7 @@ class RunModelSelection:
         logger.info("4. [trails] Begin to run phase2: refinement phase")
 
         # 3. run phase-2 to determine the final model
-        best_arch, best_arch_performance, B2_actual_epoch_use = self.sh.run_phase2(U, k_models)
+        best_arch, best_arch_performance, B2_actual_epoch_use, _ = self.sh.run_phase2(U, k_models)
         # print("best model returned from Phase2 = ", k_models)
         end_time = time.time()
         real_time_usage = end_time - begin_time
@@ -183,10 +186,8 @@ class RunModelSelection:
         """
 
         train_loader, valid_loader, test_loader = data_loader
-        self.search_space_ins.load()
 
         logger.info("0. [trails] Begin model selection ... ")
-        begin_time = time.time()
 
         logger.info("1. [trails] Begin profiling.")
         # 0. profiling dataset and search space, get t1 and t2
@@ -217,7 +218,7 @@ class RunModelSelection:
                                                                                      N_K_ratio,
                                                                                      only_phase1)
 
-        return N
+        return K, U, N, B1_planed_time, B2_planed_time, B2_all_epoch
 
     #############################################
     # to support in-database model selection
@@ -289,20 +290,40 @@ class RunModelSelection:
         logger.info(f"2. [trails] filtering_phase Done, time_usage = {time.time() - begin_time}")
         return k_models, all_models, p1_trace_highest_score, p1_trace_highest_scored_models_id
 
-    def refinement_phase(self, U, k_models, train_loader=None, valid_loader=None, train_time_per_epoch=None):
+    def refinement_phase(self, U, k_models, alg_name: str = Config.SUCCHALF, train_loader=None, valid_loader=None,
+                         train_time_per_epoch=None):
         logger.info("3. [trails] Begin refinement...")
         begin_time = time.time()
-        self.sh = BudgetAwareControllerSH(
-            search_space_ins=self.search_space_ins,
-            dataset_name=self.dataset,
-            eta=self.eta,
-            time_per_epoch=train_time_per_epoch,
-            is_simulate=self.is_simulate,
-            train_loader=train_loader,
-            val_loader=valid_loader,
-            args=self.args)
-        best_arch, best_arch_performance, B2_actual_epoch_use = self.sh.run_phase2(U, k_models)
+
+        if alg_name == Config.SUCCHALF:
+            self.sh = BudgetAwareControllerSH(
+                search_space_ins=self.search_space_ins,
+                dataset_name=self.dataset,
+                eta=self.eta,
+                time_per_epoch=train_time_per_epoch,
+                is_simulate=self.is_simulate,
+                train_loader=train_loader,
+                val_loader=valid_loader,
+                args=self.args)
+        elif alg_name == Config.SUCCREJCT:
+            self.sh = BudgetAwareControllerSR(
+                search_space_ins=self.search_space_ins,
+                dataset_name=self.dataset,
+                eta=self.eta,
+                time_per_epoch=train_time_per_epoch,
+                args=self.args)
+        elif alg_name == Config.UNIFORM:
+            self.sh = UniformAllocation(
+                search_space_ins=self.search_space_ins,
+                dataset_name=self.dataset,
+                eta=self.eta,
+                time_per_epoch=train_time_per_epoch,
+                args=self.args)
+        else:
+            raise NotImplementedError
+
+        best_arch, best_arch_performance, B2_actual_epoch_use, total_time_usage = self.sh.run_phase2(U, k_models)
         logger.info(
             f"3. [trails] refinement phase Done, time_usage = {time.time() - begin_time}, "
             f"epoches_used = {B2_actual_epoch_use}")
-        return best_arch, best_arch_performance, B2_actual_epoch_use
+        return best_arch, best_arch_performance, B2_actual_epoch_use, total_time_usage

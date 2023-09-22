@@ -80,7 +80,6 @@ class ConcurrentP1Evaluator:
             "track_compute": [],  # compute time
             "track_io_model_init": [],  # init model weight
             "track_io_model_load": [],  # load into GPU/CPU
-            "track_io_model_release_each_50": [],  # context switch
             "track_io_data": [],  # context switch
         }
 

@@ -29,7 +29,7 @@ dataset_used = "frappe"
 # dataset_used = "uci_diabetes"
 # dataset_used = "criteo"
 
-epoch_sampled = {"frappe": 19, "uci_diabetes": 0, "criteo": 9}
+epoch_sampled = {"frappe": 13, "uci_diabetes": 0, "criteo": 9}
 if dataset_used == "frappe":
     mlp_train_frappe = os.path.join(
         "/Users/kevin/project_python/VLDB_code/exp_data/",
@@ -63,7 +63,12 @@ checkpoint_file = f"{result_dir}/train_base_line_rl_{dataset_used}_epoch_{epoch_
 # hyperparameters
 beta = 2
 rl_learning_rate = 0.05
-max_iter = 5000
+if dataset_used == "frappe":
+    max_iter = 19000
+elif dataset_used == "criteo":
+    max_iter = 5000
+elif dataset_used == "uci_diabetes":
+    max_iter = 9000
 optimizer_name = 'adam'
 
 
@@ -209,7 +214,7 @@ recorded_result = {
     "sys_acc": []
 }
 
-n_reps = 100  # for easier demonstration; was 500 in paper
+n_reps = 50  # for easier demonstration; was 500 in paper
 r = []
 for i in range(n_reps):
     print(i)

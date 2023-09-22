@@ -50,6 +50,7 @@ def guess_train_one_epoch_time(search_space_m, dataset):
         return Gt101().guess_train_one_epoch_time()
     if search_space_m == Config.NB201:
         return Gt201().guess_train_one_epoch_time(dataset)
+    raise NotImplementedError
 
 
 class ImgScoreQueryApi:
@@ -203,7 +204,9 @@ class Gt201(metaclass=Singleton):
         #     if time_usage > res:
         #         res = time_usage
         # return res
-        return 40
+        arch_id = random.randint(1, 15625)
+        time_usage = self.data201[str(arch_id)]["200"][dataset]["0"]["time_usage"]
+        return time_usage
 
     def get_all_trained_model_ids(self):
         # 201 all data has the same model set.

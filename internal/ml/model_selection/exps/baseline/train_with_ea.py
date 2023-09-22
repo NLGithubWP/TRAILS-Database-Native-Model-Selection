@@ -75,11 +75,21 @@ if __name__ == "__main__":
         "sys_acc": []
     }
 
-    total_explore = 5000
-    total_run = 100
+    # for frappe
+    total_explore = 1000
+    total_run = 50
+
+    # for criteo
+    # total_explore = 5000
+    # total_run = 100
+
+    # for uci
+    # total_explore = 9000
+    # total_run = 50
     # how many epoch used to indict the model performance
     checkpoint_file = f"{args.result_dir}/train_base_line_re_{args.dataset}_epoch_{args.epoch}.json"
 
+    begin_time = time.time()
     for run_id in range(total_run):
 
         search_space_ins = init_search_space(args)
@@ -135,6 +145,8 @@ if __name__ == "__main__":
             all_time_usage += time_usage
             time_usage_array.append(all_time_usage / 60)
             auc_array.append(max(performance_his))
+
+        print("run_id", run_id, "time_usage", time.time() - begin_time)
 
         # todo: update the postprocessing in the anytime_img.py
         result["sys_time_budget"].append(time_usage_array)

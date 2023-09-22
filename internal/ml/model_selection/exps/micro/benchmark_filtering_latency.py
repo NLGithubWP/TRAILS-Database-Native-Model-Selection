@@ -100,7 +100,6 @@ if __name__ == "__main__":
     # the first two are used for warming up
     _evaluator.time_usage["io_latency"] = \
         sum(_evaluator.time_usage["track_io_model_load"][2:]) + \
-        sum(_evaluator.time_usage["track_io_model_release_each_50"]) + \
         sum(_evaluator.time_usage["track_io_model_init"][2:]) + \
         sum(_evaluator.time_usage["track_io_res_load"][2:])
 

@@ -4,6 +4,7 @@ import time
 import random
 from exps.shared_args import parse_arguments
 import calendar
+from src.common.constant import Config
 
 
 def run_one_fixed_budget_alg(sh, time_per_epoch):
@@ -32,7 +33,7 @@ def run_one_fixed_budget_alg(sh, time_per_epoch):
             # print(f"run_id = {run_id}, time_usage for U = {end_time_u - begin_time_u}")
 
             begin_time_u = time.time()
-            best_arch, _, B2_actual_epoch_use = sh.run_phase2(U, all_models[run_id])
+            best_arch, _, B2_actual_epoch_use, _ = sh.run_phase2(U, all_models[run_id])
             end_time_u = time.time()
             # print(f"run_id = {run_id}, time_usage for run = {end_time_u - begin_time_u}")
 
@@ -56,9 +57,44 @@ def run_one_fixed_budget_alg(sh, time_per_epoch):
     return acc_reached, time_used
 
 
+def debug_args(args, dataset):
+    args.dataset = dataset
+    args.base_dir = "../exp_data/"
+    args.is_simulate = True
+    args.log_folder = "log_ku_tradeoff"
+
+    if dataset == Config.Frappe:
+        args.search_space = "mlp_sp"
+        args.epoch = 13
+        args.hidden_choice_len = 20
+
+    if dataset == Config.UCIDataset:
+        args.search_space = "mlp_sp"
+        args.epoch = 0
+        args.hidden_choice_len = 20
+
+    if dataset == Config.Criteo:
+        args.search_space = "mlp_sp"
+        args.epoch = 9
+        args.hidden_choice_len = 10
+
+    if dataset == Config.c10:
+        args.search_space = "nasbench201"
+        args.epoch = 200
+
+    if dataset == Config.c100:
+        args.search_space = "nasbench201"
+        args.epoch = 200
+
+    if dataset == Config.imgNet:
+        args.search_space = "nasbench201"
+        args.epoch = 200
+
+
 if __name__ == "__main__":
 
     args = parse_arguments()
+    debug_args(args, Config.c10)
 
     gmt = time.gmtime()
     ts = calendar.timegm(gmt)
@@ -77,7 +113,7 @@ if __name__ == "__main__":
     from src.tools.io_tools import write_json
 
     total_run = 3
-    total_models = 500
+    total_models = 100
 
     # sample 100 * 500 models,
     all_models = []
@@ -104,14 +140,20 @@ if __name__ == "__main__":
     result_save_dic["sh"] = {"time_used": time_used, "acc_reached": acc_reached}
 
     print("--- benchmarking uniform_")
-    uniform_ = UniformAllocation(evaluator=evaluator,
-                                 time_per_epoch=train_time_per_epoch)
+    uniform_ = UniformAllocation(search_space_ins=space_ins,
+                                 dataset_name=args.dataset,
+                                 eta=3,
+                                 time_per_epoch=train_time_per_epoch,
+                                 args=args)
     acc_reached, time_used = run_one_fixed_budget_alg(uniform_, train_time_per_epoch)
     result_save_dic["uniform"] = {"time_used": time_used, "acc_reached": acc_reached}
 
     print("--- benchmarking sr_")
-    sr_ = BudgetAwareControllerSR(evaluator=evaluator,
-                                  time_per_epoch=train_time_per_epoch)
+    sr_ = BudgetAwareControllerSR(search_space_ins=space_ins,
+                                  dataset_name=args.dataset,
+                                  eta=3,
+                                  time_per_epoch=train_time_per_epoch,
+                                  args=args)
     acc_reached, time_used = run_one_fixed_budget_alg(sr_, train_time_per_epoch)
     result_save_dic["sr"] = {"time_used": time_used, "acc_reached": acc_reached}
 

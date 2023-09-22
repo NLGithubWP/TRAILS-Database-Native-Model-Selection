@@ -12,13 +12,16 @@ def profile_NK_trade_off(dataset):
     We try various N/K combinations, and find this is better.
     """
     if dataset == Config.c10:
-        return 85
+        return 100
     elif dataset == Config.c100:
-        return 85
+        return 100
     elif dataset == Config.imgNet:
-        return 130
+        return 100
     else:
-        return 30
+        # this is the expressflow
+        # return 30
+        # this is the jacflow
+        return 100
 
 
 class SimulateTrain:

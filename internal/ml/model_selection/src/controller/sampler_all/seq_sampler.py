@@ -26,7 +26,8 @@ class SequenceSampler(Sampler):
                 print("the end")
                 return None, None
             else:
-                raise e
+                print("Error", str(e))
+                return None, None
 
     def fit_sampler(self, score: float):
         pass

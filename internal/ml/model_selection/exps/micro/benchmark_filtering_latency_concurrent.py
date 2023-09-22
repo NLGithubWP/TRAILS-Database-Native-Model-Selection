@@ -76,7 +76,6 @@ def evaluate_model(
         begin = time.time()
         torch.cuda.empty_cache()
         torch.cuda.synchronize()
-        _evaluator.time_usage["track_io_model_release_each_50"].append(time.time() - begin)
 
     return arch_id, model_score
 

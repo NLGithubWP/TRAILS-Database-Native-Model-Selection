@@ -73,7 +73,8 @@ class SampleController(object):
         """
         return self.search_strategy.sample_next_arch(self.ranked_models)
 
-    def fit_sampler(self, arch_id: str, alg_score: dict, simple_score_sum: bool = False) -> float:
+    def fit_sampler(self, arch_id: str, alg_score: dict, simple_score_sum: bool = False,
+                    is_sync: bool = True, arch_micro=None) -> float:
         """
         :param arch_id:
         :param alg_score: {alg_name1: score1, alg_name2: score2}
@@ -85,7 +86,10 @@ class SampleController(object):
             score = self._use_pure_score_as_final_res(arch_id, alg_score)
         else:
             score = self._use_vote_rank_as_final_res(arch_id, alg_score)
-        self.search_strategy.fit_sampler(score)
+        if is_sync:
+            self.search_strategy.fit_sampler(score)
+        else:
+            self.search_strategy.async_fit_sampler(arch_id, arch_micro, score)
         return score
 
     def _use_vote_rank_as_final_res(self, model_id: str, alg_score: dict):

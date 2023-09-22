@@ -32,7 +32,7 @@ def refinement_phase(u: int, k_models: List, dataset_name: str, config_file: str
 
     try:
         rms = RunModelSelection(args.search_space, args, is_simulate=args.is_simulate)
-        best_arch, best_arch_performance, _ = rms.refinement_phase(
+        best_arch, best_arch_performance, _ , _= rms.refinement_phase(
             U=u,
             k_models=k_models,
             train_loader=train_dataloader,

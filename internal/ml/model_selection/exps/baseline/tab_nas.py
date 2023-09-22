@@ -28,7 +28,7 @@ dataset_used = "frappe"
 # dataset_used = "uci_diabetes"
 # dataset_used = "criteo"
 
-epoch_sampled = {"frappe": 19, "uci_diabetes": 0, "criteo": 9}
+epoch_sampled = {"frappe": 13, "uci_diabetes": 0, "criteo": 9}
 if dataset_used == "frappe":
     mlp_train_frappe = os.path.join(
         "../exp_data/",
@@ -59,7 +59,12 @@ optimizer_name = 'adam'
 num_samples_for_mc_start = 5
 num_samples_for_mc_end = 5
 rl_learning_rate = 0.1
-max_iter = 6000
+if dataset_used == "frappe":
+    max_iter = 19000
+elif dataset_used == "criteo":
+    max_iter = 5000
+elif dataset_used == "uci_diabetes":
+    max_iter = 9000
 
 
 def run_sampling(i_rep):
@@ -140,6 +145,8 @@ def run_sampling(i_rep):
                 cur_best_performance.append(rewards[(layer_1_choice, layer_2_choice, layer_3_choice, layer_4_choice)])
             else:
                 cur_best_performance.append(cur_best_performance[-1])
+        # cur_time += time_usage[(layer_1_choice, layer_2_choice, layer_3_choice, layer_4_choice)]
+        # cur_time_usage.append(cur_time)
 
         # compute single-step RL advantage
         moving_average_baseline_numer = \
@@ -214,18 +221,18 @@ def run_sampling(i_rep):
 
 
 recorded_result = {
-    "baseline_time_budget": [],
-    "baseline_acc": []
+    "sys_time_budget": [],
+    "sys_acc": []
 }
 
-n_reps = 100  # for easier demonstration; was 500 in paper
+n_reps = 50  # for easier demonstration; was 500 in paper
 r = []
 for i in range(n_reps):
     print(i)
     layer_1_probs_all, layer_2_probs_all, layer_3_probs_all, layer_4_probs_all, cur_best_performance = run_sampling(i)
     r.append([layer_1_probs_all, layer_2_probs_all, layer_3_probs_all, layer_4_probs_all])
-    recorded_result["baseline_time_budget"].append(list(range(1, len(cur_best_performance) + 1)))
-    recorded_result["baseline_acc"].append(cur_best_performance)
+    recorded_result["sys_time_budget"].append(list(range(1, len(cur_best_performance) + 1)))
+    recorded_result["sys_acc"].append(cur_best_performance)
 
 
 write_json(checkpoint_file, recorded_result)

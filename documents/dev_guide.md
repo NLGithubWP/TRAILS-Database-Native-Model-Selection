@@ -1,19 +1,6 @@
 
 
-# Module management
 
-```bash
-git submodule add git@github.com:NLGithubWP/SAMS.git ./internal/ml/model_slicing
-git submodule update --init --recursive
-git add .gitmodules ./internal/ml/model_slicing
-```
-
-Further, clone with this
-
-```bash
-git clone --recursive https://github.com/username/main-repo.git
-git submodule update --init --recursive
-```
 
 # Change the permission
 
@@ -86,7 +73,7 @@ rm /home/postgres/.pgrx/14.9/pgrx-install/share/extension/pg_extension--0.1.0.sq
 vi /home/postgres/.pgrx/14.9/pgrx-install/share/extension/pg_extension--0.1.0.sql
 paste the latest sqls
 # generate schema
-cargo pgrx schema >> /home/postgres/.pgrx/14.9/pgrx-install/share/extension/pg_extension--0.1.0.sql
+cargo pgrx schema --release >> /home/postgres/.pgrx/14.9/pgrx-install/share/extension/pg_extension--0.1.0.sql
 ```
 
 In SQL

@@ -7,6 +7,7 @@ from exps.shared_args import parse_arguments
 from datetime import datetime
 import gc
 
+
 # import tracemalloc
 # tracemalloc.start()
 #
@@ -19,7 +20,7 @@ import gc
 
 
 def generate_data_loader():
-    if args.dataset in [Config.c10, Config.c100, Config.imgNet]:
+    if args.dataset in [Config.c10, Config.c100, Config.imgNet, Config.imgNetFull]:
         train_loader, val_loader, class_num = dataset.get_dataloader(
             train_batch_size=args.batch_size,
             test_batch_size=args.batch_size,
@@ -40,6 +41,7 @@ def generate_data_loader():
 
 if __name__ == "__main__":
     args = parse_arguments()
+    from src.common.constant import Config
 
     # set the log name
     gmt = time.gmtime()
@@ -48,7 +50,6 @@ if __name__ == "__main__":
     os.environ.setdefault("log_file_name", args.log_name + "_" + str(ts) + ".log")
     os.environ.setdefault("base_dir", args.base_dir)
 
-    from src.common.constant import Config
     from src.common.structure import ModelAcquireData
     from src.controller.sampler_all.seq_sampler import SequenceSampler
     from src.eva_engine.phase1.evaluator import P1Evaluator
@@ -62,6 +63,9 @@ if __name__ == "__main__":
     search_space_ins = init_search_space(args)
 
     train_loader, val_loader, test_loader, class_num = generate_data_loader()
+
+    first_sample, _ = next(iter(train_loader.dataset))
+    print("first_sample.shape", first_sample.shape)
 
     _evaluator = P1Evaluator(device=args.device,
                              num_label=args.num_labels,
@@ -99,7 +103,17 @@ if __name__ == "__main__":
         explored_n += 1
         result[arch_id] = model_score
         # print(f" {datetime.now()} finish arch = {arch_id}, model_score = {model_score}")
-        if explored_n % 10 == 0:
+
+        if explored_n < 10:
+            print("3. [trails] Phase 1: filter phase explored " + str(explored_n)
+                  + "Total explored " + str(len(result)) +
+                  " model, model_id = " + str(arch_id) +
+                  " model_scores = " + json.dumps(model_score))
+            logger.info("3. [trails] Phase 1: filter phase explored " + str(explored_n)
+                        + "Total explored " + str(len(result)) +
+                        " model, model_id = " + str(arch_id) +
+                        " model_scores = " + json.dumps(model_score))
+        if explored_n % 1000 == 0:
             # print_memory_usg()
             # _evaluator.force_gc()
             print("3. [trails] Phase 1: filter phase explored " + str(explored_n)
@@ -107,9 +121,9 @@ if __name__ == "__main__":
                   " model, model_id = " + str(arch_id) +
                   " model_scores = " + json.dumps(model_score))
             logger.info("3. [trails] Phase 1: filter phase explored " + str(explored_n)
-                  + "Total explored " + str(len(result)) +
-                  " model, model_id = " + str(arch_id) +
-                  " model_scores = " + json.dumps(model_score))
+                        + "Total explored " + str(len(result)) +
+                        " model, model_id = " + str(arch_id) +
+                        " model_scores = " + json.dumps(model_score))
         if explored_n % 1000 == 0:
             # print_memory_usg()
             # _evaluator.force_gc()

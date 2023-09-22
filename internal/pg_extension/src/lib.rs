@@ -161,11 +161,132 @@ pub fn benchmark_filtering_phase_latency(explore_models: i32, config_file: Strin
 #[pg_extern(immutable, parallel_safe, name = "benchmark_filtering_latency_in_db")]
 #[allow(unused_variables)]
 pub fn benchmark_filtering_latency_in_db(
-    explore_models: i32, dataset: String, config_file: String) -> String {
-    crate::bindings::ms::benchmark_filtering_latency_in_db(explore_models, &dataset, &config_file).to_string()
+    explore_models: i32, dataset: String, batch_size_m: i32, config_file: String) -> String {
+    crate::bindings::ms::benchmark_filtering_latency_in_db(explore_models, &dataset, batch_size_m ,&config_file).to_string()
 }
 
 
 
 
+
+
+
+
+
+// Model Inference
+//
+// #[cfg(feature = "python")]
+// #[pg_extern(immutable, parallel_safe, name = "sams_inference")]
+// #[allow(unused_variables)]
+// pub fn run_sams_inference(
+//     dataset: String,
+//     condition: String,
+//     config_file: String,
+//     col_cardinalities_file: String,
+//     model_path: String,
+//     sql: String,
+//     batch_size: i32,
+// ) -> String {
+//     crate::bindings::inference::run_sams_inference(
+//         &dataset,
+//         &condition,
+//         &config_file,
+//         &col_cardinalities_file,
+//         &model_path,
+//         &sql,
+//         batch_size).to_string()
+// }
+//
+// // Model Inference
+// #[cfg(feature = "python")]
+// #[pg_extern(immutable, parallel_safe, name = "sams_inference_shared")]
+// #[allow(unused_variables)]
+// pub fn run_sams_inference_shared(
+//     dataset: String,
+//     condition: String,
+//     config_file: String,
+//     col_cardinalities_file: String,
+//     model_path: String,
+//     sql: String,
+//     batch_size: i32,
+// ) -> String {
+//     crate::bindings::inference::run_sams_inference_shared_memory(
+//         &dataset,
+//         &condition,
+//         &config_file,
+//         &col_cardinalities_file,
+//         &model_path,
+//         &sql,
+//         batch_size).to_string()
+// }
+//
+// // Model Inference
+// #[cfg(feature = "python")]
+// #[pg_extern(immutable, parallel_safe, name = "sams_inference_shared_write_once")]
+// #[allow(unused_variables)]
+// pub fn sams_inference_shared_write_once(
+//     dataset: String,
+//     condition: String,
+//     config_file: String,
+//     col_cardinalities_file: String,
+//     model_path: String,
+//     sql: String,
+//     batch_size: i32,
+// ) -> String {
+//     crate::bindings::inference::run_sams_inference_shared_memory_write_once(
+//         &dataset,
+//         &condition,
+//         &config_file,
+//         &col_cardinalities_file,
+//         &model_path,
+//         &sql,
+//         batch_size).to_string()
+// }
+//
+// // Model Inference
+// #[cfg(feature = "python")]
+// #[pg_extern(immutable, parallel_safe, name = "sams_inference_shared_write_once_int")]
+// #[allow(unused_variables)]
+// pub fn sams_inference_shared_write_once_int(
+//     dataset: String,
+//     condition: String,
+//     config_file: String,
+//     col_cardinalities_file: String,
+//     model_path: String,
+//     sql: String,
+//     batch_size: i32,
+// ) -> String {
+//     crate::bindings::inference::run_sams_inference_shared_memory_write_once_int(
+//         &dataset,
+//         &condition,
+//         &config_file,
+//         &col_cardinalities_file,
+//         &model_path,
+//         &sql,
+//         batch_size).to_string()
+// }
+//
+//
+// // Model Inference
+// #[cfg(feature = "python")]
+// #[pg_extern(immutable, parallel_safe, name = "sams_model_init")]
+// #[allow(unused_variables)]
+// pub fn sams_model_init(
+//     condition: String,
+//     config_file: String,
+//     col_cardinalities_file: String,
+//     model_path: String
+// ) -> String {
+//     crate::bindings::inference::init_model(
+//         &condition,
+//         &config_file,
+//         &col_cardinalities_file,
+//         &model_path).to_string()
+// }
+//
+//
+//
+//
+//
+//
 

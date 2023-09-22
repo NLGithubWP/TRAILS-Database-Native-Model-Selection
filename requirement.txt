@@ -30,3 +30,4 @@ typing_extensions==4.7.1
 tzdata==2023.3
 zipp==3.16.2
 requests==2.31.0
+h5py==3.10.0

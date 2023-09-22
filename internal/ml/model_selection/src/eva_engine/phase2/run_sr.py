@@ -1,15 +1,67 @@
 from copy import copy
 from src.common.constant import Config
+from src.eva_engine.phase2.evaluator import P2Evaluator
+from src.search_space.core.space import SpaceWrapper
 
 
 class BudgetAwareControllerSR:
-    def __init__(self, evaluator, time_per_epoch, max_unit=200):
+
+    @staticmethod
+    def pre_calculate_epoch_required(K, U, eta: int = 3, max_unit_per_model: int = 200):
         """
-        :param evaluator:
-        :param max_unit:  for 201, it's 200, for 101 it's 108
+        :param K: candidates lists
+        :param U: min resource each candidate needs
+        :return:
         """
-        self._evaluator = evaluator
-        self.max_unit_per_model = max_unit
+        total_epoch_each_rounds = K * U
+        min_budget_required = 0
+
+        previous_epoch = None
+        while True:
+            cur_cand_num = K
+            if cur_cand_num == 1:
+                break
+            # number of each res given to each cand, pick lower bound
+            epoch_per_model = int(total_epoch_each_rounds / cur_cand_num)
+            if previous_epoch is None:
+                previous_epoch = epoch_per_model
+            elif previous_epoch == epoch_per_model:
+                # current epoch  == last epoch, no need to re-evaluate each component
+                K = cur_cand_num - 1
+                continue
+
+            previous_epoch = epoch_per_model
+
+            if epoch_per_model >= max_unit_per_model:
+                epoch_per_model = max_unit_per_model
+
+            # print(f"[successive_reject]: {cur_cand_num} model left, "
+            #       f"and evaluate each model with {epoch_per_model} epoch, total epoch = {max_unit_per_model}")
+            # evaluate each arch
+            min_budget_required += epoch_per_model * cur_cand_num
+            # sort from min to max
+            if epoch_per_model == max_unit_per_model:
+                # each model is fully evaluated, just return top 1
+                K = 1
+            else:
+                # only keep 1/eta, pick lower bound
+                K = cur_cand_num - 1
+        return min_budget_required
+
+    def __init__(self,
+                 search_space_ins: SpaceWrapper, dataset_name: str,
+                 eta, args, time_per_epoch):
+
+        self.is_simulate = True
+        self._evaluator = P2Evaluator(search_space_ins,
+                                      dataset_name,
+                                      is_simulate=True,
+                                      train_loader=None,
+                                      val_loader=None,
+                                      args=None)
+
+        self.eta = eta
+        self.max_unit_per_model = args.epoch
         self.time_per_epoch = time_per_epoch
         self.name = "SUCCREJCT"
 
@@ -36,48 +88,13 @@ class BudgetAwareControllerSR:
             raise f"{fixed_time_budget} is too small for current config"
         return history[-1]
 
-    def pre_calculate_epoch_required(self, K, U):
-        """
-        :param K: candidates lists
-        :param U: min resource each candidate needs
-        :return:
-        """
-        total_epoch_each_rounds = K * U
-        min_budget_required = 0
-
-        previous_epoch = None
-        while True:
-            cur_cand_num = K
-            if cur_cand_num == 1:
-                break
-            # number of each res given to each cand, pick lower bound
-            epoch_per_model = int(total_epoch_each_rounds / cur_cand_num)
-            if previous_epoch is None:
-                previous_epoch = epoch_per_model
-            elif previous_epoch == epoch_per_model:
-                # which means the epoch don't increase, no need to re-evaluate each component
-                K = cur_cand_num - 1
-                continue
-
-            if epoch_per_model >= self.max_unit_per_model:
-                epoch_per_model = self.max_unit_per_model
-            # evaluate each arch
-            min_budget_required += epoch_per_model * cur_cand_num
-            # sort from min to max
-            if epoch_per_model == self.max_unit_per_model:
-                # each model is fully evaluated, just return top 1
-                K = 1
-            else:
-                # only keep 1/eta, pick lower bound
-                K = cur_cand_num - 1
-        return min_budget_required
-
     def run_phase2(self, U: int, candidates_m: list):
         """
         :param candidates_m: candidates lists
         :param U: min resource each candidate needs
         :return:
         """
+        total_time = 0
         # print(f" *********** begin BudgetAwareControllerSR with U={U}, K={len(candidates_m)} ***********")
         candidates = copy(candidates_m)
         total_epoch_each_rounds = len(candidates) * U
@@ -100,14 +117,17 @@ class BudgetAwareControllerSR:
                 candidates = [ele[0] for ele in scored_cand[-num_keep:]]
                 continue
 
+            previous_epoch = epoch_per_model
+
             if epoch_per_model >= self.max_unit_per_model:
                 epoch_per_model = self.max_unit_per_model
 
             # print(f"[successive_reject]: {cur_cand_num} model left, "
-            #       f"and evaluate each model with {epoch_per_model} epoch")
+            #       f"and evaluate each model with {epoch_per_model} epoch, total epoch = {self.max_unit_per_model}")
             # evaluate each arch
             for cand in candidates:
-                score = self._evaluator.p2_evaluate(cand, epoch_per_model)
+                score, time_usage = self._evaluator.p2_evaluate(cand, epoch_per_model)
+                total_time += time_usage
                 total_score.append((cand, score))
                 min_budget_required += epoch_per_model
             # sort from min to max
@@ -121,6 +141,5 @@ class BudgetAwareControllerSR:
                 num_keep = cur_cand_num - 1
                 candidates = [ele[0] for ele in scored_cand[-num_keep:]]
 
-        return candidates[0], None, min_budget_required
-
-
+        best_perform, _ = self._evaluator.p2_evaluate(candidates[0], self.max_unit_per_model)
+        return candidates[0], best_perform, min_budget_required, total_time

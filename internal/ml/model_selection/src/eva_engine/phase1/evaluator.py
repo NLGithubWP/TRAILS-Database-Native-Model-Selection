@@ -58,6 +58,8 @@ class P1Evaluator:
 
         # performance records
         self.time_usage = {
+            "model_id": [],
+
             "latency": 0.0,
             "io_latency": 0.0,
             "compute_latency": 0.0,
@@ -66,10 +68,8 @@ class P1Evaluator:
             "track_io_model_init": [],  # init model weight
             "track_io_model_load": [],  # load model into GPU/CPU
             "track_io_res_load": [],  # load result into GPU/CPU
-            "track_io_model_release_each_50": [],  # context switch
-            "track_io_model_release": [],  # context switch
-            "track_io_data_retrievel": [],  # context switch
-            "track_io_data_preprocess": [],  # context switch
+            "track_io_data_retrievel": [],  # release data
+            "track_io_data_preprocess": [],  # pre-processing
         }
 
         self.db_config = db_config
@@ -80,13 +80,15 @@ class P1Evaluator:
         self.cached_mini_batch = None
         self.cached_mini_batch_target = None
 
+        self.conn = None
+
     def if_cuda_avaiable(self):
         if "cuda" in self.device:
             return True
         else:
             return False
 
-    def p1_evaluate(self, data_str: str) -> dict:
+    def p1_evaluate(self, data_str: dict) -> dict:
         """
         :param data_str: encoded ModelAcquireData
         :return:
@@ -102,7 +104,7 @@ class P1Evaluator:
         else:
             return self._p1_evaluate_online(model_acquire)
 
-    def measure_model_flops(self, data_str: str, batch_size: int, channel_size: int):
+    def measure_model_flops(self, data_str: dict, batch_size: int, channel_size: int):
         # todo: check the package
         mini_batch, mini_batch_targets, _ = self.retrievel_data(None)
         model_acquire = ModelAcquireData.deserialize(data_str)
@@ -145,6 +147,12 @@ class P1Evaluator:
 
         # 1. Get a batch of data
         mini_batch, mini_batch_targets, data_load_time_usage, data_pre_process_time = self.retrievel_data(model_acquire)
+        # logger.info(
+        #     f"mini_batch sizes - id: {mini_batch['id'].size()}, value: {mini_batch['value'].size()},
+        #     targets: {mini_batch_targets.size()}")
+        # print(
+        #     f"mini_batch sizes - id: {mini_batch['id'].size()}, value: {mini_batch['value'].size()},
+        #     targets: {mini_batch_targets.size()}")
         self.time_usage["track_io_data_retrievel"].append(data_load_time_usage)
 
         # 2. Score all tfmem
@@ -176,6 +184,70 @@ class P1Evaluator:
                 if "cuda" in self.device:
                     torch.cuda.empty_cache()
 
+        elif self.metrics == CommonVars.JACFLOW:
+            begin = time.time()
+            new_model = self.search_space_ins.new_arch_scratch_with_default_setting(model_encoding, bn=False)
+            if self.search_space_ins.name == Config.MLPSP:
+                if self.enable_cache:
+                    new_model.init_embedding(self.model_cache)
+                    if self.model_cache is None:
+                        self.model_cache = new_model.embedding.to(self.device)
+                else:
+                    # init embedding every time created a new model
+                    new_model.init_embedding()
+            time_usage = time.time() - begin
+            self.time_usage["track_io_model_init"].append(time_usage)
+            print("Model Init",  self.enable_cache, time_usage)
+
+            if self.if_cuda_avaiable():
+                begin = time.time()
+                new_model = new_model.to(self.device)
+                torch.cuda.synchronize()
+                self.time_usage["track_io_model_load"].append(time.time() - begin)
+            else:
+                self.time_usage["track_io_model_load"].append(0)
+
+            # measure data load time
+            begin = time.time()
+            all_one_mini_batch = self.data_pre_processing(mini_batch, CommonVars.PRUNE_SYNFLOW, new_model)
+            self.time_usage["track_io_data_preprocess"].append(data_pre_process_time + time.time() - begin)
+            if self.search_space_ins.name == Config.MLPSP:
+                print("compute with done", all_one_mini_batch.size(), mini_batch["id"].size(), mini_batch["value"].size())
+                logger.info(
+                    f"mini_batch sizes - {all_one_mini_batch.size()} "
+                    f"id: {mini_batch['id'].size()}, value: {mini_batch['value'].size()},"
+                    f"targets: {mini_batch_targets.size()}")
+
+            _score_1, compute_time1 = evaluator_register[CommonVars.PRUNE_SYNFLOW].evaluate_wrapper(
+                arch=new_model,
+                device=self.device,
+                space_name=self.search_space_ins.name,
+                batch_data=all_one_mini_batch,
+                batch_labels=mini_batch_targets)
+
+            _score_2, compute_time2 = evaluator_register[CommonVars.NAS_WOT].evaluate_wrapper(
+                arch=new_model,
+                device=self.device,
+                space_name=self.search_space_ins.name,
+                batch_data=mini_batch,
+                batch_labels=mini_batch_targets)
+            print(compute_time1, compute_time2)
+            logger.info(f"{compute_time1}, {compute_time2}")
+
+            self.time_usage["track_compute"].append(compute_time1 + compute_time2)
+            self.time_usage["model_id"].append(model_encoding)
+
+            if self.if_cuda_avaiable():
+                begin = time.time()
+                _score = _score_1.item() + _score_2
+                torch.cuda.synchronize()
+                self.time_usage["track_io_res_load"].append(time.time() - begin)
+            else:
+                _score = _score_1.item() + _score_2
+                self.time_usage["track_io_res_load"].append(0)
+
+            model_score = {self.metrics: float(abs(_score))}
+            del new_model
         # 2. score using only one metrics
         else:
             if self.metrics == CommonVars.PRUNE_SYNFLOW or self.metrics == CommonVars.ExpressFlow:
@@ -255,12 +327,12 @@ class P1Evaluator:
                                               dataset_name=self.dataset_name)
 
         score = self.score_getter.query_all_tfmem_score(arch_id=model_acquire.model_id)
-        model_score = {self.metrics: abs(score[self.metrics])}
+        model_score = {self.metrics: abs(float(score[self.metrics]))}
         return model_score
 
     def retrievel_data(self, model_acquire):
         if not self.is_simulate:
-            if self.dataset_name in [Config.c10, Config.c100, Config.imgNet]:
+            if self.dataset_name in [Config.c10, Config.c100, Config.imgNet, Config.imgNetFull]:
                 if self.train_loader is None:
                     raise f"self.train_loader is None for {self.dataset_name}"
                 # for img data
@@ -268,7 +340,7 @@ class P1Evaluator:
                 mini_batch, mini_batch_targets = dataset.get_mini_batch(
                     dataloader=self.train_loader,
                     sample_alg="random",
-                    batch_size=32,
+                    batch_size=model_acquire.batch_size,
                     num_classes=self.num_labels)
                 mini_batch.to(self.device)
                 mini_batch_targets.to(self.device)
@@ -281,13 +353,19 @@ class P1Evaluator:
             elif self.dataset_name in [Config.Criteo, Config.Frappe, Config.UCIDataset]:
                 if self.train_loader is None:
                     if self.data_retrievel == "sql":
-                        batch, time_usage = self._retrievel_from_db_sql()
-                        data_tensor, y_tensor, process_time = self.batch_data_pre_processing(batch)
+                        batch, time_usage = self._retrievel_from_db_sql(model_acquire.batch_size)
+                        data_tensor, y_tensor, process_time = self.sql_batch_data_pre_processing(batch)
                         return data_tensor, y_tensor, time_usage, process_time
                     elif self.data_retrievel == "spi":
                         batch, time_usage = self._retrievel_from_db_spi(model_acquire)
-                        data_tensor, y_tensor, process_time = self.batch_data_pre_processing(batch)
-                        return data_tensor, y_tensor, time_usage, process_time
+                        # pre-processing
+                        begin = time.time()
+                        id_tensor = torch.LongTensor(batch[:, 1::2]).to(self.device)
+                        value_tensor = torch.FloatTensor(batch[:, 2::2]).to(self.device)
+                        y_tensor = torch.FloatTensor(batch[:, 0:1]).to(self.device)
+                        data_tensor = {'id': id_tensor, 'value': value_tensor, 'y': y_tensor}
+                        logger.info(id_tensor.size())
+                        return data_tensor, y_tensor, time_usage + time.time() - begin, 0
                 else:
                     if self.cached_mini_batch is None and self.cached_mini_batch_target is None:
                         # this is structure data
@@ -309,34 +387,45 @@ class P1Evaluator:
             else:
                 raise NotImplementedError
 
-    def _retrievel_from_db_sql(self):
+    def connect_to_db(self):
+        try:
+            self.conn = psycopg2.connect(
+                dbname=self.db_config["db_name"],
+                user=self.db_config["db_user"],
+                host=self.db_config["db_host"],
+                port=self.db_config["db_port"]
+            )
+        except Exception as e:
+            print(f"Error connecting to the database: {e}")
+
+    def _retrievel_from_db_sql(self, batch_size):
 
         begin_time = time.time()
-        with psycopg2.connect(database=self.db_config["db_name"],
-                              user=self.db_config["db_user"],
-                              host=self.db_config["db_host"],
-                              port=self.db_config["db_port"]) as conn:
-            # fetch and preprocess data from PostgreSQL
-            cur = conn.cursor()
+        if self.conn is None or self.conn.closed:
+            # If the connection is not established or was closed, reconnect.
+            self.connect_to_db()
 
-            cur.execute(f"SELECT * FROM {self.dataset_name}_train WHERE id > {self.last_id} LIMIT 32")
-            rows = cur.fetchall()
+        # fetch and preprocess data from PostgreSQL
+        cur = self.conn.cursor()
 
-            if rows:
-                # Update last_id with max id of fetched rows
-                self.last_id = max(row[0] for row in rows)  # assuming 'id' is at index 0
-            else:
-                # If no more new rows, reset last_id to start over scan and return 'end_position'
-                self.last_id = -1
+        cur.execute(f"SELECT * FROM {self.dataset_name}_train WHERE id > {self.last_id} LIMIT {batch_size};")
+        rows = cur.fetchall()
 
-            # block until a free slot is available
+        if self.last_id <= 80000:
+            # Update last_id with max id of fetched rows
+            self.last_id = max(row[0] for row in rows)  # assuming 'id' is at index 0
+        else:
+            # If no more new rows, reset last_id to start over scan and return 'end_position'
+            self.last_id = 0
+
+        # block until a free slot is available
         time_usage = time.time() - begin_time
         return rows, time_usage
 
     def _retrievel_from_db_spi(self, model_acquire):
         batch = model_acquire.spi_mini_batch
-        time_usage = model_acquire.spi_seconds
-        return batch, time_usage
+        data_retrieval_time_usage = model_acquire.spi_seconds
+        return batch, data_retrieval_time_usage
 
     def data_pre_processing(self, mini_batch, metrics: str, new_model: nn.Module):
 
@@ -348,7 +437,8 @@ class P1Evaluator:
                 mini_batch = torch.ones([1] + feature_dim).float().to(self.device)
             else:
                 # this is for the tabular data,
-                mini_batch = new_model.generate_all_ones_embedding().float().to(self.device)
+                mini_batch = new_model.generate_all_ones_embedding(4).float().to(self.device)
+                # print(mini_batch.size())
         else:
             # for others, skip preprocessing
             pass
@@ -358,10 +448,20 @@ class P1Evaluator:
             torch.cuda.synchronize()
         return mini_batch
 
-    def batch_data_pre_processing(self, queryed_rows: List[Tuple]):
+    def sql_batch_data_pre_processing(self, queryed_rows: List[Tuple]):
         """
         mini_batch_data: [('0', '0', '123:123', '123:123', '123:123',)
         """
+
+        # def decode_libsvm(columns):
+        #     # Decode without additional mapping or zipping, directly processing the splits.
+        #     ids = []
+        #     values = []
+        #     for col in columns[2:]:
+        #         id, value = col.split(':')
+        #         ids.append(int(id))
+        #         values.append(float(value))
+        #     return {'id': ids, 'value': values, 'y': int(columns[1])}
 
         def decode_libsvm(columns):
             map_func = lambda pair: (int(pair[0]), float(pair[1]))
@@ -391,9 +491,9 @@ class P1Evaluator:
 
         begin = time.time()
         batch = pre_processing(queryed_rows)
-        id_tensor = torch.FloatTensor(batch['id']).to(self.device)
+        id_tensor = torch.LongTensor(batch['id']).to(self.device)
         value_tensor = torch.FloatTensor(batch['value']).to(self.device)
-        y_tensor = torch.LongTensor(batch['y']).to(self.device)
+        y_tensor = torch.FloatTensor(batch['y']).to(self.device)
         data_tensor = {'id': id_tensor, 'value': value_tensor, 'y': y_tensor}
         # wait for moving data to GPU
         if self.if_cuda_avaiable():

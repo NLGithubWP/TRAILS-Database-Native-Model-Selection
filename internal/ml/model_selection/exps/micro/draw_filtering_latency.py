@@ -133,15 +133,14 @@ for img_id, datasets in enumerate([datasets_wo_cache, datasets_embedding_cache])
 
             # Plot bars for GPU
             bottom_init_gpu = sum(data_gpu['track_io_model_init'][2:])
-            bottom_load_release_gpu = bottom_init_gpu + sum(data_gpu['track_io_model_load'][2:]) + sum(
-                data_gpu['track_io_model_release_each_50'][2:])
+            bottom_load_release_gpu = bottom_init_gpu + sum(data_gpu['track_io_model_load'][2:])
 
             ax.bar(i + bar_width / 2, sum(data_gpu['track_io_model_init'][2:]), bar_width,
                    alpha=opacity, color=gpu_colors[0], hatch=hatches[0], edgecolor='black',
                    label='(GPU) M Init' if i == 0 else "")
 
             ax.bar(i + bar_width / 2,
-                   sum(data_gpu['track_io_model_load'][2:]) + sum(data_gpu['track_io_model_release_each_50'][2:]),
+                   sum(data_gpu['track_io_model_load'][2:]),
                    bar_width,
                    alpha=opacity, color=gpu_colors[1], hatch=hatches[1], edgecolor='black',
                    label='(GPU) M Load' if i == 0 else "",

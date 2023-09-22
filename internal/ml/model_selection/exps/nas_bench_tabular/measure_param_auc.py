@@ -74,7 +74,7 @@ def func(x, pos):  # formatter function takes tick label and tick position
 def draw_parameter_performance():
     # extract train_auc and valid_auc into separate lists
     for dataset, architectures in data_dict.items():
-        fig, ax = plt.subplots(figsize=(6.4, 4))
+        fig, ax = plt.subplots(figsize=(6.4, 3.5))
         print(dataset)
         param_sizes = []
         valid_auc = []
@@ -97,11 +97,11 @@ def draw_parameter_performance():
         fig.savefig(f"para_{dataset}.jpg", bbox_inches='tight')
 
 
-dataset_used = "frappe"
+# dataset_used = "frappe"
 # dataset_used = "uci_diabetes"
-# dataset_used = "criteo"
+dataset_used = "criteo"
 
-epoch_sampled = {"frappe": 19, "uci_diabetes": 35, "criteo": 9}
+epoch_sampled = {"frappe": 13, "uci_diabetes": 35, "criteo": 9}
 
 if dataset_used == "frappe":
     mlp_train_frappe = os.path.join(

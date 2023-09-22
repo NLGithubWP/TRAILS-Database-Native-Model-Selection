@@ -5,7 +5,8 @@ import numpy as np
 import torch
 
 
-def seed_everything(seed=2022):
+def seed_everything(seed=2201):
+    # 2022 -> 2021 -> 2031
     ''' [reference] https://gist.github.com/KirillVladimirov/005ec7f762293d2321385580d3dbe335 '''
     random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
@@ -150,9 +151,9 @@ def anytime_exp_set(parser):
 
 
 def system_performance_exp(parser):
-    parser.add_argument('--models_explore', default=-1, type=int, help='# models to explore in the filtering phase')
-    parser.add_argument('--tfmem', default="express_flow", type=str, help='the matrix t use, all_matrix')
-    parser.add_argument('--embedding_cache_filtering', default='False', type=str2bool,
+    parser.add_argument('--models_explore', default=10, type=int, help='# models to explore in the filtering phase')
+    parser.add_argument('--tfmem', default="jacflow", type=str, help='the matrix t use, all_matrix')
+    parser.add_argument('--embedding_cache_filtering', default='True', type=str2bool,
                         help='Cache embedding for MLP in filtering phase?')
     parser.add_argument('--concurrency', default=1, type=int, help='number of worker in filtering phase')
 

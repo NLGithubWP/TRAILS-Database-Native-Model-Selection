@@ -28,6 +28,9 @@ class CommonVars:
     PRUNE_SYNFLOW = "synflow"
 
     WEIGHT_NORM = "weight_norm"
+    KNAS = "knas"
+
+    JACFLOW = "jacflow"
 
     ALL_EVALUATOR = "all_matrix"
 
@@ -56,9 +59,15 @@ class Config:
     c10 = "cifar10"
     c100 = "cifar100"
     imgNet = "ImageNet16-120"
+    imgNetFull = "ImageNet1k"
 
     # struct dataset
     Frappe = "frappe"
     Criteo = "criteo"
     UCIDataset = "uci_diabetes"
+
+    SUCCHALF = "SUCCHALF"
+    SUCCREJCT = "SUCCREJCT"
+    UNIFORM = "UNIFORM"
+
 

@@ -82,7 +82,7 @@ if __name__ == "__main__":
         args=args)
 
     K_models, _ = p1_runner.run_phase1()
-    best_arch, best_arch_performance, B2_actual_epoch_use = sh.run_phase2(
+    best_arch, best_arch_performance, B2_actual_epoch_use, _ = sh.run_phase2(
         U=1,
         candidates_m=K_models)
 

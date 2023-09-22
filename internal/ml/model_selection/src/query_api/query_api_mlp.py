@@ -21,9 +21,9 @@ mlp_score_criteo = os.path.join(base_dir, "tab_data/criteo/score_criteo_batch_si
 
 #  0.8028456677612497
 # todo: here is for debug expressFlow only
-exp_mlp_score_frappe = os.path.join(base_dir, "score_scale_traj_width/score_mlp_sp_frappe_batch_size_32_cpu.json")
-exp_mlp_score_uci = os.path.join(base_dir, "score_scale_traj_width/score_mlp_sp_uci_diabetes_batch_size_32_cpu.json")
-exp_mlp_score_criteo = os.path.join(base_dir, "score_scale_traj_width/score_mlp_sp_criteo_batch_size_32_cpu.json")
+exp_mlp_score_frappe = os.path.join(base_dir, "micro_sensitivity/3_batch_size/4/score_mlp_sp_frappe_batch_size_32_cpu.json")
+exp_mlp_score_uci = os.path.join(base_dir, "micro_sensitivity/3_batch_size/4/score_mlp_sp_uci_diabetes_batch_size_32_cpu.json")
+exp_mlp_score_criteo = os.path.join(base_dir, "micro_sensitivity/3_batch_size/4/score_mlp_sp_criteo_batch_size_32_cpu.json")
 
 # todo here we use weigth sharing.
 mlp_score_frappe_weight_share = os.path.join(base_dir, "tab_data/weight_share_nas_frappe.json")
@@ -121,18 +121,22 @@ class GTMLP:
 
     def get_valid_auc(self, arch_id: str, epoch_num: int):
         # todo: due to the too many job contention on server, the time usage may not valid.
-        time_usage = (int(epoch_num) + 1) * self.get_train_one_epoch_time(self.device)
+        # train on gpu,
+        time_usage = (int(epoch_num) + 1) * self.get_train_one_epoch_time("gpu")
         if self.dataset == Config.Frappe:
-            if epoch_num is None or epoch_num >= 20: epoch_num = 19
+            if epoch_num is None or epoch_num >= 13: epoch_num = 13
             t_acc = self.mlp_train[self.dataset][arch_id][str(epoch_num)]["valid_auc"]
+            time_usage = self.mlp_train[self.dataset][arch_id][str(epoch_num)]["train_val_total_time"]
             return t_acc, time_usage
         elif self.dataset == Config.Criteo:
             if epoch_num is None or epoch_num >= 10: epoch_num = 9
             t_acc = self.mlp_train[self.dataset][arch_id][str(epoch_num)]["valid_auc"]
+            time_usage = self.mlp_train[self.dataset][arch_id][str(epoch_num)]["train_val_total_time"]
             return t_acc, time_usage
         elif self.dataset == Config.UCIDataset:
             if epoch_num is None or epoch_num >= 40: epoch_num = 39
-            t_acc = self.mlp_train[self.dataset][arch_id][str(epoch_num)]["valid_auc"]
+            t_acc = self.mlp_train[self.dataset][arch_id][str(0)]["valid_auc"]
+            time_usage = self.mlp_train[self.dataset][arch_id][str(epoch_num)]["train_val_total_time"]
             return t_acc, time_usage
         else:
             raise NotImplementedError

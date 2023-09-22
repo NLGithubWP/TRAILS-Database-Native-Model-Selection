@@ -49,7 +49,7 @@ class NWTEvaluator(Evaluator):
 
         # this is for the structure data,
         if space_name == Config.MLPSP:
-            arch.K = np.zeros((batch_data["value"].shape[0], batch_data["value"].shape[0]))
+            arch.K = np.zeros((batch_data["id"].shape[0], batch_data["id"].shape[0]))
         else:
             arch.K = np.zeros((batch_data.shape[0], batch_data.shape[0]))
             batch_data = batch_data.to(device)

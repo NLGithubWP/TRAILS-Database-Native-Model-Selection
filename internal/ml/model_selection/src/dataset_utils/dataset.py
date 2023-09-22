@@ -1,15 +1,15 @@
-
 import torch
 from torch import tensor
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Subset
+from torchvision.datasets import ImageFolder
 from torchvision.datasets import MNIST, CIFAR10, CIFAR100, SVHN
 from torchvision.transforms import Compose
 from torchvision import transforms
 from .imagenet16 import *
 
 
-def get_dataloader(train_batch_size: int, test_batch_size: int, dataset: int,
-                  num_workers: int, datadir: str, resize=None) -> (DataLoader, DataLoader, int):
+def get_dataloader(train_batch_size: int, test_batch_size: int, dataset: str,
+                   num_workers: int, datadir: str, resize=None) -> (DataLoader, DataLoader, int):
     """
     Load CIFAR or imagenet datasets
     :param train_batch_size:
@@ -28,7 +28,7 @@ def get_dataloader(train_batch_size: int, test_batch_size: int, dataset: int,
 
     if 'ImageNet16' in dataset:
         mean = [x / 255 for x in [122.68, 116.66, 104.01]]
-        std  = [x / 255 for x in [63.22,  61.26 , 65.09]]
+        std = [x / 255 for x in [63.22, 61.26, 65.09]]
         size, pad = 16, 2
     elif 'cifar' in dataset:
         mean = (0.4914, 0.4822, 0.4465)
@@ -42,8 +42,14 @@ def get_dataloader(train_batch_size: int, test_batch_size: int, dataset: int,
         from .h5py_dataset import H5Dataset
         size, pad = 224, 2
         mean = (0.485, 0.456, 0.406)
-        std  = (0.229, 0.224, 0.225)
-        #resize = 256
+        std = (0.229, 0.224, 0.225)
+        # resize = 256
+    elif dataset == 'ImageNet224-120':
+        from .h5py_dataset import H5Dataset
+        size, pad = 224, 2
+        mean = (0.485, 0.456, 0.406)
+        std = (0.229, 0.224, 0.225)
+        # resize = 256
 
     if resize is None:
         resize = size
@@ -57,7 +63,7 @@ def get_dataloader(train_batch_size: int, test_batch_size: int, dataset: int,
     ])
 
     test_transform = transforms.Compose([
-        transforms.Resize(resize),
+        transforms.Resize((resize, resize)),
         transforms.ToTensor(),
         transforms.Normalize(mean, std),
     ])
@@ -76,12 +82,24 @@ def get_dataloader(train_batch_size: int, test_batch_size: int, dataset: int,
         test_dataset = SVHN(datadir, split='test', transform=test_transform, download=True)
     elif dataset == 'ImageNet16-120':
         class_num = 120
-        train_dataset = ImageNet16(os.path.join(datadir, 'ImageNet16'), True , train_transform, 120)
-        test_dataset  = ImageNet16(os.path.join(datadir, 'ImageNet16'), False, test_transform , 120)
+        train_dataset = ImageNet16(os.path.join(datadir, 'ImageNet16'), True, train_transform, 120)
+        test_dataset = ImageNet16(os.path.join(datadir, 'ImageNet16'), False, test_transform, 120)
     elif dataset == 'ImageNet1k':
+        class_num = 1000
+        # train_dataset = ImageFolder(root=os.path.join(datadir, 'imagenet/val'), transform=train_transform)
+        test_dataset = ImageFolder(root=os.path.join(datadir, 'imagenet/val'), transform=test_transform)
+        train_dataset = test_dataset
+    elif dataset == 'ImageNet224-120':
         class_num = 120
-        train_dataset = H5Dataset(os.path.join(datadir, 'imagenet-train-256.h5'), transform=train_transform)
-        test_dataset = H5Dataset(os.path.join(datadir, 'imagenet-val-256.h5'),   transform=test_transform)
+        test_dataset = ImageFolder(root=os.path.join(datadir, 'imagenet/val'), transform=test_transform)
+
+        # get 0-120 classes
+        class_indices = list(range(120))  # 0-120 inclusive
+        subset_indices = [i for i, (_, label) in enumerate(test_dataset.samples) if label in class_indices]
+        filtered_test_dataset = Subset(test_dataset, subset_indices)
+        # get 0-120 classes
+        train_dataset = filtered_test_dataset
+        test_dataset = filtered_test_dataset
     elif dataset == 'mnist':
         data_transform = Compose([transforms.ToTensor()])
         # Normalise? transforms.Normalize((0.1307,), (0.3081,))
@@ -94,15 +112,15 @@ def get_dataloader(train_batch_size: int, test_batch_size: int, dataset: int,
         train_dataset,
         train_batch_size,
         shuffle=True,
-        # num_workers=num_workers,
-        # pin_memory=False
+        num_workers=4,
+        pin_memory=False
     )
     test_loader = DataLoader(
         test_dataset,
         test_batch_size,
         shuffle=False,
-        # num_workers=num_workers,
-        # pin_memory=False
+        num_workers=4,
+        pin_memory=False
     )
 
     print("dataset load done")
@@ -123,7 +141,7 @@ def get_mini_batch(dataloader: DataLoader, sample_alg: str, batch_size: int, num
     if sample_alg == 'random':
         inputs, targets = _get_some_data(dataloader, batch_size=batch_size)
     elif sample_alg == 'grasp':
-        inputs, targets = _get_some_data_grasp(dataloader, num_classes, samples_per_class=batch_size//num_classes)
+        inputs, targets = _get_some_data_grasp(dataloader, num_classes, samples_per_class=batch_size // num_classes)
     else:
         raise NotImplementedError(f'dataload {sample_alg} is not supported')
 

@@ -10,11 +10,11 @@ import logging
 
 logging.getLogger('hpbandster').setLevel(logging.WARNING)
 
-# dataset_used = "frappe"
+dataset_used = "frappe"
 # dataset_used = "uci_diabetes"
-dataset_used = "criteo"
+# dataset_used = "criteo"
 
-epoch_sampled = {"frappe": 19, "uci_diabetes": 0, "criteo": 9}
+epoch_sampled = {"frappe": 13, "uci_diabetes": 0, "criteo": 9}
 if dataset_used == "frappe":
     mlp_train_frappe = os.path.join(
         "/Users/kevin/project_python/VLDB_code/exp_data/",
@@ -75,8 +75,8 @@ for i in range(4):
     config_space.add_hyperparameter(CSH.CategoricalHyperparameter('layer_{}'.format(i), choices=node_options))
 
 result = {
-    "baseline_time_budget": [],
-    "baseline_acc": []
+    "sys_time_budget": [],
+    "sys_acc": []
 }
 
 for i in range(50):
@@ -93,7 +93,7 @@ for i in range(50):
 
     # Start a BOHB optimizer
     bohb = BOHB(configspace=config_space, run_id='example1', nameserver=ns_host, nameserver_port=ns_port)
-    res = bohb.run(n_iterations=130)
+    res = bohb.run(n_iterations=180)
 
     # Shutdown
     bohb.shutdown(shutdown_workers=True)

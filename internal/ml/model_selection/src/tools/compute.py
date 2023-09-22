@@ -76,12 +76,12 @@ def generate_global_rank(ml_data_score_dic: dict, alg_name_list: List) -> dict:
     return model_new_rank_score
 
 
-def log_scale_x_array(num_points, max_minute, base=10) -> list:
+def log_scale_x_array(num_points, max_minute, base=10, min_val=1) -> list:
     """
     return a list of mins in log scale distance.
     """
     # Set the minimum and maximum values for the log scale
-    min_val = 1  # 1 second
+    min_val = min_val  # 1 second
     max_val = max_minute * 60  # 1440 minutes converted to seconds
 
     # Generate the log scale values

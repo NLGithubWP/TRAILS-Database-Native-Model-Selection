@@ -232,7 +232,7 @@ def model_selection_workloads(params: dict, args: Namespace):
     dataloader = generate_dataloader(mini_batch_data=mini_batch_data, args=args)
     rms = RunModelSelection(args.search_space, args, is_simulate=args.is_simulate)
     k_models, _, _, _ = rms.filtering_phase(N=n, K=k, train_loader=dataloader)
-    best_arch, best_arch_performance, _ = rms.refinement_phase(
+    best_arch, best_arch_performance, _ , _= rms.refinement_phase(
         U=1,
         k_models=k_models,
         train_loader=dataloader,
@@ -413,7 +413,6 @@ def benchmark_filtering_phase_latency(params: dict, args: Namespace):
     # the first two are used for warming up
     _evaluator.time_usage["io_latency"] = \
         sum(_evaluator.time_usage["track_io_model_load"][2:]) + \
-        sum(_evaluator.time_usage["track_io_model_release_each_50"]) + \
         sum(_evaluator.time_usage["track_io_model_init"][2:]) + \
         sum(_evaluator.time_usage["track_io_res_load"][2:]) + \
         sum(_evaluator.time_usage["track_io_data_retrievel"][2:]) + \
@@ -494,20 +493,28 @@ def in_db_filtering_evaluate(params: dict, args: Namespace):
             logger.info("search_space_ins, _evaluator, sampler is None")
             return orjson.dumps({"error": "erroed, plz call init first"}).decode('utf-8')
 
+        begin_read = time.time()
+        mini_batch = get_data_from_shared_memory_int(int(params["rows"]))
+        read_done = time.time()
+        # logger.info(mini_batch)
+        # logger.info(mini_batch.size())
+        # logger.info(list(mini_batch[0]))
+
+        logger.info(f"Data Retrievel time {params['spi_seconds']}, "
+                    f"read shared memory time = {read_done-begin_read}")
+
         sampled_result = json.loads(params["sample_result"])
         arch_id, model_encoding = str(sampled_result["arch_id"]), str(sampled_result["model_encoding"])
 
-        mini_batch = json.loads(params["mini_batch"])
-        if mini_batch["status"] == "error":
-            return orjson.dumps({"error": mini_batch["message"]}).decode('utf-8')
         logger.info(f"Begin evaluate {params['model_index']}, "
-                    f"with size of batch = {len(mini_batch['data'])}, "
-                    f"size of columns = {len(mini_batch['data'][0])}")
+                    f"with size of batch = {len(mini_batch)}, "
+                    f"size of columns = {len(mini_batch[0])}")
         model_acquire_data = ModelAcquireData(model_id=arch_id,
                                               model_encoding=model_encoding,
                                               is_last=False,
-                                              spi_seconds=float(params["spi_seconds"]),
-                                              spi_mini_batch=mini_batch["data"],
+                                              spi_seconds=float(params["spi_seconds"]) + read_done-begin_read,
+                                              spi_mini_batch=mini_batch,
+                                              batch_size=int(params["rows"])
                                               )
 
         model_score = _evaluator._p1_evaluate_online(model_acquire_data)
@@ -533,7 +540,6 @@ def records_results(params: dict, args: Namespace):
         time_output_file = f"{args.result_dir}/time_score_{args.search_space}_{params['dataset']}_batch_size_{args.batch_size}_{args.device}_{args.tfmem}.json"
         _evaluator.time_usage["io_latency"] = \
             sum(_evaluator.time_usage["track_io_model_load"][2:]) + \
-            sum(_evaluator.time_usage["track_io_model_release_each_50"]) + \
             sum(_evaluator.time_usage["track_io_model_init"][2:]) + \
             sum(_evaluator.time_usage["track_io_res_load"][2:]) + \
             sum(_evaluator.time_usage["track_io_data_retrievel"][2:]) + \
@@ -558,6 +564,21 @@ def records_results(params: dict, args: Namespace):
             {"Errored": traceback.format_exc()}).decode('utf-8')
 
     return orjson.dumps({"Done": 1}).decode('utf-8')
+
+
+@exception_catcher
+def measure_call_overheads(params: dict, args: Namespace):
+    return orjson.dumps({"Done": 1}).decode('utf-8')
+
+import numpy as np
+from multiprocessing import shared_memory
+
+
+def get_data_from_shared_memory_int(n_rows):
+    shm = shared_memory.SharedMemory(name="my_shared_memory")
+    data = np.frombuffer(shm.buf, dtype=np.float32)
+    data = data.reshape(n_rows, -1)
+    return data
 
 
 if __name__ == "__main__":

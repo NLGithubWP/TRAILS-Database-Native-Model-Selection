@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader
 class BudgetAwareControllerSH:
 
     @staticmethod
-    def pre_calculate_epoch_required(eta: int, max_unit_per_model: int, K: int, U: int):
+    def pre_calculate_epoch_required(K: int, U: int, eta: int=3, max_unit_per_model: int=200):
         if K == 1:
             return 0
 
@@ -80,6 +80,7 @@ class BudgetAwareControllerSH:
             else:
                 history.append(U)
         if len(history) == 0:
+            print(f"{fixed_time_budget} is too small for current config")
             raise f"{fixed_time_budget} is too small for current config"
         return history[-1]
 
@@ -88,9 +89,13 @@ class BudgetAwareControllerSH:
         return all_epoch, all_epoch * self.time_per_epoch
 
     def run_phase2(self, U: int, candidates_m: list) -> (str, float, float):
+        total_time = 0
+        if len(candidates_m) == 0:
+            raise "No model to explore during the second phase!"
+        candidates_m_ori = copy(candidates_m)
         if len(candidates_m) == 1:
             best_perform, _ = self._evaluator.p2_evaluate(candidates_m[0], self.max_unit_per_model)
-            return candidates_m[0], best_perform, 0
+            return candidates_m[0], best_perform, 0, 0
 
         eta = self.eta
         max_unit_per_model = self.max_unit_per_model
@@ -104,9 +109,10 @@ class BudgetAwareControllerSH:
             scores = []
             # Evaluate all models
             for cand in candidates_m:
-                score, _ = self._evaluator.p2_evaluate(cand, cur_epoch)
+                score, time_usage = self._evaluator.p2_evaluate(cand, cur_epoch)
                 scores.append((score, cand))
                 total_epochs += cur_epoch
+                total_time += time_usage
 
             # Sort models based on score
             scores.sort(reverse=True, key=lambda x: x[0])
@@ -118,15 +124,16 @@ class BudgetAwareControllerSH:
             # Increase the training epoch for the remaining models
             cur_epoch = min(cur_epoch * eta, max_unit_per_model)
 
-        # If the models are fully trained and there is more than one candidate, select the top one
+        # If the models can be fully trained and there is more than one candidate, select the top one
         if cur_cand_num > 1 and cur_epoch >= max_unit_per_model:
             logger.info(
                 f"4. [trails] Running phase2: train {len(candidates_m)} models each with {max_unit_per_model} epochs")
             scores = []
             for cand in candidates_m:
-                score, _ = self._evaluator.p2_evaluate(cand, max_unit_per_model)
+                score, time_usage = self._evaluator.p2_evaluate(cand, max_unit_per_model)
                 scores.append((score, cand))
                 total_epochs += cur_epoch
+                total_time += time_usage
             scores.sort(reverse=True, key=lambda x: x[0])
             candidates_m = [scores[0][1]]
 
@@ -142,7 +149,7 @@ class BudgetAwareControllerSH:
                 f"simulate={self.is_simulate}, Skip training")
             best_perform = 0
         # Return the best model and the total epochs used
-        return candidates_m[0], best_perform, total_epochs
+        return candidates_m[0], best_perform, total_epochs, total_time
 
 
 if __name__ == "__main__":

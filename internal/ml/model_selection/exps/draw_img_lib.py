@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt
 import seaborn as sns
 import numpy as np
 import palettable
-from matplotlib.ticker import MaxNLocator
+from matplotlib.ticker import MaxNLocator, FormatStrFormatter
 import numpy
 from src.common.constant import Config
 import matplotlib
@@ -52,12 +52,12 @@ def get_plot_compare_with_base_line_cfg(search_space, dataset, if_with_phase1=Fa
             budget_array = [0.017, 0.083] + list(range(1, 350, 4))
 
             sub_graph_y1 = [64, 73.5]
-            sub_graph_y2 = [15, 16]
+            sub_graph_y2 = [14.5, 16]
             sub_graph_split = 20
         else:
             # ImgNet X array
             budget_array = [0.017, 0.083] + list(range(1, 350, 4))
-            sub_graph_y1 = [33, 48]
+            sub_graph_y1 = [33, 48.5]
             sub_graph_y2 = [15.5, 17]
             sub_graph_split = 34
     else:
@@ -193,13 +193,16 @@ def draw_anytime_result_with_p1(result_dir, y_acc_list_arr, x_T_list, y_acc_list
                                 x_acc_train, y_acc_train_l, y_acc_train_m, y_acc_train_h,
                                 annotations, lv,
                                 name_img, dataset, max_value,
-                                x1_lim=[], x2_lim=[],
+                                x1_lim=[], x2_lim=[], y_name=None,
                                 ):
     fig, (ax1, ax2) = plt.subplots(
         2, 1,
         sharex=True,
         dpi=100,
         gridspec_kw={'height_ratios': [6, 1]})
+
+    fig1_size = fig.get_size_inches()
+    print("Size of fig1:", fig1_size)
 
     shade_degree = 0.2
 
@@ -224,12 +227,18 @@ def draw_anytime_result_with_p1(result_dir, y_acc_list_arr, x_T_list, y_acc_list
     sys_acc_h = np.quantile(exp, .75, axis=0)
     sys_acc_m = np.quantile(exp, .5, axis=0)
     sys_acc_l = np.quantile(exp, .25, axis=0)
+    # if dataset == "cifar10":
+    #     sys_acc_l = sys_acc_l.tolist() + [94.22]
+    #     sys_acc_m = sys_acc_m.tolist() + [94.22]
+    #     sys_acc_h = sys_acc_h.tolist() + [94.22]
+    #     x_T_list = x_T_list + [14679.909915260454]
     ax1.plot(x_T_list, sys_acc_m, mark_list[-1] + line_shape_list[2], label="2Phase-MS", markersize=mark_size_list[-1])
     ax1.fill_between(x_T_list, sys_acc_l, sys_acc_h, alpha=shade_degree)
     ax2.fill_between(x_T_list, sys_acc_l, sys_acc_h, alpha=shade_degree)
 
-    print(f"speed-up on {dataset} = {x_acc_train[-1] / x_T_list[-2]}, "
-          f"t_train = {x_acc_train[-1]}, t_f = {x_T_list[-2]}")
+    print(f"speed-up on {dataset}, \n  sys_acc_m= {sys_acc_m}, \n  y_acc_train_m = {y_acc_train_m}")
+    print(f"speed-up on {dataset} = {x_acc_train[-2] / x_T_list[-1]}, "
+          f"t_train = {x_acc_train[-2]}, t_f = {x_T_list[-1]}, {x_T_list[-2]}")
 
     for i in range(len(annotations)):
         ele = annotations[i]
@@ -260,9 +269,10 @@ def draw_anytime_result_with_p1(result_dir, y_acc_list_arr, x_T_list, y_acc_list
     ax1.grid()
     ax2.grid()
     plt.xlabel(r"Response Time Threshold $T_{max}$ (min)", fontsize=set_font_size)
-    ax1.set_ylabel(f"Test Acc on {'In-16'}", fontsize=set_font_size)
-    # ax1.legend(ncol=1, fontsize=set_lgend_size)
-    # ax2.legend(fontsize=set_lgend_size)
+    if y_name is None:
+        ax1.set_ylabel(f"Test Acc on {dataset}", fontsize=set_font_size)
+    else:
+        ax1.set_ylabel(f"Test Acc on {y_name}", fontsize=set_font_size)
 
     ax1.xaxis.label.set_size(set_tick_size)
     ax1.yaxis.label.set_size(set_tick_size)
@@ -271,22 +281,27 @@ def draw_anytime_result_with_p1(result_dir, y_acc_list_arr, x_T_list, y_acc_list
     ax2.xaxis.label.set_size(set_tick_size)
     ax2.yaxis.label.set_size(set_tick_size)
 
-    ax1.yaxis.set_major_locator(MaxNLocator(nbins=4, integer=True))
+    ax1.yaxis.set_major_locator(MaxNLocator(nbins=4))
+    ax1.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+    ax2.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
 
-    ax1.axhline(max_value, color='r', linestyle='-', label='Global Best Accuracy')
+    ax1.axhline(max_value, color='r', linestyle='-', label='Global Best Acc/AUC')
 
-    tick_values = [0.01, 0.1, 1, 10, 100, 1000]
-    ax2.set_xticks(tick_values)
-    ax2.set_xticklabels([f'$10^{{{int(np.log10(val))}}}$' for val in tick_values])
+    ax1.set_xlim([None, 5000])
+
+    # tick_values = [0.01, 0.1, 1, 10, 100, 1000]
+    # ax2.set_xticks(tick_values)
+    # ax2.set_xticklabels([f'$10^{{{int(np.log10(val))}}}$' for val in tick_values])
 
     # this is for unique hash
     export_legend(
         fig,
-        colnum=3,
-        unique_labels=['TE-NAS (Training-Free)', 'ENAS (Weight sharing)',
-                       'KNAS (Training-Free)', 'DARTS-V1 (Weight sharing)', 'DARTS-V2 (Weight sharing)',
-                       'Training-Based MS', 'Training-Free MS', '2Phase-MS', 'Global Best Accuracy'])
+        colnum=9,
+        unique_labels=['TE-NAS (Training-Free)', 'KNAS (Training-Free)', 'ENAS (Weight sharing)',
+                       'DARTS-V1 (Weight sharing)', 'DARTS-V2',
+                       'Training-Based MS', 'Training-Free MS', '2Phase-MS', 'Global Best Acc/AUC'])
     plt.tight_layout()
+    print(f"{result_dir}/any_time_{name_img}_p1_from_0.1_sec.pdf")
     fig.savefig(f"{result_dir}/any_time_{name_img}_p1_from_0.1_sec.pdf", bbox_inches='tight')
 
 

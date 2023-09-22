@@ -73,7 +73,7 @@ def run_with_time_budget(time_budget: float, is_simulate: bool, only_phase1: boo
     degree_auc = []
     for noise_degree in noisy_degree:
         k_models = select_with_noise(all_models, rms.search_space_ins, K, noise_degree)
-        best_arch, best_arch_performance, _ = rms.refinement_phase(U, k_models)
+        best_arch, best_arch_performance, _, _ = rms.refinement_phase(U, k_models)
         degree_auc.append(best_arch_performance)
     return degree_auc
 

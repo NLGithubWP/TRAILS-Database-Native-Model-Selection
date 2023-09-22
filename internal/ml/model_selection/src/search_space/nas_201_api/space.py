@@ -102,8 +102,13 @@ class NasBench201Space(SpaceWrapper):
     def profiling(self, dataset: str,
                   train_loader: DataLoader = None, val_loader: DataLoader = None,
                   args=None, is_simulate: bool = False) -> (float, float, int):
+
         score_time_per_model = guess_score_time(self.name, dataset)
         train_time_per_epoch = guess_train_one_epoch_time(self.name, dataset)
+        # todo: this is to benchmark full imagenet,
+        # score_time_per_model = 5.63
+        # train_time_per_epoch = 96080
+
         N_K_ratio = profile_NK_trade_off(dataset)
         return score_time_per_model, train_time_per_epoch, N_K_ratio
 
@@ -137,6 +142,7 @@ class NasBench201Space(SpaceWrapper):
         return architecture
 
     def __len__(self):
+        return 15625
         self.load()
         return len(self.api)
 

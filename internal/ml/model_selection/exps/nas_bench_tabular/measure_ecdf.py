@@ -77,7 +77,7 @@ def draw_edcf():
         plt.plot(sorted_valid_auc, y_valid, label='Validation AUC', linewidth=3, linestyle='-')
 
         y_m = np.quantile(sorted_valid_auc, .5, axis=0)
-        print("medium", y_m, "best", max(sorted_valid_auc))
+        print("epoch", epoch_sampled[dataset], "medium", y_m, "best", max(sorted_valid_auc))
         # plt.xlim(left=0.45)
 
         plt.grid()
@@ -86,15 +86,14 @@ def draw_edcf():
         # plt.legend(loc='upper left', fontsize=set_lgend_size)
         plt.tight_layout()
         export_legend(ori_fig=fig, colnum=5)
-        fig.savefig(f"space_{dataset}.pdf", bbox_inches='tight')
+        print(f"saving to  space_{dataset}_{epoch_sampled[dataset]}.pdf")
+        fig.savefig(f"space_{dataset}_{epoch_sampled[dataset]}.pdf", bbox_inches='tight')
 
 
-# dataset_used = "frappe"
-dataset_used = "uci_diabetes"
+dataset_used = "frappe"
+# dataset_used = "uci_diabetes"
 # dataset_used = "criteo"
 
-
-epoch_sampled = {"frappe": 19, "uci_diabetes": 35, "criteo": 9}
 
 if dataset_used == "frappe":
     mlp_train_frappe = os.path.join(
@@ -116,4 +115,24 @@ elif dataset_used == "criteo":
 else:
     print("err")
 
+epoch_sampled = {"frappe": 19, "uci_diabetes": 0, "criteo": 9}
 draw_edcf()
+
+"""
+uci_diabetes
+epoch 0 medium 0.6269790217702936 best 0.6788386421503422
+epoch 1 medium 0.6486151000917154 best 0.6865065126914073
+epoch 4 medium 0.6482881949777892 best 0.6912332509923426
+epoch 5 medium 0.642950699527092 best 0.6922250195733658
+epoch 6 medium 0.6369747652547154 best 0.6912801990144214
+epoch 7 medium 0.6310640706471495 best 0.6900225134569015
+epoch 8 medium 0.6253744970145643 best 0.689073196927341
+
+frappe
+epoch 13 medium 0.9772853248010285 best 0.9814130102767649
+frappe
+epoch 19 medium 0.9767004372606147 best 0.981358559726915
+
+criteo
+epoch 9 medium 0.801413788910975 best 0.8033541930059981
+"""

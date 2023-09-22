@@ -11,6 +11,7 @@ from src.eva_engine.phase1.algo.prune_snip import SnipEvaluator
 from src.eva_engine.phase1.algo.prune_synflow import SynFlowEvaluator
 from src.eva_engine.phase1.algo.express_flow import ExpressFlowEvaluator
 from src.eva_engine.phase1.algo.weight_norm import WeightNormEvaluator
+from src.eva_engine.phase1.algo.knas import KNASEvaluator
 
 # evaluator mapper to register many existing evaluation algorithms
 evaluator_register = {
@@ -39,6 +40,8 @@ evaluator_register = {
 
     # # sum of weight
     CommonVars.WEIGHT_NORM: WeightNormEvaluator(),
+
+    CommonVars.KNAS: KNASEvaluator(),
 
 }
 

@@ -1,7 +1,6 @@
 
 
 export PYTHONPATH=$PYTHONPATH:./internal/ml/model_selection
-conda activate trails
 
 
 
@@ -11,7 +10,7 @@ python internal/ml/model_selection/exps/baseline/train_with_ea.py \
   --search_space mlp_sp \
   --num_layers 4 \
   --hidden_choice_len 20 \
-  --epoch 19 \
+  --epoch 13 \
   --batch_size=512 \
   --lr=0.001 \
   --iter_per_epoch=200 \
@@ -21,7 +20,7 @@ python internal/ml/model_selection/exps/baseline/train_with_ea.py \
   --base_dir ../exp_data/ \
   --dataset frappe \
   --num_labels 2 \
-  --device=cpu \
+  --device=gpu \
   --log_folder baseline_frappe \
   --result_dir ./internal/ml/model_selection/exp_result/
 
@@ -41,7 +40,7 @@ python internal/ml/model_selection/exps/baseline/train_with_ea.py \
   --base_dir ../exp_data/ \
   --dataset uci_diabetes \
   --num_labels 2 \
-  --device=cpu \
+  --device=gpu \
   --log_folder baseline_uci_diabetes \
   --result_dir ./internal/ml/model_selection/exp_result/
 
@@ -61,7 +60,7 @@ python internal/ml/model_selection/exps/baseline/train_with_ea.py \
   --base_dir ../exp_data/ \
   --dataset criteo \
   --num_labels 2 \
-  --device=cpu \
+  --device=gpu \
   --log_folder baseline_criteo \
   --result_dir ./internal/ml/model_selection/exp_result/
 
