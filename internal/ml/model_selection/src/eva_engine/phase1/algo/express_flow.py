@@ -5,6 +5,7 @@ from src.common.constant import Config
 from functools import partial
 import math
 
+
 class IntegratedHook:
     def __init__(self):
         self.originals = []
@@ -59,7 +60,7 @@ class ExpressFlowEvaluator(Evaluator):
         signs = {}
         for name, param in arch.state_dict().items():
             signs[name] = torch.sign(param)
-            param.abs_()
+            # param.abs_()
         return signs
 
     @torch.no_grad()
