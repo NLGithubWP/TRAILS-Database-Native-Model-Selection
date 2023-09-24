@@ -99,7 +99,7 @@ class MLP(nn.Module):
         """
         return self.mlp(x)
 
-    def _initialize_weights(self, method='xavier'):
+    def _initialize_weights(self, method='he'):
         for m in self.modules():
             if isinstance(m, nn.BatchNorm2d):
                 m.weight.data.fill_(1)
