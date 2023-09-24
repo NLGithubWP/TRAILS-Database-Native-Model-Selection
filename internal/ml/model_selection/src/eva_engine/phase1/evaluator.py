@@ -348,7 +348,7 @@ class P1Evaluator:
                 mini_batch = torch.ones([1] + feature_dim).float().to(self.device)
             else:
                 # this is for the tabular data,
-                mini_batch = new_model.generate_all_ones_embedding().float().to(self.device)
+                mini_batch = new_model.generate_all_ones_embedding(4).float().to(self.device)
         else:
             # for others, skip preprocessing
             pass
