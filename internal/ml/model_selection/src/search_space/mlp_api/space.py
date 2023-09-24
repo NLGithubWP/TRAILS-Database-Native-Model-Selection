@@ -162,12 +162,12 @@ class DNNModel(torch.nn.Module):
             for param in self.embedding.parameters():
                 param.requires_grad = False
 
-    def generate_all_ones_embedding(self):
+    def generate_all_ones_embedding(self, batch_size=1):
         """
         Only for the MLP
         Returns:
         """
-        batch_data = torch.ones(1, self.mlp_ninput).double()
+        batch_data = torch.ones(batch_size, self.mlp_ninput).double()
         return batch_data
 
     def forward_wo_embedding(self, x):
