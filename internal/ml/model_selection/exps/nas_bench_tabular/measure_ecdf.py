@@ -91,8 +91,8 @@ def draw_edcf():
 
 
 # dataset_used = "frappe"
-dataset_used = "uci_diabetes"
-# dataset_used = "criteo"
+# dataset_used = "uci_diabetes"
+dataset_used = "criteo"
 
 
 if dataset_used == "frappe":
@@ -115,14 +115,17 @@ elif dataset_used == "criteo":
 else:
     print("err")
 
-
-epoch_sampled = {"frappe": 19, "uci_diabetes": 4, "criteo": 9}
-draw_edcf()
+for epoch in range(10):
+    epoch_sampled = {"frappe": 13, "uci_diabetes": 4, "criteo": epoch}
+    draw_edcf()
 
 """
 uci_diabetes
 epoch 4 medium 0.6482881949777892 best 0.6912332509923426
 
+frappe
+epoch 13 medium 0.9772853248010285 best 0.9814130102767649
 
-
+criteo
+epoch 9 medium 0.801413788910975 best 0.8033541930059981
 """
