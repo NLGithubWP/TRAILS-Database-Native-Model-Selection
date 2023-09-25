@@ -214,8 +214,8 @@ def run_sampling(i_rep):
 
 
 recorded_result = {
-    "baseline_time_budget": [],
-    "baseline_acc": []
+    "sys_time_budget": [],
+    "sys_acc": []
 }
 
 n_reps = 50  # for easier demonstration; was 500 in paper
@@ -224,8 +224,8 @@ for i in range(n_reps):
     print(i)
     layer_1_probs_all, layer_2_probs_all, layer_3_probs_all, layer_4_probs_all, cur_best_performance = run_sampling(i)
     r.append([layer_1_probs_all, layer_2_probs_all, layer_3_probs_all, layer_4_probs_all])
-    recorded_result["baseline_time_budget"].append(list(range(1, len(cur_best_performance) + 1)))
-    recorded_result["baseline_acc"].append(cur_best_performance)
+    recorded_result["sys_time_budget"].append(list(range(1, len(cur_best_performance) + 1)))
+    recorded_result["sys_acc"].append(cur_best_performance)
 
 
 write_json(checkpoint_file, recorded_result)
