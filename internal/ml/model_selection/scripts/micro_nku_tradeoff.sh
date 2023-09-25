@@ -85,7 +85,7 @@ python internal/ml/model_selection/exps/micro/benchmark_ku.py \
 
 # ====================================
 # ====================================
-# determine the K and U tradeoff
+# determine the K and n tradeoff
 # ====================================
 # ====================================
 
