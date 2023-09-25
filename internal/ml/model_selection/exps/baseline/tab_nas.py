@@ -24,11 +24,11 @@ layer_2_choices = DEFAULT_LAYER_CHOICES_20
 layer_3_choices = DEFAULT_LAYER_CHOICES_20
 layer_4_choices = DEFAULT_LAYER_CHOICES_20
 
-dataset_used = "frappe"
-# dataset_used = "uci_diabetes"
+# dataset_used = "frappe"
+dataset_used = "uci_diabetes"
 # dataset_used = "criteo"
 
-epoch_sampled = {"frappe": 19, "uci_diabetes": 0, "criteo": 9}
+epoch_sampled = {"frappe": 13, "uci_diabetes": 0, "criteo": 9}
 if dataset_used == "frappe":
     mlp_train_frappe = os.path.join(
         "../exp_data/",
@@ -218,7 +218,7 @@ recorded_result = {
     "baseline_acc": []
 }
 
-n_reps = 100  # for easier demonstration; was 500 in paper
+n_reps = 50  # for easier demonstration; was 500 in paper
 r = []
 for i in range(n_reps):
     print(i)
