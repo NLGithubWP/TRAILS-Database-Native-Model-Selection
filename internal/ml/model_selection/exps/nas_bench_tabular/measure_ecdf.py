@@ -95,8 +95,6 @@ dataset_used = "uci_diabetes"
 # dataset_used = "criteo"
 
 
-
-
 if dataset_used == "frappe":
     mlp_train_frappe = os.path.join(
         base_dir,
@@ -117,5 +115,14 @@ elif dataset_used == "criteo":
 else:
     print("err")
 
+
 epoch_sampled = {"frappe": 19, "uci_diabetes": 4, "criteo": 9}
 draw_edcf()
+
+"""
+uci_diabetes
+epoch 4 medium 0.6482881949777892 best 0.6912332509923426
+
+
+
+"""
