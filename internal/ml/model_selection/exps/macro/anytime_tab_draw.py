@@ -11,8 +11,8 @@ def get_dataset_parameters(dataset):
     parameters = {
         "uci_diabetes": {
             "epoch": 0,
-            "sys_end2end_res": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_uci_diabetes_-1_10_express_flow.json",
-            "sys_end2end_p1": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_frappe_-1_10_express_flow_p1.json",
+            "sys_end2end_res": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_criteo_-1_10_express_flow.json",
+            "sys_end2end_p1": "./internal/ml/model_selection/exp_result/a",
             "tab_nas_res": "./internal/ml/model_selection/exp_result/tabNAS_benchmark_uci_diabetes_epoch_0.json",
             "train_based_re": "./internal/ml/model_selection/exp_result/train_base_line_re_uci_diabetes_epoch_0.json",
             "mx_value": 67.883,
@@ -37,7 +37,7 @@ def get_dataset_parameters(dataset):
         },
         "criteo": {
             "epoch": 9,
-            "sys_end2end_res": "./internal/ml/model_selection/exp_result/res_end_2_end_criteo_100_5.json",
+            "sys_end2end_res": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_criteo_-1_10_express_flow.json",
             "sys_end2end_p1": "./internal/ml/model_selection/exp_result/res_end_2_end_criteo_100_5_p1.json",
             "tab_nas_res": "./internal/ml/model_selection/exp_result/tabNAS_benchmark_criteo_epoch_9.json",
             "train_based_re": "./internal/ml/model_selection/exp_result/train_base_line_re_criteo_epoch_9.json",
@@ -93,8 +93,8 @@ def generate_and_draw_data(dataset):
         remove_n_points=0)
 
     tabnas_x, tabnas_y = sample_some_points(
-        x_array=[[earch * trian_time for earch in ele] for ele in tab_nas_res["baseline_time_budget"]],
-        y_2d_array=tab_nas_res["baseline_acc"],
+        x_array=[[earch * trian_time for earch in ele] for ele in tab_nas_res["sys_time_budget"]],
+        y_2d_array=tab_nas_res["sys_acc"],
         save_points=100,
         remove_n_points=0)
 
@@ -118,7 +118,7 @@ def generate_and_draw_data(dataset):
 
 
 # Choose dataset to process
-dataset = "frappe"
+# dataset = "frappe"
 # dataset = "uci_diabetes"
-# dataset = "criteo"
+dataset = "criteo"
 generate_and_draw_data(dataset)
