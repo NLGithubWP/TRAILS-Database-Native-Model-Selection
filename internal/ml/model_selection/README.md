@@ -105,7 +105,14 @@ conda activate trails
 python ./internal/ml/model_selection/exps/micro/benchmark_correlation.py
 ```
 
-![image-20230421214835152](./documents/imgs/image-20230421214835152.png)
+## Micro: Score and AUC relation
+
+```bash
+# get the score and auc using our metrics on three datasets
+python ./internal/ml/model_selection/exps/micro/benchmark_score_metrics.py
+# draw the figure
+python ./internal/ml/model_selection/exps/micro/draw_score_metric_relation.py
+```
 
 ## Micro: Benchmark Budge-Aware Algorithm
 
@@ -215,6 +222,24 @@ For image data, it already generated at the NAS-Bench-Img part, see above.
 # Appendix
 
 Here all experiments is on the Frappe dataset. 
+
+1. Sensitive Analyiss
+
+   ```bash
+   # Impact of the parameter sign
+   # change the code at evaluator.py, in mini_batch=new_model.generate_all_ones_embedding(32), here is 32 batch size. 
+   # then run those:
+   bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_frappe.sh
+   bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_uci.sh
+   bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_criteo.sh
+   
+   # Impact of the initialization methods
+   
+   # Impact of the batch size
+   
+   # Impact of the batch size influence
+   
+   ```
 
 1. Computational Costs
 
