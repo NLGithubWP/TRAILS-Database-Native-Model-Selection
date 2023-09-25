@@ -77,7 +77,7 @@ def draw_edcf():
         plt.plot(sorted_valid_auc, y_valid, label='Validation AUC', linewidth=3, linestyle='-')
 
         y_m = np.quantile(sorted_valid_auc, .5, axis=0)
-        print("medium", y_m, "best", max(sorted_valid_auc))
+        print("epoch", epoch_sampled[dataset], "medium", y_m, "best", max(sorted_valid_auc))
         # plt.xlim(left=0.45)
 
         plt.grid()
@@ -86,7 +86,8 @@ def draw_edcf():
         # plt.legend(loc='upper left', fontsize=set_lgend_size)
         plt.tight_layout()
         export_legend(ori_fig=fig, colnum=5)
-        fig.savefig(f"space_{dataset}.pdf", bbox_inches='tight')
+        print(f"saving to  space_{dataset}_{epoch_sampled[dataset]}.pdf")
+        fig.savefig(f"space_{dataset}_{epoch_sampled[dataset]}.pdf", bbox_inches='tight')
 
 
 # dataset_used = "frappe"
@@ -94,7 +95,7 @@ dataset_used = "uci_diabetes"
 # dataset_used = "criteo"
 
 
-epoch_sampled = {"frappe": 19, "uci_diabetes": 35, "criteo": 9}
+
 
 if dataset_used == "frappe":
     mlp_train_frappe = os.path.join(
@@ -116,4 +117,5 @@ elif dataset_used == "criteo":
 else:
     print("err")
 
+epoch_sampled = {"frappe": 19, "uci_diabetes": 4, "criteo": 9}
 draw_edcf()
