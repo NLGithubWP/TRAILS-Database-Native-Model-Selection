@@ -296,4 +296,36 @@ Check the log at the `logs_default`
 
 # Some Logic Here
 
-1. 
+1. Search Spaces
+
+   Global value, Mediam value, 
+
+   ECDF + Parameter/AUC + Benchmark Search Strategy.
+
+   Decide which Epoch's value to compare.
+
+   ```bash
+   Frappe: 14, UCI_Diabalte: 1, Crito: 20.
+   ```
+
+2. Ablation study of correlation
+
+   Each dataset, Parameter Posivity -> Parameter initialization -> Batch size -> Batch data -> Depth&Width
+
+   positive -> He -> 4 -> 1-> ?
+
+   Preserent all correlation.
+
+3. With scoring methods, study second phase, choice few algorithms.
+
+   SH, SJ, UA -> Sh is best
+
+4. Coordinator
+
+   K vs U -> U = 1 is better, K is large is better. 
+
+   K vs N -> N = 13K is OK.
+
+5. Two phase end-end
+
+   Compare with TabNAS, EA-NAS. 
