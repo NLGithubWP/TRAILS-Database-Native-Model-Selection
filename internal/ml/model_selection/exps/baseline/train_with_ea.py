@@ -76,7 +76,7 @@ if __name__ == "__main__":
     }
 
     # for frappe
-    total_explore = 19000
+    total_explore = 1000
     total_run = 50
 
     # for criteo
@@ -89,8 +89,8 @@ if __name__ == "__main__":
     # how many epoch used to indict the model performance
     checkpoint_file = f"{args.result_dir}/train_base_line_re_{args.dataset}_epoch_{args.epoch}.json"
 
+    begin_time = time.time()
     for run_id in range(total_run):
-        print("run_id", run_id)
 
         search_space_ins = init_search_space(args)
         # seq: init the search strategy and controller,
@@ -145,6 +145,8 @@ if __name__ == "__main__":
             all_time_usage += time_usage
             time_usage_array.append(all_time_usage / 60)
             auc_array.append(max(performance_his))
+
+        print("run_id", run_id, "time_usage", time.time() - begin_time)
 
         # todo: update the postprocessing in the anytime_img.py
         result["sys_time_budget"].append(time_usage_array)
