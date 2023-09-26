@@ -48,7 +48,7 @@ class RunPhase1:
         self.search_space_ins = search_space_ins
 
         # seq: init the search strategy and controller,
-        if self.N >= len(self.search_space_ins):
+        if self.N >= min(len(self.search_space_ins), 100000):
             print("Explore all models")
             strategy = SequenceSampler(self.search_space_ins)
         else:
