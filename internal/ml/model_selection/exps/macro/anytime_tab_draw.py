@@ -13,8 +13,8 @@ def get_dataset_parameters(dataset):
             "sys_end2end_p1": "./internal/ml/model_selection/exp_result/a",
             "tab_nas_res": "./internal/ml/model_selection/exp_result/tabNAS_benchmark_uci_diabetes_epoch_0.json",
             "train_based_re": "./internal/ml/model_selection/exp_result/train_base_line_re_uci_diabetes_epoch_0.json",
-            "mx_value": 67.883,
-            "x_lim": [0.01, None],
+            "mx_value": 67.510,
+            "x_lim": [0.01, 300],
             "y_lim": [61.8, 68],
             "figure_size": (6.2, 4.71),
             "datasetfg_name": "Diabetes",
@@ -23,7 +23,7 @@ def get_dataset_parameters(dataset):
         },
         "frappe": {
             "epoch": 19,
-            "sys_end2end_res": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_frappe_-1_10_express_flow.json",
+            "sys_end2end_res": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_frappe_-1_7_express_flow.json",
             "sys_end2end_p1": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_frappe_-1_10_express_flow_p1.json",
             "tab_nas_res": "./internal/ml/model_selection/exp_result/tabNAS_benchmark_frappe_epoch_19.json",
             "train_based_re": "./internal/ml/model_selection/exp_result/train_base_line_re_frappe_epoch_19.json",
@@ -133,8 +133,8 @@ def generate_and_draw_data(dataset):
 
 # Choose dataset to process
 # dataset = "frappe"
-# dataset = "uci_diabetes"
-dataset = "criteo"
+dataset = "uci_diabetes"
+# dataset = "criteo"
 
 from src.query_api.query_api_mlp import GTMLP
 api = GTMLP(dataset)
