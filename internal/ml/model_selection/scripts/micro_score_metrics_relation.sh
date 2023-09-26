@@ -8,6 +8,7 @@ export PYTHONPATH=$PYTHONPATH:./internal/ml/model_selection
 python ./internal/ml/model_selection/exps/micro/benchmark_score_metrics.py \
       --tfmem=express_flow \
       --search_space mlp_sp \
+      --epoch=13\
       --dataset frappe \
       --base_dir ../exp_data/ \
       --log_name logs_default \
@@ -18,6 +19,7 @@ python ./internal/ml/model_selection/exps/micro/benchmark_score_metrics.py \
 python ./internal/ml/model_selection/exps/micro/benchmark_score_metrics.py \
       --tfmem=express_flow \
       --search_space mlp_sp \
+      --epoch=9\
       --dataset criteo \
       --base_dir ../exp_data/ \
       --log_name logs_default \
@@ -28,6 +30,7 @@ python ./internal/ml/model_selection/exps/micro/benchmark_score_metrics.py \
 python ./internal/ml/model_selection/exps/micro/benchmark_score_metrics.py \
       --tfmem=express_flow \
       --search_space=mlp_sp \
+      --epoch=0\
       --dataset uci_diabetes \
       --base_dir ../exp_data/ \
       --log_name logs_default \
