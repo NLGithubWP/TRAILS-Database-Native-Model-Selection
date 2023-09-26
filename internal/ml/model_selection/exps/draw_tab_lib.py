@@ -117,7 +117,7 @@ def draw_structure_data_anytime(
         ele = annotations[i]
         ax.plot(ele[2], ele[1], mark_list[i], label=ele[0], markersize=set_marker_point)
 
-    # export_legend(fig, filename="any_time_legend", unique_labels=['Global Best AUC', "TabNAS", "Training-Based MS",  "2Phase-MS", ])
+    # export_legend(fig, filename="any_time_legend", unique_labels=['Global Best AUC', "TabNAS", "RE-NAS",  "ATLAS", ])
     export_legend(ori_fig=fig, colnum=5, unique_labels=unique_labels)
     plt.tight_layout()
 
