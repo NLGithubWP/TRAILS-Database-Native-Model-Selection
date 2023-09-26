@@ -29,7 +29,7 @@ def get_dataset_parameters(dataset):
             "train_based_re": "./internal/ml/model_selection/exp_result/train_base_line_re_frappe_epoch_13.json",
             "mx_value": 98.141,
             "x_lim": [0.01, None],
-            "y_lim": [97.7, 98.15],
+            "y_lim": [97.7, 98.18],
             "figure_size": (6.2, 4.71),
             "datasetfg_name": dataset,
             "annotations": [],  # ["TabNAS", 97.68, 324.8/60],
