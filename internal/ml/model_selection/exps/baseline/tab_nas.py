@@ -28,9 +28,6 @@ layer_4_choices = DEFAULT_LAYER_CHOICES_20
 dataset_used = "uci_diabetes"
 # dataset_used = "criteo"
 
-from src.query_api.query_api_mlp import GTMLP
-api = GTMLP(dataset_used)
-
 epoch_sampled = {"frappe": 13, "uci_diabetes": 0, "criteo": 9}
 if dataset_used == "frappe":
     mlp_train_frappe = os.path.join(
@@ -49,12 +46,10 @@ elif dataset_used == "uci_diabetes":
     data_dict = read_json(mlp_train_uci_diabetes)
 
 rewards = {}
-time_usage = {}
 for dataset, architectures in data_dict.items():
     for architecture, epochs in architectures.items():
         arch_tuple = tuple([int(ele) for ele in architecture.split("-")])
         rewards[arch_tuple] = epochs[str(epoch_sampled[dataset])]["valid_auc"]
-        time_usage[arch_tuple] = (epoch_sampled[dataset]+1) * api.get_train_one_epoch_time("gpu")
 
 result_dir = "./internal/ml/model_selection/exp_result"
 checkpoint_file = f"{result_dir}/tabNAS_benchmark_{dataset_used}_epoch_{epoch_sampled[dataset_used]}.json"
