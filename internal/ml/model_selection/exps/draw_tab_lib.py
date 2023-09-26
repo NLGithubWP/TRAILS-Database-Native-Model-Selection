@@ -58,7 +58,7 @@ def Add_one_line(x_time_array: list, y_twod_budget: List[List], namespace: str, 
             )
 
     ax.fill_between(x_m, y_l, y_h, alpha=shade_degree)
-    return x_m
+    return x_m.tolist(), y_m.tolist()
 
 
 def draw_structure_data_anytime(
@@ -71,15 +71,38 @@ def draw_structure_data_anytime(
 
     # draw all lines
     time_usage = []
+    y_achieved = []
     for i, each_line_info in enumerate(all_lines):
         _x_array = each_line_info[0]
         _y_2d_array = each_line_info[1]
         _name_space = each_line_info[2]
-        time_arr = Add_one_line(_x_array, _y_2d_array, _name_space, i, ax)
+        time_arr, y_array = Add_one_line(_x_array, _y_2d_array, _name_space, i, ax)
         time_usage.append(time_arr)
+        y_achieved.append(y_array)
 
-    # print(f"speed-up on {dataset} = {time_usage[0][-1] / time_usage[2][-2]}, "
-    #       f"t_train = {time_usage[0][-1]}, t_f = {time_usage[2][-2]}")
+    try:
+        # find the time to reach a target AUC
+        RENAS_Time = 0.00000000001
+        if max(y_achieved[0]) < max_value*0.01:
+            print(f"EANAS cannot reach {max_value*0.01} it max value is {max(y_achieved[0])}")
+        for i in range(len(y_achieved[0])):
+            if y_achieved[0][i] >= max_value*0.01:
+                RENAS_Time = time_usage[0][i]
+        if RENAS_Time == 0:
+            print("RENAS_Time Miss it")
+
+        ATAS_Time = 0.00000000001
+        if max(y_achieved[1]) < max_value:
+            print(f"ATLAS cannot reach {max_value} it max value is {max(y_achieved[1])}")
+        for i in range(len(y_achieved[1])):
+            if y_achieved[1][i] >= max_value:
+                ATAS_Time = time_usage[1][i]
+        if ATAS_Time == 0:
+            print("ATAS_Time Miss it")
+        print(f"speed-up on {dataset} = {RENAS_Time / ATAS_Time}, "
+              f"t_train = {RENAS_Time}, t_f = {ATAS_Time}")
+    except:
+        pass
 
     # plt.xscale("log")
     # plt.grid()
