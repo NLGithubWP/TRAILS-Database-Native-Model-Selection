@@ -29,8 +29,8 @@ def sample_some_points(x_array, y_2d_array, save_points, remove_n_points=1) -> (
 
 # 'frappe, criteo, uci_diabetes'
 # dataset = "frappe"
-# dataset = "criteo"
-dataset = "uci_diabetes"
+dataset = "criteo"
+# dataset = "uci_diabetes"
 
 if dataset == "uci_diabetes":
     epoch = 0
@@ -54,7 +54,7 @@ elif dataset == "frappe":
 elif dataset == "criteo":
     epoch = 9
     mx_value = 80.337
-    y_lim = [80.24, 80.35]
+    y_lim = [80.24, 80.345]
     x_lim = [2.1, 1600]
     figure_size = (6.4, 4)
     datasetfg_name = dataset
@@ -105,5 +105,5 @@ draw_structure_data_anytime(
     y_ticks=y_lim,
     x_ticks=x_lim,
     unique_labels=["Global Best AUC","BOHB", "RL", "RS", "RE" ],
-    x_label_name="Number of Explored Architecture"
+    x_label_name="Number of explored architectures"
 )
