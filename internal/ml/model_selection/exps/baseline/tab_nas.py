@@ -24,8 +24,8 @@ layer_2_choices = DEFAULT_LAYER_CHOICES_20
 layer_3_choices = DEFAULT_LAYER_CHOICES_20
 layer_4_choices = DEFAULT_LAYER_CHOICES_20
 
-# dataset_used = "frappe"
-dataset_used = "uci_diabetes"
+dataset_used = "frappe"
+# dataset_used = "uci_diabetes"
 # dataset_used = "criteo"
 
 epoch_sampled = {"frappe": 13, "uci_diabetes": 0, "criteo": 9}
@@ -59,7 +59,12 @@ optimizer_name = 'adam'
 num_samples_for_mc_start = 5
 num_samples_for_mc_end = 5
 rl_learning_rate = 0.1
-max_iter = 6000
+if dataset_used == "frappe":
+    max_iter = 19000
+elif dataset_used == "criteo":
+    max_iter = 5000
+elif dataset_used == "uci_diabetes":
+    max_iter = 9000
 
 
 def run_sampling(i_rep):
@@ -220,7 +225,7 @@ recorded_result = {
     "sys_acc": []
 }
 
-n_reps = 3  # for easier demonstration; was 500 in paper
+n_reps = 50  # for easier demonstration; was 500 in paper
 r = []
 for i in range(n_reps):
     print(i)
