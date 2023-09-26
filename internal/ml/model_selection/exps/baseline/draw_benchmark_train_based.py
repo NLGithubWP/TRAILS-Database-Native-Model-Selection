@@ -28,8 +28,8 @@ def sample_some_points(x_array, y_2d_array, save_points, remove_n_points=1) -> (
 
 
 # 'frappe, criteo, uci_diabetes'
-dataset = "frappe"
-# dataset = "criteo"
+# dataset = "frappe"
+dataset = "criteo"
 # dataset = "uci_diabetes"
 
 if dataset == "uci_diabetes":
@@ -53,7 +53,7 @@ elif dataset == "frappe":
 
 elif dataset == "criteo":
     epoch = 9
-    mx_value = 80.328
+    mx_value = 80.337
     y_lim = [80.24, 80.35]
     x_lim = [2.1, 1600]
     figure_size = (6.4, 4)
@@ -64,25 +64,25 @@ else:
     pass
 
 train_based_res_ea = read_json(f"./internal/ml/model_selection/exp_result/train_base_line_re_{dataset}_epoch_{epoch}.json")
-sampled_ea_x, sampled_ea_y = sample_some_points(x_array=train_based_res_ea["sys_time_budget"],
+sampled_ea_x, sampled_ea_y = sample_some_points(x_array=[list(range(1, len(train_based_res_ea["sys_time_budget"][0]))) for ele in train_based_res_ea["sys_time_budget"]],
                                                 y_2d_array=train_based_res_ea["sys_acc"],
                                                 save_points=9,
                                                 remove_n_points=remove_n_points)
 
 train_based_res_rl = read_json(f"./internal/ml/model_selection/exp_result/train_base_line_rl_{dataset}_epoch_{epoch}.json")
-sampled_el_x, sampled_el_y = sample_some_points(x_array=train_based_res_rl["sys_time_budget"],
+sampled_el_x, sampled_el_y = sample_some_points(x_array=[list(range(1, len(train_based_res_rl["sys_time_budget"][0]))) for ele in train_based_res_rl["sys_time_budget"]],
                                                 y_2d_array=train_based_res_rl["sys_acc"],
                                                 save_points=9,
                                                 remove_n_points=remove_n_points)
 
 train_based_res_rs = read_json(f"./internal/ml/model_selection/exp_result/train_base_line_rs_{dataset}_epoch_{epoch}.json")
-sampled_rs_x, sampled_rs_y = sample_some_points(x_array=train_based_res_rs["sys_time_budget"],
+sampled_rs_x, sampled_rs_y = sample_some_points(x_array=[list(range(1, len(train_based_res_rs["sys_time_budget"][0]))) for ele in train_based_res_rs["sys_time_budget"]],
                                                 y_2d_array=train_based_res_rs["sys_acc"],
                                                 save_points=9,
                                                 remove_n_points=remove_n_points)
 
 train_based_res_rs = read_json(f"./internal/ml/model_selection/exp_result/train_base_line_bohb_{dataset}_epoch_{epoch}.json")
-sampled_bohb_x, sampled_bohb_y = sample_some_points(x_array=train_based_res_rs["sys_time_budget"],
+sampled_bohb_x, sampled_bohb_y = sample_some_points(x_array=[list(range(1, len(train_based_res_rs["sys_time_budget"][0]))) for ele in train_based_res_rs["sys_time_budget"]],
                                                     y_2d_array=train_based_res_rs["sys_acc"],
                                                     save_points=9,
                                                     remove_n_points=remove_n_points)
@@ -94,6 +94,7 @@ all_lines = [
     [sampled_bohb_x, sampled_bohb_y, "BOHB"]
 ]
 
+print(f"saving to ./internal/ml/model_selection/exp_result/benchmark_{dataset}")
 draw_structure_data_anytime(
     all_lines=all_lines,
     dataset=datasetfg_name,
