@@ -43,7 +43,7 @@ def get_dataset_parameters(dataset):
             "train_based_re": "./internal/ml/model_selection/exp_result/train_base_line_re_criteo_epoch_9.json",
             "mx_value": 80.328,
             "x_lim": [0.01, 5000],
-            "y_lim": [80.1, None],
+            "y_lim": [80.1, 80.349],
             "figure_size": (6.2, 4.71),
             "datasetfg_name": dataset,
             "annotations": [],  # ["TabNAS", 80.17, 7250.0/60],
