@@ -9,7 +9,7 @@ def get_dataset_parameters(dataset):
     parameters = {
         "uci_diabetes": {
             "epoch": 0,
-            "sys_end2end_res": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_uci_diabetes_-1_5_express_flow.json",
+            "sys_end2end_res": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_uci_diabetes_-1_10_express_flow.json",
             "sys_end2end_p1": "./internal/ml/model_selection/exp_result/a",
             "tab_nas_res": "./internal/ml/model_selection/exp_result/tabNAS_benchmark_uci_diabetes_epoch_0.json",
             "train_based_re": "./internal/ml/model_selection/exp_result/train_base_line_re_uci_diabetes_epoch_0.json",
@@ -21,7 +21,7 @@ def get_dataset_parameters(dataset):
             "remove_n_points": 0,
         },
         "frappe": {
-            "epoch": 13,
+            "epoch": 19,
             "sys_end2end_res": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_frappe_-1_10_express_flow.json",
             "sys_end2end_p1": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_frappe_-1_10_express_flow_p1.json",
             "tab_nas_res": "./internal/ml/model_selection/exp_result/tabNAS_benchmark_frappe_epoch_13.json",
