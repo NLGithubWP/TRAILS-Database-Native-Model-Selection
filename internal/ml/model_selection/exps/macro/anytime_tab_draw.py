@@ -14,6 +14,7 @@ def get_dataset_parameters(dataset):
             "tab_nas_res": "./internal/ml/model_selection/exp_result/tabNAS_benchmark_uci_diabetes_epoch_0.json",
             "train_based_re": "./internal/ml/model_selection/exp_result/train_base_line_re_uci_diabetes_epoch_0.json",
             "mx_value": 67.883,
+            "x_lim": [0.01, None],
             "y_lim": [61.8, 68],
             "figure_size": (6.2, 4.71),
             "datasetfg_name": "Diabetes",
@@ -24,9 +25,10 @@ def get_dataset_parameters(dataset):
             "epoch": 19,
             "sys_end2end_res": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_frappe_-1_10_express_flow.json",
             "sys_end2end_p1": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_frappe_-1_10_express_flow_p1.json",
-            "tab_nas_res": "./internal/ml/model_selection/exp_result/tabNAS_benchmark_frappe_epoch_13.json",
-            "train_based_re": "./internal/ml/model_selection/exp_result/train_base_line_re_frappe_epoch_13.json",
+            "tab_nas_res": "./internal/ml/model_selection/exp_result/tabNAS_benchmark_frappe_epoch_19.json",
+            "train_based_re": "./internal/ml/model_selection/exp_result/train_base_line_re_frappe_epoch_19.json",
             "mx_value": 98.141,
+            "x_lim": [0.01, None],
             "y_lim": [97.6, None],
             "figure_size": (6.2, 4.71),
             "datasetfg_name": dataset,
@@ -35,11 +37,12 @@ def get_dataset_parameters(dataset):
         },
         "criteo": {
             "epoch": 9,
-            "sys_end2end_res": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_criteo_-1_8_express_flow.json",
+            "sys_end2end_res": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_criteo_-1_6_express_flow.json",
             "sys_end2end_p1": "./internal/ml/model_selection/exp_result/res_end_2_end_criteo_100_5_p1.json",
             "tab_nas_res": "./internal/ml/model_selection/exp_result/tabNAS_benchmark_criteo_epoch_9.json",
             "train_based_re": "./internal/ml/model_selection/exp_result/train_base_line_re_criteo_epoch_9.json",
-            "mx_value": 80.33,
+            "mx_value": 80.328,
+            "x_lim": [0.01, 5000],
             "y_lim": [80.1, None],
             "figure_size": (6.2, 4.71),
             "datasetfg_name": dataset,
@@ -96,11 +99,18 @@ def generate_and_draw_data(dataset):
         remove_n_points=0)
 
     # here we record number of arch explored
-    tabnas_x, tabnas_y = sample_some_points(
-        x_array=[[earch * trian_time for earch in ele] for ele in tab_nas_res["sys_time_budget"]],
-        y_2d_array=tab_nas_res["sys_acc"],
-        save_points=100,
-        remove_n_points=0)
+    try:
+        tabnas_x, tabnas_y = sample_some_points(
+            x_array=[[earch * trian_time for earch in ele] for ele in tab_nas_res['baseline_time_budget']],
+            y_2d_array=tab_nas_res['baseline_acc'],
+            save_points=100,
+            remove_n_points=0)
+    except:
+        tabnas_x, tabnas_y = sample_some_points(
+            x_array=[[earch * trian_time for earch in ele] for ele in tab_nas_res["sys_time_budget"]],
+            y_2d_array=tab_nas_res["sys_acc"],
+            save_points=100,
+            remove_n_points=0)
 
     all_lines = [
         [sampled_train_x, sampled_train_y, "Training-Based MS"],
@@ -117,14 +127,14 @@ def generate_and_draw_data(dataset):
         figure_size=params['figure_size'],
         annotations=params['annotations'],
         y_ticks=params['y_lim'],
-        x_ticks=[0.01, None]
+        x_ticks=params['x_lim']
     )
 
 
 # Choose dataset to process
 # dataset = "frappe"
-dataset = "uci_diabetes"
-# dataset = "criteo"
+# dataset = "uci_diabetes"
+dataset = "criteo"
 
 from src.query_api.query_api_mlp import GTMLP
 api = GTMLP(dataset)
