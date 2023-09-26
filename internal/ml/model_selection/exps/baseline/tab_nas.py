@@ -28,6 +28,9 @@ layer_4_choices = DEFAULT_LAYER_CHOICES_20
 dataset_used = "uci_diabetes"
 # dataset_used = "criteo"
 
+from src.query_api.query_api_mlp import GTMLP
+api = GTMLP(dataset_used)
+
 epoch_sampled = {"frappe": 13, "uci_diabetes": 0, "criteo": 9}
 if dataset_used == "frappe":
     mlp_train_frappe = os.path.join(
@@ -46,10 +49,12 @@ elif dataset_used == "uci_diabetes":
     data_dict = read_json(mlp_train_uci_diabetes)
 
 rewards = {}
+time_usage = {}
 for dataset, architectures in data_dict.items():
     for architecture, epochs in architectures.items():
         arch_tuple = tuple([int(ele) for ele in architecture.split("-")])
         rewards[arch_tuple] = epochs[str(epoch_sampled[dataset])]["valid_auc"]
+        time_usage[arch_tuple] = (epoch_sampled[dataset]+1) * api.get_train_one_epoch_time("gpu")
 
 result_dir = "./internal/ml/model_selection/exp_result"
 checkpoint_file = f"{result_dir}/tabNAS_benchmark_{dataset_used}_epoch_{epoch_sampled[dataset_used]}.json"
@@ -97,6 +102,7 @@ def run_sampling(i_rep):
     rl_advantage_all = []
     prob_valid_all = []
     cur_best_performance = []
+    cur_time_usage = []
 
     for iter in range(max_iter):
         torch.manual_seed(1000 * i_rep + iter)
@@ -140,6 +146,7 @@ def run_sampling(i_rep):
                 cur_best_performance.append(rewards[(layer_1_choice, layer_2_choice, layer_3_choice, layer_4_choice)])
             else:
                 cur_best_performance.append(cur_best_performance[-1])
+        cur_time_usage.append(time_usage[(layer_1_choice, layer_2_choice, layer_3_choice, layer_4_choice)])
 
         # compute single-step RL advantage
         moving_average_baseline_numer = \
@@ -210,7 +217,7 @@ def run_sampling(i_rep):
     layer_3_probs_all[max_iter] = layer_3_probs
     layer_4_probs_all[max_iter] = layer_4_probs
 
-    return layer_1_probs_all, layer_2_probs_all, layer_3_probs_all, layer_4_probs_all, cur_best_performance
+    return layer_1_probs_all, layer_2_probs_all, layer_3_probs_all, layer_4_probs_all, cur_best_performance, cur_time_usage
 
 
 recorded_result = {
@@ -218,13 +225,13 @@ recorded_result = {
     "sys_acc": []
 }
 
-n_reps = 50  # for easier demonstration; was 500 in paper
+n_reps = 3  # for easier demonstration; was 500 in paper
 r = []
 for i in range(n_reps):
     print(i)
-    layer_1_probs_all, layer_2_probs_all, layer_3_probs_all, layer_4_probs_all, cur_best_performance = run_sampling(i)
+    layer_1_probs_all, layer_2_probs_all, layer_3_probs_all, layer_4_probs_all, cur_best_performance, cur_time_usage = run_sampling(i)
     r.append([layer_1_probs_all, layer_2_probs_all, layer_3_probs_all, layer_4_probs_all])
-    recorded_result["sys_time_budget"].append(list(range(1, len(cur_best_performance) + 1)))
+    recorded_result["sys_time_budget"].append(cur_time_usage)
     recorded_result["sys_acc"].append(cur_best_performance)
 
 
