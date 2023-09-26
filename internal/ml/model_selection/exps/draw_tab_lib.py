@@ -66,7 +66,9 @@ def draw_structure_data_anytime(
         dataset: str, name_img: str, max_value,
         figure_size=(6.4, 4.5),
         annotations=[],
-        x_ticks=None, y_ticks=None, unique_labels=None):
+        x_ticks=None, y_ticks=None, unique_labels=None,
+        x_label_name=r"Response Time Threshold $T_{max}$ (min)"
+):
     fig, ax = plt.subplots(figsize=figure_size)
 
     # draw all lines
@@ -111,7 +113,7 @@ def draw_structure_data_anytime(
 
     plt.xscale("log")
     ax.grid()
-    ax.set_xlabel(r"Response Time Threshold $T_{max}$ (min)", fontsize=set_font_size)
+    ax.set_xlabel(x_label_name, fontsize=set_font_size)
     ax.set_ylabel(f"AUC on {dataset.upper()}", fontsize=set_font_size)
     # ax.set_xscale("log")
     # ax.set_xlim(0.001, 10e4)

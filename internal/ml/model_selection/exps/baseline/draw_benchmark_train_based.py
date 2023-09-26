@@ -29,8 +29,8 @@ def sample_some_points(x_array, y_2d_array, save_points, remove_n_points=1) -> (
 
 # 'frappe, criteo, uci_diabetes'
 # dataset = "frappe"
-dataset = "criteo"
-# dataset = "uci_diabetes"
+# dataset = "criteo"
+dataset = "uci_diabetes"
 
 if dataset == "uci_diabetes":
     epoch = 0
@@ -104,5 +104,6 @@ draw_structure_data_anytime(
     annotations=annotations,
     y_ticks=y_lim,
     x_ticks=x_lim,
-    unique_labels=["Global Best AUC","BOHB", "RL", "RS", "RE" ]
+    unique_labels=["Global Best AUC","BOHB", "RL", "RS", "RE" ],
+    x_label_name="Number of Explored Architecture"
 )
