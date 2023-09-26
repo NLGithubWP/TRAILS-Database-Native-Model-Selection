@@ -134,9 +134,9 @@ def sample_some_points(x_array, y_2d_array, save_points, remove_n_points=1) -> (
 
 
 # 'frappe, criteo, uci_diabetes'
-dataset = "frappe"
+# dataset = "frappe"
 # dataset = "criteo"
-# dataset = "uci_diabetes"
+dataset = "uci_diabetes"
 result_dir = "./internal/ml/model_selection/exp_result/"
 kn_rate = -1
 num_points = 12
