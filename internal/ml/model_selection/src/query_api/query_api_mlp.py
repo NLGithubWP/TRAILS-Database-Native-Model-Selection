@@ -121,7 +121,8 @@ class GTMLP:
 
     def get_valid_auc(self, arch_id: str, epoch_num: int):
         # todo: due to the too many job contention on server, the time usage may not valid.
-        time_usage = (int(epoch_num) + 1) * self.get_train_one_epoch_time(self.device)
+        # train on gpu,
+        time_usage = (int(epoch_num) + 1) * self.get_train_one_epoch_time("gpu")
         if self.dataset == Config.Frappe:
             if epoch_num is None or epoch_num >= 20: epoch_num = 19
             t_acc = self.mlp_train[self.dataset][arch_id][str(epoch_num)]["valid_auc"]
