@@ -73,7 +73,7 @@ if __name__ == "__main__":
     only_phase1 = args.only_phase1
     # for this exp, we repeat 100 times and set max to 1000 mins
     total_run = 50
-    max_minute = 1000
+    max_minute = 150
     budget_array = log_scale_x_array(num_points=args.num_points, max_minute=max_minute)
 
     if only_phase1:
