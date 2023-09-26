@@ -22,14 +22,14 @@ def get_dataset_parameters(dataset):
             "remove_n_points": 0,
         },
         "frappe": {
-            "epoch": 19,
+            "epoch": 13,
             "sys_end2end_res": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_frappe_-1_7_express_flow.json",
             "sys_end2end_p1": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_frappe_-1_10_express_flow_p1.json",
-            "tab_nas_res": "./internal/ml/model_selection/exp_result/tabNAS_benchmark_frappe_epoch_19.json",
-            "train_based_re": "./internal/ml/model_selection/exp_result/train_base_line_re_frappe_epoch_19.json",
+            "tab_nas_res": "./internal/ml/model_selection/exp_result/tabNAS_benchmark_frappe_epoch_13.json",
+            "train_based_re": "./internal/ml/model_selection/exp_result/train_base_line_re_frappe_epoch_13.json",
             "mx_value": 98.141,
             "x_lim": [0.01, None],
-            "y_lim": [97.6, None],
+            "y_lim": [97.7, None],
             "figure_size": (6.2, 4.71),
             "datasetfg_name": dataset,
             "annotations": [],  # ["TabNAS", 97.68, 324.8/60],
@@ -132,8 +132,8 @@ def generate_and_draw_data(dataset):
 
 
 # Choose dataset to process
-# dataset = "frappe"
-dataset = "uci_diabetes"
+dataset = "frappe"
+# dataset = "uci_diabetes"
 # dataset = "criteo"
 
 from src.query_api.query_api_mlp import GTMLP
