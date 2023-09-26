@@ -60,7 +60,7 @@ def Add_one_line(x_time_array: list, y_twod_budget: List[List], namespace: str, 
             color=color_list[index],
             label=namespace,
             markersize=mark_size_list[index - 3],
-            linewidth=3
+            linewidth=5
             )
     ax.fill_between(x_m, y_l, y_h, alpha=shade_degree)
     return x_m
@@ -153,7 +153,7 @@ if dataset == "uci_diabetes":
     ea_auc_file = ""
     ea_score_file = ""
 elif dataset == "frappe":
-    epoch = 19
+    epoch = 13
     mx_value = 98.08
     y_lim = [None, None]
     x_ticks = [1.2, 1600]
@@ -196,6 +196,7 @@ all_lines = [
     [sampled_score_x, sampled_score_y, "ExpressFlow score"],
 ]
 
+print(f"saving to ./internal/ml/model_selection/exp_result/p1_score_auc_{dataset}")
 draw_structure_data_anytime(
     all_lines=all_lines,
     dataset=datasetfg_name,
