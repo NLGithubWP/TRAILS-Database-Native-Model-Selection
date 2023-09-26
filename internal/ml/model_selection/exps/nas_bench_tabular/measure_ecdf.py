@@ -90,8 +90,8 @@ def draw_edcf():
         fig.savefig(f"space_{dataset}_{epoch_sampled[dataset]}.pdf", bbox_inches='tight')
 
 
-# dataset_used = "frappe"
-dataset_used = "uci_diabetes"
+dataset_used = "frappe"
+# dataset_used = "uci_diabetes"
 # dataset_used = "criteo"
 
 
@@ -115,7 +115,7 @@ elif dataset_used == "criteo":
 else:
     print("err")
 
-epoch_sampled = {"frappe": 13, "uci_diabetes": 0, "criteo": 9}
+epoch_sampled = {"frappe": 19, "uci_diabetes": 0, "criteo": 9}
 draw_edcf()
 
 """
@@ -130,6 +130,8 @@ epoch 8 medium 0.6253744970145643 best 0.689073196927341
 
 frappe
 epoch 13 medium 0.9772853248010285 best 0.9814130102767649
+frappe
+epoch 19 medium 0.9767004372606147 best 0.981358559726915
 
 criteo
 epoch 9 medium 0.801413788910975 best 0.8033541930059981
