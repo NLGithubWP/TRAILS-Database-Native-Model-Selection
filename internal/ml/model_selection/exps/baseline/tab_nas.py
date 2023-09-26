@@ -102,7 +102,6 @@ def run_sampling(i_rep):
     rl_advantage_all = []
     prob_valid_all = []
     cur_best_performance = []
-    cur_time_usage = []
 
     for iter in range(max_iter):
         torch.manual_seed(1000 * i_rep + iter)
@@ -146,7 +145,8 @@ def run_sampling(i_rep):
                 cur_best_performance.append(rewards[(layer_1_choice, layer_2_choice, layer_3_choice, layer_4_choice)])
             else:
                 cur_best_performance.append(cur_best_performance[-1])
-        cur_time_usage.append(time_usage[(layer_1_choice, layer_2_choice, layer_3_choice, layer_4_choice)])
+        # cur_time += time_usage[(layer_1_choice, layer_2_choice, layer_3_choice, layer_4_choice)]
+        # cur_time_usage.append(cur_time)
 
         # compute single-step RL advantage
         moving_average_baseline_numer = \
@@ -217,7 +217,7 @@ def run_sampling(i_rep):
     layer_3_probs_all[max_iter] = layer_3_probs
     layer_4_probs_all[max_iter] = layer_4_probs
 
-    return layer_1_probs_all, layer_2_probs_all, layer_3_probs_all, layer_4_probs_all, cur_best_performance, cur_time_usage
+    return layer_1_probs_all, layer_2_probs_all, layer_3_probs_all, layer_4_probs_all, cur_best_performance
 
 
 recorded_result = {
@@ -229,9 +229,9 @@ n_reps = 3  # for easier demonstration; was 500 in paper
 r = []
 for i in range(n_reps):
     print(i)
-    layer_1_probs_all, layer_2_probs_all, layer_3_probs_all, layer_4_probs_all, cur_best_performance, cur_time_usage = run_sampling(i)
+    layer_1_probs_all, layer_2_probs_all, layer_3_probs_all, layer_4_probs_all, cur_best_performance = run_sampling(i)
     r.append([layer_1_probs_all, layer_2_probs_all, layer_3_probs_all, layer_4_probs_all])
-    recorded_result["sys_time_budget"].append(cur_time_usage)
+    recorded_result["sys_time_budget"].append(list(range(1, len(cur_best_performance) + 1)))
     recorded_result["sys_acc"].append(cur_best_performance)
 
 
