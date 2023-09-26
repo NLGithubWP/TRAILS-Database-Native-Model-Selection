@@ -28,8 +28,8 @@ def sample_some_points(x_array, y_2d_array, save_points, remove_n_points=1) -> (
 
 
 # 'frappe, criteo, uci_diabetes'
-# dataset = "frappe"
-dataset = "criteo"
+dataset = "frappe"
+# dataset = "criteo"
 # dataset = "uci_diabetes"
 
 if dataset == "uci_diabetes":
@@ -42,10 +42,10 @@ if dataset == "uci_diabetes":
     remove_n_points = 1
     annotations = []
 elif dataset == "frappe":
-    epoch = 19
-    mx_value = 98.08
+    epoch = 13
+    mx_value = 98.122
     y_lim = [97.6, None]
-    x_lim = [2.1, 1600]
+    x_lim = [2.1, 2000]
     figure_size = (6.4, 4)
     datasetfg_name = dataset
     remove_n_points = 1
@@ -53,7 +53,7 @@ elif dataset == "frappe":
 
 elif dataset == "criteo":
     epoch = 9
-    mx_value = 80.335
+    mx_value = 80.328
     y_lim = [80.24, 80.35]
     x_lim = [2.1, 1600]
     figure_size = (6.4, 4)
