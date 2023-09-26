@@ -13,7 +13,7 @@ def get_dataset_parameters(dataset):
             "sys_end2end_p1": "./internal/ml/model_selection/exp_result/a",
             "tab_nas_res": "./internal/ml/model_selection/exp_result/tabNAS_benchmark_uci_diabetes_epoch_0.json",
             "train_based_re": "./internal/ml/model_selection/exp_result/train_base_line_re_uci_diabetes_epoch_0.json",
-            "mx_value": 67.500,
+            "mx_value": 67.47755324313862,
             "x_lim": [0.01, 300],
             "y_lim": [61.811, 68],
             "figure_size": (6.2, 4.71),
@@ -27,7 +27,7 @@ def get_dataset_parameters(dataset):
             "sys_end2end_p1": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_frappe_-1_10_express_flow_p1.json",
             "tab_nas_res": "./internal/ml/model_selection/exp_result/tabNAS_benchmark_frappe_epoch_13.json",
             "train_based_re": "./internal/ml/model_selection/exp_result/train_base_line_re_frappe_epoch_13.json",
-            "mx_value": 98.141,
+            "mx_value": 98.14,
             "x_lim": [0.01, None],
             "y_lim": [97.77, 98.18],
             "figure_size": (6.2, 4.71),
@@ -41,7 +41,7 @@ def get_dataset_parameters(dataset):
             "sys_end2end_p1": "./internal/ml/model_selection/exp_result/res_end_2_end_criteo_100_5_p1.json",
             "tab_nas_res": "./internal/ml/model_selection/exp_result/tabNAS_benchmark_criteo_epoch_9.json",
             "train_based_re": "./internal/ml/model_selection/exp_result/train_base_line_re_criteo_epoch_9.json",
-            "mx_value": 80.328,
+            "mx_value": 80.32615745641593,
             "x_lim": [0.01, 5000],
             "y_lim": [80.121, 80.349],
             "figure_size": (6.2, 4.71),
@@ -132,9 +132,9 @@ def generate_and_draw_data(dataset):
 
 
 # Choose dataset to process
-dataset = "frappe"
+# dataset = "frappe"
 # dataset = "uci_diabetes"
-# dataset = "criteo"
+dataset = "criteo"
 
 from src.query_api.query_api_mlp import GTMLP
 api = GTMLP(dataset)
