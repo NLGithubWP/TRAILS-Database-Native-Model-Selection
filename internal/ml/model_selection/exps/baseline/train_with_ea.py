@@ -75,12 +75,13 @@ if __name__ == "__main__":
         "sys_acc": []
     }
 
-    total_explore = 5000
-    total_run = 100
+    total_explore = 9000
+    total_run = 50
     # how many epoch used to indict the model performance
     checkpoint_file = f"{args.result_dir}/train_base_line_re_{args.dataset}_epoch_{args.epoch}.json"
 
     for run_id in range(total_run):
+        print("run_id", run_id)
 
         search_space_ins = init_search_space(args)
         # seq: init the search strategy and controller,
