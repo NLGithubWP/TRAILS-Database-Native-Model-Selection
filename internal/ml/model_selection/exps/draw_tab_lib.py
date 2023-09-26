@@ -111,7 +111,7 @@ def draw_structure_data_anytime(
     ax.yaxis.set_major_locator(MaxNLocator(nbins=6, integer=False))
 
     if max_value > 0:
-        plt.axhline(max_value, color='r', linestyle='-', label='Global Best AUC')
+        plt.axhline(max_value, color='r', linestyle='-', label='Global Best AUC', linewidth=3)
 
     for i in range(len(annotations)):
         ele = annotations[i]
