@@ -29,7 +29,7 @@ def get_dataset_parameters(dataset):
             "train_based_re": "./internal/ml/model_selection/exp_result/train_base_line_re_frappe_epoch_13.json",
             "mx_value": 98.141,
             "x_lim": [0.01, None],
-            "y_lim": [97.7, None],
+            "y_lim": [97.7, 98.15],
             "figure_size": (6.2, 4.71),
             "datasetfg_name": dataset,
             "annotations": [],  # ["TabNAS", 97.68, 324.8/60],
@@ -113,9 +113,9 @@ def generate_and_draw_data(dataset):
             remove_n_points=0)
 
     all_lines = [
-        [sampled_train_x, sampled_train_y, "Training-Based MS"],
+        [sampled_train_x, sampled_train_y, "RE-NAS"],
         # [system_p1_result["sys_time_budget"], system_p1_result["sys_acc"], "Training-Free MS"],
-        [sampled_sys_x, sampled_sys_y, "2Phase-MS"],
+        [sampled_sys_x, sampled_sys_y, "ATLAS"],
         [tabnas_x, tabnas_y, "TabNAS"],
     ]
 
