@@ -14,7 +14,7 @@ python internal/ml/model_selection/exps/macro/anytime_simulate.py \
       --nfeat 5500 \
       --nfield 10 \
       --base_dir=../exp_data/ \
-      --epoch=19 \
+      --epoch=13 \
       --dataset frappe \
       --num_labels 2 \
       --only_phase1 False \
