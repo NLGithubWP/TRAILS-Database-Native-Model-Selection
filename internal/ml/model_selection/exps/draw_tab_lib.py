@@ -54,7 +54,7 @@ def Add_one_line(x_time_array: list, y_twod_budget: List[List], namespace: str, 
             mark_list[int(index % len(mark_list))] + line_shape_list[int(index % len(line_shape_list))],
             label=namespace,
             markersize=mark_size_list[int(index % len(mark_list))],
-            linewidth=3
+            linewidth=5
             )
 
     ax.fill_between(x_m, y_l, y_h, alpha=shade_degree)
