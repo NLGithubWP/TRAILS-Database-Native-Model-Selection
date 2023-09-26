@@ -4,14 +4,12 @@ from src.tools.compute import sample_in_log_scale_new
 from src.tools.io_tools import read_json
 from exps.draw_tab_lib import draw_structure_data_anytime
 
-trian_time = 3
-
 
 def get_dataset_parameters(dataset):
     parameters = {
         "uci_diabetes": {
             "epoch": 0,
-            "sys_end2end_res": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_criteo_-1_10_express_flow.json",
+            "sys_end2end_res": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_uci_diabetes_-1_5_express_flow.json",
             "sys_end2end_p1": "./internal/ml/model_selection/exp_result/a",
             "tab_nas_res": "./internal/ml/model_selection/exp_result/tabNAS_benchmark_uci_diabetes_epoch_0.json",
             "train_based_re": "./internal/ml/model_selection/exp_result/train_base_line_re_uci_diabetes_epoch_0.json",
@@ -37,11 +35,11 @@ def get_dataset_parameters(dataset):
         },
         "criteo": {
             "epoch": 9,
-            "sys_end2end_res": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_criteo_-1_10_express_flow.json",
+            "sys_end2end_res": "./internal/ml/model_selection/exp_result/res_end_2_end_mlp_sp_criteo_-1_8_express_flow.json",
             "sys_end2end_p1": "./internal/ml/model_selection/exp_result/res_end_2_end_criteo_100_5_p1.json",
             "tab_nas_res": "./internal/ml/model_selection/exp_result/tabNAS_benchmark_criteo_epoch_9.json",
             "train_based_re": "./internal/ml/model_selection/exp_result/train_base_line_re_criteo_epoch_9.json",
-            "mx_value": 80.335,
+            "mx_value": 80.33,
             "y_lim": [80.1, None],
             "figure_size": (6.2, 4.71),
             "datasetfg_name": dataset,
@@ -73,6 +71,9 @@ def generate_and_draw_data(dataset):
         print(f"No parameters for the dataset: {dataset}")
         return
 
+    # to min
+    trian_time = ((params['epoch'] + 1) * api.get_train_one_epoch_time("gpu"))/60
+
     result_dir = "./internal/ml/model_selection/exp_result/"
 
     system_result = read_json(params['sys_end2end_res'])
@@ -80,18 +81,21 @@ def generate_and_draw_data(dataset):
     tab_nas_res = read_json(params["tab_nas_res"])
     train_based_res = read_json(params["train_based_re"])
 
+    # here we record the time usage, in minuts
     sampled_train_x, sampled_train_y = sample_some_points(
-        x_array=[[earch * trian_time for earch in ele] for ele in train_based_res["sys_time_budget"]],
+        x_array=train_based_res["sys_time_budget"],
         y_2d_array=train_based_res["sys_acc"],
         save_points=100,
         remove_n_points=0)
 
+    # here we record the time usage, in minuts
     sampled_sys_x, sampled_sys_y = sample_some_points(
         x_array=[system_result["sys_time_budget"] for _ in system_result["sys_acc"]],
         y_2d_array=system_result["sys_acc"],
         save_points=100,
         remove_n_points=0)
 
+    # here we record number of arch explored
     tabnas_x, tabnas_y = sample_some_points(
         x_array=[[earch * trian_time for earch in ele] for ele in tab_nas_res["sys_time_budget"]],
         y_2d_array=tab_nas_res["sys_acc"],
@@ -119,6 +123,9 @@ def generate_and_draw_data(dataset):
 
 # Choose dataset to process
 # dataset = "frappe"
-# dataset = "uci_diabetes"
-dataset = "criteo"
+dataset = "uci_diabetes"
+# dataset = "criteo"
+
+from src.query_api.query_api_mlp import GTMLP
+api = GTMLP(dataset)
 generate_and_draw_data(dataset)
