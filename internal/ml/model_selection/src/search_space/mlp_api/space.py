@@ -496,8 +496,8 @@ class MlpSpace(SpaceWrapper):
             n_k_ratio = args.kn_rate
         else:
             n_k_ratio = profile_NK_trade_off(dataset)
-        print(f"Profiling results:  score_time_per_model={score_time_per_model},"
-              f" train_time_per_epoch={train_time_per_epoch}")
+        # print(f"Profiling results:  score_time_per_model={score_time_per_model},"
+        #       f" train_time_per_epoch={train_time_per_epoch}")
         logger.info(f"Profiling results:  score_time_per_model={score_time_per_model},"
                     f" train_time_per_epoch={train_time_per_epoch}")
         return score_time_per_model, train_time_per_epoch, n_k_ratio
@@ -519,19 +519,22 @@ class MlpSpace(SpaceWrapper):
 
     def sample_all_models(self) -> Generator[str, ModelMicroCfg, None]:
         assert isinstance(self.model_cfg, MlpMacroCfg)
-        # 2-dimensional matrix for the search spcae
+
+        # 2-dimensional matrix for the search space
         space = []
         for _ in range(self.model_cfg.num_layers):
             space.append(self.model_cfg.layer_choices)
-
+        print("explore all models")
         # generate all possible combinations
-        combinations = itertools.product(*space)
+        combinations = list(itertools.product(*space))
 
-        # encoding each of them
-        while True:
+        # Shuffle the combinations for random order
+        random.shuffle(combinations)
+
+        # encoding each of them and yield
+        for ele in combinations:
             # debug only
             # yield "8-16-32-64", MlpMicroCfg([8, 16, 32, 64])
-            ele = combinations.__next__()
             model_micro = MlpMicroCfg(list(ele))
             model_encoding = str(model_micro)
             yield model_encoding, model_micro
