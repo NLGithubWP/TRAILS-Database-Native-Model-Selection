@@ -1,4 +1,6 @@
 # this is the main function of model selection.
+import copy
+
 import numpy as np
 import calendar
 import os
@@ -24,7 +26,7 @@ def run_with_time_budget(time_budget: float, only_phase1: bool):
            p1_trace_highest_score, p1_trace_highest_scored_models_id
 
 
-def draw_graph(result_m, kn_rate_list_m, dataset):
+def draw_graph(result_m, kn_rate_list_m, dataset, kn_rate_list_l, kn_rate_list_h):
     """
     kn_rate_list_m: x array indexs
     result_m: y array indexs for each line
@@ -32,7 +34,7 @@ def draw_graph(result_m, kn_rate_list_m, dataset):
     import matplotlib.pyplot as plt
     import matplotlib
     from exps.draw_tab_lib import export_legend
-    set_line_width = 3
+    set_line_width = 5
     # lines' mark size
     set_marker_size = 16
     # points' mark size
@@ -54,19 +56,25 @@ def draw_graph(result_m, kn_rate_list_m, dataset):
     fig2 = plt.figure(figsize=(7, 5))
 
     # this is to plot trade off between N and K
+    unique_labels = []
     for i, (time_budget_key, y_array) in enumerate(result_m.items()):
         plt.plot(kn_rate_list_m, y_array,
                  mark_list[i % len(mark_list)] + line_shape_list[i % len(line_shape_list)],
                  label=r"$T$=" + time_budget_key,
                  linewidth=set_line_width,
-                 markersize=set_marker_size)
+                 markersize=5
+                 )
+
+        # plt.fill_between(y_array, kn_rate_list_l[time_budget_key], kn_rate_list_h[time_budget_key], alpha=shade_degree)
+
+        unique_labels.append(r"$T$=" + time_budget_key)
     plt.xscale("log")
     plt.grid()
     plt.xlabel("N/K")
-    plt.ylabel(f"Test Accuracy on {dataset}")
+    plt.ylabel(f"AUC on {dataset}")
     # plt.ylim(y_lim[0], y_lim[1])
-    export_legend(fig2, "trade_off_nk_legend", 4)
-    # plt.legend(ncol=3, prop={'size': 12})
+    # export_legend(fig2, "trade_off_nk_legend", unique_labels=unique_labels)
+    plt.legend(ncol=2, prop={'size': 14})
     # plt.show()
     fig2.savefig(f"./internal/ml/model_selection/exp_result/trade_off_nk_{dataset}.pdf", bbox_inches='tight')
 
@@ -98,19 +106,29 @@ if __name__ == "__main__":
     from src.logger import logger
 
     # for this exp, we repeat 100 times and set max to 1000 mins
-    total_run = 100
+    total_run = 50
 
     rms = RunModelSelection(args.search_space, args, is_simulate=True)
 
     # Fix budget to 100 mins and only use phase1, try differetn K and U
     if args.dataset in [Config.c10, Config.c100, Config.imgNet]:
         budget_array = [1, 2, 4, 8, 16, 32, 64, 128]
+        kn_rate_list = [1, 2, 4, 8, 16, 32, 64, 128, 256]
     else:
-        budget_array = [1, 2, 4, 8, 16]
-    kn_rate_list = [1, 2, 4, 8, 16, 32, 64, 128, 256]
+        if args.dataset == Config.Criteo:
+            budget_array = [16, 64, 256, 1024]
+            kn_rate_list = [1, 2, 4, 8, 16, 32, 64, 128, 256]
+        elif args.dataset == Config.Frappe:
+            budget_array = [4, 8, 16, 32]
+            kn_rate_list = [1, 2, 4, 8, 16, 32, 64, 128, 256]
+        elif args.dataset == Config.UCIDataset:
+            budget_array = [0.1, 0.5, 1, 2]
+            kn_rate_list = [1, 2, 4, 8, 16, 32, 64, 128, 256]
 
     # result of time_budget: value for each kn rate
     result = {}
+    result_lower = {}
+    result_upper = {}
     for time_budget in budget_array:
         result[str(time_budget)+" min"] = []
         time_budget_sec = time_budget * 60
@@ -133,8 +151,14 @@ if __name__ == "__main__":
             result[str(time_budget)+" min"].append(run_list)
 
         # Record the medium value
-        result[str(time_budget)+" min"] = \
-            np.quantile(np.array(result[str(time_budget)+" min"]), .5, axis=0).tolist()
+        result2 = copy.deepcopy(result)
+        lst = np.quantile(np.array(result2[str(time_budget)+" min"]), .5, axis=0).tolist()
+        result[str(time_budget)+" min"] = [ele * 100 for ele in lst]
+
+        lst_lower = np.quantile(np.array(result2[str(time_budget) + " min"]), .25, axis=0).tolist()
+        result_lower[str(time_budget)+" min"] = [ele * 100 for ele in lst_lower]
+        lst_upper = np.quantile(np.array(result2[str(time_budget) + " min"]), .75, axis=0).tolist()
+        result_upper[str(time_budget)+" min"] = [ele * 100 for ele in lst_upper]
 
     print("Done")
     # put your scaled_data and two_d_epoch here
@@ -144,6 +168,6 @@ if __name__ == "__main__":
         dataset_name = "DIABETES"
     if args.dataset == Config.Frappe:
         dataset_name = "FRAPPE"
-    p = Process(target=draw_graph, args=(result, kn_rate_list, dataset_name))
+    p = Process(target=draw_graph, args=(result, kn_rate_list, dataset_name, result_lower, result_upper))
     p.start()
     p.join()
