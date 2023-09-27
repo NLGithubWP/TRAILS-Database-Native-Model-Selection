@@ -1,7 +1,6 @@
 
 
 export PYTHONPATH=$PYTHONPATH:./internal/ml/model_selection
-conda activate trails
 
 
 
@@ -92,11 +91,10 @@ python internal/ml/model_selection/exps/micro/benchmark_ku.py \
 
 python internal/ml/model_selection/exps/micro/benchmark_nk.py \
   --search_space mlp_sp \
-  --epoch 20 \
+  --epoch 13 \
   --hidden_choice_len 20 \
   --dataset frappe \
   --base_dir ../exp_data/ \
-  --only_phase1 True \
   --is_simulate True \
   --log_folder log_ku_tradeoff
 
@@ -105,10 +103,9 @@ python internal/ml/model_selection/exps/micro/benchmark_nk.py \
 python internal/ml/model_selection/exps/micro/benchmark_nk.py \
   --search_space mlp_sp \
   --hidden_choice_len 20 \
-  --epoch 5 \
+  --epoch 0 \
   --dataset uci_diabetes \
   --base_dir ../exp_data/ \
-  --only_phase1 True \
   --is_simulate True \
   --log_folder log_ku_tradeoff
 
@@ -120,7 +117,6 @@ python internal/ml/model_selection/exps/micro/benchmark_nk.py \
   --epoch 10 \
   --dataset criteo \
   --base_dir ../exp_data/ \
-  --only_phase1 True \
   --is_simulate True \
   --log_folder log_ku_tradeoff
 
@@ -133,7 +129,6 @@ python internal/ml/model_selection/exps/micro/benchmark_nk.py \
   --epoch 200 \
   --dataset cifar10 \
   --base_dir ../exp_data/ \
-  --only_phase1 True \
   --is_simulate True \
   --log_folder log_ku_tradeoff
 
@@ -145,7 +140,6 @@ python internal/ml/model_selection/exps/micro/benchmark_nk.py \
   --epoch 200 \
   --dataset cifar100 \
   --base_dir ../exp_data/ \
-  --only_phase1 True \
   --is_simulate True \
   --log_folder log_ku_tradeoff
 
@@ -157,7 +151,6 @@ python internal/ml/model_selection/exps/micro/benchmark_nk.py \
   --epoch 200 \
   --dataset ImageNet16-120 \
   --base_dir ../exp_data/ \
-  --only_phase1 True \
   --is_simulate True \
   --log_folder log_ku_tradeoff
 
