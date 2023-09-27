@@ -13,7 +13,7 @@ export PYTHONPATH=$PYTHONPATH:./internal/ml/model_selection
 # frappe
 python internal/ml/model_selection/exps/micro/benchmark_ku.py \
   --search_space mlp_sp \
-  --epoch 13 \
+  --epoch 14 \
   --hidden_choice_len 20 \
   --dataset frappe \
   --base_dir ../exp_data/ \
@@ -25,7 +25,7 @@ python internal/ml/model_selection/exps/micro/benchmark_ku.py \
 python internal/ml/model_selection/exps/micro/benchmark_ku.py \
   --search_space mlp_sp \
   --hidden_choice_len 20 \
-  --epoch 0 \
+  --epoch 1 \
   --dataset uci_diabetes \
   --base_dir ../exp_data/ \
   --is_simulate True \
@@ -88,7 +88,7 @@ python internal/ml/model_selection/exps/micro/benchmark_ku.py \
 
 python internal/ml/model_selection/exps/micro/benchmark_nk.py \
   --search_space mlp_sp \
-  --epoch 13 \
+  --epoch 14 \
   --hidden_choice_len 20 \
   --dataset frappe \
   --base_dir ../exp_data/ \
@@ -100,7 +100,7 @@ python internal/ml/model_selection/exps/micro/benchmark_nk.py \
 python internal/ml/model_selection/exps/micro/benchmark_nk.py \
   --search_space mlp_sp \
   --hidden_choice_len 20 \
-  --epoch 0 \
+  --epoch 1 \
   --dataset uci_diabetes \
   --base_dir ../exp_data/ \
   --is_simulate True \
