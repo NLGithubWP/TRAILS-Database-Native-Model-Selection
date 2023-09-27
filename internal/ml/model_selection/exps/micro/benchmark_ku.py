@@ -37,8 +37,8 @@ def draw_graph(scaled_data, two_d_epoch, u_ticks, k_ticks, dataset):
 
     plot_heatmap(data=scaled_data,
                  fontsize=18,
-                 x_array_name="U ( # Training Epoch)",
-                 y_array_name="K ( # Explored Models)",
+                 x_array_name="U(# Training Epoch)",
+                 y_array_name="K(# Explored Architecture)",
                  title="Accuracy Achieved",
                  output_file=f"./internal/ml/model_selection/exp_result/micro_ku_accuracy_{dataset}.pdf",
                  decimal_places=2,
@@ -47,8 +47,8 @@ def draw_graph(scaled_data, two_d_epoch, u_ticks, k_ticks, dataset):
 
     plot_heatmap(data=two_d_epoch,
                  fontsize=18,
-                 x_array_name="U ( # Training Epoch)",
-                 y_array_name="K ( # Explored Models)",
+                 x_array_name="U(# Training Epoch)",
+                 y_array_name="K(# Explored Architecture)",
                  title="Time Usage",
                  output_file=f"./internal/ml/model_selection/exp_result/micro_ku_epochs_{dataset}.pdf",
                  decimal_places=1,
@@ -93,7 +93,7 @@ if __name__ == "__main__":
         k_options = [2, 4, 8, 16]
         u_options = [1, 4, 16, 64, 200]
     else:
-        budget_array = [6]
+        budget_array = [10]
         k_options = [2, 4, 8, 16]
         u_options = [1, 2, 4, 8, 16]
 
@@ -101,6 +101,7 @@ if __name__ == "__main__":
         "total_epoch": [],
         "models": [],
     }
+    # todo: to run the uci dataset, update t_acc = self.mlp_train[self.dataset][arch_id][str(epoch_num-1)]["valid_auc"] in query_api_mlp.py
     for run_id in range(total_run):
         phase2_total_training_epoches = []
         phase2_model_performance_find = []
@@ -116,9 +117,12 @@ if __name__ == "__main__":
             # try various K, U to decide the second phase.
             for k in k_options:
                 # select top K
-                print(
-                    f"After exploring {len(p1_trace_highest_scored_models_id)} models, total unique models are {len(set(p1_trace_highest_scored_models_id))}")
                 top_k_models = select_top_k_items(all_models, k)
+                print(
+                    f"After exploring {len(p1_trace_highest_scored_models_id)}, "
+                    f"models, total unique models are {len(set(p1_trace_highest_scored_models_id))}, "
+                    f"picking {k} models of size {len(set(top_k_models))} from {len(set(all_models))} models, "
+                )
                 for u in u_options:
                     p2_best_arch, p2_best_arch_performance, p2_actual_epoch_use = \
                         rms.sh.run_phase2(u, top_k_models)
