@@ -138,6 +138,12 @@ if __name__ == "__main__":
 
     print("Done")
     # put your scaled_data and two_d_epoch here
-    p = Process(target=draw_graph, args=(result, kn_rate_list, args.dataset))
+    if args.dataset == Config.Criteo:
+        dataset_name = "CRITEO"
+    if args.dataset == Config.UCIDataset:
+        dataset_name = "DIABETES"
+    if args.dataset == Config.Frappe:
+        dataset_name = "FRAPPE"
+    p = Process(target=draw_graph, args=(result, kn_rate_list, dataset_name))
     p.start()
     p.join()
