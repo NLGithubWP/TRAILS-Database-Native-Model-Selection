@@ -118,7 +118,7 @@ class BudgetAwareControllerSH:
             # Increase the training epoch for the remaining models
             cur_epoch = min(cur_epoch * eta, max_unit_per_model)
 
-        # If the models are fully trained and there is more than one candidate, select the top one
+        # If the models can be fully trained and there is more than one candidate, select the top one
         if cur_cand_num > 1 and cur_epoch >= max_unit_per_model:
             logger.info(
                 f"4. [trails] Running phase2: train {len(candidates_m)} models each with {max_unit_per_model} epochs")
