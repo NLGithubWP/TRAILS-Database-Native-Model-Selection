@@ -43,10 +43,13 @@ def draw_graph(result_m, kn_rate_list_m, dataset, kn_rate_list_l, kn_rate_list_h
     mark_list = ["o", "*", "<", "^", "s", "d", "D", ">", "h"]
     line_shape_list = ['-.', '--', '-', ':']
 
+    # this is for the same size in figure
     if dataset == "DIABETES":
         fig2, ax = plt.subplots(figsize=(7, 4))
-    else:
+    elif dataset == "FRAPPE":
         fig2, ax = plt.subplots(figsize=(7, 4.15))
+    else:
+        fig2, ax = plt.subplots(figsize=(7, 4.2))
 
     # this is to plot trade off between N and K
     unique_labels = []
