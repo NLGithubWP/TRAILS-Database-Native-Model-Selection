@@ -66,7 +66,7 @@ def draw_graph(result_m, kn_rate_list_m, dataset, kn_rate_list_l, kn_rate_list_h
         unique_labels.append(r"$T$=" + time_budget_key)
     ax.set_xscale("log")
     ax.grid()
-    ax.set_xlabel("N/K")
+    ax.set_xlabel("M/K")
     ax.set_ylabel(f"AUC on {dataset}")
     # plt.ylim(y_lim[0], y_lim[1])
     # export_legend(fig2, "trade_off_nk_legend", unique_labels=unique_labels)
