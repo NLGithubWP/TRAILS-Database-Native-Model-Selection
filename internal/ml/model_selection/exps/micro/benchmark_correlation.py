@@ -114,13 +114,13 @@ if __name__ == "__main__":
     from src.common.constant import CommonVars, Config
 
     # Frappe configuration, here also measure SRCC of top 0.2% -> 0.8%
-    calculate_correlation(Config.Frappe, Config.MLPSP, 19, srcc_top_k=[0.005, 1], is_visual=True)
+    calculate_correlation(Config.Frappe, Config.MLPSP, 13, srcc_top_k=[1], is_visual=False)
 
     # UCI configuration
-    calculate_correlation(Config.UCIDataset, Config.MLPSP, 0)
+    calculate_correlation(Config.UCIDataset, Config.MLPSP, 0, is_visual=False)
 
     # Criteo configuration
-    calculate_correlation(Config.Criteo, Config.MLPSP, 9)
+    calculate_correlation(Config.Criteo, Config.MLPSP, 9, is_visual=False)
 
     # NB101 + C10
     calculate_correlation(Config.c10, Config.NB101, None)
@@ -302,7 +302,7 @@ if __name__ == "__main__":
     Top (1, 15000), nas_wot, 0.7769715502067605
     Top (1, 15000), ntk_cond_num, -0.41263954976382056
     Top (1, 15000), ntk_trace, 0.310570269337782
-    Top (1, 15000), ntk_trace_approx, 0.3566322129734418
+    Top (1, 15000), ntk_trace_ap![](../../../../../visua_score_auc_express_flow_frappe.jpg)prox, 0.3566322129734418
     Top (1, 15000), fisher, 0.3202230462329743
     Top (1, 15000), grasp, 0.5093070840387243
     Top (1, 15000), snip, 0.5688946225005688
