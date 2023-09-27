@@ -35,30 +35,23 @@ def draw_graph(result_m, kn_rate_list_m, dataset, kn_rate_list_l, kn_rate_list_h
     import matplotlib
     from exps.draw_tab_lib import export_legend
     set_line_width = 5
-    # lines' mark size
-    set_marker_size = 16
-    # points' mark size
-    set_marker_point = 14
-    # points' mark size
-    set_font_size = 20
-    set_lgend_size = 20
     set_tick_size = 25
-    frontinsidebox = 20
     # update tick size
     matplotlib.rc('xtick', labelsize=set_tick_size)
     matplotlib.rc('ytick', labelsize=set_tick_size)
     plt.rcParams['axes.labelsize'] = set_tick_size
     mark_list = ["o", "*", "<", "^", "s", "d", "D", ">", "h"]
     line_shape_list = ['-.', '--', '-', ':']
-    shade_degree = 0.2
-    Fig_y_name = None
 
-    fig2 = plt.figure(figsize=(7, 5))
+    if dataset == "DIABETES":
+        fig2, ax = plt.subplots(figsize=(7, 4))
+    else:
+        fig2, ax = plt.subplots(figsize=(7, 4.15))
 
     # this is to plot trade off between N and K
     unique_labels = []
     for i, (time_budget_key, y_array) in enumerate(result_m.items()):
-        plt.plot(kn_rate_list_m, y_array,
+        ax.plot(kn_rate_list_m, y_array,
                  mark_list[i % len(mark_list)] + line_shape_list[i % len(line_shape_list)],
                  label=r"$T$=" + time_budget_key,
                  linewidth=set_line_width,
@@ -68,10 +61,10 @@ def draw_graph(result_m, kn_rate_list_m, dataset, kn_rate_list_l, kn_rate_list_h
         # plt.fill_between(y_array, kn_rate_list_l[time_budget_key], kn_rate_list_h[time_budget_key], alpha=shade_degree)
 
         unique_labels.append(r"$T$=" + time_budget_key)
-    plt.xscale("log")
-    plt.grid()
-    plt.xlabel("N/K")
-    plt.ylabel(f"AUC on {dataset}")
+    ax.set_xscale("log")
+    ax.grid()
+    ax.set_xlabel("N/K")
+    ax.set_ylabel(f"AUC on {dataset}")
     # plt.ylim(y_lim[0], y_lim[1])
     # export_legend(fig2, "trade_off_nk_legend", unique_labels=unique_labels)
     plt.legend(ncol=2, prop={'size': 14})
