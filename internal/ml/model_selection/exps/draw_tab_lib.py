@@ -67,7 +67,7 @@ def draw_structure_data_anytime(
         figure_size=(6.4, 4.5),
         annotations=[],
         x_ticks=None, y_ticks=None, unique_labels=None,
-        x_label_name=r"Response Time Threshold $T_{max}$ (min)"
+        x_label_name=r"Time Budget $T_{max}$ (min)"
 ):
     fig, ax = plt.subplots(figsize=figure_size)
 

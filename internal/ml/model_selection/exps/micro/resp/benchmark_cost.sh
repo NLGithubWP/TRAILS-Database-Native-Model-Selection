@@ -36,7 +36,7 @@ python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py 
   --search_space=mlp_sp \
   --num_layers=4 \
   --hidden_choice_len=20 \
-  --base_dir=/hdd1/xingnaili/exp_data/ \
+  --base_dir=..//exp_data/ \
   --num_labels=2 \
   --device=cuda:0 \
   --batch_size=32 \
@@ -57,7 +57,7 @@ python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py 
   --search_space=mlp_sp \
   --num_layers=4 \
   --hidden_choice_len=20 \
-  --base_dir=/hdd1/xingnaili/exp_data/ \
+  --base_dir=..//exp_data/ \
   --num_labels=2 \
   --device=cuda:0 \
   --batch_size=32 \
@@ -78,7 +78,7 @@ python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py 
   --search_space=mlp_sp \
   --num_layers=4 \
   --hidden_choice_len=20 \
-  --base_dir=/hdd1/xingnaili/exp_data/ \
+  --base_dir=..//exp_data/ \
   --num_labels=2 \
   --device=cuda:0 \
   --batch_size=32 \
@@ -98,7 +98,7 @@ python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py 
   --search_space=mlp_sp \
   --num_layers=4 \
   --hidden_choice_len=20 \
-  --base_dir=/hdd1/xingnaili/exp_data/ \
+  --base_dir=..//exp_data/ \
   --num_labels=2 \
   --device=cuda:0 \
   --batch_size=32 \
@@ -118,7 +118,7 @@ python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py 
   --search_space=mlp_sp \
   --num_layers=4 \
   --hidden_choice_len=20 \
-  --base_dir=/hdd1/xingnaili/exp_data/ \
+  --base_dir=..//exp_data/ \
   --num_labels=2 \
   --device=cuda:0 \
   --batch_size=32 \
@@ -138,7 +138,7 @@ python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py 
   --search_space=mlp_sp \
   --num_layers=4 \
   --hidden_choice_len=20 \
-  --base_dir=/hdd1/xingnaili/exp_data/ \
+  --base_dir=..//exp_data/ \
   --num_labels=2 \
   --device=cuda:0 \
   --batch_size=32 \
@@ -158,7 +158,7 @@ python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py 
   --search_space=mlp_sp \
   --num_layers=4 \
   --hidden_choice_len=20 \
-  --base_dir=/hdd1/xingnaili/exp_data/ \
+  --base_dir=..//exp_data/ \
   --num_labels=2 \
   --device=cuda:0 \
   --batch_size=32 \
@@ -178,7 +178,7 @@ python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py 
   --search_space=mlp_sp \
   --num_layers=4 \
   --hidden_choice_len=20 \
-  --base_dir=/hdd1/xingnaili/exp_data/ \
+  --base_dir=..//exp_data/ \
   --num_labels=2 \
   --device=cuda:0 \
   --batch_size=32 \
@@ -198,7 +198,7 @@ python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py 
   --search_space=mlp_sp \
   --num_layers=4 \
   --hidden_choice_len=20 \
-  --base_dir=/hdd1/xingnaili/exp_data/ \
+  --base_dir=..//exp_data/ \
   --num_labels=2 \
   --device=cuda:0 \
   --batch_size=32 \
@@ -218,7 +218,7 @@ python3 ./internal/ml/model_selection/exps/micro/benchmark_filtering_latency.py 
   --search_space=mlp_sp \
   --num_layers=4 \
   --hidden_choice_len=20 \
-  --base_dir=/hdd1/xingnaili/exp_data/ \
+  --base_dir=..//exp_data/ \
   --num_labels=2 \
   --device=cuda:0 \
   --batch_size=32 \

@@ -132,9 +132,9 @@ def generate_and_draw_data(dataset):
 
 
 # Choose dataset to process
-dataset = "frappe"
+# dataset = "frappe"
 # dataset = "uci_diabetes"
-# dataset = "criteo"
+dataset = "criteo"
 
 from src.query_api.query_api_mlp import GTMLP
 api = GTMLP(dataset)

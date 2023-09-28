@@ -12,7 +12,7 @@ nohup  python ./internal/ml/model_selection/exps/nas_bench_tabular/4.seq_score_o
   --search_space=mlp_sp \
   --num_layers=4 \
   --hidden_choice_len=20 \
-  --base_dir=/hdd1/xingnaili/exp_data/ \
+  --base_dir=..//exp_data/ \
   --num_labels=2 \
   --device=cpu \
   --batch_size=32 \

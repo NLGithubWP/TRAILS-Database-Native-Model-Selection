@@ -33,7 +33,7 @@ python internal/ml/model_selection/exps/macro/anytime_simulate.py \
       --batch_size 128 \
       --nfeat 5500 \
       --nfield 10 \
-      --base_dir=/hdd1/xingnaili/exp_data/ \
+      --base_dir=..//exp_data/ \
       --epoch=19 \
       --dataset frappe \
       --num_labels 2 \
@@ -75,7 +75,7 @@ python internal/ml/model_selection/exps/macro/anytime_simulate.py \
       --batch_size 128 \
       --nfeat 369 \
       --nfield 43 \
-      --base_dir=/hdd1/xingnaili/exp_data/ \
+      --base_dir=..//exp_data/ \
       --dataset uci_diabetes \
       --epoch=0 \
       --num_labels 2 \

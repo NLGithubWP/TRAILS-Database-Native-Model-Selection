@@ -42,6 +42,6 @@ done
 
 
 # pkill -9 -f ./internal/ml/model_selection/exps/nas_bench_tabular//2.seq_train_online.py
-# pkill -9 -f /home/naili/miniconda3/envs/firmest_torch11/bin/python
+# pkill -9 -f /miniconda3/envs/firmest_torch11/bin/python
 
 # run with bash internal/ml/model_selection/scripts/nas-bench-tabular/train_all_models_diabetes.sh >ucibash &
