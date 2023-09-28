@@ -11,11 +11,11 @@
 conda config --set ssl_verify false
 conda create -n "trails" python=3.8.10
 conda activate trails
-pip install -r requirement.txt 
+pip install -r requirement.txt
 
 cd TRAILS
 
-# make a dir to store all results. 
+# make a dir to store all results.
 mkdir ../exp_data
 ```
 
@@ -38,7 +38,7 @@ https://drive.google.com/file/d/1TGii9ymbmX81c9-GKWXbe_4Z64R8Btz1/view?usp=shari
 2. Build the **NAS-Bench-Tabular** from scratch
 
 ```python
-# Construct NAS-Bench-Tabular: 
+# Construct NAS-Bench-Tabular:
 ## 1. Training all models.
 bash internal/ml/model_selection/scripts/nas-bench-tabular/train_all_models_frappe.sh
 bash internal/ml/model_selection/scripts/nas-bench-tabular/train_all_models_diabetes.sh
@@ -57,7 +57,7 @@ bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_crit
    1. We retrieve all results from NASBENCH API and store them as a json file.
    2. We score all models in NB201 and 28K models in NB101.
    3. We search with  EA + Score and record the searching process in terms of
-       `run_id,  current_explored_model, top_400 highest scored model, time_usage` 
+       `run_id,  current_explored_model, top_400 highest scored model, time_usage`
         to SQLLite.
 
 ```python
@@ -71,7 +71,7 @@ nohup bash ./internal/ml/model_selection/scripts/nas-bench-img/score_all_models.
 # 3. Explore with EA ans score result and store exploring process into SQLLite
 bash ./internal/ml/model_selection/scripts/nas-bench-img/explore_all_models.sh
 
-# 4. Generate the baseline. 
+# 4. Generate the baseline.
 bash ./internal/ml/model_selection/scripts/baseline_system_img.sh
 ```
 
@@ -79,7 +79,7 @@ The following experiment could then query filtering phase results based on `run_
 
 ## SLO-Aware 2Phase-MS
 
-With the above **NAS-Bench-Tabular**, we could run various experiments. 
+With the above **NAS-Bench-Tabular**, we could run various experiments.
 
 ```bash
 # 1. Generate the results for drawing the figure
@@ -108,9 +108,6 @@ python ./internal/ml/model_selection/exps/micro/benchmark_correlation.py
 ## Micro: Score and AUC relation
 
 ```bash
-# get the score and auc using our metrics on three datasets
-python ./internal/ml/model_selection/exps/micro/benchmark_score_metrics.py
-# draw the figure
 python ./internal/ml/model_selection/exps/micro/draw_score_metric_relation.py
 ```
 
@@ -122,7 +119,7 @@ bash internal/ml/model_selection/scripts/micro_budget_aware_alg.sh
 
 ![image-20230724111659545](./documents/imgs/image-20230724111659545.png)
 
-## Micro: Benchmark N, K, U 
+## Micro: Benchmark N, K, U
 
 With ranking the models by ther TFMEM score in the filtering phase, we aim to determine
 
@@ -135,13 +132,13 @@ bash internal/ml/model_selection/scripts/micro_nku_tradeoff.sh
 ```
 
 This is the experimental result conducted at the UCI Diabetes datasets.
-Clearly,  expore more models in refinement phase (large **K** ) is more helpful to find the a better model. 
-Although increasing **U** can find a better model accurately, it runs more training epochs leading to higher training cost. 
+Clearly,  expore more models in refinement phase (large **K** ) is more helpful to find the a better model.
+Although increasing **U** can find a better model accurately, it runs more training epochs leading to higher training cost.
 
 ![image-20230722202555763](./documents/imgs/image-20230722202555763.png)
 
-Then we fix **U=1** for cost efficiency and determine N/K for higher searching effectiveness. 
-Clearly, K/N reaches 100 yields better scheduling result in both image and tabular dataset, thus, we set **N/K=100** in coordinator. 
+Then we fix **U=1** for cost efficiency and determine N/K for higher searching effectiveness.
+Clearly, K/N reaches 100 yields better scheduling result in both image and tabular dataset, thus, we set **N/K=100** in coordinator.
 
 ![image-20230724111325368](./documents/imgs/image-20230724111325368.png)
 
@@ -163,7 +160,7 @@ Clearly, K/N reaches 100 yields better scheduling result in both image and tabul
    python ./internal/ml/model_selection/exps/micro/draw_filtering_memory_cache_CPU.py
    ```
 
-2. Further we measure the end-2-end latency under two CPU, GPU, and Hybrid. 
+2. Further we measure the end-2-end latency under two CPU, GPU, and Hybrid.
 
    ```bash
    nohup bash internal/ml/model_selection/scripts/latency_phase1_cpu_gpu.sh &
@@ -187,7 +184,7 @@ select benchmark_filtering_latency_in_db(5000, 'criteo', '/project/TRAILS/intern
 
 ```bash
 # start cache service
-python ./internal/cache-service/cache_service.py 
+python ./internal/cache-service/cache_service.py
 python ./internal/cache-service/trigger_cache_svc.py
 # consume from the cache-svc
 
@@ -206,7 +203,7 @@ python exps/main_v2/analysis/3.\ cost_train_based.py
 ## Reproduce Figure8
 
 ```bash
-# draw figure 8(a) 
+# draw figure 8(a)
 python exps/main_v2/analysis/5.draw_IDMS_var_workloads.py
 # draw figure 8(b)
 python exps/main_v2/analysis/6.draw_IDMS_dataloading.py
@@ -215,30 +212,30 @@ python exps/main_v2/analysis/6.draw_IDMS_dataloading.py
 ![image-20230702035639502](documents/imgs/image-20230702035639502.png)
 # Baselines
 
-We compare with Training-Based MS, TabNAS, and training-free MS etc. 
+We compare with Training-Based MS, TabNAS, and training-free MS etc.
 
 For image data, it already generated at the NAS-Bench-Img part, see above.
 
 # Appendix
 
-Here all experiments is on the Frappe dataset. 
+Here all experiments is on the Frappe dataset.
 
 1. Sensitive Analyiss
 
    ```bash
    # Impact of the parameter sign
-   # change the code at evaluator.py, in mini_batch=new_model.generate_all_ones_embedding(32), here is 32 batch size. 
+   # change the code at evaluator.py, in mini_batch=new_model.generate_all_ones_embedding(32), here is 32 batch size.
    # then run those:
    bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_frappe.sh
    bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_uci.sh
    bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_criteo.sh
-   
+
    # Impact of the initialization methods
-   
+
    # Impact of the batch size
-   
+
    # Impact of the batch size influence
-   
+
    ```
 
 1. Computational Costs
@@ -274,9 +271,9 @@ Here all experiments is on the Frappe dataset.
    nohup bash internal/ml/model_selection/scripts/benchmark_weight_sharing.sh &
    ```
 
-   
 
-   
+
+
 
 
 
@@ -294,38 +291,3 @@ Check the log at the `logs_default`
 
 ![image-20230421220443231](./documents/imgs/image-20230421220443231.png)
 
-# Some Logic Here
-
-1. Search Spaces
-
-   Global value, Mediam value, 
-
-   ECDF + Parameter/AUC + Benchmark Search Strategy.
-
-   Decide which Epoch's value to compare.
-
-   ```bash
-   Frappe: 14, UCI_Diabalte: 1, Crito: 20.
-   ```
-
-2. Ablation study of correlation
-
-   Each dataset, Parameter Posivity -> Parameter initialization -> Batch size -> Batch data -> Depth&Width
-
-   positive -> He -> 4 -> 1-> ?
-
-   Preserent all correlation.
-
-3. With scoring methods, study second phase, choice few algorithms.
-
-   SH, SJ, UA -> Sh is best
-
-4. Coordinator
-
-   K vs U -> U = 1 is better, K is large is better. 
-
-   K vs N -> N = 13K is OK.
-
-5. Two phase end-end
-
-   Compare with TabNAS, EA-NAS. 
