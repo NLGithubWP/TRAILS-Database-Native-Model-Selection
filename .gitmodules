@@ -1,3 +1,0 @@
-[submodule "internal/ml/model_slicing"]
-	path = internal/ml/model_slicing
-	url = git@github.com:NLGithubWP/SAMS.git
