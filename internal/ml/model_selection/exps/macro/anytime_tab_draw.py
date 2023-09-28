@@ -16,7 +16,7 @@ def get_dataset_parameters(dataset):
             "mx_value": 67.47755324313862,
             "x_lim": [0.01, 300],
             "y_lim": [61.811, 68],
-            "figure_size": (6.2, 4.71),
+            "figure_size": (6.2, 4),
             "datasetfg_name": "Diabetes",
             "annotations": [],  # ["TabNAS", 63.33, 8.14/60],
             "remove_n_points": 0,
@@ -30,7 +30,7 @@ def get_dataset_parameters(dataset):
             "mx_value": 98.14,
             "x_lim": [0.01, None],
             "y_lim": [97.77, 98.18],
-            "figure_size": (6.2, 4.71),
+            "figure_size": (6.2, 4),
             "datasetfg_name": dataset,
             "annotations": [],  # ["TabNAS", 97.68, 324.8/60],
             "remove_n_points": 0,
@@ -44,7 +44,7 @@ def get_dataset_parameters(dataset):
             "mx_value": 80.32615745641593,
             "x_lim": [0.01, 5000],
             "y_lim": [80.121, 80.349],
-            "figure_size": (6.2, 4.71),
+            "figure_size": (6.2, 4),
             "datasetfg_name": dataset,
             "annotations": [],  # ["TabNAS", 80.17, 7250.0/60],
             "remove_n_points": 0,
@@ -132,9 +132,9 @@ def generate_and_draw_data(dataset):
 
 
 # Choose dataset to process
-# dataset = "frappe"
+dataset = "frappe"
 # dataset = "uci_diabetes"
-dataset = "criteo"
+# dataset = "criteo"
 
 from src.query_api.query_api_mlp import GTMLP
 api = GTMLP(dataset)
