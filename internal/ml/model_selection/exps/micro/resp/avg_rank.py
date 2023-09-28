@@ -16,6 +16,15 @@ data = {
 
 }
 
+data = {
+    "TFMEM":
+    ["GradNorm", "Lecun", "Xavier", "He"],
+    "DNN+Frappe": [0.8175, 0.8364, 0.8150],
+    "DNN+UCI":    [0.7341, 0.7124, 0.7336],
+    "DNN+Criteo": [0.8823, 0.8978, 0.9005],
+
+}
+
 
 def average_rank(data, columns):
     # Extract data values based on specified columns and convert to numpy array
