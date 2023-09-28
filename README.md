@@ -1,19 +1,30 @@
-# TRAILS: A Database Native Model Selection System
-
-![image-20230702035806963](documents/imgs/image-20230702035806963.png)
-
+# ATLAS: Anytime Neural Architecture Search on Tabular Data
 [TOC]
+
+# Framework Implementation Layout
+
+**Implementation Details:** For seamless implementation, we design each component with an emphasis on modularity so that each component can be implemented independently. Below are the specific links to different components:
+
+   - [Search Space](https://anonymous.4open.science/r/anytimenas4tab/internal/ml/model_selection/src/search_space/mlp_api/space.py)
+   - [ExpressFlow](https://anonymous.4open.science/r/anytimenas4tab/internal/ml/model_selection/src/eva_engine/phase1/algo/express_flow.py) and other 9 [TRAILERs](https://anonymous.4open.science/r/anytimenas4tab/internal/ml/model_selection/src/eva_engine/phase1/evaluator.py)
+   - [Filtering Phase](https://anonymous.4open.science/r/anytimenas4tab/internal/ml/model_selection/src/eva_engine/phase1/run_phase1.py)
+   - [Refinement Phase with Successive Halving](https://anonymous.4open.science/r/anytimenas4tab/internal/ml/model_selection/src/eva_engine/phase2/run_sh.py)
+   - [Coordinator](https://anonymous.4open.science/r/anytimenas4tab/internal/ml/model_selection/src/eva_engine/coordinator.py)
+   - [Model Selection with Time Budget](https://anonymous.4open.science/r/anytimenas4tab/internal/ml/model_selection/exps/macro/anytime_simulate.py)
+
+![image-20230809191802916](documents/image-20230809191802916.png)
+
 
 # Config Environments
 
 ```bash
 # Create virtual env
 conda config --set ssl_verify false
-conda create -n "trails" python=3.8.10
-conda activate trails
+conda create -n "atlas" python=3.8.10
+conda activate atlas
 pip install -r requirement.txt
 
-cd TRAILS
+cd ATLAS
 
 # make a dir to store all results.
 mkdir ../exp_data
@@ -23,14 +34,14 @@ mkdir ../exp_data
 
 ## NAS-Bench-Tabular
 
- NAS-Bench-Tabular can be either **download** or build from scratch.
+NAS-Bench-Tabular can either be **downloaded** or built from scratch.
 
 ### Download NAS-Bench-Tabular
 
 1. **Download** the dataset using the following link, and extract them to `exp_data`
 
 ```bash
-https://drive.google.com/file/d/1TGii9ymbmX81c9-GKWXbe_4Z64R8Btz1/view?usp=sharing
+https://drive.google.com/file/d/1cJhVBMFIseYEW2ouM3WHw0STk1nrpsSC/view?usp=sharing
 ```
 
 ### Build NAS-Bench-Tabular
@@ -40,17 +51,17 @@ https://drive.google.com/file/d/1TGii9ymbmX81c9-GKWXbe_4Z64R8Btz1/view?usp=shari
 ```python
 # Construct NAS-Bench-Tabular:
 ## 1. Training all models.
-bash internal/ml/model_selection/scripts/nas-bench-tabular/train_all_models_frappe.sh
-bash internal/ml/model_selection/scripts/nas-bench-tabular/train_all_models_diabetes.sh
-bash internal/ml/model_selection/scripts/nas-bench-tabular/train_all_models_criteo.sh
+bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_frappe.sh
+bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_uci.sh
+bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_criteo.sh
 
-## 2. Scoring all models using all TFMEMs.
+## 2. Scoring all models using all TRAILERs.
 bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_frappe.sh
 bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_uci.sh
 bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_criteo.sh
 ```
 
-3. Build the **NAS-Bench-Img** from scratch
+3. Optionally, Build the **NAS-Bench-Img** from scratch
 
    To facilitate the experiments and query speed (NASBENCH API is slow)
 
@@ -65,229 +76,138 @@ bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_crit
 ## This requires to install nats_bench: pip install nats_bench
 bash ./internal/ml/model_selection/scripts/nas-bench-img/convert_api_2_json.sh
 
-# 2. Scoring all models using all TFMEMs.
+# 2. Scoring all models using all TRAILERs.
 nohup bash ./internal/ml/model_selection/scripts/nas-bench-img/score_all_models.sh &
 
-# 3. Explore with EA ans score result and store exploring process into SQLLite
+# 3. Explore with EA and score architectures, and store exploring process into SQLLite
 bash ./internal/ml/model_selection/scripts/nas-bench-img/explore_all_models.sh
 
 # 4. Generate the baseline.
 bash ./internal/ml/model_selection/scripts/baseline_system_img.sh
 ```
 
-The following experiment could then query filtering phase results based on `run_id`.
+### Reproduce Fig: (ECDF, Parameter/AUC )
 
-## SLO-Aware 2Phase-MS
+```bash
+# Plot the ECDF figure
+python ./internal/ml/model_selection/exps/nas_bench_tabular/measure_ecdf.py
+# Plot the parameter and AUC relationship
+python ./internal/ml/model_selection/exps/nas_bench_tabular/measure_param_auc.py
+```
+
+### Reproduce Fig: Search Strategy
+
+```bash
+bash ./internal/ml/model_selection/scripts/micro_search_strategy.sh
+```
+
+The following experiment can then query filtering phase results based on `run_id`.
+
+## Anytime NAS on Tabular data
 
 With the above **NAS-Bench-Tabular**, we could run various experiments.
 
 ```bash
-# 1. Generate the results for drawing the figure
-## tabular data: training-base-ms
+# 1. Generate the results for ploting the figure
+## tabular data: training-base-NAS
 bash internal/ml/model_selection/scripts/baseline_system_tab.sh
-## tabular data: training-free-ms, 2phase-ms
+## tabular data: training-free-NAS, 2phase-NAS
 nohup bash internal/ml/model_selection/scripts/anytime_tab.sh &
-## image data: training-base-ms, training-free-ms, 2phase-ms
+## image data: training-base-ms, training-free-ms, 2phase-NAS
 nohup bash internal/ml/model_selection/scripts/anytime_img_w_baseline.sh &
 
 # 2. Draw figure
 python internal/ml/model_selection/exps/macro/anytime_tab_draw.py
 python internal/ml/model_selection/exps/macro/anytime_img_draw.py
+python exps/main_np/base_line/1.\ anytime_draw.py
 ```
 
-![image-20230702035554579](documents/imgs/image-20230702035554579.png)
+## Micro: Benchmark Metrics
 
-## Micro: Benchmark TFMEMs
+### Compute/Visulation Correlation
 
 ```bash
 export PYTHONPATH=$PYTHONPATH:./internal/ml/model_selection
-conda activate trails
+conda activate atlas
 python ./internal/ml/model_selection/exps/micro/benchmark_correlation.py
 ```
 
-## Micro: Score and AUC relation
+### Sensitivity study
 
 ```bash
-python ./internal/ml/model_selection/exps/micro/draw_score_metric_relation.py
+## Reproduce Table 3-6
+# Adjust the input data, which can be scored under various TRAILERs
+# Adjust the initialization method at src/search_space/mlp_api/space.py
+# Then run
+python ./internal/ml/model_selection/exps/micro/benchmark_correlation.py
 ```
 
 ## Micro: Benchmark Budge-Aware Algorithm
 
 ```bash
-bash internal/ml/model_selection/scripts/micro_budget_aware_alg.sh
+bash ./internal/ml/model_selection/scripts/micro_budget_aware_alg.sh
 ```
 
-![image-20230724111659545](./documents/imgs/image-20230724111659545.png)
+## Micro: Benchmark `N, K, U`
 
-## Micro: Benchmark N, K, U
+With ranking the models by ther ExpressFlow score in the filtering phase, we aim to determine
 
-With ranking the models by ther TFMEM score in the filtering phase, we aim to determine
-
-1. Further examinng more models  (**K**) with each going through less training epoch (**U**) is more easier to find good model?
+1. Further examinng more architecture  (**K**) with each going through less training epoch (**U**) is more easier to find good architecture?
    or examine less but each training more epochs?
-2. How many models to explore (**N**) and how many to keep (**K**) ?
+2. How many architectures to explore (**N**) and how many to keep (**K**) ?
 
 ```bash
 bash internal/ml/model_selection/scripts/micro_nku_tradeoff.sh
 ```
 
 This is the experimental result conducted at the UCI Diabetes datasets.
-Clearly,  expore more models in refinement phase (large **K** ) is more helpful to find the a better model.
-Although increasing **U** can find a better model accurately, it runs more training epochs leading to higher training cost.
-
-![image-20230722202555763](./documents/imgs/image-20230722202555763.png)
+Clearly, exploring more architectures in the refinement phase (large **K** ) is more helpful in finding the a better architectures.
+Although increasing **U** can find a better architecture accurately, it runs more training epochs leading to higher training cost.
 
 Then we fix **U=1** for cost efficiency and determine N/K for higher searching effectiveness.
-Clearly, K/N reaches 100 yields better scheduling result in both image and tabular dataset, thus, we set **N/K=100** in coordinator.
+Clearly, K/N reaching 100 yields better-scheduling results in both image and tabular datasets, thus, we set **N/K=100** in the coordinator.
 
-![image-20230724111325368](./documents/imgs/image-20230724111325368.png)
-
-![image-20230722205244718](./documents/imgs/image-20230722205244718.png)
-
-## Micro: Device Placement & Embedding Cache
-
-1. To measure the time usage for filtering phase on vairous hardware, run the following
-
-   ```bash
-   # Without embedding cache at the filtering phase
-   nohup bash internal/ml/model_selection/scripts/latency_phase1_cpu_gpu.sh &
-   # With embedding cache at the filtering phase (faster)
-   nohup bash internal/ml/model_selection/scripts/latency_embedding_cache.sh &
-   # Draw graph
-   python ./internal/ml/model_selection/exps/micro/draw_filtering_latency.py
-   python ./internal/ml/model_selection/exps/micro/draw_filtering_memory_bar.py
-   python ./internal/ml/model_selection/exps/micro/draw_filtering_memory_line.py
-   python ./internal/ml/model_selection/exps/micro/draw_filtering_memory_cache_CPU.py
-   ```
-
-2. Further we measure the end-2-end latency under two CPU, GPU, and Hybrid.
-
-   ```bash
-   nohup bash internal/ml/model_selection/scripts/latency_phase1_cpu_gpu.sh &
-   ```
-
-## Micro: In-DB vs Out-DB filtering phase
-
-```bash
-# run out-of db, read data via psycopg2
-bash ./internal/ml/model_selection/scripts/latency_phase1_in_db.sh
-
-# run in-db query, read data via SPI
-select benchmark_filtering_latency_in_db(5000, 'frappe', '/project/TRAILS/internal/ml/model_selection/config.ini');
-
-select benchmark_filtering_latency_in_db(5000, 'uci_diabetes', '/project/TRAILS/internal/ml/model_selection/config.ini');
-
-select benchmark_filtering_latency_in_db(5000, 'criteo', '/project/TRAILS/internal/ml/model_selection/config.ini');
-```
-
-## Micro: On-the-Fly Data transmission, Refinement
-
-```bash
-# start cache service
-python ./internal/cache-service/cache_service.py
-python ./internal/cache-service/trigger_cache_svc.py
-# consume from the cache-svc
-
-
-```
-
-## Reproduce Figure7
-
-```bash
-python exps/main_v2/analysis/2.\ cost_draw.py
-python exps/main_v2/analysis/3.\ cost_train_based.py
-```
-
-![image-20230702035622198](documents/imgs/image-20230702035622198.png)
-
-## Reproduce Figure8
-
-```bash
-# draw figure 8(a)
-python exps/main_v2/analysis/5.draw_IDMS_var_workloads.py
-# draw figure 8(b)
-python exps/main_v2/analysis/6.draw_IDMS_dataloading.py
-```
-
-![image-20230702035639502](documents/imgs/image-20230702035639502.png)
 # Baselines
 
-We compare with Training-Based MS, TabNAS, and training-free MS etc.
+We compare with Training-Based NAS, TabNAS, and Training-Free NAS etc.
 
-For image data, it already generated at the NAS-Bench-Img part, see above.
+# More Experiments
 
-# Appendix
+All experiments were conducted using the Frappe dataset.
 
-Here all experiments is on the Frappe dataset.
-
-1. Sensitive Analyiss
+1. Measure the computational costs.
 
    ```bash
-   # Impact of the parameter sign
-   # change the code at evaluator.py, in mini_batch=new_model.generate_all_ones_embedding(32), here is 32 batch size.
-   # then run those:
-   bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_frappe.sh
-   bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_uci.sh
-   bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_criteo.sh
-
-   # Impact of the initialization methods
-
-   # Impact of the batch size
-
-   # Impact of the batch size influence
-
-   ```
-
-1. Computational Costs
-
-   ```bash
+   # we measure the computational cost for each metrics
    bash ./internal/ml/model_selection/exps/micro/resp/benchmark_cost.sh
+
+   # train one model to check the total time usage
+   bash ./internal/ml/model_selection/scripts/nas-bench-tabular/train_one_model_dev.sh
    ```
 
-2. Search Cost, multiple training-free or training-based combinations (warm-up / movel proposal)
+2. Measure the search cost, multiple training-free or training-based combinations effectiveness, e.g,. warm-up and movel proposal.
 
    ```bash
-   # get RL, RE, RS + training-based model evaluation
+   # RL, RE, RS + training-based model evaluation
    bash ./internal/ml/model_selection/scripts/micro_search_strategy.sh
-   # this will read previous file, and run warm-up/move proposal, and draw all together
+   # This will read previous files, and run warm-up/move proposal, and draw figures.
    bash ./internal/ml/model_selection/exps/micro/resp/benchmark_search_cost.sh
    ```
 
-3. How des the K influence the result?
+3. How does the initial search phase (number of K) influence the performance?
 
    ```bash
    python ./internal/ml/model_selection/exps/micro/resp/benchmark_k_fix_time.py
    ```
 
-4. Nosy in selecting top K models
+4. Would it be beneficial to introduce some degree of random noise when selecting the top-K architectures?
 
    ```bash
    python ./internal/ml/model_selection/exps/micro/resp/benchmark_noisy_influence.py
    ```
 
-5. Weight-sharing result
+5. One-Shot NAS study.
 
    ```bash
-   nohup bash internal/ml/model_selection/scripts/benchmark_weight_sharing.sh &
+   nohup bash ./internal/ml/model_selection/scripts/benchmark_weight_sharing.sh &
    ```
-
-
-
-
-
-
-
-# Run end2end model selection
-
-download the dataset and put it in the `exp_data/data/structure_data`
-
-```
-python main.py --budget=100 --dataset=frappe
-```
-
-Check the log at the `logs_default`
-
-![image-20230421220338391](./documents/imgs/image-20230421220338391.png)
-
-![image-20230421220443231](./documents/imgs/image-20230421220443231.png)
-
