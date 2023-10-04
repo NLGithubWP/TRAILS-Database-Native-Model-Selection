@@ -19,17 +19,22 @@ from PIL import Image
 
 np_dtype = {"float16": np.float16, "float32": np.float32}
 
-singa_dtype = {"float16": tensor.float16, "float32": tensor.float32}
+# singa_dtype = {"float16": tensor.float16, "float32": tensor.float32}
+singa_dtype = {"float32": tensor.float32}
 
 ### MSOptimizer
 class MSOptimizer(Optimizer):
     def __call__(self, loss):
         pn_p_g_list = self.call_with_returns(loss)
+        # print ("optimizer1 before self.step()")
+        # print ("optimizer1 before print len(pn_p_g_list): \n", len(pn_p_g_list))
         self.step()
+        # print ("optimizer1 after print len(pn_p_g_list): \n", len(pn_p_g_list))
+        # print ("optimizer1 after self.step()")
         return pn_p_g_list
 
     def call_with_returns(self, loss):
-        # print ("call_with_returns loss.data: \n", loss.data)
+        # print ("call_with_returns before apply loss.data: \n", loss.data)
         pn_p_g_list = []
         for p, g in autograd.backward(loss):
             if p.name is None:
@@ -40,6 +45,7 @@ class MSOptimizer(Optimizer):
             # print ("p.data: \n", p.data)
             # print ("g.data: \n", g.data)
             pn_p_g_list.append([p.name, p, g])  # need iterables
+        # print ("call_with_returns after apply loss.data: \n", loss.data)
         return pn_p_g_list
 
 # MSSGD -- actually no change of code
@@ -92,7 +98,7 @@ class MSSGD(MSOptimizer):
                  weight_decay=0,
                  nesterov=False,
                  dtype=tensor.float32):
-        super(MSSGD, self).__init__(lr, dtype)
+        super(MSSGD, self).__init__(lr)
 
         # init momentum
         if type(momentum) == float or type(momentum) == int:
@@ -104,7 +110,9 @@ class MSSGD(MSOptimizer):
             momentum = momentum.init_value
         else:
             raise TypeError("Wrong momentum type")
-        self.mom_value = self.momentum(self.step_counter).as_type(self.dtype)
+        # self.dtype = dtype
+        # self.mom_value = self.momentum(self.step_counter).as_type(self.dtype)
+        self.mom_value = self.momentum(self.step_counter)
 
         # init dampening
         if type(dampening) == float or type(dampening) == int:
@@ -114,7 +122,8 @@ class MSSGD(MSOptimizer):
             dampening = dampening.init_value
         else:
             raise TypeError("Wrong dampening type")
-        self.dam_value = self.dampening(self.step_counter).as_type(self.dtype)
+        # self.dam_value = self.dampening(self.step_counter).as_type(self.dtype)
+        self.dam_value = self.dampening(self.step_counter)
 
         # init weight_decay
         if type(weight_decay) == float or type(weight_decay) == int:
@@ -126,8 +135,8 @@ class MSSGD(MSOptimizer):
             self.weight_decay = weight_decay
         else:
             raise TypeError("Wrong weight_decay type")
-        self.decay_value = self.weight_decay(self.step_counter).as_type(
-            self.dtype)
+        # self.decay_value = self.weight_decay(self.step_counter).as_type(self.dtype)
+        self.decay_value = self.weight_decay(self.step_counter)
 
         # init other params
         self.nesterov = nesterov
@@ -154,7 +163,7 @@ class MSSGD(MSOptimizer):
                           self.mom_value, self.dam_value, self.decay_value)
 
         # derive dtype from input
-        assert param_value.dtype == self.dtype
+        # assert param_value.dtype == self.dtype
 
         # TODO add branch operator
         # if self.decay_value != 0:
@@ -183,13 +192,20 @@ class MSSGD(MSOptimizer):
 
     def step(self):
         # increment step counter, lr and moment
+        # print ("before super step")
         super().step()
-        mom_value = self.momentum(self.step_counter).as_type(self.dtype)
-        dam_value = self.dampening(self.step_counter).as_type(self.dtype)
-        decay_value = self.weight_decay(self.step_counter).as_type(self.dtype)
+        # print ("after super step")
+        # print ("before custiomized step")
+        # mom_value = self.momentum(self.step_counter).as_type(self.dtype)
+        # dam_value = self.dampening(self.step_counter).as_type(self.dtype)
+        # decay_value = self.weight_decay(self.step_counter).as_type(self.dtype)
+        mom_value = self.momentum(self.step_counter)
+        dam_value = self.dampening(self.step_counter)
+        decay_value = self.weight_decay(self.step_counter)
         self.mom_value.copy_from(mom_value)
         self.dam_value.copy_from(dam_value)
         self.decay_value.copy_from(decay_value)
+        # print ("after customized step")
 
     def get_states(self):
         states = super().get_states()
@@ -203,7 +219,6 @@ class MSSGD(MSOptimizer):
         if 'moments' in states:
             self.moments = states['moments']
             self.mom_value = self.momentum(self.step_counter)
-
 
 # Data augmentation
 def augmentation(x, batch_size):
