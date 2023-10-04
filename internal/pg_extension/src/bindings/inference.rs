@@ -5,6 +5,8 @@ use pgrx::prelude::*;
 use crate::bindings::ml_register::PY_MODULE_SAMS;
 use crate::bindings::ml_register::run_python_function;
 use std::time::{Instant, Duration};
+use serde::{Serialize, Deserialize};
+
 
 #[derive(Debug, Serialize, Deserialize)]
 struct FilterCondition {
