@@ -5,16 +5,7 @@ use pgrx::prelude::*;
 use crate::bindings::ml_register::PY_MODULE_SAMS;
 use crate::bindings::ml_register::run_python_function;
 use std::time::{Instant, Duration};
-use serde::{Serialize, Deserialize};
 
-
-#[derive(Debug, Serialize, Deserialize)]
-struct FilterCondition {
-    // here is index of the columns
-    columns: Vec<String>,
-    // here is the self.feat_id[idx] in python
-    values: Vec<String>
-}
 
 pub fn run_sams_inference(
     dataset: &String,
@@ -47,8 +38,6 @@ pub fn run_sams_inference(
         "model_inference_load_model");
 
     // Step 2: query data via SPI
-    let cond: FilterCondition = serde_json::from_str(condition).unwrap();
-
     let start_time = Instant::now();
     let results: Result<Vec<Vec<String>>, String> = Spi::connect(|client| {
         let query = format!("SELECT * FROM {}_train WHERE {} LIMIT {}",
