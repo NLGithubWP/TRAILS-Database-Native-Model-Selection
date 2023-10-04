@@ -48,6 +48,19 @@ pub static PY_MODULE: Lazy<Py<PyModule>> = Lazy::new(|| {
 });
 
 
+/*
+ Python Module Path for SAMS
+ */
+pub static PY_MODULE_SAMS: Lazy<Py<PyModule>> = Lazy::new(|| {
+    Python::with_gil(|py| -> Py<PyModule> {
+        let src = include_str!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../ml/model_slicing/pg_interface.py"
+        ));
+        PyModule::from_code(py, src, "", "").unwrap().into()
+    })
+});
+
 
 
 
