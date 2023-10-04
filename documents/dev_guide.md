@@ -15,6 +15,12 @@ git clone --recursive https://github.com/username/main-repo.git
 git submodule update --init --recursive
 ```
 
+Pull the latest codes.
+
+```bash
+git submodule update --recursive --remote
+```
+
 # Change the permission
 
 ```bash
