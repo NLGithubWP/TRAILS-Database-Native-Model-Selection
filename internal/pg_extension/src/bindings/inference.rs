@@ -4,7 +4,7 @@ use std::ffi::c_long;
 use pgrx::prelude::*;
 use crate::bindings::ml_register::PY_MODULE_SAMS;
 use crate::bindings::ml_register::run_python_function;
-use std::time::{Instant, Duration};
+use std::time::{Instant};
 
 
 pub fn run_sams_inference(
@@ -19,10 +19,7 @@ pub fn run_sams_inference(
 
     let overall_start_time = Instant::now();
 
-    let database_name = "pg_extension";
     let mut last_id = 0;
-    let mut eva_results = serde_json::Value::Null; // Initializing the eva_results
-
 
     // Step 1: load model and columns etc
     let mut task_map = HashMap::new();
@@ -32,7 +29,7 @@ pub fn run_sams_inference(
     task_map.insert("model_path", model_path.clone());
     let task_json = json!(task_map).to_string();
     // here it cache a state
-    let sample_result = run_python_function(
+    run_python_function(
         &PY_MODULE_SAMS,
         &task_json,
         "model_inference_load_model");
@@ -117,7 +114,7 @@ pub fn run_sams_inference(
 
     let eva_task_json = json!(eva_task_map).to_string(); // Corrected this line
 
-    eva_results = run_python_function(
+    run_python_function(
         &PY_MODULE_SAMS,
         &eva_task_json,
         "model_inference_compute");
