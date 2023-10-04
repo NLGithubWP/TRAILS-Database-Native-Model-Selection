@@ -176,7 +176,7 @@ pub fn run_sams_inference(
     config_file: String,
     col_cardinalities_file: String,
     model_path: String,
-    sql: string,
+    sql: String,
     batch_size: i32,
 ) -> String {
     crate::bindings::inference::run_sams_inference(
