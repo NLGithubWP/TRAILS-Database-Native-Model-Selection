@@ -249,7 +249,7 @@ pub fn run_sams_inference_shared_memory(
     let shmem_name = "my_shared_memory";
     let mut my_shmem = ShmemConf::new()
         .size(tup_table.to_string().len())
-        .set_os_path(shmem_name)
+        .os_id(shmem_name)
         .create()
         .unwrap();
 
