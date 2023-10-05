@@ -143,7 +143,7 @@ pub fn run_sams_inference(
 }
 
 
-pub unsafe fn run_sams_inference_shared_memory(
+pub fn run_sams_inference_shared_memory(
     dataset: &String,
     condition: &String,
     config_file: &String,
@@ -244,23 +244,35 @@ pub unsafe fn run_sams_inference_shared_memory(
     };
     let mini_batch_json = tup_table.to_string();
 
-    let serialized_data = serde_json::to_string(&tup_table).unwrap();
-    let required_size = serialized_data.len();
-    // It's a good idea to add some extra bytes for potential overhead or to ensure that the
-    // entire data can fit without issues.
-    let shmem_size = required_size + 1024; // Adding an extra kilobyte for safety
 
-    // Create or open the shared memory
-    let shmem_name = "my_shmem";
-    let shmem = match ShmemConf::new().name(shmem_name).size(shmem_size).create() {
-        Ok(v) => v,
-        Err(e) => {
-            return serde_json::json!(format!("Failed to create or open shared memory : {}", e));
-        },
-    };
+    // Set an identifier for the shared memory
+    let shmem_name = "my_shared_memory";
+    let mut my_shmem = ShmemConf::new()
+        .set_size(tup_table.to_string().len())
+        .set_os_path(shmem_name)
+        .create()
+        .unwrap();
 
-    // Write your data to shared memory
-    shmem.as_mut_slice()[..serialized_data.len()].copy_from_slice(serialized_data.as_bytes());
+    // Write data to shared memory
+    my_shmem.as_slice().copy_from_slice(tup_table.to_string().as_bytes());
+    //
+    // let serialized_data = serde_json::to_string(&tup_table).unwrap();
+    // let required_size = serialized_data.len();
+    // // It's a good idea to add some extra bytes for potential overhead or to ensure that the
+    // // entire data can fit without issues.
+    // let shmem_size = required_size + 1024; // Adding an extra kilobyte for safety
+    //
+    // // Create or open the shared memory
+    // let shmem_name = "my_shmem";
+    // let shmem = match ShmemConf::new().name(shmem_name).size(shmem_size).create() {
+    //     Ok(v) => v,
+    //     Err(e) => {
+    //         return serde_json::json!(format!("Failed to create or open shared memory : {}", e));
+    //     },
+    // };
+    //
+    // // Write your data to shared memory
+    // shmem.as_mut_slice()[..serialized_data.len()].copy_from_slice(serialized_data.as_bytes());
 
     let end_time = Instant::now();
     let data_query_time = end_time.duration_since(start_time).as_secs_f64();
