@@ -355,7 +355,7 @@ pub fn run_sams_inference_shared_memory_write_once(
     let start_time = Instant::now();
     // Use unsafe to access and write to the raw memory
     unsafe {
-        Spi::connect(|client| {
+        let _ = Spi::connect(|client| {
             let query = format!("SELECT * FROM {}_train {} LIMIT {}", dataset, sql, batch_size);
             let mut cursor = client.open_cursor(&query, None);
             let table = match cursor.fetch(batch_size as c_long) {
