@@ -252,9 +252,8 @@ pub fn run_sams_inference_shared_memory(
         .create()
         .unwrap();
 
-    let tup_table_str = tup_table.to_string();
-    let data_to_write = tup_table_str.as_bytes();
     // Use unsafe to access and write to the raw memory
+    let data_to_write = mini_batch_json.as_bytes();
     unsafe {
         // Get the raw pointer to the shared memory
         let shmem_ptr = my_shmem.as_ptr() as *mut u8;
@@ -262,25 +261,6 @@ pub fn run_sams_inference_shared_memory(
         std::ptr::copy_nonoverlapping(
             data_to_write.as_ptr(), shmem_ptr, data_to_write.len());
     }
-
-    //
-    // let serialized_data = serde_json::to_string(&tup_table).unwrap();
-    // let required_size = serialized_data.len();
-    // // It's a good idea to add some extra bytes for potential overhead or to ensure that the
-    // // entire data can fit without issues.
-    // let shmem_size = required_size + 1024; // Adding an extra kilobyte for safety
-    //
-    // // Create or open the shared memory
-    // let shmem_name = "my_shmem";
-    // let shmem = match ShmemConf::new().name(shmem_name).size(shmem_size).create() {
-    //     Ok(v) => v,
-    //     Err(e) => {
-    //         return serde_json::json!(format!("Failed to create or open shared memory : {}", e));
-    //     },
-    // };
-    //
-    // // Write your data to shared memory
-    // shmem.as_mut_slice()[..serialized_data.len()].copy_from_slice(serialized_data.as_bytes());
 
     let end_time = Instant::now();
     let data_query_time = end_time.duration_since(start_time).as_secs_f64();
