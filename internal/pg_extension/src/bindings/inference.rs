@@ -366,7 +366,7 @@ pub fn run_sams_inference_shared_memory_write_once(
             let mut offset = 0;  // Keep track of how much we've written to shared memory
 
             // Write the opening square bracket
-            shmem_ptr.write(b"[").unwrap();
+            shmem_ptr.offset(offset as isize).write(b"["[0]);
             offset += 1;
 
             let mut is_first_row = true;
@@ -374,7 +374,7 @@ pub fn run_sams_inference_shared_memory_write_once(
 
                 // If not the first row, write a comma before the next row's data
                 if !is_first_row {
-                    shmem_ptr.offset(offset as isize).write(b",").unwrap();
+                    shmem_ptr.offset(offset as isize).write(b","[0]);
                     offset += 1;
                 } else {
                     is_first_row = false;
@@ -430,7 +430,7 @@ pub fn run_sams_inference_shared_memory_write_once(
                 offset += bytes.len();
             }
             // Write the closing square bracket after all rows
-            shmem_ptr.offset(offset as isize).write(b"]").unwrap();
+            shmem_ptr.offset(offset as isize).write(b"]"[0]);
 
             // Return OK or some status
             Ok(())
