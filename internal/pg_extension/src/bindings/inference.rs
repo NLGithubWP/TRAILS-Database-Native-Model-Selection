@@ -244,6 +244,12 @@ pub fn run_sams_inference_shared_memory(
     };
     let mini_batch_json = tup_table.to_string();
 
+    let end_time = Instant::now();
+    let data_query_time = end_time.duration_since(start_time).as_secs_f64();
+    response.insert("data_query_time", data_query_time.clone());
+
+
+    let start_time = Instant::now();
     // Set an identifier for the shared memory
     let shmem_name = "my_shared_memory";
     let my_shmem = ShmemConf::new()
@@ -263,8 +269,8 @@ pub fn run_sams_inference_shared_memory(
     }
 
     let end_time = Instant::now();
-    let data_query_time = end_time.duration_since(start_time).as_secs_f64();
-    response.insert("data_query_time", data_query_time.clone());
+    let data_copy_time = end_time.duration_since(start_time).as_secs_f64();
+    response.insert("data_copy", data_copy_time.clone());
 
     let start_time = Instant::now();
     // Step 3: model evaluate in Python
@@ -286,7 +292,7 @@ pub fn run_sams_inference_shared_memory(
 
     let overall_end_time = Instant::now();
     let overall_elapsed_time = overall_end_time.duration_since(overall_start_time).as_secs_f64();
-    let diff_time = model_init_time + data_query_time + compute_time - overall_elapsed_time;
+    let diff_time = model_init_time + data_query_time + data_copy_time + compute_time - overall_elapsed_time;
 
     response.insert("overall_time", overall_elapsed_time.clone());
     response.insert("diff", diff_time.clone());
