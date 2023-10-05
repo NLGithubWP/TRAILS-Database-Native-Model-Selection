@@ -99,18 +99,33 @@ Config
 # generate schema
 cargo pgrx schema >> /home/postgres/.pgrx/14.9/pgrx-install/share/extension/pg_extension--0.1.0.sql
 
+-- src/lib.rs:196
+-- pg_extension::sams_inference_shared
+CREATE  FUNCTION "sams_inference_shared"(
+	"dataset" TEXT, /* alloc::string::String */
+	"condition" TEXT, /* alloc::string::String */
+	"config_file" TEXT, /* alloc::string::String */
+	"col_cardinalities_file" TEXT, /* alloc::string::String */
+	"model_path" TEXT, /* alloc::string::String */
+	"sql" TEXT, /* alloc::string::String */
+	"batch_size" INT /* i32 */
+) RETURNS TEXT /* alloc::string::String */
+IMMUTABLE STRICT PARALLEL SAFE 
+LANGUAGE c /* Rust */
+AS 'MODULE_PATHNAME', 'run_sams_inference_shared_wrapper';
+
 -- src/lib.rs:173
 -- pg_extension::sams_inference
 CREATE  FUNCTION "sams_inference"(
-        "dataset" TEXT, /* alloc::string::String */
-        "condition" TEXT, /* alloc::string::String */
-        "config_file" TEXT, /* alloc::string::String */
-        "col_cardinalities_file" TEXT, /* alloc::string::String */
-        "model_path" TEXT, /* alloc::string::String */
-        "sql" TEXT, /* alloc::string::String */
-        "batch_size" INT /* i32 */
+	"dataset" TEXT, /* alloc::string::String */
+	"condition" TEXT, /* alloc::string::String */
+	"config_file" TEXT, /* alloc::string::String */
+	"col_cardinalities_file" TEXT, /* alloc::string::String */
+	"model_path" TEXT, /* alloc::string::String */
+	"sql" TEXT, /* alloc::string::String */
+	"batch_size" INT /* i32 */
 ) RETURNS TEXT /* alloc::string::String */
-IMMUTABLE STRICT PARALLEL SAFE
+IMMUTABLE STRICT PARALLEL SAFE 
 LANGUAGE c /* Rust */
 AS 'MODULE_PATHNAME', 'run_sams_inference_wrapper';
 
@@ -247,7 +262,6 @@ SELECT sams_inference_shared(
 
 
 
-
 SELECT sams_inference(
     'frappe', 
     '{}', 
@@ -303,6 +317,13 @@ SELECT sams_inference(
 
 
 
+
+```bash
+
+CUDA_VISIBLE_DEVICES=-1 python ./internal/ml/model_slicing/sams_predict_workload.py /hdd1/sams/tensor_log/frappe/dnn_K16_alpha4 --device cpu
+
+python ./internal/ml/model_slicing/sams_predict_workload.py /hdd1/sams/tensor_log/frappe/dnn_K16_alpha4 --device cuda
+```
 
 
 
