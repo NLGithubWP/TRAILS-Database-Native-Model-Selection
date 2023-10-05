@@ -143,7 +143,7 @@ pub fn run_sams_inference(
 }
 
 
-pub fn run_sams_inference_shared_memory(
+pub unsafe fn run_sams_inference_shared_memory(
     dataset: &String,
     condition: &String,
     config_file: &String,
@@ -254,12 +254,10 @@ pub fn run_sams_inference_shared_memory(
     let shmem_name = "my_shmem";
     let shmem = match ShmemConf::new().size(shmem_size).create() {
         Ok(v) => v,
-        Err(ShmemError::MappingExists) => ShmemConf::new().open().unwrap(),
-        Err(e) => panic!("Failed to create or open shared memory : {}", e),
+        Err(e) => return serde_json::json!(format!("Failed to create or open shared memory : {}", e));
     };
 
     // Write your data to shared memory
-    let serialized_data = serde_json::to_string(&tup_table).unwrap();
     shmem.as_slice()[..serialized_data.len()].copy_from_slice(serialized_data.as_bytes());
 
     let end_time = Instant::now();
