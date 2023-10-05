@@ -254,7 +254,16 @@ pub fn run_sams_inference_shared_memory(
         .unwrap();
 
     // Write data to shared memory
-    my_shmem.as_mut_slice().copy_from_slice(tup_table.to_string().as_bytes());
+    unsafe {
+        let data_to_write = tup_table.to_string().as_bytes();
+        let shmem_slice = my_shmem.as_slice();
+        if data_to_write.len() <= shmem_slice.len() {
+            shmem_slice[..data_to_write.len()].copy_from_slice(data_to_write);
+        } else {
+            // Handle error: data_to_write is bigger than the shared memory size
+        }
+    }
+
     //
     // let serialized_data = serde_json::to_string(&tup_table).unwrap();
     // let required_size = serialized_data.len();
