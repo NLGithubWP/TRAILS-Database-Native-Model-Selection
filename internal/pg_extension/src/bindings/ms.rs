@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use pgrx::prelude::*;
 use crate::bindings::ml_register::PY_MODULE;
 use crate::bindings::ml_register::run_python_function;
-use std::time::{Instant, Duration};
+use std::time::{Instant};
 
 
 pub fn profiling_filtering_phase(
@@ -82,7 +82,6 @@ pub fn benchmark_filtering_latency_in_db(
 
     let overall_start_time = Instant::now();
 
-    let database_name = "pg_extension";
     let mut last_id = 0;
     let mut eva_results = serde_json::Value::Null; // Initializing the eva_results
 
