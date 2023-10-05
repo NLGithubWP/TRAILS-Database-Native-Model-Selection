@@ -17,7 +17,6 @@ pub fn run_sams_inference(
     sql: &String,
     batch_size: i32,
 ) -> serde_json::Value {
-
     let mut response = HashMap::new();
 
     let overall_start_time = Instant::now();
@@ -60,9 +59,9 @@ pub fn run_sams_inference(
             let col0 = match row.get::<i32>(1) {
                 Ok(Some(val)) => {
                     // Update last_id with the retrieved value
-                    if val > 100000{
+                    if val > 100000 {
                         last_id = 0;
-                    }else{
+                    } else {
                         last_id = val
                     }
                     val.to_string()
@@ -78,7 +77,7 @@ pub fn run_sams_inference(
             };
             each_row.push(col1);
             // add fields
-            let texts: Vec<String> = (3..row.columns()+1)
+            let texts: Vec<String> = (3..row.columns() + 1)
                 .filter_map(|i| {
                     match row.get::<&str>(i) {
                         Ok(Some(s)) => Some(s.to_string()),
@@ -152,7 +151,6 @@ pub fn run_sams_inference_shared_memory(
     sql: &String,
     batch_size: i32,
 ) -> serde_json::Value {
-
     let mut response = HashMap::new();
 
     let overall_start_time = Instant::now();
@@ -195,9 +193,9 @@ pub fn run_sams_inference_shared_memory(
             let col0 = match row.get::<i32>(1) {
                 Ok(Some(val)) => {
                     // Update last_id with the retrieved value
-                    if val > 100000{
+                    if val > 100000 {
                         last_id = 0;
-                    }else{
+                    } else {
                         last_id = val
                     }
                     val.to_string()
@@ -213,7 +211,7 @@ pub fn run_sams_inference_shared_memory(
             };
             each_row.push(col1);
             // add fields
-            let texts: Vec<String> = (3..row.columns()+1)
+            let texts: Vec<String> = (3..row.columns() + 1)
                 .filter_map(|i| {
                     match row.get::<&str>(i) {
                         Ok(Some(s)) => Some(s.to_string()),
@@ -310,7 +308,6 @@ pub fn run_sams_inference_shared_memory_write_once(
     sql: &String,
     batch_size: i32,
 ) -> serde_json::Value {
-
     let mut response = HashMap::new();
 
     let overall_start_time = Instant::now();
@@ -351,7 +348,12 @@ pub fn run_sams_inference_shared_memory_write_once(
 
     let shmem_ptr = my_shmem.as_ptr() as *mut u8;
 
-// Use unsafe to access and write to the raw memory
+    let end_time = Instant::now();
+    let mem_allocate_time = end_time.duration_since(start_time).as_secs_f64();
+    response.insert("mem_allocate_time", mem_allocate_time.clone());
+
+    let start_time = Instant::now();
+    // Use unsafe to access and write to the raw memory
     unsafe {
         Spi::connect(|client| {
             let query = format!("SELECT * FROM {}_train {} LIMIT {}", dataset, sql, batch_size);
@@ -369,9 +371,9 @@ pub fn run_sams_inference_shared_memory_write_once(
                 let col0 = match row.get::<i32>(1) {
                     Ok(Some(val)) => {
                         // Update last_id with the retrieved value
-                        if val > 100000{
+                        if val > 100000 {
                             last_id = 0;
-                        }else{
+                        } else {
                             last_id = val
                         }
                         val.to_string()
@@ -387,7 +389,7 @@ pub fn run_sams_inference_shared_memory_write_once(
                 };
                 each_row.push(col1);
                 // add fields
-                let texts: Vec<String> = (3..row.columns()+1)
+                let texts: Vec<String> = (3..row.columns() + 1)
                     .filter_map(|i| {
                         match row.get::<&str>(i) {
                             Ok(Some(s)) => Some(s.to_string()),
@@ -440,7 +442,7 @@ pub fn run_sams_inference_shared_memory_write_once(
 
     let overall_end_time = Instant::now();
     let overall_elapsed_time = overall_end_time.duration_since(overall_start_time).as_secs_f64();
-    let diff_time = model_init_time + data_query_time + data_copy_time + compute_time - overall_elapsed_time;
+    let diff_time = model_init_time + data_query_time + compute_time - overall_elapsed_time;
 
     response.insert("overall_time", overall_elapsed_time.clone());
     response.insert("diff", diff_time.clone());
