@@ -254,7 +254,9 @@ pub unsafe fn run_sams_inference_shared_memory(
     let shmem_name = "my_shmem";
     let shmem = match ShmemConf::new().size(shmem_size).create() {
         Ok(v) => v,
-        Err(e) => return serde_json::json!(format!("Failed to create or open shared memory : {}", e));
+        Err(e) => {
+            return serde_json::json!(format!("Failed to create or open shared memory : {}", e));
+        },
     };
 
     // Write your data to shared memory
