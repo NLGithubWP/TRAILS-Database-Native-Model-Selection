@@ -365,7 +365,21 @@ pub fn run_sams_inference_shared_memory_write_once(
 
             let mut offset = 0;  // Keep track of how much we've written to shared memory
 
+            // Write the opening square bracket
+            shmem_ptr.write(b"[").unwrap();
+            offset += 1;
+
+            let mut is_first_row = true;
             for row in table.into_iter() {
+
+                // If not the first row, write a comma before the next row's data
+                if !is_first_row {
+                    shmem_ptr.offset(offset as isize).write(b",").unwrap();
+                    offset += 1;
+                } else {
+                    is_first_row = false;
+                }
+
                 let mut each_row = Vec::new();
                 // add primary key
                 let col0 = match row.get::<i32>(1) {
@@ -410,9 +424,13 @@ pub fn run_sams_inference_shared_memory_write_once(
                 }
 
                 // Copy the serialized row into shared memory
-                std::ptr::copy_nonoverlapping(bytes.as_ptr(), shmem_ptr.offset(offset as isize), bytes.len());
+                std::ptr::copy_nonoverlapping(bytes.as_ptr(),
+                                              shmem_ptr.offset(offset as isize),
+                                              bytes.len());
                 offset += bytes.len();
             }
+            // Write the closing square bracket after all rows
+            shmem_ptr.offset(offset as isize).write(b"]").unwrap();
 
             // Return OK or some status
             Ok(())
