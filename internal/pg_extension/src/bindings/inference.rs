@@ -138,7 +138,7 @@ pub fn run_sams_inference(
     response.insert("diff", diff_time.clone());
 
 
-    response.insert("config_file", config_file.clone());
+
     let response_json = json!(response).to_string();
     run_python_function(
         &PY_MODULE_SAMS,
@@ -473,7 +473,7 @@ pub fn run_sams_inference_shared_memory_write_once(
     response.insert("overall_time", overall_elapsed_time.clone());
     response.insert("diff", diff_time.clone());
 
-    response.insert("config_file", config_file.clone());
+
     let response_json = json!(response).to_string();
     run_python_function(
         &PY_MODULE_SAMS,
