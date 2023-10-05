@@ -17,6 +17,8 @@ pub fn run_sams_inference(
     batch_size: i32,
 ) -> serde_json::Value {
 
+    let mut response = HashMap::new();
+
     let overall_start_time = Instant::now();
 
     let mut last_id = 0;
@@ -33,6 +35,10 @@ pub fn run_sams_inference(
         &PY_MODULE_SAMS,
         &task_json,
         "model_inference_load_model");
+
+    let _end_time = Instant::now();
+    let model_init_time = _end_time.duration_since(overall_start_time).as_secs_f64();
+    response.insert("model_init_time", model_init_time.clone());
 
     // Step 2: query data via SPI
     let start_time = Instant::now();
@@ -105,6 +111,9 @@ pub fn run_sams_inference(
     let elapsed_time = end_time.duration_since(start_time);
     let elapsed_seconds = elapsed_time.as_secs_f64();
 
+    response.insert("data_query_time", elapsed_seconds.clone());
+
+    let start_time = Instant::now();
     // Step 3: model evaluate in Python
     let mut eva_task_map = HashMap::new();
     eva_task_map.insert("config_file", config_file.clone());
@@ -119,11 +128,18 @@ pub fn run_sams_inference(
         &eva_task_json,
         "model_inference_compute");
 
+    let end_time = Instant::now();
+    let elapsed_time = end_time.duration_since(start_time);
+    let elapsed_seconds = elapsed_time.as_secs_f64();
+    response.insert("compute_time", elapsed_seconds.clone());
+
     let overall_end_time = Instant::now();
     let overall_elapsed_time = overall_end_time.duration_since(overall_start_time);
     let overall_elapsed_seconds = overall_elapsed_time.as_secs_f64();
 
+    response.insert("overall_time", overall_elapsed_seconds.clone());
+
     // Step 4: Return to PostgresSQL
-    return serde_json::json!(overall_elapsed_seconds.to_string());
+    return serde_json::json!(response.to_string());
 }
 
