@@ -108,10 +108,8 @@ pub fn run_sams_inference(
     };
 
     let end_time = Instant::now();
-    let elapsed_time = end_time.duration_since(start_time);
-    let elapsed_seconds = elapsed_time.as_secs_f64();
-
-    response.insert("data_query_time", elapsed_seconds.clone());
+    let data_query_time = end_time.duration_since(start_time).as_secs_f64();
+    response.insert("data_query_time", data_query_time.clone());
 
     let start_time = Instant::now();
     // Step 3: model evaluate in Python
@@ -129,15 +127,15 @@ pub fn run_sams_inference(
         "model_inference_compute");
 
     let end_time = Instant::now();
-    let elapsed_time = end_time.duration_since(start_time);
-    let elapsed_seconds = elapsed_time.as_secs_f64();
-    response.insert("compute_time", elapsed_seconds.clone());
+    let compute_time = end_time.duration_since(start_time).as_secs_f64();
+    response.insert("compute_time", compute_time.clone());
 
     let overall_end_time = Instant::now();
-    let overall_elapsed_time = overall_end_time.duration_since(overall_start_time);
-    let overall_elapsed_seconds = overall_elapsed_time.as_secs_f64();
+    let overall_elapsed_time = overall_end_time.duration_since(overall_start_time).as_secs_f64();
+    let diff_time = model_init_time + data_query_time + compute_time - overall_elapsed_time;
 
-    response.insert("overall_time", overall_elapsed_seconds.clone());
+    response.insert("overall_time", overall_elapsed_time.clone());
+    response.insert("diff", diff_time.clone());
 
     // Step 4: Return to PostgresSQL
     return serde_json::json!(response);
