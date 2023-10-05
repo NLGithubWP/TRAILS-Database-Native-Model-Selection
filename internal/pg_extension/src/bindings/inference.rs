@@ -299,3 +299,145 @@ pub fn run_sams_inference_shared_memory(
     // Step 4: Return to PostgresSQL
     return serde_json::json!(response);
 }
+
+
+pub fn run_sams_inference_shared_memory_write_once(
+    dataset: &String,
+    condition: &String,
+    config_file: &String,
+    col_cardinalities_file: &String,
+    model_path: &String,
+    sql: &String,
+    batch_size: i32,
+) -> serde_json::Value {
+
+    let mut response = HashMap::new();
+
+    let overall_start_time = Instant::now();
+
+    let mut last_id = 0;
+
+    // Step 1: load model and columns etc
+    let mut task_map = HashMap::new();
+    task_map.insert("where_cond", condition.clone());
+    task_map.insert("config_file", config_file.clone());
+    task_map.insert("col_cardinalities_file", col_cardinalities_file.clone());
+    task_map.insert("model_path", model_path.clone());
+    let task_json = json!(task_map).to_string();
+    // here it cache a state
+    run_python_function(
+        &PY_MODULE_SAMS,
+        &task_json,
+        "model_inference_load_model");
+
+    let _end_time = Instant::now();
+    let model_init_time = _end_time.duration_since(overall_start_time).as_secs_f64();
+    response.insert("model_init_time", model_init_time.clone());
+
+    // Step 2: query data via SPI
+    let start_time = Instant::now();
+    // Allocate shared memory in advance
+    let shmem_name = "my_shared_memory";
+    let estimated_max_size = 1024*1024*1024/* some estimate based on batch_size */;
+    let my_shmem = ShmemConf::new()
+        .size(estimated_max_size)
+        .os_id(shmem_name)
+        .create()
+        .unwrap();
+
+    // Use a Cursor-like object to keep track of where in shared memory you are writing
+    let mut shmem_cursor = 0;
+
+    // Query data via SPI
+    let results: Result<(), String> = Spi::connect(|client| {
+        let query = format!("SELECT * FROM {}_train {} LIMIT {}", dataset, sql, batch_size);
+        let mut cursor = client.open_cursor(&query, None);
+        let table = match cursor.fetch(batch_size as c_long) {
+            Ok(table) => table,
+            Err(e) => return Err(e.to_string()),
+        };
+
+        unsafe {
+            let shmem_ptr = my_shmem.as_ptr() as *mut u8;
+
+            for row in table.into_iter() {
+                let mut each_row = Vec::new();
+                // add primary key
+                let col0 = match row.get::<i32>(1) {
+                    Ok(Some(val)) => {
+                        // Update last_id with the retrieved value
+                        if val > 100000{
+                            last_id = 0;
+                        }else{
+                            last_id = val
+                        }
+                        val.to_string()
+                    }
+                    Ok(None) => "".to_string(), // Handle the case when there's no valid value
+                    Err(e) => e.to_string(),
+                };
+                each_row.push(col0);
+                // add label
+                let col1 = match row.get::<i32>(2) {
+                    Ok(val) => val.map(|i| i.to_string()).unwrap_or_default(),
+                    Err(e) => e.to_string(),
+                };
+                each_row.push(col1);
+                // add fields
+                let texts: Vec<String> = (3..row.columns()+1)
+                    .filter_map(|i| {
+                        match row.get::<&str>(i) {
+                            Ok(Some(s)) => Some(s.to_string()),
+                            Ok(None) => None,
+                            Err(e) => Some(e.to_string()),  // Convert error to string
+                        }
+                    }).collect();
+                each_row.extend(texts);
+
+                // Serialize each row into shared memory
+                let serialized_row = serde_json::to_string(&each_row).unwrap();
+                let bytes = serialized_row.as_bytes();
+                // Check if there's enough space left in shared memory
+                if offset + bytes.len() > shmem_size {
+                    // Handle error: not enough space in shared memory
+                    return Err("Shared memory exceeded estimated size.".to_string());
+                }
+                // Copy the serialized row into shared memory
+                std::ptr::copy_nonoverlapping(bytes.as_ptr(), shmem_ptr.offset(offset as isize), bytes.len());
+                offset += bytes.len();
+            }
+        }
+        Ok(())
+    });
+
+    let end_time = Instant::now();
+    let data_query_time = end_time.duration_since(start_time).as_secs_f64();
+    response.insert("data_query_time", data_query_time.clone());
+
+    let start_time = Instant::now();
+    // Step 3: model evaluate in Python
+    let mut eva_task_map = HashMap::new();
+    eva_task_map.insert("config_file", config_file.clone());
+    eva_task_map.insert("spi_seconds", data_query_time.to_string());
+
+    let eva_task_json = json!(eva_task_map).to_string(); // Corrected this line
+
+    run_python_function(
+        &PY_MODULE_SAMS,
+        &eva_task_json,
+        "model_inference_compute_shared_memory");
+
+    let end_time = Instant::now();
+    let compute_time = end_time.duration_since(start_time).as_secs_f64();
+    response.insert("compute_time", compute_time.clone());
+
+    let overall_end_time = Instant::now();
+    let overall_elapsed_time = overall_end_time.duration_since(overall_start_time).as_secs_f64();
+    let diff_time = model_init_time + data_query_time + data_copy_time + compute_time - overall_elapsed_time;
+
+    response.insert("overall_time", overall_elapsed_time.clone());
+    response.insert("diff", diff_time.clone());
+
+    // Step 4: Return to PostgresSQL
+    return serde_json::json!(response);
+}
