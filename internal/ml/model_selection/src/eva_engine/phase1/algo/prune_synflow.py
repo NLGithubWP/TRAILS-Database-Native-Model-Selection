@@ -5,7 +5,7 @@ from src.common.constant import Config
 from src.eva_engine.phase1.utils.p_utils import get_layer_metric_array
 
 from singa import singa_wrap as singa
-from singa import device
+from singa import device as singa_device
 from singa import tensor
 from singa import opt
 from singa import autograd
@@ -318,7 +318,11 @@ class SynFlowEvaluator(Evaluator):
         world_size = 1
 
         ### singa setups
-        dev = device.get_default_device()
+        print ("device: \n", device)
+        if device == 'cpu':
+            dev = singa_device.get_default_device()
+        else:  # GPU
+            dev = singa_device.create_cuda_gpu_on(local_rank)  # need to change to CPU device for CPU-only machines
         dev.SetRandSeed(0)
         np.random.seed(0)
 
@@ -373,7 +377,7 @@ class SynFlowEvaluator(Evaluator):
         # train_loss += tensor.to_numpy(loss)[0]
         # all params turned to positive
         for pn_p_g_item in pn_p_g_list:
-            print ("absolute value parameter name: \n", pn_p_g_item[0])
+            # print ("absolute value parameter name: \n", pn_p_g_item[0])
             pn_p_g_item[1] = tensor.abs(pn_p_g_item[1])  # tensor actually ...
 
         # 2. Compute gradients with input of one dummy example ( 1-vector with dimension [1, c, h, w] )
@@ -417,9 +421,9 @@ class SynFlowEvaluator(Evaluator):
         ### step 4: calculate the multiplication of weights
         score = 0.0
         for pn_p_g_item in pn_p_g_list:
-            print ("calculate weight param * grad parameter name: \n", pn_p_g_item[0])
+            # print ("calculate weight param * grad parameter name: \n", pn_p_g_item[0])
             if len(pn_p_g_item[1].shape) == 2: # param_value.data is "weight"
-                print ("pn_p_g_item[1].shape: \n", pn_p_g_item[1].shape)
+                # print ("pn_p_g_item[1].shape: \n", pn_p_g_item[1].shape)
                 score += np.sum(np.absolute(tensor.to_numpy(pn_p_g_item[1]) * tensor.to_numpy(pn_p_g_item[2])))
         # print ("layer_hidden_list: \n", layer_hidden_list)
         print ("score: \n", score)

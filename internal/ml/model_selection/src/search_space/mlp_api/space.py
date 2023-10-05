@@ -187,6 +187,9 @@ class SINGADNNModel(model.Model):
         # self.num_classes = num_classes
         self.dimension = 2  # data dimension = 2
 
+        self.mlp_ninput = nfield * nemb
+        self.nfeat = nfeat
+
         layer_hidden_list = []
         for index, layer_size in enumerate(hidden_layer_list):
             layer_hidden_list.append(layer_size)
@@ -215,7 +218,17 @@ class SINGADNNModel(model.Model):
         y = self.relu(y)
         y = self.linear5(y)
         return y
-    
+   
+    def generate_all_ones_embedding(self):
+        """
+        Only for the MLP
+        Returns:
+        """
+        # batch_data = torch.ones(1, self.mlp_ninput).double()  # embedding
+        batch_data = torch.ones(1, self.nfeat).double()  # one-hot
+        print ("batch_data shape: ", batch_data.shape)
+        return batch_data
+
     def sample_subnet(self, arch_id: str, device: str):
         # arch_id e.g., '128-128-128-128'
         sizes = list(map(int, arch_id.split('-')))
