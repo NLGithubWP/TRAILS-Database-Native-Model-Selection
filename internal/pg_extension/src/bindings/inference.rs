@@ -468,3 +468,31 @@ pub fn run_sams_inference_shared_memory_write_once(
     // Step 4: Return to PostgresSQL
     return serde_json::json!(response);
 }
+
+
+pub fn init_model(
+    dataset: &String,
+    condition: &String,
+    config_file: &String,
+    col_cardinalities_file: &String,
+    model_path: &String,
+    sql: &String,
+    batch_size: i32,
+) -> serde_json::Value {
+    let overall_start_time = Instant::now();
+    // Step 1: load model and columns etc
+    let mut task_map = HashMap::new();
+    task_map.insert("where_cond", condition.clone());
+    task_map.insert("config_file", config_file.clone());
+    task_map.insert("col_cardinalities_file", col_cardinalities_file.clone());
+    task_map.insert("model_path", model_path.clone());
+    let task_json = json!(task_map).to_string();
+    // here it cache a state
+    run_python_function(
+        &PY_MODULE_SAMS,
+        &task_json,
+        "model_inference_load_model");
+    let _end_time = Instant::now();
+    let model_init_time = _end_time.duration_since(overall_start_time).as_secs_f64();
+    return serde_json::json!(model_init_time);
+}
