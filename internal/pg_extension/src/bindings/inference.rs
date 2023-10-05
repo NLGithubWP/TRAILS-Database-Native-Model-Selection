@@ -248,7 +248,7 @@ pub fn run_sams_inference_shared_memory(
     // Set an identifier for the shared memory
     let shmem_name = "my_shared_memory";
     let mut my_shmem = ShmemConf::new()
-        .set_size(tup_table.to_string().len())
+        .size(tup_table.to_string().len())
         .set_os_path(shmem_name)
         .create()
         .unwrap();
