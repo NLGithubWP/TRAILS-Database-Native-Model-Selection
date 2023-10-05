@@ -115,7 +115,7 @@ pub fn run_sams_inference(
     let shmem = match SharedMem::create(SharedMemConf::new().set_os_path(shmem_name).set_size(shmem_size)) {
         Ok(val) => val,
         Err(e) => {
-            return serde_json::json!("Failed to create shared memory segment : {}", e);
+            return serde_json::json!(format!("Failed to create shared memory segment : {}", e));
         }
     };
 
