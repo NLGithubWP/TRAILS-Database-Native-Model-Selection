@@ -247,14 +247,14 @@ pub fn run_sams_inference_shared_memory(
 
     // Set an identifier for the shared memory
     let shmem_name = "my_shared_memory";
-    let mut my_shmem = ShmemConf::new()
+    let my_shmem = ShmemConf::new()
         .size(tup_table.to_string().len())
         .os_id(shmem_name)
         .create()
         .unwrap();
 
     // Write data to shared memory
-    my_shmem.as_slice().copy_from_slice(tup_table.to_string().as_bytes());
+    my_shmem.as_mut_slice().copy_from_slice(tup_table.to_string().as_bytes());
     //
     // let serialized_data = serde_json::to_string(&tup_table).unwrap();
     // let required_size = serialized_data.len();
