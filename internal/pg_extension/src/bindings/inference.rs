@@ -5,7 +5,7 @@ use pgrx::prelude::*;
 use crate::bindings::ml_register::PY_MODULE_SAMS;
 use crate::bindings::ml_register::run_python_function;
 use std::time::{Instant};
-use shared_memory::some_module::{SharedMem, SharedMemConf};
+use shared_memory::*;
 
 
 pub fn run_sams_inference(
@@ -244,22 +244,23 @@ pub fn run_sams_inference_shared_memory(
     };
     let mini_batch_json = tup_table.to_string();
 
-    // Right after your SPI code where you populate mini_batch
-    let shmem_name = "my_shmem";
     let serialized_data = serde_json::to_string(&tup_table).unwrap();
-    let shmem_size = serialized_data.len() + 1;
-    let shmem = match SharedMem::create(SharedMemConf::new().set_os_path(shmem_name).set_size(shmem_size)) {
-        Ok(val) => val,
-        Err(e) => {
-            return serde_json::json!(format!("Failed to create shared memory segment : {}", e));
-        }
+    let required_size = serialized_data.len();
+    // It's a good idea to add some extra bytes for potential overhead or to ensure that the
+    // entire data can fit without issues.
+    let shmem_size = required_size + 1024; // Adding an extra kilobyte for safety
+
+    // Create or open the shared memory
+    let shmem_name = "my_shmem";
+    let shmem = match ShmemConf::new().size(shmem_size).create() {
+        Ok(v) => v,
+        Err(ShmemError::MappingExists) => ShmemConf::new().open().unwrap(),
+        Err(e) => panic!("Failed to create or open shared memory : {}", e),
     };
 
-    //Lock the shared memory for write
-    {
-        let mut data = shmem.wlock_as_slice::<u8>().unwrap();
-        data.copy_from_slice(serialized_data.as_bytes());
-    }
+    // Write your data to shared memory
+    let serialized_data = serde_json::to_string(&tup_table).unwrap();
+    shmem.as_slice()[..serialized_data.len()].copy_from_slice(serialized_data.as_bytes());
 
     let end_time = Instant::now();
     let data_query_time = end_time.duration_since(start_time).as_secs_f64();

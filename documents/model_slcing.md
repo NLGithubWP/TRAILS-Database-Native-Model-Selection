@@ -235,6 +235,18 @@ SELECT sams_inference(
     40000
 ); 
 
+SELECT sams_inference_shared(
+    'frappe', 
+    '{}', 
+    '/project/TRAILS/internal/ml/model_selection/config.ini', 
+    '/project/TRAILS/frappe_col_cardinalities', 
+    '/project/tensor_log/frappe/dnn_K16_alpha4', 
+    '', 
+    40000
+); 
+
+
+
 
 SELECT sams_inference(
     'frappe', 
