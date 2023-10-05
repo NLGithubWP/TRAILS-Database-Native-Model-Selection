@@ -139,7 +139,9 @@ pub fn run_sams_inference(
 
     response.insert("overall_time", overall_elapsed_seconds.clone());
 
+    let response_str = serde_json::to_string(&response).unwrap();
+
     // Step 4: Return to PostgresSQL
-    return serde_json::json!(response.to_string());
+    return serde_json::json!(response_str);
 }
 
