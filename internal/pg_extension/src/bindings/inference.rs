@@ -134,7 +134,7 @@ pub fn run_sams_inference(
     let overall_elapsed_time = overall_end_time.duration_since(overall_start_time).as_secs_f64();
     let diff_time = model_init_time + data_query_time + python_compute_time - overall_elapsed_time;
 
-    response.insert("overall_time", overall_elapsed_time.clone());
+    response.insert("overall_query_latency", overall_elapsed_time.clone());
     response.insert("diff", diff_time.clone());
 
 
@@ -299,7 +299,7 @@ pub fn run_sams_inference_shared_memory(
     let overall_elapsed_time = overall_end_time.duration_since(overall_start_time).as_secs_f64();
     let diff_time = model_init_time + data_query_time + data_copy_time + python_compute_time - overall_elapsed_time;
 
-    response.insert("overall_time", overall_elapsed_time.clone());
+    response.insert("overall_query_latency", overall_elapsed_time.clone());
     response.insert("diff", diff_time.clone());
 
     // Step 4: Return to PostgresSQL
@@ -470,7 +470,7 @@ pub fn run_sams_inference_shared_memory_write_once(
     let overall_elapsed_time = overall_end_time.duration_since(overall_start_time).as_secs_f64();
     let diff_time = model_init_time + data_query_time + python_compute_time - overall_elapsed_time;
 
-    response.insert("overall_time", overall_elapsed_time.clone());
+    response.insert("overall_query_latency", overall_elapsed_time.clone());
     response.insert("diff", diff_time.clone());
 
 
