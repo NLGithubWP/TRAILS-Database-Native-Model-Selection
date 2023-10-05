@@ -240,22 +240,16 @@ pub fn sams_inference_shared_write_once(
 #[pg_extern(immutable, parallel_safe, name = "sams_model_init")]
 #[allow(unused_variables)]
 pub fn sams_model_init(
-    dataset: String,
     condition: String,
     config_file: String,
     col_cardinalities_file: String,
-    model_path: String,
-    sql: String,
-    batch_size: i32,
+    model_path: String
 ) -> String {
     crate::bindings::inference::init_model(
-        &dataset,
         &condition,
         &config_file,
         &col_cardinalities_file,
-        &model_path,
-        &sql,
-        batch_size).to_string()
+        &model_path).to_string()
 }
 
 

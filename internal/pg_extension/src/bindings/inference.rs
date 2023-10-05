@@ -471,13 +471,10 @@ pub fn run_sams_inference_shared_memory_write_once(
 
 
 pub fn init_model(
-    dataset: &String,
     condition: &String,
     config_file: &String,
     col_cardinalities_file: &String,
     model_path: &String,
-    sql: &String,
-    batch_size: i32,
 ) -> serde_json::Value {
     let overall_start_time = Instant::now();
     // Step 1: load model and columns etc
