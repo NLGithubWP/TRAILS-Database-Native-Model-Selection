@@ -189,6 +189,29 @@ pub fn run_sams_inference(
         batch_size).to_string()
 }
 
+// Model Inference
+#[cfg(feature = "python")]
+#[pg_extern(immutable, parallel_safe, name = "sams_inference_shared")]
+#[allow(unused_variables)]
+pub fn run_sams_inference(
+    dataset: String,
+    condition: String,
+    config_file: String,
+    col_cardinalities_file: String,
+    model_path: String,
+    sql: String,
+    batch_size: i32,
+) -> String {
+    crate::bindings::inference::run_sams_inference_shared_memory(
+        &dataset,
+        &condition,
+        &config_file,
+        &col_cardinalities_file,
+        &model_path,
+        &sql,
+        batch_size).to_string()
+}
+
 
 
 
