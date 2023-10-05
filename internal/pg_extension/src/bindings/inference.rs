@@ -339,7 +339,7 @@ pub fn run_sams_inference_shared_memory_write_once(
 
     // Pre-allocate a size for shared memory (this might need some logic to determine a reasonable size)
     let avg_row_size = 120;
-    let shmem_size = 1.5 * avg_row_size * batch_size as usize;
+    let shmem_size = (1.5 * (avg_row_size * batch_size as usize) as f64) as usize;
     let my_shmem = ShmemConf::new()
         .size(shmem_size)
         .os_id(shmem_name)
