@@ -5,7 +5,7 @@ use pgrx::prelude::*;
 use crate::bindings::ml_register::PY_MODULE_SAMS;
 use crate::bindings::ml_register::run_python_function;
 use std::time::{Instant};
-use shared_memory::{SharedMem, SharedMemConf};
+use shared_memory::some_module::{SharedMem, SharedMemConf};
 
 
 pub fn run_sams_inference(
