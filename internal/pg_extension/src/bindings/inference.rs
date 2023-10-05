@@ -244,7 +244,6 @@ pub fn run_sams_inference_shared_memory(
     };
     let mini_batch_json = tup_table.to_string();
 
-
     // Set an identifier for the shared memory
     let shmem_name = "my_shared_memory";
     let my_shmem = ShmemConf::new()
@@ -253,15 +252,15 @@ pub fn run_sams_inference_shared_memory(
         .create()
         .unwrap();
 
-    // Write data to shared memory
+    let tup_table_str = tup_table.to_string();
+    let data_to_write = tup_table_str.as_bytes();
+    // Use unsafe to access and write to the raw memory
     unsafe {
-        let data_to_write = tup_table.to_string().as_bytes();
-        let shmem_slice = my_shmem.as_slice();
-        if data_to_write.len() <= shmem_slice.len() {
-            shmem_slice[..data_to_write.len()].copy_from_slice(data_to_write);
-        } else {
-            // Handle error: data_to_write is bigger than the shared memory size
-        }
+        // Get the raw pointer to the shared memory
+        let shmem_ptr = my_shmem.as_ptr() as *mut u8;
+        // Copy data into the shared memory
+        std::ptr::copy_nonoverlapping(
+            data_to_write.as_ptr(), shmem_ptr, data_to_write.len());
     }
 
     //
