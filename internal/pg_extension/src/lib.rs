@@ -202,14 +202,16 @@ pub fn run_sams_inference_shared(
     sql: String,
     batch_size: i32,
 ) -> String {
-    crate::bindings::inference::run_sams_inference_shared_memory(
-        &dataset,
-        &condition,
-        &config_file,
-        &col_cardinalities_file,
-        &model_path,
-        &sql,
-        batch_size).to_string()
+    let result = unsafe {
+        crate::bindings::inference::run_sams_inference_shared_memory(
+            &dataset,
+            &condition,
+            &config_file,
+            &col_cardinalities_file,
+            &model_path,
+            &sql,
+            batch_size).to_string()
+    };
 }
 
 
