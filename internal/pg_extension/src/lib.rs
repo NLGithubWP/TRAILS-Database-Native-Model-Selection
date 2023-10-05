@@ -193,7 +193,7 @@ pub fn run_sams_inference(
 #[cfg(feature = "python")]
 #[pg_extern(immutable, parallel_safe, name = "sams_inference_shared")]
 #[allow(unused_variables)]
-pub fn run_sams_inference(
+pub fn run_sams_inference_shared(
     dataset: String,
     condition: String,
     config_file: String,
