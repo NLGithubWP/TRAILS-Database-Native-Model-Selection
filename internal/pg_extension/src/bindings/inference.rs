@@ -5,7 +5,7 @@ use pgrx::prelude::*;
 use crate::bindings::ml_register::PY_MODULE_SAMS;
 use crate::bindings::ml_register::run_python_function;
 use std::time::{Instant};
-
+use shared_memory::*;
 
 pub fn run_sams_inference(
     dataset: &String,
@@ -106,6 +106,24 @@ pub fn run_sams_inference(
                 })
         }
     };
+    let mini_batch_json = tup_table.to_string();
+
+    // Right after your SPI code where you populate mini_batch
+    let shmem_name = "my_shmem";
+    let serialized_data = serde_json::to_string(&tup_table).unwrap();
+    let shmem_size = serialized_data.len() + 1;
+    let shmem = match SharedMem::create(SharedMemConf::new().set_os_path(shmem_name).set_size(shmem_size)) {
+        Ok(val) => val,
+        Err(e) => {
+            return serde_json::json!("Failed to create shared memory segment : {}", e);
+        }
+    };
+
+    //Lock the shared memory for write
+    {
+        let mut data = shmem.wlock_as_slice::<u8>().unwrap();
+        data.copy_from_slice(serialized_data.as_bytes());
+    }
 
     let end_time = Instant::now();
     let data_query_time = end_time.duration_since(start_time).as_secs_f64();
@@ -115,7 +133,6 @@ pub fn run_sams_inference(
     // Step 3: model evaluate in Python
     let mut eva_task_map = HashMap::new();
     eva_task_map.insert("config_file", config_file.clone());
-    let mini_batch_json = tup_table.to_string();
     eva_task_map.insert("mini_batch", mini_batch_json);
     eva_task_map.insert("spi_seconds", data_query_time.to_string());
 
