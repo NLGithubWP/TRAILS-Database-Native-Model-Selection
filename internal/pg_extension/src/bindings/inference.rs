@@ -127,15 +127,23 @@ pub fn run_sams_inference(
         "model_inference_compute");
 
     let end_time = Instant::now();
-    let compute_time = end_time.duration_since(start_time).as_secs_f64();
-    response.insert("compute_time", compute_time.clone());
+    let python_compute_time = end_time.duration_since(start_time).as_secs_f64();
+    response.insert("python_compute_time", python_compute_time.clone());
 
     let overall_end_time = Instant::now();
     let overall_elapsed_time = overall_end_time.duration_since(overall_start_time).as_secs_f64();
-    let diff_time = model_init_time + data_query_time + compute_time - overall_elapsed_time;
+    let diff_time = model_init_time + data_query_time + python_compute_time - overall_elapsed_time;
 
     response.insert("overall_time", overall_elapsed_time.clone());
     response.insert("diff", diff_time.clone());
+
+
+    response_json.insert("config_file", config_file.clone());
+    let response_json = json!(response).to_string();
+    run_python_function(
+        &PY_MODULE_SAMS,
+        &response_json,
+        "records_results");
 
     // Step 4: Return to PostgresSQL
     return serde_json::json!(response);
@@ -284,12 +292,12 @@ pub fn run_sams_inference_shared_memory(
         "model_inference_compute_shared_memory");
 
     let end_time = Instant::now();
-    let compute_time = end_time.duration_since(start_time).as_secs_f64();
-    response.insert("compute_time", compute_time.clone());
+    let python_compute_time = end_time.duration_since(start_time).as_secs_f64();
+    response.insert("python_compute_time", python_compute_time.clone());
 
     let overall_end_time = Instant::now();
     let overall_elapsed_time = overall_end_time.duration_since(overall_start_time).as_secs_f64();
-    let diff_time = model_init_time + data_query_time + data_copy_time + compute_time - overall_elapsed_time;
+    let diff_time = model_init_time + data_query_time + data_copy_time + python_compute_time - overall_elapsed_time;
 
     response.insert("overall_time", overall_elapsed_time.clone());
     response.insert("diff", diff_time.clone());
@@ -455,15 +463,22 @@ pub fn run_sams_inference_shared_memory_write_once(
         "model_inference_compute_shared_memory_write_once");
 
     let end_time = Instant::now();
-    let compute_time = end_time.duration_since(start_time).as_secs_f64();
-    response.insert("compute_time", compute_time.clone());
+    let python_compute_time = end_time.duration_since(start_time).as_secs_f64();
+    response.insert("python_compute_time", python_compute_time.clone());
 
     let overall_end_time = Instant::now();
     let overall_elapsed_time = overall_end_time.duration_since(overall_start_time).as_secs_f64();
-    let diff_time = model_init_time + data_query_time + compute_time - overall_elapsed_time;
+    let diff_time = model_init_time + data_query_time + python_compute_time - overall_elapsed_time;
 
     response.insert("overall_time", overall_elapsed_time.clone());
     response.insert("diff", diff_time.clone());
+
+    response_json.insert("config_file", config_file.clone());
+    let response_json = json!(response).to_string();
+    run_python_function(
+        &PY_MODULE_SAMS,
+        &response_json,
+        "records_results");
 
     // Step 4: Return to PostgresSQL
     return serde_json::json!(response);

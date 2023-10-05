@@ -99,6 +99,35 @@ Config
 # generate schema
 cargo pgrx schema >> /home/postgres/.pgrx/14.9/pgrx-install/share/extension/pg_extension--0.1.0.sql
 
+
+-- src/lib.rs:242
+-- pg_extension::sams_model_init
+CREATE  FUNCTION "sams_model_init"(
+	"condition" TEXT, /* alloc::string::String */
+	"config_file" TEXT, /* alloc::string::String */
+	"col_cardinalities_file" TEXT, /* alloc::string::String */
+	"model_path" TEXT /* alloc::string::String */
+) RETURNS TEXT /* alloc::string::String */
+IMMUTABLE STRICT PARALLEL SAFE 
+LANGUAGE c /* Rust */
+AS 'MODULE_PATHNAME', 'sams_model_init_wrapper';
+
+-- src/lib.rs:219
+-- pg_extension::sams_inference_shared_write_once
+CREATE  FUNCTION "sams_inference_shared_write_once"(
+	"dataset" TEXT, /* alloc::string::String */
+	"condition" TEXT, /* alloc::string::String */
+	"config_file" TEXT, /* alloc::string::String */
+	"col_cardinalities_file" TEXT, /* alloc::string::String */
+	"model_path" TEXT, /* alloc::string::String */
+	"sql" TEXT, /* alloc::string::String */
+	"batch_size" INT /* i32 */
+) RETURNS TEXT /* alloc::string::String */
+IMMUTABLE STRICT PARALLEL SAFE 
+LANGUAGE c /* Rust */
+AS 'MODULE_PATHNAME', 'sams_inference_shared_write_once_wrapper';
+
+
 -- src/lib.rs:196
 -- pg_extension::sams_inference_shared
 CREATE  FUNCTION "sams_inference_shared"(
@@ -128,6 +157,8 @@ CREATE  FUNCTION "sams_inference"(
 IMMUTABLE STRICT PARALLEL SAFE 
 LANGUAGE c /* Rust */
 AS 'MODULE_PATHNAME', 'run_sams_inference_wrapper';
+
+
 
 # record the necessary func above and then copy it to following
 rm /home/postgres/.pgrx/14.9/pgrx-install/share/extension/pg_extension--0.1.0.sql
@@ -167,7 +198,7 @@ SELECT sams_inference(
     '/project/TRAILS/frappe_col_cardinalities', 
     '/project/tensor_log/frappe/dnn_K16_alpha4', 
     'WHERE col2=''977:1''', 
-    8000
+    10000
 ); 
 
 # query with no conditions
@@ -240,6 +271,13 @@ SELECT sams_inference(
     20000
 ); 
 
+
+SELECT sams_model_init(
+    '{}', 
+    '/project/TRAILS/internal/ml/model_selection/config.ini', 
+    '/project/TRAILS/frappe_col_cardinalities', 
+    '/project/tensor_log/frappe/dnn_K16_alpha4'
+); 
 SELECT sams_inference(
     'frappe', 
     '{}', 
@@ -247,8 +285,27 @@ SELECT sams_inference(
     '/project/TRAILS/frappe_col_cardinalities', 
     '/project/tensor_log/frappe/dnn_K16_alpha4', 
     '', 
-    40000
+    10000
 ); 
+
+
+
+SELECT sams_model_init(
+    '{}', 
+    '/project/TRAILS/internal/ml/model_selection/config.ini', 
+    '/project/TRAILS/frappe_col_cardinalities', 
+    '/project/tensor_log/frappe/dnn_K16_alpha4', 
+); 
+SELECT sams_inference_shared_write_once(
+    'frappe', 
+    '{}', 
+    '/project/TRAILS/internal/ml/model_selection/config.ini', 
+    '/project/TRAILS/frappe_col_cardinalities', 
+    '/project/tensor_log/frappe/dnn_K16_alpha4', 
+    '', 
+    10000
+); 
+
 
 SELECT sams_inference_shared(
     'frappe', 
