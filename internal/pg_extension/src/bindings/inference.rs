@@ -283,7 +283,7 @@ pub fn run_sams_inference_shared_memory(
     run_python_function(
         &PY_MODULE_SAMS,
         &eva_task_json,
-        "model_inference_compute");
+        "model_inference_compute_shared_memory");
 
     let end_time = Instant::now();
     let compute_time = end_time.duration_since(start_time).as_secs_f64();
