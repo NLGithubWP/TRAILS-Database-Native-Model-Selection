@@ -117,7 +117,7 @@ pub fn run_sams_inference(
     eva_task_map.insert("config_file", config_file.clone());
     let mini_batch_json = tup_table.to_string();
     eva_task_map.insert("mini_batch", mini_batch_json);
-    eva_task_map.insert("spi_seconds", elapsed_seconds.to_string());
+    eva_task_map.insert("spi_seconds", data_query_time.to_string());
 
     let eva_task_json = json!(eva_task_map).to_string(); // Corrected this line
 
