@@ -274,7 +274,7 @@ SELECT sams_model_init(
     '{}', 
     '/project/TRAILS/internal/ml/model_selection/config.ini', 
     '/project/TRAILS/adult_col_cardinalities', 
-    '/project/tensor_log/adult/Ednn_K16_alpha2-5', 
+    '/project/tensor_log/adult/Ednn_K16_alpha2-5'
 ); 
 SELECT sams_inference_shared_write_once(
     'adult', 
@@ -415,7 +415,7 @@ SELECT sams_model_init(
     '{}', 
     '/project/TRAILS/internal/ml/model_selection/config.ini', 
     '/project/TRAILS/cvd_col_cardinalities', 
-    '/project/tensor_log/cvd/dnn_K16_alpha2-5', 
+    '/project/tensor_log/cvd/dnn_K16_alpha2-5'
 ); 
 SELECT sams_inference_shared_write_once(
     'cvd', 
@@ -464,7 +464,7 @@ SELECT sams_model_init(
     '{}', 
     '/project/TRAILS/internal/ml/model_selection/config.ini', 
     '/project/TRAILS/bank_col_cardinalities', 
-    '/project/tensor_log/bank/dnn_K16_alpha2-3_beta1e-3', 
+    '/project/tensor_log/bank/dnn_K16_alpha2-3_beta1e-3'
 ); 
 SELECT sams_inference_shared_write_once(
     'bank', 
