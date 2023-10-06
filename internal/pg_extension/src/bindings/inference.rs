@@ -375,6 +375,10 @@ pub fn run_sams_inference_shared_memory_write_once(
                 Err(e) => return Err(e.to_string()),
             };
 
+            let end_time = Instant::now();
+            let data_query_time_spi = end_time.duration_since(start_time).as_secs_f64();
+            response.insert("data_query_time_spi", data_query_time_spi.clone());
+
             let mut offset = 0;  // Keep track of how much we've written to shared memory
 
             // Write the opening square bracket
