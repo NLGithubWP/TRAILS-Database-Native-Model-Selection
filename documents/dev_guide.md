@@ -32,7 +32,8 @@ chmod -R 777 TRAILS
 
 ```sql
 psql -h localhost -p 28814 -U postgres 
-\c frappe
+\l
+\c pg_extension
 \dt
 \d frappe_train
 DROP TABLE frappe_train;
