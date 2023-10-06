@@ -51,6 +51,10 @@ pub fn run_sams_inference(
             Err(e) => return Err(e.to_string()), // Convert the error to a string and return
         };
 
+        let end_time = Instant::now();
+        let data_query_time_spi = end_time.duration_since(start_time).as_secs_f64();
+        response.insert("data_query_time_spi", data_query_time_spi.clone());
+
         let mut mini_batch = Vec::new();
 
         for row in table.into_iter() {
