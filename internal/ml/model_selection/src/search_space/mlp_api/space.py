@@ -208,6 +208,7 @@ class SINGADNNModel(model.Model):
         self.subnet_mask = [np.ones(size) for size in hidden_layer_list]
     
     def forward(self, inputs):
+        print ("in space.py forward")
         y = self.linear1(inputs)
         y = self.relu(y)
         y = self.linear2(y)
@@ -246,11 +247,11 @@ class SINGADNNModel(model.Model):
             self.subnet_mask[idx] = mask
 
     def train_one_batch(self, x, y, dist_option, spars, synflow_flag):
-        # print ("in train_one_batch")
+        print ("space.py in train_one_batch")
         out = self.forward(x)
-        # print ("train_one_batch x.data: \n", x.data)
+        print ("space.py train_one_batch x.shape: \n", x.shape)
         # print ("train_one_batch y.data: \n", y.data)
-        # print ("train_one_batch out.data: \n", out.data)
+        print ("space.py train_one_batch out.shape: \n", out.shape)
         if synflow_flag:
             # print ("sum_error")
             loss = self.sum_error(out)
@@ -459,6 +460,8 @@ class MlpSpace(SpaceWrapper):
         """
         arch_micro = MlpSpace.deserialize_model_encoding(arch_id)
         assert isinstance(arch_micro, MlpMicroCfg)
+        print ("src/search_space/mlp_api/space.py new_architecture")
+        print ("src/search_space/mlp_api/space.py arch_micro:\n", arch_micro)
         # mlp = DNNModel(
         mlp = SINGADNNModel(
             nfield=self.model_cfg.nfield,

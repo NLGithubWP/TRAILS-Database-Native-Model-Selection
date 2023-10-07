@@ -3,6 +3,8 @@ import json
 import os
 import time
 import traceback
+from singa import device as singa_device
+import numpy as np
 
 from exps.shared_args import parse_arguments
 
@@ -41,8 +43,14 @@ if __name__ == "__main__":
         print(f"begin to train the {arch_id}")
 
         model = search_space_ins.new_architecture(arch_id)
-        model.init_embedding(requires_grad=True)
-        model.to(args.device)
+        # model.init_embedding(requires_grad=True)
+        if args.device == 'cpu':
+            dev = singa_device.get_default_device()
+        else:  # GPU
+            dev = singa_device.create_cuda_gpu_on(args.local_rank)  # need to change to CPU device for CPU-only machines
+        dev.SetRandSeed(0)
+        np.random.seed(0)
+        # model.to(args.device)
 
         valid_auc, total_run_time, train_log = ModelTrainer.fully_train_arch(
             model=model,

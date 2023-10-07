@@ -44,6 +44,7 @@ def init_search_space(args) -> SpaceWrapper:
         from .mlp_api.space import MlpSpace
         from .mlp_api.model_params import MlpMacroCfg
         from .mlp_api.space import DEFAULT_LAYER_CHOICES_20, DEFAULT_LAYER_CHOICES_10
+        print ("src/search_space/init_search_space.py config.MLPSP")
         if args.hidden_choice_len == 10:
             model_cfg = MlpMacroCfg(
                 args.nfield,

@@ -166,6 +166,7 @@ def parse_arguments():
 
     # define base dir, where it stores apis, datasets, logs, etc,
     parser.add_argument('--device', type=str, default="cpu")
+    parser.add_argument('--local_rank', type=int, default=1, help="local rank")
 
     parser.add_argument('--log_folder', default="log_debug", type=str)
 
