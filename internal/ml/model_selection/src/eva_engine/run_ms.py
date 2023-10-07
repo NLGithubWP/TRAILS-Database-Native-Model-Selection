@@ -287,6 +287,7 @@ class RunModelSelection:
         k_models, all_models, p1_trace_highest_score, p1_trace_highest_scored_models_id \
             = p1_runner.run_phase1()
         logger.info(f"2. [trails] filtering_phase Done, time_usage = {time.time() - begin_time}")
+        print(f"2. [trails] filtering_phase Done, time_usage = {time.time() - begin_time}")
         return k_models, all_models, p1_trace_highest_score, p1_trace_highest_scored_models_id
 
     def refinement_phase(self, U, k_models, train_loader=None, valid_loader=None, train_time_per_epoch=None):

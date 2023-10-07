@@ -117,6 +117,9 @@ class RunPhase1:
                 logger.info("3. [trails] Phase 1: filter phase explored " + str(explored_n) +
                             " model, model_id = " + model_eva.model_id +
                             " model_scores = " + json.dumps(model_eva.model_score))
+            print("3. [trails] Phase 1: filter phase explored " + str(explored_n) +
+                            " model, model_id = " + model_eva.model_id +
+                            " model_scores = " + json.dumps(model_eva.model_score))
 
             ranked_score = self.sampler.fit_sampler(model_eva.model_id,
                                                     model_eva.model_score,
