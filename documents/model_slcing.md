@@ -283,8 +283,13 @@ SELECT sams_inference_shared_write_once(
     '/project/TRAILS/adult_col_cardinalities', 
     '/project/tensor_log/adult/Ednn_K16_alpha2-5', 
     '', 
-    10000
+    100000
 ); 
+
+# replicate data 
+INSERT INTO adult_train (label, col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11, col12, col13)
+SELECT label, col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11, col12, col13
+FROM adult_train;
 ```
 
 ## Frappe
@@ -342,7 +347,7 @@ SELECT sams_inference_shared_write_once(
     '/project/TRAILS/frappe_col_cardinalities', 
     '/project/tensor_log/frappe/dnn_K16_alpha4', 
     '', 
-    10000
+    100000
 ); 
 
 
@@ -378,6 +383,11 @@ SELECT sams_inference(
     '', 
     160000
 ); 
+
+# replicate data 
+INSERT INTO frappe_train (label, col1, col2, col3, col4, col5, col6, col7, col8, col9, col10)
+SELECT label, col1, col2, col3, col4, col5, col6, col7, col8, col9, col10
+FROM frappe_train;
 ```
 
 ## CVD
@@ -424,8 +434,15 @@ SELECT sams_inference_shared_write_once(
     '/project/TRAILS/cvd_col_cardinalities', 
     '/project/tensor_log/cvd/dnn_K16_alpha2-5', 
     '', 
-    10000
+    100000
 ); 
+
+
+# replicate data 
+INSERT INTO cvd_train (label, col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11)
+SELECT label, col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11 
+FROM cvd_train;
+
 ```
 
 ## Bank
@@ -473,38 +490,118 @@ SELECT sams_inference_shared_write_once(
     '/project/TRAILS/bank_col_cardinalities', 
     '/project/tensor_log/bank/dnn_K16_alpha2-3_beta1e-3', 
     '', 
-    10000
+    100000
 ); 
+
+
+# replicate data 
+INSERT INTO bank_train (label, col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11, col12, col13, col14, col15, col16)
+SELECT label, col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11, col12, col13, col14, col15, col16 
+FROM bank_train;
+
 ```
 
-# Baseline
+# Baseline & SAMS
+
+## Frappe
 
 ```bash
 # frappe
-CUDA_VISIBLE_DEVICES=-1 python ./internal/ml/model_slicing/baseline.py /hdd1/sams/tensor_log/frappe/dnn_K16_alpha4 --device cpu --dataset frappe --batch_size 10000 --col_cardinalities_file frappe_col_cardinalities
+CUDA_VISIBLE_DEVICES=-1 python ./internal/ml/model_slicing/baseline.py /hdd1/sams/tensor_log/frappe/dnn_K16_alpha4 --device cpu --dataset frappe --batch_size 320000 --col_cardinalities_file frappe_col_cardinalities --target_batch 320000
 
-python ./internal/ml/model_slicing/baseline.py /hdd1/sams/tensor_log/frappe/dnn_K16_alpha4 --device cuda:1 --dataset frappe --batch_size 10000 --col_cardinalities_file frappe_col_cardinalities
+
+CUDA_VISIBLE_DEVICES="0" python ./internal/ml/model_slicing/baseline.py /hdd1/sams/tensor_log/frappe/dnn_K16_alpha4 --device cuda:0 --dataset frappe --batch_size 100000 --col_cardinalities_file frappe_col_cardinalities --target_batch 100000
+
+SELECT sams_model_init(
+    '{}', 
+    '/project/TRAILS/internal/ml/model_selection/config.ini', 
+    '/project/TRAILS/frappe_col_cardinalities', 
+    '/project/tensor_log/frappe/dnn_K16_alpha4'
+); 
+SELECT sams_inference_shared_write_once(
+    'frappe', 
+    '{}', 
+    '/project/TRAILS/internal/ml/model_selection/config.ini', 
+    '/project/TRAILS/frappe_col_cardinalities', 
+    '/project/tensor_log/frappe/dnn_K16_alpha4', 
+    '', 
+    320000
+); 
 ```
+
+## Adult
 
 ```bash
-# adult
-CUDA_VISIBLE_DEVICES=-1 python ./internal/ml/model_slicing/baseline.py /hdd1/sams/tensor_log/adult/Ednn_K16_alpha2-5 --device cpu --dataset adult --batch_size 10000 --col_cardinalities_file adult_col_cardinalities
 
-python ./internal/ml/model_slicing/baseline.py /hdd1/sams/tensor_log/adult/Ednn_K16_alpha2-5 --device cuda:1 --dataset adult --batch_size 10000 --col_cardinalities_file adult_col_cardinalities
+# adult
+CUDA_VISIBLE_DEVICES=-1 python ./internal/ml/model_slicing/baseline.py /hdd1/sams/tensor_log/adult/Ednn_K16_alpha2-5 --device cpu --dataset adult --batch_size 100000 --col_cardinalities_file adult_col_cardinalities  --target_batch 100000
+
+CUDA_VISIBLE_DEVICES="0" python ./internal/ml/model_slicing/baseline.py /hdd1/sams/tensor_log/adult/Ednn_K16_alpha2-5 --device cuda:0 --dataset adult --batch_size 100000 --col_cardinalities_file adult_col_cardinalities  --target_batch 100000
+
+SELECT sams_model_init(
+    '{}', 
+    '/project/TRAILS/internal/ml/model_selection/config.ini', 
+    '/project/TRAILS/adult_col_cardinalities', 
+    '/project/tensor_log/adult/Ednn_K16_alpha2-5'
+); 
+SELECT sams_inference_shared_write_once(
+    'adult', 
+    '{}', 
+    '/project/TRAILS/internal/ml/model_selection/config.ini', 
+    '/project/TRAILS/adult_col_cardinalities', 
+    '/project/tensor_log/adult/Ednn_K16_alpha2-5', 
+    '', 
+    100000
+); 
 ```
 
+## CVD
 ```bash
 # CVD
-CUDA_VISIBLE_DEVICES=-1 python ./internal/ml/model_slicing/baseline.py /hdd1/sams/tensor_log/cvd/dnn_K16_alpha2-5 --device cpu --dataset cvd --batch_size 10000 --col_cardinalities_file cvd_col_cardinalities
+CUDA_VISIBLE_DEVICES=-1 python ./internal/ml/model_slicing/baseline.py /hdd1/sams/tensor_log/cvd/dnn_K16_alpha2-5 --device cpu --dataset cvd --batch_size 100000 --col_cardinalities_file cvd_col_cardinalities  --target_batch 100000
 
-python ./internal/ml/model_slicing/baseline.py /hdd1/sams/tensor_log/cvd/dnn_K16_alpha2-5 --device cuda:1 --dataset cvd --batch_size 10000 --col_cardinalities_file cvd_col_cardinalities
+CUDA_VISIBLE_DEVICES="0" python ./internal/ml/model_slicing/baseline.py /hdd1/sams/tensor_log/cvd/dnn_K16_alpha2-5 --device cuda:0 --dataset cvd --batch_size 100000 --col_cardinalities_file cvd_col_cardinalities  --target_batch 100000
+
+SELECT sams_model_init(
+    '{}', 
+    '/project/TRAILS/internal/ml/model_selection/config.ini', 
+    '/project/TRAILS/cvd_col_cardinalities', 
+    '/project/tensor_log/cvd/dnn_K16_alpha2-5'
+); 
+SELECT sams_inference_shared_write_once(
+    'cvd', 
+    '{}', 
+    '/project/TRAILS/internal/ml/model_selection/config.ini', 
+    '/project/TRAILS/cvd_col_cardinalities', 
+    '/project/tensor_log/cvd/dnn_K16_alpha2-5', 
+    '', 
+    100000
+); 
 ```
+
+## Bank
 
 ```bash
 # Bank
-CUDA_VISIBLE_DEVICES=-1 python ./internal/ml/model_slicing/baseline.py /hdd1/sams/tensor_log/bank/dnn_K16_alpha2-3_beta1e-3 --device cpu --dataset bank --batch_size 10000 --col_cardinalities_file bank_col_cardinalities
+CUDA_VISIBLE_DEVICES=-1 python ./internal/ml/model_slicing/baseline.py /hdd1/sams/tensor_log/bank/dnn_K16_alpha2-3_beta1e-3 --device cpu --dataset bank --batch_size 100000 --col_cardinalities_file bank_col_cardinalities  --target_batch 100000
 
-python ./internal/ml/model_slicing/baseline.py /hdd1/sams/tensor_log/bank/dnn_K16_alpha2-3_beta1e-3 --device cuda:1 --dataset bank --batch_size 10000 --col_cardinalities_file bank_col_cardinalities
+CUDA_VISIBLE_DEVICES="0" python ./internal/ml/model_slicing/baseline.py /hdd1/sams/tensor_log/bank/dnn_K16_alpha2-3_beta1e-3 --device cuda:0 --dataset bank --batch_size 100000 --col_cardinalities_file bank_col_cardinalities  --target_batch 100000
+
+SELECT sams_model_init(
+    '{}', 
+    '/project/TRAILS/internal/ml/model_selection/config.ini', 
+    '/project/TRAILS/bank_col_cardinalities', 
+    '/project/tensor_log/bank/dnn_K16_alpha2-3_beta1e-3'
+); 
+SELECT sams_inference_shared_write_once(
+    'bank', 
+    '{}', 
+    '/project/TRAILS/internal/ml/model_selection/config.ini', 
+    '/project/TRAILS/bank_col_cardinalities', 
+    '/project/tensor_log/bank/dnn_K16_alpha2-3_beta1e-3', 
+    '', 
+    100000
+); 
 
 ```
 
