@@ -162,7 +162,7 @@ def profiling_refinement_phase(params: dict, args: Namespace):
 def coordinator(params: dict, args: Namespace):
     from src.logger import logger
     logger.info(f"begin run coordinator")
-    print (f"begin run coordinator")
+    # print (f"begin run coordinator")
 
     budget = float(params["budget"])
     score_time_per_model = float(params["score_time_per_model"])
@@ -211,10 +211,10 @@ def filtering_phase(params: dict, args: Namespace):
 def filtering_phase_dataLoader(params: dict, args: Namespace):
     from src.logger import logger
     logger.info(f"begin run filtering_phase CPU only")
-    print (f"begin run filtering_phase CPU only")
+    # print (f"begin run filtering_phase CPU only")
 
     mini_batch_m = params["mini_batch"]
-    print ("mini_batch_m: ", mini_batch_m)
+    # print ("mini_batch_m: ", mini_batch_m)
     n = int(params["n"])
     k = int(params["k"])
 

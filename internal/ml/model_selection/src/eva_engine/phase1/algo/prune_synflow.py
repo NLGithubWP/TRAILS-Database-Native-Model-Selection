@@ -318,7 +318,7 @@ class SynFlowEvaluator(Evaluator):
         world_size = 1
 
         ### singa setups
-        print ("device: \n", device)
+        # print ("device: \n", device)
         if device == 'cpu':
             dev = singa_device.get_default_device()
         else:  # GPU
@@ -407,7 +407,7 @@ class SynFlowEvaluator(Evaluator):
         # 5. Sum over all parameter's results to get the final score.
         # score = sum([grad.sum() for grad in grads_abs])
 
-        print ("calculate synflow")
+        # print ("calculate synflow")
         synflow_flag = True
         ### step 1: all one input
         # Copy the patch data into input tensors
