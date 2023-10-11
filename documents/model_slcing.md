@@ -507,7 +507,7 @@ FROM bank_train;
 
 ```bash
 # frappe
-CUDA_VISIBLE_DEVICES=-1 python ./internal/ml/model_slicing/baseline.py /hdd1/sams/tensor_log/frappe/dnn_K16_alpha4 --device cpu --dataset frappe --batch_size 320000 --col_cardinalities_file frappe_col_cardinalities --target_batch 320000
+CUDA_VISIBLE_DEVICES=-1 python ./internal/ml/model_slicing/baseline.py /hdd1/sams/tensor_log/frappe/dnn_K16_alpha4 --device cpu --dataset frappe --batch_size 20000 --col_cardinalities_file frappe_col_cardinalities --target_batch 20000
 
 
 CUDA_VISIBLE_DEVICES="0" python ./internal/ml/model_slicing/baseline.py /hdd1/sams/tensor_log/frappe/dnn_K16_alpha4 --device cuda:0 --dataset frappe --batch_size 100000 --col_cardinalities_file frappe_col_cardinalities --target_batch 100000
@@ -525,7 +525,7 @@ SELECT sams_inference_shared_write_once(
     '/project/TRAILS/frappe_col_cardinalities', 
     '/project/tensor_log/frappe/dnn_K16_alpha4', 
     '', 
-    320000
+    5000
 ); 
 ```
 

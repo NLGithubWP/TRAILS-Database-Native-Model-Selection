@@ -1,25 +1,6 @@
 
 
-# Module management
 
-```bash
-git submodule add git@github.com:NLGithubWP/SAMS.git ./internal/ml/model_slicing
-git submodule update --init --recursive
-git add .gitmodules ./internal/ml/model_slicing
-```
-
-Further, clone with this
-
-```bash
-git clone --recursive https://github.com/username/main-repo.git
-git submodule update --init --recursive
-```
-
-Pull the latest codes.
-
-```bash
-git submodule update --recursive --remote
-```
 
 # Change the permission
 
@@ -32,8 +13,7 @@ chmod -R 777 TRAILS
 
 ```sql
 psql -h localhost -p 28814 -U postgres 
-\l
-\c pg_extension
+\c frappe
 \dt
 \d frappe_train
 DROP TABLE frappe_train;
