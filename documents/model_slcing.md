@@ -605,9 +605,68 @@ SELECT sams_inference_shared_write_once(
 
 ```
 
+# Micro
 
+## Profiling
 
+```bash
+CUDA_VISIBLE_DEVICES=-1 python ./internal/ml/model_slicing/baseline.py /hdd1/sams/tensor_log/frappe/dnn_K16_alpha4 --device cpu --dataset frappe --batch_size 20000 --col_cardinalities_file frappe_col_cardinalities --target_batch 20000`
+```
 
+## Optimizations
+
+```bash
+
+# 1. with all opt
+SELECT sams_model_init(
+    '{}', 
+    '/project/TRAILS/internal/ml/model_selection/config.ini', 
+    '/project/TRAILS/frappe_col_cardinalities', 
+    '/project/tensor_log/frappe/dnn_K16_alpha4'
+); 
+SELECT sams_inference_shared_write_once(
+    'frappe', 
+    '{}', 
+    '/project/TRAILS/internal/ml/model_selection/config.ini', 
+    '/project/TRAILS/frappe_col_cardinalities', 
+    '/project/tensor_log/frappe/dnn_K16_alpha4', 
+    '', 
+    100000
+); 
+
+# 2. w/o model cache
+SELECT sams_inference_shared_write_once(
+    'frappe', 
+    '{}', 
+    '/project/TRAILS/internal/ml/model_selection/config.ini', 
+    '/project/TRAILS/frappe_col_cardinalities', 
+    '/project/tensor_log/frappe/dnn_K16_alpha4', 
+    '', 
+    100000
+); 
+
+# 3. w/o shared memory
+SELECT sams_model_init(
+    '{}', 
+    '/project/TRAILS/internal/ml/model_selection/config.ini', 
+    '/project/TRAILS/frappe_col_cardinalities', 
+    '/project/tensor_log/frappe/dnn_K16_alpha4'
+); 
+SELECT sams_inference(
+    'frappe', 
+    '{}', 
+    '/project/TRAILS/internal/ml/model_selection/config.ini', 
+    '/project/TRAILS/frappe_col_cardinalities', 
+    '/project/tensor_log/frappe/dnn_K16_alpha4', 
+    '', 
+    100000
+); 
+
+# w/o SPI this can measure the time usage for not using spi
+CUDA_VISIBLE_DEVICES=-1 python ./internal/ml/model_slicing/baseline.py /hdd1/sams/tensor_log/frappe/dnn_K16_alpha4 --device cpu --dataset frappe --batch_size 100000 --col_cardinalities_file frappe_col_cardinalities --target_batch 100000
+```
+
+## 
 
 
 
