@@ -271,12 +271,6 @@ Here all experiments is on the Frappe dataset.
    nohup bash internal/ml/model_selection/scripts/benchmark_weight_sharing.sh &
    ```
 
-
-
-
-
-
-
 # Run end2end model selection
 
 download the dataset and put it in the `exp_data/data/structure_data`
