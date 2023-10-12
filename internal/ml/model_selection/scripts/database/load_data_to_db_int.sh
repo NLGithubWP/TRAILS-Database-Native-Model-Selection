@@ -8,7 +8,7 @@ fi
 
 # Configurations
 DATA_PATH="$1"
-DB_NAME="${2}_int_"
+DB_NAME="${2}_int"
 
 # Connection details
 HOST="localhost"
