@@ -73,18 +73,33 @@ psql -h localhost -p 28814 -U postgres
 \dt
 \d frappe_train
 
+
 # frappe
 bash /project/TRAILS/internal/ml/model_selection/scripts/database/load_data_to_db.sh /project/data_all/frappe frappe
+# frappe, only feature ids
+bash /project/TRAILS/internal/ml/model_selection/scripts/database/load_data_to_db_int.sh /project/data_all/frappe frappe
+
 
 # adult
 bash ./internal/ml/model_selection/scripts/database/load_data_to_db.sh /project/data_all/adult adult
+# adult, only feature ids
+bash ./internal/ml/model_selection/scripts/database/load_data_to_db_int.sh /project/data_all/adult adult
+# check type is correct or not. 
+SELECT column_name, data_type, column_default, is_nullable 
+FROM information_schema.columns 
+WHERE table_name = 'adult_int_train';
+
 
 # cvd 
 bash /project/TRAILS/internal/ml/model_selection/scripts/database/load_data_to_db.sh /project/data_all/cvd cvd
+# cvd, only feature ids
+bash /project/TRAILS/internal/ml/model_selection/scripts/database/load_data_to_db_int.sh /project/data_all/cvd cvd
+
 
 # bank
 bash /project/TRAILS/internal/ml/model_selection/scripts/database/load_data_to_db.sh /project/data_all/bank bank
-
+# bank, only feature ids
+bash /project/TRAILS/internal/ml/model_selection/scripts/database/load_data_to_db_int.sh /project/data_all/bank bank
 ```
 
 Verify data is in the DB
@@ -666,7 +681,7 @@ SELECT sams_inference(
 CUDA_VISIBLE_DEVICES=-1 python ./internal/ml/model_slicing/baseline.py /hdd1/sams/tensor_log/frappe/dnn_K16_alpha4 --device cpu --dataset frappe --batch_size 100000 --col_cardinalities_file frappe_col_cardinalities --target_batch 100000
 ```
 
-## 
+
 
 
 
