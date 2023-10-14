@@ -522,9 +522,9 @@ pub fn run_sams_inference_shared_memory_write_once_int(
     response.insert("model_init_time", model_init_time.clone());
 
 
-
-    let mut all_rows = Vec::new();
+    // Step 1: query data
     let start_time = Instant::now();
+    let mut all_rows = Vec::new();
     let _ = Spi::connect(|client| {
         let query = format!("SELECT * FROM {}_int_train {} LIMIT {}", dataset, sql, batch_size);
         let mut cursor = client.open_cursor(&query, None);
@@ -538,7 +538,7 @@ pub fn run_sams_inference_shared_memory_write_once_int(
         response.insert("data_query_time_spi", data_query_time_spi);
 
         for row in table.into_iter() {
-            for i in 1..=row.columns() {
+            for i in 3..=row.columns() {
                 match row.get::<i32>(i) {
                     Ok(Some(val)) => all_rows.push(val), // Handle the case when a valid i32 is obtained
                     Ok(None) => {
@@ -556,12 +556,15 @@ pub fn run_sams_inference_shared_memory_write_once_int(
         // Return OK or some status
         Ok(())
     });
+    let end_time = Instant::now();
+    let data_query_time = end_time.duration_since(start_time).as_secs_f64();
+    response.insert("data_query_time", data_query_time.clone());
 
     // log the query datas
     let serialized_row = serde_json::to_string(&all_rows).unwrap();
-    response_log.insert("query_datas", serialized_row);
+    response_log.insert("query_data", serialized_row);
 
-    // Step 2: query data via SPI
+    // Step 3: Putting all data to he shared memory
     let start_time = Instant::now();
     let shmem_name = "my_shared_memory";
     let my_shmem = ShmemConf::new()
@@ -570,10 +573,6 @@ pub fn run_sams_inference_shared_memory_write_once_int(
         .create()
         .unwrap();
     let shmem_ptr = my_shmem.as_ptr() as *mut i32;
-    let end_time = Instant::now();
-    let mem_allocate_time = end_time.duration_since(start_time).as_secs_f64();
-    response.insert("mem_allocate_time", mem_allocate_time.clone());
-
 
     unsafe {
         // Copy data into shared memory
@@ -583,10 +582,9 @@ pub fn run_sams_inference_shared_memory_write_once_int(
             all_rows.len(),
         );
     }
-
     let end_time = Instant::now();
-    let data_query_time = end_time.duration_since(start_time).as_secs_f64();
-    response.insert("data_query_time", data_query_time.clone());
+    let mem_allocate_time = end_time.duration_since(start_time).as_secs_f64();
+    response.insert("mem_allocate_time", mem_allocate_time.clone());
 
 
     let start_time = Instant::now();
@@ -613,7 +611,6 @@ pub fn run_sams_inference_shared_memory_write_once_int(
 
     response.insert("overall_query_latency", overall_elapsed_time.clone());
     response.insert("diff", diff_time.clone());
-
 
     let response_json = json!(response).to_string();
     run_python_function(
