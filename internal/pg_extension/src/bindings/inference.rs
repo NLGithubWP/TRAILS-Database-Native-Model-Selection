@@ -198,75 +198,41 @@ pub fn run_sams_inference(
 
     // Step 2: query data via SPI
     let start_time = Instant::now();
-    let results: Result<Vec<Vec<String>>, String> = Spi::connect(|client| {
-        let query = format!("SELECT * FROM {}_train {} LIMIT {}",
-                            dataset, sql, batch_size);
+    let mut all_rows = Vec::new();
+    let _ = Spi::connect(|client| {
+        let query = format!("SELECT * FROM {}_int_train {} LIMIT {}", dataset, sql, batch_size);
         let mut cursor = client.open_cursor(&query, None);
         let table = match cursor.fetch(batch_size as c_long) {
             Ok(table) => table,
-            Err(e) => return Err(e.to_string()), // Convert the error to a string and return
+            Err(e) => return Err(e.to_string()),
         };
 
         let end_time = Instant::now();
         let data_query_time_spi = end_time.duration_since(start_time).as_secs_f64();
-        response.insert("data_query_time_spi", data_query_time_spi.clone());
+        response.insert("data_query_time_spi", data_query_time_spi);
 
-        let mut mini_batch = Vec::new();
-
+        // todo: nl: this part can must be optimized, since i go through all of those staff.
         for row in table.into_iter() {
-            let mut each_row = Vec::new();
-            // add primary key
-            let col0 = match row.get::<i32>(1) {
-                Ok(Some(val)) => {
-                    // Update last_id with the retrieved value
-                    if val > 100000 {
-                        last_id = 0;
-                    } else {
-                        last_id = val
+            for i in 3..=row.columns() {
+                match row.get::<i32>(i) {
+                    Ok(Some(val)) => all_rows.push(val), // Handle the case when a valid i32 is obtained
+                    Ok(None) => {
+                        // Handle the case when the value is missing or erroneous
+                        // For example, you can add a default value, like -1
+                        all_rows.push(-1);
                     }
-                    val.to_string()
+                    Err(e) => {
+                        // Handle the error, e.g., log it or handle it in some way
+                        eprintln!("Error fetching value: {:?}", e);
+                    }
                 }
-                Ok(None) => "".to_string(), // Handle the case when there's no valid value
-                Err(e) => e.to_string(),
-            };
-            each_row.push(col0);
-            // add label
-            let col1 = match row.get::<i32>(2) {
-                Ok(val) => val.map(|i| i.to_string()).unwrap_or_default(),
-                Err(e) => e.to_string(),
-            };
-            each_row.push(col1);
-            // add fields
-            let texts: Vec<String> = (3..row.columns() + 1)
-                .filter_map(|i| {
-                    match row.get::<&str>(i) {
-                        Ok(Some(s)) => Some(s.to_string()),
-                        Ok(None) => None,
-                        Err(e) => Some(e.to_string()),  // Convert error to string
-                    }
-                }).collect();
-            each_row.extend(texts);
-            mini_batch.push(each_row)
+            }
         }
-        // return
-        Ok(mini_batch)
+        // Return OK or some status
+        Ok(())
     });
-    // serialize the mini-batch data
-    let tup_table = match results {
-        Ok(data) => {
-            serde_json::json!({
-                        "status": "success",
-                        "data": data
-                    })
-        }
-        Err(e) => {
-            serde_json::json!({
-                    "status": "error",
-                    "message": format!("Error while connecting: {}", e)
-                })
-        }
-    };
-    let mini_batch_json = tup_table.to_string();
+
+    let mini_batch_json = serde_json::to_string(&all_rows).unwrap();
 
     let end_time = Instant::now();
     let data_query_time = end_time.duration_since(start_time).as_secs_f64();
