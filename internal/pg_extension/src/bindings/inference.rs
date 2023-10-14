@@ -556,13 +556,12 @@ pub fn run_sams_inference_shared_memory_write_once_int(
                 .os_id("my_shared_memory")
                 .create()
                 .unwrap();
-            let shmem_ptr = my_shmem.as_ptr() as *mut u8;
             let end_time = Instant::now();
             let mem_allocate_time = end_time.duration_since(start_time).as_secs_f64();
             // write once for all
             std::ptr::copy_nonoverlapping(
                 all_rows.as_ptr(),
-                shmem.as_ptr() as *mut i32,
+                my_shmem.as_ptr() as *mut i32,
                 bytes_to_copy,
             );
             response.insert("mem_allocate_time", mem_allocate_time.clone());
