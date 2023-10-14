@@ -523,74 +523,66 @@ pub fn run_sams_inference_shared_memory_write_once_int(
 
 
 
+    let mut all_rows = Vec::new();
+    let start_time = Instant::now();
+    let _ = Spi::connect(|client| {
+        let query = format!("SELECT * FROM {}_int_train {} LIMIT {}", dataset, sql, batch_size);
+        let mut cursor = client.open_cursor(&query, None);
+        let table = match cursor.fetch(batch_size as c_long) {
+            Ok(table) => table,
+            Err(e) => return Err(e.to_string()),
+        };
+
+        let end_time = Instant::now();
+        let data_query_time_spi = end_time.duration_since(start_time).as_secs_f64();
+        response.insert("data_query_time_spi", data_query_time_spi);
+
+
+        for row in table.into_iter() {
+            for i in 1..=row.columns() {
+                match row.get::<i32>(i) {
+                    Ok(Some(val)) => all_rows.push(val), // Handle the case when a valid i32 is obtained
+                    Ok(None) => {
+                        // Handle the case when the value is missing or erroneous
+                        // For example, you can add a default value, like -1
+                        all_rows.push(-1);
+                    }
+                    Err(e) => {
+                        // Handle the error, e.g., log it or handle it in some way
+                        eprintln!("Error fetching value: {:?}", e);
+                    }
+                }
+            }
+        }
+        // Return OK or some status
+        Ok(())
+    });
+
+
     // Step 2: query data via SPI
     let start_time = Instant::now();
-    // Allocate shared memory in advance
-    // Set an identifier for the shared memory
     let shmem_name = "my_shared_memory";
-
-    // Pre-allocate a size for shared memory (this might need some logic to determine a reasonable size)
-    let avg_row_size = 120;
-    let shmem_size = (1.5 * (avg_row_size * batch_size as usize) as f64) as usize;
     let my_shmem = ShmemConf::new()
-        .size(shmem_size)
+        .size(all_rows.len())
         .os_id(shmem_name)
         .create()
         .unwrap();
-
     let shmem_ptr = my_shmem.as_ptr() as *mut i32;
-
     let end_time = Instant::now();
     let mem_allocate_time = end_time.duration_since(start_time).as_secs_f64();
     response.insert("mem_allocate_time", mem_allocate_time.clone());
 
-    let start_time = Instant::now();
+    let serialized_row = serde_json::to_string(&all_rows).unwrap();
+    response_log.insert("query_datas", serialized_row);
+
     unsafe {
-        let _ = Spi::connect(|client| {
-            let query = format!("SELECT * FROM {}_int_train {} LIMIT {}", dataset, sql, batch_size);
-            let mut cursor = client.open_cursor(&query, None);
-            let table = match cursor.fetch(batch_size as c_long) {
-                Ok(table) => table,
-                Err(e) => return Err(e.to_string()),
-            };
-
-            let end_time = Instant::now();
-            let data_query_time_spi = end_time.duration_since(start_time).as_secs_f64();
-            response.insert("data_query_time_spi", data_query_time_spi);
-
-            let mut all_rows = Vec::new();
-            for row in table.into_iter() {
-                for i in 1..=row.columns() {
-                    match row.get::<i32>(i) {
-                        Ok(Some(val)) => all_rows.push(val), // Handle the case when a valid i32 is obtained
-                        Ok(None) => {
-                            // Handle the case when the value is missing or erroneous
-                            // For example, you can add a default value, like -1
-                            all_rows.push(-1);
-                        }
-                        Err(e) => {
-                            // Handle the error, e.g., log it or handle it in some way
-                            eprintln!("Error fetching value: {:?}", e);
-                        }
-                    }
-                }
-            }
-
-            let serialized_row = serde_json::to_string(&all_rows).unwrap();
-            response_log.insert("query_datas", serialized_row);
-
-            // Copy data into shared memory
-            std::ptr::copy_nonoverlapping(
-                all_rows.as_ptr(),
-                shmem_ptr as *mut i32,
-                all_rows.len(),
-            );
-
-            // Return OK or some status
-            Ok(())
-        });
+        // Copy data into shared memory
+        std::ptr::copy_nonoverlapping(
+            all_rows.as_ptr(),
+            shmem_ptr as *mut i32,
+            all_rows.len(),
+        );
     }
-
 
     let end_time = Instant::now();
     let data_query_time = end_time.duration_since(start_time).as_secs_f64();
