@@ -576,7 +576,7 @@ pub fn run_sams_inference_shared_memory_write_once_int(
             // Copy data into shared memory
             std::ptr::copy_nonoverlapping(
                 all_rows.as_ptr(),
-                shmem_ptr as *mut Option<i32>,
+                shmem_ptr as *mut i32,
                 all_rows.len(),
             );
 
