@@ -540,6 +540,10 @@ pub fn run_sams_inference_shared_memory_write_once_int(
 
     let shmem_ptr = my_shmem.as_ptr() as *mut u8;
 
+    unsafe {
+        std::ptr::write_bytes(shmem_ptr, 0, shmem_size);  // Initialize memory with zeros
+    }
+
     let end_time = Instant::now();
     let mem_allocate_time = end_time.duration_since(start_time).as_secs_f64();
     response.insert("mem_allocate_time", mem_allocate_time.clone());
@@ -568,7 +572,7 @@ pub fn run_sams_inference_shared_memory_write_once_int(
 
             let serialized_row = serde_json::to_string(&all_rows).unwrap();
             response_log.insert("query_data", serialized_row);
-            
+
             // Copy data into shared memory
             std::ptr::copy_nonoverlapping(
                 all_rows.as_ptr(),
