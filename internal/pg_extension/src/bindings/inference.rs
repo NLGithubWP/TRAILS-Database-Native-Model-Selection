@@ -500,6 +500,7 @@ pub fn run_sams_inference_shared_memory_write_once_int(
     batch_size: i32,
 ) -> serde_json::Value {
     let mut response = HashMap::new();
+    let mut response_log = HashMap::new();
 
     let overall_start_time = Instant::now();
 
@@ -569,7 +570,7 @@ pub fn run_sams_inference_shared_memory_write_once_int(
                     all_rows_4_log.push_str(&val.to_string());
                 }
             }
-            response.insert("query_data", all_rows_4_log);
+            response_log.insert("query_data", all_rows_4_log);
 
             // Copy data into shared memory
             std::ptr::copy_nonoverlapping(
@@ -620,7 +621,7 @@ pub fn run_sams_inference_shared_memory_write_once_int(
         "records_results");
 
     // Step 4: Return to PostgresSQL
-    return serde_json::json!(response);
+    return serde_json::json!(response_log);
 }
 
 
