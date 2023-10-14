@@ -523,6 +523,7 @@ pub fn run_sams_inference_shared_memory_write_once_int(
 
     let start_time = Instant::now();
     // Use unsafe to access and write to the raw memory
+    let shmem_name = "my_shared_memory";
     unsafe {
         let _ = Spi::connect(|client| {
             let query = format!("SELECT * FROM {}_int_train {} LIMIT {}", dataset, sql, batch_size);
@@ -534,40 +535,42 @@ pub fn run_sams_inference_shared_memory_write_once_int(
 
             let end_time = Instant::now();
             let data_query_time_spi = end_time.duration_since(start_time).as_secs_f64();
-            response.insert("data_query_time_spi", data_query_time_spi.clone());
+            response.insert("data_query_time_spi", data_query_time_spi);
 
             let mut all_rows = Vec::new();
             for row in table.into_iter() {
                 for i in 1..=row.columns() {
-                    let val = row.get::<i32>(i).unwrap().unwrap();
+                    let val = row.get::<i32>(i).unwrap_or_default(); // Default to 0 if None or error
                     all_rows.push(val);
                 }
             }
 
             let bytes_to_copy = all_rows.len() * std::mem::size_of::<i32>();
-            response.insert("shared_mem_size", bytes_to_copy.clone() as f64);
-            // Step 2: query data via SPI
-            let start_time = Instant::now();
+
+            if bytes_to_copy > shmem_size {
+                return Err("Shared memory exceeded estimated size.".to_string());
+            }
+
+            response.insert("shared_mem_size", bytes_to_copy as f64);
+
             let my_shmem = ShmemConf::new()
-                .size(bytes_to_copy)
-                .os_id("my_shared_memory")
+                .size(shmem_size)
+                .os_id(shmem_name)
                 .create()
                 .unwrap();
-            let end_time = Instant::now();
 
-            // write once for all
+            // Copy data into shared memory
             std::ptr::copy_nonoverlapping(
                 all_rows.as_ptr(),
                 my_shmem.as_ptr() as *mut i32,
-                bytes_to_copy,
+                all_rows.len(),
             );
-            let mem_allocate_time = end_time.duration_since(start_time).as_secs_f64();
-            response.insert("mem_allocate_time", mem_allocate_time.clone());
 
             // Return OK or some status
             Ok(())
         });
     }
+
 
     let end_time = Instant::now();
     let data_query_time = end_time.duration_since(start_time).as_secs_f64();
