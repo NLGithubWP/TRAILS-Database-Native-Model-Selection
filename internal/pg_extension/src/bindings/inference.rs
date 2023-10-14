@@ -542,7 +542,6 @@ pub fn run_sams_inference_shared_memory_write_once_int(
     let end_time = Instant::now();
     let mem_allocate_time = end_time.duration_since(start_time).as_secs_f64();
     response.insert("mem_allocate_time", mem_allocate_time.clone());
-    let mut offset = 0;  // Keep track of how much we've written to shared memory
 
     let start_time = Instant::now();
     unsafe {
@@ -570,7 +569,7 @@ pub fn run_sams_inference_shared_memory_write_once_int(
             // Copy data into shared memory
             std::ptr::copy_nonoverlapping(
                 all_rows.as_ptr(),
-                shmem_ptr.offset(offset as isize),
+                shmem_ptr as *mut i32,
                 all_rows.len(),
             );
 
