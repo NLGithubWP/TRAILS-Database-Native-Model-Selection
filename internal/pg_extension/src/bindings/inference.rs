@@ -537,6 +537,7 @@ pub fn run_sams_inference_shared_memory_write_once_int(
         let data_query_time_spi = end_time.duration_since(start_time).as_secs_f64();
         response.insert("data_query_time_spi", data_query_time_spi);
 
+        // todo: nl: this part can must be optimized, since i go through all of those staff.
         for row in table.into_iter() {
             for i in 3..=row.columns() {
                 match row.get::<i32>(i) {
