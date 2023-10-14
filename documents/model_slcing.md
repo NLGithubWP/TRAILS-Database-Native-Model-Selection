@@ -119,7 +119,7 @@ Config
 cargo pgrx schema >> /home/postgres/.pgrx/14.9/pgrx-install/share/extension/pg_extension--0.1.0.sql
 
 
--- src/lib.rs:242
+-- src/lib.rs:266
 -- pg_extension::sams_model_init
 CREATE  FUNCTION "sams_model_init"(
 	"condition" TEXT, /* alloc::string::String */
@@ -130,6 +130,21 @@ CREATE  FUNCTION "sams_model_init"(
 IMMUTABLE STRICT PARALLEL SAFE 
 LANGUAGE c /* Rust */
 AS 'MODULE_PATHNAME', 'sams_model_init_wrapper';
+
+-- src/lib.rs:242
+-- pg_extension::sams_inference_shared_write_once_int
+CREATE  FUNCTION "sams_inference_shared_write_once_int"(
+	"dataset" TEXT, /* alloc::string::String */
+	"condition" TEXT, /* alloc::string::String */
+	"config_file" TEXT, /* alloc::string::String */
+	"col_cardinalities_file" TEXT, /* alloc::string::String */
+	"model_path" TEXT, /* alloc::string::String */
+	"sql" TEXT, /* alloc::string::String */
+	"batch_size" INT /* i32 */
+) RETURNS TEXT /* alloc::string::String */
+IMMUTABLE STRICT PARALLEL SAFE 
+LANGUAGE c /* Rust */
+AS 'MODULE_PATHNAME', 'sams_inference_shared_write_once_int_wrapper';
 
 -- src/lib.rs:219
 -- pg_extension::sams_inference_shared_write_once
@@ -145,7 +160,6 @@ CREATE  FUNCTION "sams_inference_shared_write_once"(
 IMMUTABLE STRICT PARALLEL SAFE 
 LANGUAGE c /* Rust */
 AS 'MODULE_PATHNAME', 'sams_inference_shared_write_once_wrapper';
-
 
 -- src/lib.rs:196
 -- pg_extension::sams_inference_shared
@@ -176,7 +190,6 @@ CREATE  FUNCTION "sams_inference"(
 IMMUTABLE STRICT PARALLEL SAFE 
 LANGUAGE c /* Rust */
 AS 'MODULE_PATHNAME', 'run_sams_inference_wrapper';
-
 
 
 # record the necessary func above and then copy it to following
@@ -541,6 +554,17 @@ SELECT sams_inference_shared_write_once(
     '/project/tensor_log/frappe/dnn_K16_alpha4', 
     '', 
     5000
+); 
+
+# read int data
+SELECT sams_inference_shared_write_once_int(
+    'frappe', 
+    '{}', 
+    '/project/TRAILS/internal/ml/model_selection/config.ini', 
+    '/project/TRAILS/frappe_col_cardinalities', 
+    '/project/tensor_log/frappe/dnn_K16_alpha4', 
+    '', 
+    10
 ); 
 ```
 
