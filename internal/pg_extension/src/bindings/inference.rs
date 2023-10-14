@@ -560,57 +560,16 @@ pub fn run_sams_inference_shared_memory_write_once_int(
 
             let mut offset = 0;  // Keep track of how much we've written to shared memory
 
-            // Write the opening square bracket
-            shmem_ptr.offset(offset as isize).write(b"["[0]);
-            offset += 1;
-
-            let mut is_first_row = true;
             for row in table.into_iter() {
+                let mut each_row = Vec::new();
 
-                // If not the first row, write a comma before the next row's data
-                if !is_first_row {
-                    shmem_ptr.offset(offset as isize).write(b","[0]);
-                    offset += 1;
-                } else {
-                    is_first_row = false;
+                for i in 1..=row.columns() {
+                    let val = row.get::<i32>(i).unwrap().unwrap();
+                    each_row.push(val);
                 }
 
-                let mut each_row = Vec::new();
-                // add primary key
-                let col0 = match row.get::<i32>(1) {
-                    Ok(Some(val)) => {
-                        // Update last_id with the retrieved value
-                        if val > 100000 {
-                            last_id = 0;
-                        } else {
-                            last_id = val
-                        }
-                        val.to_string()
-                    }
-                    Ok(None) => "".to_string(), // Handle the case when there's no valid value
-                    Err(e) => e.to_string(),
-                };
-                each_row.push(col0);
-                // add label
-                let col1 = match row.get::<i32>(2) {
-                    Ok(val) => val.map(|i| i.to_string()).unwrap_or_default(),
-                    Err(e) => e.to_string(),
-                };
-                each_row.push(col1);
-                // add fields
-                let texts: Vec<String> = (3..row.columns() + 1)
-                    .filter_map(|i| {
-                        match row.get::<&str>(i) {
-                            Ok(Some(s)) => Some(s.to_string()),
-                            Ok(None) => None,
-                            Err(e) => Some(e.to_string()),  // Convert error to string
-                        }
-                    }).collect();
-                each_row.extend(texts);
-
-                // Serialize each row into shared memory
-                let serialized_row = serde_json::to_string(&each_row).unwrap();
-                let bytes = serialized_row.as_bytes();
+                // Convert the Vec<i32> into raw bytes
+                let bytes = bytemuck::cast_slice(&each_row);
 
                 // Check if there's enough space left in shared memory
                 if offset + bytes.len() > shmem_size {
@@ -618,14 +577,12 @@ pub fn run_sams_inference_shared_memory_write_once_int(
                     return Err("Shared memory exceeded estimated size.".to_string());
                 }
 
-                // Copy the serialized row into shared memory
+                // Copy the integers into shared memory
                 std::ptr::copy_nonoverlapping(bytes.as_ptr(),
                                               shmem_ptr.offset(offset as isize),
                                               bytes.len());
                 offset += bytes.len();
             }
-            // Write the closing square bracket after all rows
-            shmem_ptr.offset(offset as isize).write(b"]"[0]);
 
             // Return OK or some status
             Ok(())
