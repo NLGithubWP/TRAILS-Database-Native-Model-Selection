@@ -564,8 +564,6 @@ pub fn run_sams_inference_shared_memory_write_once_int(
                     all_rows.push(val);
                 }
             }
-
-            response.insert("shared_mem_size", all_rows.to_string());
             // Copy data into shared memory
             std::ptr::copy_nonoverlapping(
                 all_rows.as_ptr(),
