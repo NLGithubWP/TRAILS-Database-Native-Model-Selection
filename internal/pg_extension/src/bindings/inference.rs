@@ -522,26 +522,6 @@ pub fn run_sams_inference_shared_memory_write_once_int(
     let model_init_time = _end_time.duration_since(overall_start_time).as_secs_f64();
     response.insert("model_init_time", model_init_time.clone());
 
-    // Step 2: query data via SPI
-    let start_time = Instant::now();
-    // Allocate shared memory in advance
-    // Set an identifier for the shared memory
-    let shmem_name = "my_shared_memory";
-
-    // Pre-allocate a size for shared memory (this might need some logic to determine a reasonable size)
-    let avg_row_size = 120;
-    let shmem_size = (1.5 * (avg_row_size * batch_size as usize) as f64) as usize;
-    let my_shmem = ShmemConf::new()
-        .size(shmem_size)
-        .os_id(shmem_name)
-        .create()
-        .unwrap();
-
-    let shmem_ptr = my_shmem.as_ptr() as *mut u8;
-
-    let end_time = Instant::now();
-    let mem_allocate_time = end_time.duration_since(start_time).as_secs_f64();
-    response.insert("mem_allocate_time", mem_allocate_time.clone());
 
     let start_time = Instant::now();
     // Use unsafe to access and write to the raw memory
@@ -560,29 +540,32 @@ pub fn run_sams_inference_shared_memory_write_once_int(
 
             let mut offset = 0;  // Keep track of how much we've written to shared memory
 
+            let mut all_rows = Vec::new();
             for row in table.into_iter() {
-                let mut each_row = Vec::new();
-
                 for i in 1..=row.columns() {
                     let val = row.get::<i32>(i).unwrap().unwrap();
-                    each_row.push(val);
+                    all_rows.push(val);
                 }
-
-                // Convert the Vec<i32> into raw bytes
-                let bytes = bytemuck::cast_slice(&each_row);
-
-                // Check if there's enough space left in shared memory
-                if offset + bytes.len() > shmem_size {
-                    // Handle error: not enough space in shared memory
-                    return Err("Shared memory exceeded estimated size.".to_string());
-                }
-
-                // Copy the integers into shared memory
-                std::ptr::copy_nonoverlapping(bytes.as_ptr(),
-                                              shmem_ptr.offset(offset as isize),
-                                              bytes.len());
-                offset += bytes.len();
             }
+
+            let bytes_to_copy = all_rows.len() * std::mem::size_of::<i32>();
+            // Step 2: query data via SPI
+            let start_time = Instant::now();
+            let my_shmem = ShmemConf::new()
+                .size(bytes_to_copy)
+                .os_id("my_shared_memory")
+                .create()
+                .unwrap();
+            let shmem_ptr = my_shmem.as_ptr() as *mut u8;
+            let end_time = Instant::now();
+            let mem_allocate_time = end_time.duration_since(start_time).as_secs_f64();
+            // write once for all
+            std::ptr::copy_nonoverlapping(
+                all_rows.as_ptr(),
+                shmem.as_ptr() as *mut i32,
+                bytes_to_copy,
+            );
+            response.insert("mem_allocate_time", mem_allocate_time.clone());
 
             // Return OK or some status
             Ok(())
