@@ -564,11 +564,12 @@ pub fn run_sams_inference_shared_memory_write_once_int(
                 for i in 1..=row.columns() {
                     let val = row.get::<i32>(i).unwrap_or_default(); // Default to 0 if None or error
                     all_rows.push(val);
-                    all_rowslog.push(val.to_string());
+                    all_rowslog.push_str(&val.to_string());
                 }
             }
 
-            response_log.insert("query_data", all_rowslog);
+            let serialized_row = serde_json::to_string(&all_rows).unwrap();
+            response_log.insert("query_data", );
 
             // Copy data into shared memory
             std::ptr::copy_nonoverlapping(
