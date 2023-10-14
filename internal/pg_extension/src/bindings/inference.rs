@@ -521,9 +521,30 @@ pub fn run_sams_inference_shared_memory_write_once_int(
     response.insert("model_init_time", model_init_time.clone());
 
 
+
+    // Step 2: query data via SPI
     let start_time = Instant::now();
-    // Use unsafe to access and write to the raw memory
+    // Allocate shared memory in advance
+    // Set an identifier for the shared memory
     let shmem_name = "my_shared_memory";
+
+    // Pre-allocate a size for shared memory (this might need some logic to determine a reasonable size)
+    let avg_row_size = 120;
+    let shmem_size = (1.5 * (avg_row_size * batch_size as usize) as f64) as usize;
+    let my_shmem = ShmemConf::new()
+        .size(shmem_size)
+        .os_id(shmem_name)
+        .create()
+        .unwrap();
+
+    let shmem_ptr = my_shmem.as_ptr() as *mut u8;
+
+    let end_time = Instant::now();
+    let mem_allocate_time = end_time.duration_since(start_time).as_secs_f64();
+    response.insert("mem_allocate_time", mem_allocate_time.clone());
+    let mut offset = 0;  // Keep track of how much we've written to shared memory
+
+    let start_time = Instant::now();
     unsafe {
         let _ = Spi::connect(|client| {
             let query = format!("SELECT * FROM {}_int_train {} LIMIT {}", dataset, sql, batch_size);
@@ -545,24 +566,11 @@ pub fn run_sams_inference_shared_memory_write_once_int(
                 }
             }
 
-            let bytes_to_copy = all_rows.len() * std::mem::size_of::<i32>();
-
-            if bytes_to_copy > shmem_size {
-                return Err("Shared memory exceeded estimated size.".to_string());
-            }
-
-            response.insert("shared_mem_size", bytes_to_copy as f64);
-
-            let my_shmem = ShmemConf::new()
-                .size(shmem_size)
-                .os_id(shmem_name)
-                .create()
-                .unwrap();
-
+            response.insert("shared_mem_size", all_rows.to_string());
             // Copy data into shared memory
             std::ptr::copy_nonoverlapping(
                 all_rows.as_ptr(),
-                my_shmem.as_ptr() as *mut i32,
+                shmem_ptr.offset(offset as isize),
                 all_rows.len(),
             );
 
