@@ -559,12 +559,10 @@ pub fn run_sams_inference_shared_memory_write_once_int(
             response.insert("data_query_time_spi", data_query_time_spi);
 
             let mut all_rows = Vec::new();
-            let mut all_rowslog = String::new();
             for row in table.into_iter() {
                 for i in 1..=row.columns() {
                     let val = row.get::<i32>(i).unwrap_or_default(); // Default to 0 if None or error
                     all_rows.push(val);
-                    all_rowslog.push_str(&val.to_string());
                 }
             }
 
