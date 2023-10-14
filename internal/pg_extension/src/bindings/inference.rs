@@ -500,7 +500,7 @@ pub fn run_sams_inference_shared_memory_write_once_int(
     batch_size: i32,
 ) -> serde_json::Value {
     let mut response = HashMap::new();
-    let mut response_log = HashMap::new();
+    // let mut response_log = HashMap::new();
 
     let overall_start_time = Instant::now();
 
@@ -561,8 +561,8 @@ pub fn run_sams_inference_shared_memory_write_once_int(
     response.insert("data_query_time", data_query_time.clone());
 
     // log the query datas
-    let serialized_row = serde_json::to_string(&all_rows).unwrap();
-    response_log.insert("query_data", serialized_row);
+    // let serialized_row = serde_json::to_string(&all_rows).unwrap();
+    // response_log.insert("query_data", serialized_row);
 
     // Step 3: Putting all data to he shared memory
     let start_time = Instant::now();
@@ -619,7 +619,7 @@ pub fn run_sams_inference_shared_memory_write_once_int(
         "records_results");
 
     // Step 4: Return to PostgresSQL
-    return serde_json::json!(response_log);
+    return serde_json::json!(response);
 }
 
 
