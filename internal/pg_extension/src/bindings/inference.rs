@@ -581,7 +581,7 @@ pub fn run_sams_inference_shared_memory_write_once_int(
             }
 
             let serialized_row = serde_json::to_string(&all_rows).unwrap();
-            response_log.insert("query_data", serialized_row);
+            response_log.insert("query_datas", serialized_row);
 
             // Copy data into shared memory
             std::ptr::copy_nonoverlapping(
