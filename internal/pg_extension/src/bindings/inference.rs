@@ -538,7 +538,7 @@ pub fn run_sams_inference_shared_memory_write_once_int(
         .create()
         .unwrap();
 
-    let shmem_ptr = my_shmem.as_ptr() as *mut u8;
+    let shmem_ptr = my_shmem.as_ptr() as *mut i32;
 
     unsafe {
         std::ptr::write_bytes(shmem_ptr, 0, shmem_size);  // Initialize memory with zeros
@@ -561,12 +561,17 @@ pub fn run_sams_inference_shared_memory_write_once_int(
             let end_time = Instant::now();
             let data_query_time_spi = end_time.duration_since(start_time).as_secs_f64();
             response.insert("data_query_time_spi", data_query_time_spi);
-
             let mut all_rows = Vec::new();
             for row in table.into_iter() {
                 for i in 1..=row.columns() {
-                    let val = row.get::<i32>(i).unwrap_or_default(); // Default to 0 if None or error
-                    all_rows.push(val);
+                    match row.get::<i32>(i) {
+                        Some(val) => all_rows.push(val),
+                        None => {
+                            // Handle the case when the value is missing or erroneous
+                            // For example, you can add a default value, like -1
+                            all_rows.push(-1);
+                        }
+                    }
                 }
             }
 
