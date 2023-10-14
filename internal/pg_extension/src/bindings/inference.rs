@@ -503,8 +503,6 @@ pub fn run_sams_inference_shared_memory_write_once_int(
 
     let overall_start_time = Instant::now();
 
-    let mut last_id = 0;
-
     // Step 1: load model and columns etc
     let mut task_map = HashMap::new();
     task_map.insert("where_cond", condition.clone());
@@ -538,8 +536,6 @@ pub fn run_sams_inference_shared_memory_write_once_int(
             let data_query_time_spi = end_time.duration_since(start_time).as_secs_f64();
             response.insert("data_query_time_spi", data_query_time_spi.clone());
 
-            let mut offset = 0;  // Keep track of how much we've written to shared memory
-
             let mut all_rows = Vec::new();
             for row in table.into_iter() {
                 for i in 1..=row.columns() {
@@ -549,6 +545,7 @@ pub fn run_sams_inference_shared_memory_write_once_int(
             }
 
             let bytes_to_copy = all_rows.len() * std::mem::size_of::<i32>();
+            response.insert("shared_mem_size", bytes_to_copy.clone() as f64);
             // Step 2: query data via SPI
             let start_time = Instant::now();
             let my_shmem = ShmemConf::new()
@@ -557,13 +554,14 @@ pub fn run_sams_inference_shared_memory_write_once_int(
                 .create()
                 .unwrap();
             let end_time = Instant::now();
-            let mem_allocate_time = end_time.duration_since(start_time).as_secs_f64();
+
             // write once for all
             std::ptr::copy_nonoverlapping(
                 all_rows.as_ptr(),
                 my_shmem.as_ptr() as *mut i32,
                 bytes_to_copy,
             );
+            let mem_allocate_time = end_time.duration_since(start_time).as_secs_f64();
             response.insert("mem_allocate_time", mem_allocate_time.clone());
 
             // Return OK or some status
