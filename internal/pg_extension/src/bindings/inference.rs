@@ -561,15 +561,20 @@ pub fn run_sams_inference_shared_memory_write_once_int(
             let end_time = Instant::now();
             let data_query_time_spi = end_time.duration_since(start_time).as_secs_f64();
             response.insert("data_query_time_spi", data_query_time_spi);
+
             let mut all_rows = Vec::new();
             for row in table.into_iter() {
                 for i in 1..=row.columns() {
                     match row.get::<i32>(i) {
-                        Some(val) => all_rows.push(val),
-                        None => {
+                        Ok(Some(val)) => all_rows.push(val), // Handle the case when a valid i32 is obtained
+                        Ok(None) => {
                             // Handle the case when the value is missing or erroneous
                             // For example, you can add a default value, like -1
                             all_rows.push(-1);
+                        }
+                        Err(e) => {
+                            // Handle the error, e.g., log it or handle it in some way
+                            eprintln!("Error fetching value: {:?}", e);
                         }
                     }
                 }
