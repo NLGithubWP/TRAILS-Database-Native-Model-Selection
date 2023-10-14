@@ -564,7 +564,7 @@ pub fn run_sams_inference_shared_memory_write_once_int(
                 for i in 1..=row.columns() {
                     let val = row.get::<i32>(i).unwrap_or_default(); // Default to 0 if None or error
                     all_rows.push(val);
-                    all_rowslog.push_str(&val.to_string());
+                    all_rowslog.push(val.to_string());
                 }
             }
 
