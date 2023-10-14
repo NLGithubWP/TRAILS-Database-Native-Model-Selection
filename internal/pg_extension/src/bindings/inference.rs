@@ -589,12 +589,12 @@ pub fn run_sams_inference_shared_memory_write_once_int(
     response.insert("data_query_time", data_query_time.clone());
 
 
-
     let start_time = Instant::now();
     // Step 3: model evaluate in Python
     let mut eva_task_map = HashMap::new();
     eva_task_map.insert("config_file", config_file.clone());
     eva_task_map.insert("spi_seconds", data_query_time.to_string());
+    eva_task_map.insert("rows", batch_size.to_string());
 
     let eva_task_json = json!(eva_task_map).to_string(); // Corrected this line
 
