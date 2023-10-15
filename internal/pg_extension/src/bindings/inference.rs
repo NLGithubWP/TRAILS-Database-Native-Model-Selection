@@ -504,11 +504,18 @@ pub fn run_sams_inference_shared_memory_write_once_int(
         response.insert("data_query_time_spi", data_query_time_spi);
 
         // todo: nl: this part can must be optimized, since i go through all of those staff.
+        // for row in table.into_iter() {
+            // for i in 3..=row.columns() {
+            //     if let Ok(Some(val)) = row.get::<i32>(i) {
+            //         all_rows.push(val);
+            //     }
+            // }
+
+        // }
         for row in table.into_iter() {
-            for i in 3..=row.columns() {
-                if let Ok(Some(val)) = row.get::<i32>(i) {
-                    all_rows.push(val);
-                }
+            unsafe {
+                let row_as_vec: Vec<i32> = mem::transmute(row.slice_from(3)); // Hypothetical function to slice row from 3rd column
+                all_rows.extend(row_as_vec);
             }
         }
 
