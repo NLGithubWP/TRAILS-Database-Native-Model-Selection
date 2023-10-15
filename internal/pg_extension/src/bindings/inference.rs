@@ -520,6 +520,7 @@ pub fn run_sams_inference_shared_memory_write_once_int(
                 t1 += data_query_time_min;
             }
         }
+        response.insert("data_query_time2", t1.clone());
 
         // Return OK or some status
         Ok(())
@@ -527,7 +528,7 @@ pub fn run_sams_inference_shared_memory_write_once_int(
     let end_time = Instant::now();
     let data_query_time = end_time.duration_since(start_time).as_secs_f64();
     response.insert("data_query_time", data_query_time.clone());
-    response.insert("data_query_time2", t1.clone());
+
 
     // log the query datas
     // let serialized_row = serde_json::to_string(&all_rows).unwrap();
