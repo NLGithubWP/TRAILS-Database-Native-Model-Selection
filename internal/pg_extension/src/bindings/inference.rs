@@ -666,14 +666,14 @@ pub fn run_sams_inference_shared_memory_write_once_int(
         for i in 3..=batch_size as usize{
             let row = table.get(i);
 
-            let serialized_row = serde_json::to_string(&row).unwrap();
-            response_log.insert("query_data", serialized_row);
-            
-            // for i in 3..= num_columns as usize {
-            //     if let Ok(Some(val)) = row.get::<i32>(i) {
-            //         all_rows.push(val);
-            //     }
-            // }
+            // let serialized_row = serde_json::to_string(&row).unwrap();
+            // response_log.insert("query_data", serialized_row);
+
+            for i in 3..= num_columns as usize {
+                if let Ok(Some(val)) = row.get::<i32>(i) {
+                    all_rows.push(val);
+                }
+            }
         }
         let end_time_min3 = Instant::now();
         let data_query_time_min3 = end_time_min3.duration_since(start_time_3).as_secs_f64();
