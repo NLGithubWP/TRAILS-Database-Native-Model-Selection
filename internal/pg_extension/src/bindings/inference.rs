@@ -648,7 +648,6 @@ pub fn run_sams_inference_shared_memory_write_once_int(
     // Step 1: query data
     let start_time = Instant::now();
     let mut all_rows = Vec::new();
-
     let _ = Spi::connect(|client| {
         let query = format!("SELECT * FROM {}_int_train {} LIMIT {}", dataset, sql, batch_size);
         let mut cursor = client.open_cursor(&query, None);
