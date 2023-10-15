@@ -593,6 +593,16 @@ SELECT sams_inference_shared_write_once_int(
     '', 
     100000
 ); 
+
+SELECT sams_inference_shared_write_once_int(
+    'frappe', 
+    '{}', 
+    '/project/TRAILS/internal/ml/model_selection/config.ini', 
+    '/project/TRAILS/frappe_col_cardinalities', 
+    '/project/tensor_log/frappe/dnn_K16_alpha4', 
+    '', 
+    100000
+); 
 ```
 
 ## Adult

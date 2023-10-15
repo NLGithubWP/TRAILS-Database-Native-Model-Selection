@@ -650,7 +650,7 @@ pub fn run_sams_inference_shared_memory_write_once_int(
     let mut all_rows = Vec::new();
 
     let _ = Spi::connect(|client| {
-        let query = format!("SELECT * FROM {}_train {} LIMIT {}", dataset, sql, batch_size);
+        let query = format!("SELECT * FROM {}_int_train {} LIMIT {}", dataset, sql, batch_size);
         let mut cursor = client.open_cursor(&query, None);
         let table = match cursor.fetch(batch_size as c_long) {
             Ok(table) => table,
@@ -664,10 +664,8 @@ pub fn run_sams_inference_shared_memory_write_once_int(
         let start_time_3 = Instant::now();
         for row in table.into_iter() {
             for i in 3..= num_columns as usize {
-                if let Ok(Some(val)) = row.get::<&str>(i) {
-                    let parts: Vec<&str> = val.split(':').collect();
-                    let int_part = parts[0].parse::<i32>().unwrap();
-                    all_rows.push(int_part);
+                if let Ok(Some(val)) = row.get::<i32>(i) {
+                    all_rows.push(val);
                 }
             }
         }
