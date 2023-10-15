@@ -508,11 +508,9 @@ pub fn run_sams_inference_shared_memory_write_once_int(
         // todo: nl: this part can must be optimized, since i go through all of those staff.
         for row in table.into_iter() {
             for i in 3..=row.columns() {
-                // if let Ok(Some(val)) = row.get::<i32>(i) {
-                //     all_rows.push(val);
-                // }
-                let val = row.get_unchecked::<i32>(i).unwrap_or_default();
-                all_rows.push(val);
+                if let Ok(Some(val)) = row.get::<i32>(i) {
+                    all_rows.push(val);
+                }
             }
         }
 
