@@ -615,7 +615,6 @@ pub fn run_sams_inference_shared_memory_write_once_int(
     batch_size: i32,
 ) -> serde_json::Value {
     let mut response = HashMap::new();
-    let mut response_log = HashMap::new();
 
     let mut num_columns: i32 = 0;
     match dataset.as_str() {  // assuming dataset is a String
