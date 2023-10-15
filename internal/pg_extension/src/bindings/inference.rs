@@ -506,18 +506,27 @@ pub fn run_sams_inference_shared_memory_write_once_int(
         let data_query_time_spi = end_time.duration_since(start_time).as_secs_f64();
         response.insert("data_query_time_spi", data_query_time_spi);
 
+
+        let num_columns = if let Some(first_row) = table.get(0) {
+            first_row.columns()
+        } else {
+            // If the table is empty, there are no columns.
+            // Handle this case appropriately (e.g., by returning early, logging, etc.).
+            return Err("The table is empty, no columns to process.".to_string());
+        };
+
         let mut t1: f64 = 0.0;
         // todo: nl: this part can must be optimized, since i go through all of those staff.
         let start_time_3 = Instant::now();
         for row in table.into_iter() {
-            for i in 3..=row.columns() {
-                // let start_time_min = Instant::now();
+            for i in 3..= num_columns {
+                let start_time_min = Instant::now();
                 if let Ok(Some(val)) = row.get::<i32>(i) {
                     all_rows.push(val);
                 }
-                // let end_time_min = Instant::now();
-                // let data_query_time_min = end_time_min.duration_since(start_time_min).as_secs_f64();
-                // t1 += data_query_time_min;
+                let end_time_min = Instant::now();
+                let data_query_time_min = end_time_min.duration_since(start_time_min).as_secs_f64();
+                t1 += data_query_time_min;
             }
         }
         let end_time_min3 = Instant::now();
