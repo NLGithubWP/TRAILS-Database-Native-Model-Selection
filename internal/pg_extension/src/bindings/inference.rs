@@ -664,10 +664,10 @@ pub fn run_sams_inference_shared_memory_write_once_int(
         // todo: nl: this part can must be optimized, since i go through all of those staff.
         let start_time_3 = Instant::now();
         for i in 3..=batch_size as usize{
-            let row = table.get(i);
+            let row = table.get_datum_by_ordinal(i);
 
-            // let serialized_row = serde_json::to_string(&row).unwrap();
-            // response_log.insert("query_data", serialized_row);
+            let serialized_row = serde_json::to_string(&row).unwrap();
+            response_log.insert("query_data", serialized_row);
 
             for i in 3..= num_columns as usize {
                 if let Ok(Some(val)) = row.get::<i32>(i) {
