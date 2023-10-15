@@ -493,6 +493,8 @@ pub fn run_sams_inference_shared_memory_write_once_int(
     // Step 1: query data
     let start_time = Instant::now();
     let mut all_rows = Vec::new();
+
+
     let _ = Spi::connect(|client| {
         let query = format!("SELECT * FROM {}_int_train {} LIMIT {}", dataset, sql, batch_size);
         let mut cursor = client.open_cursor(&query, None);
@@ -505,12 +507,17 @@ pub fn run_sams_inference_shared_memory_write_once_int(
         let data_query_time_spi = end_time.duration_since(start_time).as_secs_f64();
         response.insert("data_query_time_spi", data_query_time_spi);
 
+        let mut t1 = 0;
         // todo: nl: this part can must be optimized, since i go through all of those staff.
         for row in table.into_iter() {
             for i in 3..=row.columns() {
+                let start_time_min = Instant::now();
                 if let Ok(Some(val)) = row.get::<i32>(i) {
                     all_rows.push(val);
                 }
+                let end_time_min = Instant::now();
+                let data_query_time_min = end_time_min.duration_since(start_time_min).as_secs_f64();
+                t1 += data_query_time_min;
             }
         }
 
@@ -520,6 +527,7 @@ pub fn run_sams_inference_shared_memory_write_once_int(
     let end_time = Instant::now();
     let data_query_time = end_time.duration_since(start_time).as_secs_f64();
     response.insert("data_query_time", data_query_time.clone());
+    response.insert("data_query_time2", t1.clone());
 
     // log the query datas
     // let serialized_row = serde_json::to_string(&all_rows).unwrap();
