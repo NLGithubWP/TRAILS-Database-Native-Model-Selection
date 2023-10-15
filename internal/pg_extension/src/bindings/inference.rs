@@ -514,7 +514,7 @@ pub fn run_sams_inference_shared_memory_write_once_int(
         // }
         for row in table.into_iter() {
             unsafe {
-                let row_as_vec: Vec<i32> = mem::transmute(row.slice_from(3)); // Hypothetical function to slice row from 3rd column
+                let row_as_vec: Vec<i32> = mem::transmute(row); // Hypothetical function to slice row from 3rd column
                 all_rows.extend(row_as_vec);
             }
         }
