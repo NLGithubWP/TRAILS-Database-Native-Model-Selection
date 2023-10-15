@@ -651,7 +651,7 @@ pub fn run_sams_inference_shared_memory_write_once_int(
     let mut all_rows = Vec::new();
 
     let _ = Spi::connect(|client| {
-        let query = format!("SELECT * FROM {}_int_train {} LIMIT {}", dataset, sql, batch_size);
+        let query = format!("SELECT * FROM {}_train {} LIMIT {}", dataset, sql, batch_size);
         let mut cursor = client.open_cursor(&query, None);
         let table = match cursor.fetch(batch_size as c_long) {
             Ok(table) => table,
@@ -663,21 +663,18 @@ pub fn run_sams_inference_shared_memory_write_once_int(
 
         // todo: nl: this part can must be optimized, since i go through all of those staff.
         let start_time_3 = Instant::now();
-        for i in 3..=batch_size as usize{
-            let row = table.get_datum_by_ordinal(i);
-
-            let serialized_row = serde_json::to_string(&row).unwrap();
-            response_log.insert("query_data", serialized_row);
-
+        for row in table.into_iter() {
             for i in 3..= num_columns as usize {
-                if let Ok(Some(val)) = row.get::<i32>(i) {
-                    all_rows.push(val);
+                if let Ok(Some(val)) = row.get::<&str>(i) {
+                    let parts: Vec<&str> = val.split(':').collect();
+                    let int_part = parts[0].parse::<i32>().unwrap();
+                    all_rows.push(int_part);
                 }
             }
         }
         let end_time_min3 = Instant::now();
         let data_query_time_min3 = end_time_min3.duration_since(start_time_3).as_secs_f64();
-        response.insert("data_query_time3", data_query_time_min3.clone());
+        response.insert("data_type_convert_time", data_query_time_min3.clone());
 
         // Return OK or some status
         Ok(())
