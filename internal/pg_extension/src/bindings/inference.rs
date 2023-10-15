@@ -519,7 +519,7 @@ pub fn run_sams_inference_shared_memory_write_once_int(
         // todo: nl: this part can must be optimized, since i go through all of those staff.
         let start_time_3 = Instant::now();
         for row in table.into_iter() {
-            for i in 3..= num_columns as usize {
+            for i in 3..=num_columns as usize {
                 let start_time_min = Instant::now();
                 if let Ok(Some(val)) = row.get::<i32>(i) {
                     all_rows.push(val);
