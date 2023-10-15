@@ -506,20 +506,12 @@ pub fn run_sams_inference_shared_memory_write_once_int(
         // todo: nl: this part can must be optimized, since i go through all of those staff.
         for row in table.into_iter() {
             for i in 3..=row.columns() {
-                match row.get::<i32>(i) {
-                    Ok(Some(val)) => all_rows.push(val), // Handle the case when a valid i32 is obtained
-                    Ok(None) => {
-                        // Handle the case when the value is missing or erroneous
-                        // For example, you can add a default value, like -1
-                        all_rows.push(-1);
-                    }
-                    Err(e) => {
-                        // Handle the error, e.g., log it or handle it in some way
-                        eprintln!("Error fetching value: {:?}", e);
-                    }
+                if let Ok(Some(val)) = row.get::<i32>(i) {
+                    all_rows.push(val);
                 }
             }
         }
+
         // Return OK or some status
         Ok(())
     });
