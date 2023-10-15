@@ -615,7 +615,7 @@ pub fn run_sams_inference_shared_memory_write_once_int(
     batch_size: i32,
 ) -> serde_json::Value {
     let mut response = HashMap::new();
-    // let mut response_log = HashMap::new();
+    let mut response_log = HashMap::new();
 
     let mut num_columns: i32 = 0;
     match dataset.as_str() {  // assuming dataset is a String
@@ -663,13 +663,17 @@ pub fn run_sams_inference_shared_memory_write_once_int(
 
         // todo: nl: this part can must be optimized, since i go through all of those staff.
         let start_time_3 = Instant::now();
-        for i in 3..=batch as usize{
+        for i in 3..=batch_size as usize{
             let row = table.get(i);
-            for i in 3..= num_columns as usize {
-                if let Ok(Some(val)) = row.get::<i32>(i) {
-                    all_rows.push(val);
-                }
-            }
+
+            let serialized_row = serde_json::to_string(&row).unwrap();
+            response_log.insert("query_data", serialized_row);
+            
+            // for i in 3..= num_columns as usize {
+            //     if let Ok(Some(val)) = row.get::<i32>(i) {
+            //         all_rows.push(val);
+            //     }
+            // }
         }
         let end_time_min3 = Instant::now();
         let data_query_time_min3 = end_time_min3.duration_since(start_time_3).as_secs_f64();
