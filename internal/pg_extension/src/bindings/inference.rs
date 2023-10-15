@@ -511,13 +511,13 @@ pub fn run_sams_inference_shared_memory_write_once_int(
         let start_time_3 = Instant::now();
         for row in table.into_iter() {
             for i in 3..=row.columns() {
-                let start_time_min = Instant::now();
+                // let start_time_min = Instant::now();
                 if let Ok(Some(val)) = row.get::<i32>(i) {
                     all_rows.push(val);
                 }
-                let end_time_min = Instant::now();
-                let data_query_time_min = end_time_min.duration_since(start_time_min).as_secs_f64();
-                t1 += data_query_time_min;
+                // let end_time_min = Instant::now();
+                // let data_query_time_min = end_time_min.duration_since(start_time_min).as_secs_f64();
+                // t1 += data_query_time_min;
             }
         }
         let end_time_min3 = Instant::now();
