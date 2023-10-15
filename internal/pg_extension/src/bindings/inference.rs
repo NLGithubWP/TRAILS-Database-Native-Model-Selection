@@ -470,6 +470,15 @@ pub fn run_sams_inference_shared_memory_write_once_int(
     let mut response = HashMap::new();
     // let mut response_log = HashMap::new();
 
+    let mut num_columns: i32 = 0;
+    match dataset.as_str() {  // assuming dataset is a String
+        "frappe" => num_columns = 12,
+        "adult" => num_columns = 15,
+        "cvd" => num_columns = 13,
+        "bank" => num_columns = 18,
+        _ => {},
+    }
+
     let overall_start_time = Instant::now();
 
     // Step 1: load model and columns etc
@@ -505,15 +514,6 @@ pub fn run_sams_inference_shared_memory_write_once_int(
         let end_time = Instant::now();
         let data_query_time_spi = end_time.duration_since(start_time).as_secs_f64();
         response.insert("data_query_time_spi", data_query_time_spi);
-
-
-        let num_columns = if let Some(first_row) = table.get(0) {
-            first_row.columns()
-        } else {
-            // If the table is empty, there are no columns.
-            // Handle this case appropriately (e.g., by returning early, logging, etc.).
-            return Err("The table is empty, no columns to process.".to_string());
-        };
 
         let mut t1: f64 = 0.0;
         // todo: nl: this part can must be optimized, since i go through all of those staff.
