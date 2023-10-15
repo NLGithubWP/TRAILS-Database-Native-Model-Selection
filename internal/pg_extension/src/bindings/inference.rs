@@ -6,6 +6,8 @@ use crate::bindings::ml_register::PY_MODULE_SAMS;
 use crate::bindings::ml_register::run_python_function;
 use std::time::{Instant};
 use shared_memory::*;
+use std::mem;
+
 
 pub fn run_sams_inference_shared_memory(
     dataset: &String,
