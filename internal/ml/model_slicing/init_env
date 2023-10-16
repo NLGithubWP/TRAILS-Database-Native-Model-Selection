@@ -1,0 +1,10 @@
+
+
+
+
+export PYTHONPATH=$PYTHONPATH:./src
+export PATH="$PATH:./src"
+export PYTHONPATH=$PYTHONPATH:./third_party
+export PATH="$PATH:./third_party"
+
+# conda activate sams
