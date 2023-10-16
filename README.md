@@ -1,8 +1,8 @@
-# TRAILS: A Database Native Model Selection System
+# Powering In-Database Dynamic Model Slicing for Structured Data Analytics
 
-![image-20230702035806963](documents/imgs/image-20230702035806963.png)
+![image-20231016122508415](documents/image-20231016122508415.png)
 
-[TOC]
+
 
 # Config Environments
 
@@ -12,276 +12,862 @@ conda config --set ssl_verify false
 conda create -n "trails" python=3.8.10
 conda activate trails
 pip install -r requirement.txt
-
 cd TRAILS
-
-# make a dir to store all results.
-mkdir ../exp_data
 ```
 
-# Reproduce the results
+# Envs
+```bash
+unset PYTHONPATH
+export PYTHONPATH=$PYTHONPATH:/project/TRAILS/internal/ml/
+export PYTHONPATH=$PYTHONPATH:/project/TRAILS/internal/ml/model_slicing
+echo $PYTHONPATH
+```
 
-## NAS-Bench-Tabular
+# Save data to database
 
- NAS-Bench-Tabular can be either **download** or build from scratch.
+4 datasets are used here.
 
-### Download NAS-Bench-Tabular
+```
+adult  bank  cvd  frappe
+```
 
-1. **Download** the dataset using the following link, and extract them to `exp_data`
+Save the statistics
 
 ```bash
-https://drive.google.com/file/d/1TGii9ymbmX81c9-GKWXbe_4Z64R8Btz1/view?usp=sharing
+# save the data cardinalities, run in docker
+
+# frappe
+python3 ./internal/ml/model_slicing/save_satistics.py --dataset frappe --data_dir /hdd1/sams/data/ --nfeat 5500 --nfield 10 --max_filter_col 10 --train_dir ./
+
+# adult
+python3 ./internal/ml/model_slicing/save_satistics.py --dataset adult --data_dir /hdd1/sams/data/ --nfeat 140 --nfield 13 --max_filter_col 13 --train_dir ./
+
+# cvd
+python3 ./internal/ml/model_slicing/save_satistics.py --dataset cvd --data_dir /hdd1/sams/data/ --nfeat 110 --nfield 11 --max_filter_col 11 --train_dir ./
+
+# bank
+python3 ./internal/ml/model_slicing/save_satistics.py --dataset bank --data_dir /hdd1/sams/data/ --nfeat 80 --nfield 16 --max_filter_col 16 --train_dir ./
 ```
 
-### Build NAS-Bench-Tabular
-
-2. Build the **NAS-Bench-Tabular** from scratch
-
-```python
-# Construct NAS-Bench-Tabular:
-## 1. Training all models.
-bash internal/ml/model_selection/scripts/nas-bench-tabular/train_all_models_frappe.sh
-bash internal/ml/model_selection/scripts/nas-bench-tabular/train_all_models_diabetes.sh
-bash internal/ml/model_selection/scripts/nas-bench-tabular/train_all_models_criteo.sh
-
-## 2. Scoring all models using all TFMEMs.
-bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_frappe.sh
-bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_uci.sh
-bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_criteo.sh
-```
-
-3. Build the **NAS-Bench-Img** from scratch
-
-   To facilitate the experiments and query speed (NASBENCH API is slow)
-
-   1. We retrieve all results from NASBENCH API and store them as a json file.
-   2. We score all models in NB201 and 28K models in NB101.
-   3. We search with  EA + Score and record the searching process in terms of
-       `run_id,  current_explored_model, top_400 highest scored model, time_usage`
-        to SQLLite.
-
-```python
-# 1. Record NASBENCH API data into json file
-## This requires to install nats_bench: pip install nats_bench
-bash ./internal/ml/model_selection/scripts/nas-bench-img/convert_api_2_json.sh
-
-# 2. Scoring all models using all TFMEMs.
-nohup bash ./internal/ml/model_selection/scripts/nas-bench-img/score_all_models.sh &
-
-# 3. Explore with EA ans score result and store exploring process into SQLLite
-bash ./internal/ml/model_selection/scripts/nas-bench-img/explore_all_models.sh
-
-# 4. Generate the baseline.
-bash ./internal/ml/model_selection/scripts/baseline_system_img.sh
-```
-
-The following experiment could then query filtering phase results based on `run_id`.
-
-## SLO-Aware 2Phase-MS
-
-With the above **NAS-Bench-Tabular**, we could run various experiments.
+# Run docker
 
 ```bash
-# 1. Generate the results for drawing the figure
-## tabular data: training-base-ms
-bash internal/ml/model_selection/scripts/baseline_system_tab.sh
-## tabular data: training-free-ms, 2phase-ms
-nohup bash internal/ml/model_selection/scripts/anytime_tab.sh &
-## image data: training-base-ms, training-free-ms, 2phase-ms
-nohup bash internal/ml/model_selection/scripts/anytime_img_w_baseline.sh &
+# in server
+ssh panda17
 
-# 2. Draw figure
-python internal/ml/model_selection/exps/macro/anytime_tab_draw.py
-python internal/ml/model_selection/exps/macro/anytime_img_draw.py
+# goes to /home/xingnaili/firmest_docker/TRAILS
+git submodule update --recursive --remote
+
+# run container
+docker run -d --name trails \
+  --network="host" \
+  -v $(pwd)/TRAILS:/project/TRAILS \
+  -v /hdd1/xingnaili/exp_data/:/project/exp_data \
+  -v /hdd1/sams/tensor_log/:/project/tensor_log \
+  -v /hdd1/sams/data/:/project/data_all \
+  trails
+
+# Enter the docker container.
+docker exec -it trails bash
 ```
 
-![image-20230702035554579](documents/imgs/image-20230702035554579.png)
+# Run in database
 
-## Micro: Benchmark TFMEMs
+Config the database runtime
+
+```sql
+cargo pgrx run
+```
+
+Load data into RDBMS
 
 ```bash
-export PYTHONPATH=$PYTHONPATH:./internal/ml/model_selection
-conda activate trails
-python ./internal/ml/model_selection/exps/micro/benchmark_correlation.py
+
+psql -h localhost -p 28814 -U postgres
+\l
+\c pg_extension
+\dt
+\d frappe_train
+
+
+# frappe
+bash /project/TRAILS/internal/ml/model_selection/scripts/database/load_data_to_db.sh /project/data_all/frappe frappe
+# frappe, only feature ids
+bash /project/TRAILS/internal/ml/model_selection/scripts/database/load_data_to_db_int.sh /project/data_all/frappe frappe
+
+
+# adult
+bash ./internal/ml/model_selection/scripts/database/load_data_to_db.sh /project/data_all/adult adult
+# adult, only feature ids
+bash ./internal/ml/model_selection/scripts/database/load_data_to_db_int.sh /project/data_all/adult adult
+# check type is correct or not.
+SELECT column_name, data_type, column_default, is_nullable
+FROM information_schema.columns
+WHERE table_name = 'adult_int_train';
+
+
+# cvd
+bash /project/TRAILS/internal/ml/model_selection/scripts/database/load_data_to_db.sh /project/data_all/cvd cvd
+# cvd, only feature ids
+bash /project/TRAILS/internal/ml/model_selection/scripts/database/load_data_to_db_int.sh /project/data_all/cvd cvd
+
+
+# bank
+bash /project/TRAILS/internal/ml/model_selection/scripts/database/load_data_to_db.sh /project/data_all/bank bank
+# bank, only feature ids
+bash /project/TRAILS/internal/ml/model_selection/scripts/database/load_data_to_db_int.sh /project/data_all/bank bank
 ```
 
-## Micro: Score and AUC relation
+Verify data is in the DB
+
+```sql
+# check table status
+\dt
+\d frappe_train
+SELECT * FROM frappe_train LIMIT 10;
+```
+
+Config
+
+```sql
+# after run the pgrx, then edie the sql
+# generate schema
+cargo pgrx schema >> /home/postgres/.pgrx/14.9/pgrx-install/share/extension/pg_extension--0.1.0.sql
+
+
+-- src/lib.rs:266
+-- pg_extension::sams_model_init
+CREATE  FUNCTION "sams_model_init"(
+	"condition" TEXT, /* alloc::string::String */
+	"config_file" TEXT, /* alloc::string::String */
+	"col_cardinalities_file" TEXT, /* alloc::string::String */
+	"model_path" TEXT /* alloc::string::String */
+) RETURNS TEXT /* alloc::string::String */
+IMMUTABLE STRICT PARALLEL SAFE
+LANGUAGE c /* Rust */
+AS 'MODULE_PATHNAME', 'sams_model_init_wrapper';
+
+-- src/lib.rs:242
+-- pg_extension::sams_inference_shared_write_once_int
+CREATE  FUNCTION "sams_inference_shared_write_once_int"(
+	"dataset" TEXT, /* alloc::string::String */
+	"condition" TEXT, /* alloc::string::String */
+	"config_file" TEXT, /* alloc::string::String */
+	"col_cardinalities_file" TEXT, /* alloc::string::String */
+	"model_path" TEXT, /* alloc::string::String */
+	"sql" TEXT, /* alloc::string::String */
+	"batch_size" INT /* i32 */
+) RETURNS TEXT /* alloc::string::String */
+IMMUTABLE STRICT PARALLEL SAFE
+LANGUAGE c /* Rust */
+AS 'MODULE_PATHNAME', 'sams_inference_shared_write_once_int_wrapper';
+
+-- src/lib.rs:219
+-- pg_extension::sams_inference_shared_write_once
+CREATE  FUNCTION "sams_inference_shared_write_once"(
+	"dataset" TEXT, /* alloc::string::String */
+	"condition" TEXT, /* alloc::string::String */
+	"config_file" TEXT, /* alloc::string::String */
+	"col_cardinalities_file" TEXT, /* alloc::string::String */
+	"model_path" TEXT, /* alloc::string::String */
+	"sql" TEXT, /* alloc::string::String */
+	"batch_size" INT /* i32 */
+) RETURNS TEXT /* alloc::string::String */
+IMMUTABLE STRICT PARALLEL SAFE
+LANGUAGE c /* Rust */
+AS 'MODULE_PATHNAME', 'sams_inference_shared_write_once_wrapper';
+
+-- src/lib.rs:196
+-- pg_extension::sams_inference_shared
+CREATE  FUNCTION "sams_inference_shared"(
+	"dataset" TEXT, /* alloc::string::String */
+	"condition" TEXT, /* alloc::string::String */
+	"config_file" TEXT, /* alloc::string::String */
+	"col_cardinalities_file" TEXT, /* alloc::string::String */
+	"model_path" TEXT, /* alloc::string::String */
+	"sql" TEXT, /* alloc::string::String */
+	"batch_size" INT /* i32 */
+) RETURNS TEXT /* alloc::string::String */
+IMMUTABLE STRICT PARALLEL SAFE
+LANGUAGE c /* Rust */
+AS 'MODULE_PATHNAME', 'run_sams_inference_shared_wrapper';
+
+-- src/lib.rs:173
+-- pg_extension::sams_inference
+CREATE  FUNCTION "sams_inference"(
+	"dataset" TEXT, /* alloc::string::String */
+	"condition" TEXT, /* alloc::string::String */
+	"config_file" TEXT, /* alloc::string::String */
+	"col_cardinalities_file" TEXT, /* alloc::string::String */
+	"model_path" TEXT, /* alloc::string::String */
+	"sql" TEXT, /* alloc::string::String */
+	"batch_size" INT /* i32 */
+) RETURNS TEXT /* alloc::string::String */
+IMMUTABLE STRICT PARALLEL SAFE
+LANGUAGE c /* Rust */
+AS 'MODULE_PATHNAME', 'run_sams_inference_wrapper';
+
+
+# record the necessary func above and then copy it to following
+rm /home/postgres/.pgrx/14.9/pgrx-install/share/extension/pg_extension--0.1.0.sql
+vi /home/postgres/.pgrx/14.9/pgrx-install/share/extension/pg_extension--0.1.0.sql
+
+# then drop/create extension
+DROP EXTENSION IF EXISTS pg_extension;
+CREATE EXTENSION pg_extension;
+
+pip install einops
+```
+
+Examples
+
+```sql
+
+# this is database name, columns used, time budget, batch size, and config file
+SELECT count(*) FROM frappe_train WHERE col2='973:1' LIMIT 1000;
+SELECT col2, count(*) FROM frappe_train group by col2 order by count(*) desc;
+
+# query with two conditions
+SELECT sams_inference(
+    'frappe',
+    '{"1":266, "2":1244}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/tensor_log/frappe/dnn_K16_alpha4',
+    'WHERE col1=''266:1'' and col2=''1244:1''',
+    32
+);
+
+# query with 1 conditions
+SELECT sams_inference(
+    'frappe',
+    '{"2":977}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/tensor_log/frappe/dnn_K16_alpha4',
+    'WHERE col2=''977:1''',
+    10000
+);
+
+# query with no conditions
+SELECT sams_inference(
+    'frappe',
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/tensor_log/frappe/dnn_K16_alpha4',
+    '',
+    8000
+);
+
+# explaination
+EXPLAIN (ANALYZE, BUFFERS) SELECT sams_inference(
+    'frappe',
+    '{"2":977}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/tensor_log/frappe/dnn_K16_alpha4',
+    'WHERE col2=''977:1''',
+    8000
+);
+
+
+```
+
+# Clear cache
+
+```sql
+DISCARD ALL;
+```
+
+# Benchmark Latency over all datasets
+
+## Adult
+
+```sql
+SELECT sams_inference(
+    'adult',
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/adult_col_cardinalities',
+    '/project/tensor_log/adult/Ednn_K16_alpha2-5',
+    '',
+    10000
+);
+
+
+# exps
+SELECT sams_model_init(
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/adult_col_cardinalities',
+    '/project/tensor_log/adult/Ednn_K16_alpha2-5',
+);
+SELECT sams_inference(
+    'adult',
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/adult_col_cardinalities',
+    '/project/tensor_log/adult/Ednn_K16_alpha2-5',
+    '',
+    10000
+);
+
+
+SELECT sams_model_init(
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/adult_col_cardinalities',
+    '/project/tensor_log/adult/Ednn_K16_alpha2-5'
+);
+SELECT sams_inference_shared_write_once(
+    'adult',
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/adult_col_cardinalities',
+    '/project/tensor_log/adult/Ednn_K16_alpha2-5',
+    '',
+    100000
+);
+
+# replicate data
+INSERT INTO adult_train (label, col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11, col12, col13)
+SELECT label, col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11, col12, col13
+FROM adult_train;
+
+INSERT INTO adult_int_train (label, col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11, col12, col13)
+SELECT label, col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11, col12, col13
+FROM adult_int_train;
+```
+
+## Frappe
+
+```sql
+SELECT sams_inference(
+    'frappe',
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/tensor_log/frappe/dnn_K16_alpha4',
+    '',
+    10000
+);
+
+SELECT sams_inference(
+    'frappe',
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/tensor_log/frappe/dnn_K16_alpha4',
+    '',
+    20000
+);
+
+
+SELECT sams_model_init(
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/tensor_log/frappe/dnn_K16_alpha4'
+);
+SELECT sams_inference(
+    'frappe',
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/tensor_log/frappe/dnn_K16_alpha4',
+    '',
+    10000
+);
+
+
+
+SELECT sams_model_init(
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/tensor_log/frappe/dnn_K16_alpha4'
+);
+SELECT sams_inference_shared_write_once(
+    'frappe',
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/tensor_log/frappe/dnn_K16_alpha4',
+    '',
+    100000
+);
+
+
+SELECT sams_inference_shared(
+    'frappe',
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/tensor_log/frappe/dnn_K16_alpha4',
+    '',
+    40000
+);
+
+
+
+SELECT sams_inference(
+    'frappe',
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/tensor_log/frappe/dnn_K16_alpha4',
+    '',
+    80000
+);
+
+
+SELECT sams_inference(
+    'frappe',
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/tensor_log/frappe/dnn_K16_alpha4',
+    '',
+    160000
+);
+
+# replicate data
+INSERT INTO frappe_train (label, col1, col2, col3, col4, col5, col6, col7, col8, col9, col10)
+SELECT label, col1, col2, col3, col4, col5, col6, col7, col8, col9, col10
+FROM frappe_train;
+
+
+INSERT INTO frappe_int_train (label, col1, col2, col3, col4, col5, col6, col7, col8, col9, col10)
+SELECT label, col1, col2, col3, col4, col5, col6, col7, col8, col9, col10
+FROM frappe_int_train;
+```
+
+## CVD
+
+```sql
+SELECT sams_inference(
+    'cvd',
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/cvd_col_cardinalities',
+    '/project/tensor_log/cvd/dnn_K16_alpha2-5',
+    '',
+    10000
+);
+
+# exps
+SELECT sams_model_init(
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/cvd_col_cardinalities',
+    '/project/tensor_log/cvd/dnn_K16_alpha2-5',
+);
+SELECT sams_inference(
+    'cvd',
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/cvd_col_cardinalities',
+    '/project/tensor_log/cvd/dnn_K16_alpha2-5',
+    '',
+    10000
+);
+
+
+SELECT sams_model_init(
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/cvd_col_cardinalities',
+    '/project/tensor_log/cvd/dnn_K16_alpha2-5'
+);
+SELECT sams_inference_shared_write_once(
+    'cvd',
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/cvd_col_cardinalities',
+    '/project/tensor_log/cvd/dnn_K16_alpha2-5',
+    '',
+    100000
+);
+
+
+# replicate data
+INSERT INTO cvd_train (label, col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11)
+SELECT label, col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11
+FROM cvd_train;
+
+INSERT INTO cvd_int_train (label, col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11)
+SELECT label, col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11
+FROM cvd_int_train;
+
+```
+
+## Bank
+
+```sql
+SELECT sams_inference(
+    'bank',
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/bank_col_cardinalities',
+    '/project/tensor_log/bank/dnn_K16_alpha2-3_beta1e-3',
+    '',
+    10000
+);
+
+
+# exps
+SELECT sams_model_init(
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/bank_col_cardinalities',
+    '/project/tensor_log/bank/dnn_K16_alpha2-3_beta1e-3',
+);
+SELECT sams_inference(
+    'bank',
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/bank_col_cardinalities',
+    '/project/tensor_log/bank/dnn_K16_alpha2-3_beta1e-3',
+    '',
+    10000
+);
+
+
+SELECT sams_model_init(
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/bank_col_cardinalities',
+    '/project/tensor_log/bank/dnn_K16_alpha2-3_beta1e-3'
+);
+SELECT sams_inference_shared_write_once(
+    'bank',
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/bank_col_cardinalities',
+    '/project/tensor_log/bank/dnn_K16_alpha2-3_beta1e-3',
+    '',
+    100000
+);
+
+
+# replicate data
+INSERT INTO bank_train (label, col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11, col12, col13, col14, col15, col16)
+SELECT label, col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11, col12, col13, col14, col15, col16
+FROM bank_train;
+
+
+INSERT INTO bank_int_train (label, col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11, col12, col13, col14, col15, col16)
+SELECT label, col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11, col12, col13, col14, col15, col16
+FROM bank_int_train;
+
+```
+
+# Baseline & SAMS
+
+## Frappe
 
 ```bash
-python ./internal/ml/model_selection/exps/micro/draw_score_metric_relation.py
+# frappe
+CUDA_VISIBLE_DEVICES=-1 python ./internal/ml/model_slicing/baseline.py /hdd1/sams/tensor_log/frappe/dnn_K16_alpha4 --device cpu --dataset frappe --batch_size 10 --col_cardinalities_file frappe_col_cardinalities --target_batch 10
+
+
+CUDA_VISIBLE_DEVICES="0" python ./internal/ml/model_slicing/baseline.py /hdd1/sams/tensor_log/frappe/dnn_K16_alpha4 --device cuda:0 --dataset frappe --batch_size 100000 --col_cardinalities_file frappe_col_cardinalities --target_batch 100000
+
+CUDA_VISIBLE_DEVICES=-1 python ./internal/ml/model_slicing/baseline_int.py /hdd1/sams/tensor_log/frappe/dnn_K16_alpha4 --device cpu --dataset frappe --batch_size 100000 --col_cardinalities_file frappe_col_cardinalities --target_batch 100000
+
+
+SELECT sams_model_init(
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/tensor_log/frappe/dnn_K16_alpha4'
+);
+SELECT sams_inference_shared_write_once(
+    'frappe',
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/tensor_log/frappe/dnn_K16_alpha4',
+    '',
+    100000
+);
+
+# read int data
+SELECT sams_model_init(
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/tensor_log/frappe/dnn_K16_alpha4'
+);
+SELECT sams_inference_shared_write_once_int(
+    'frappe',
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/tensor_log/frappe/dnn_K16_alpha4',
+    '',
+    100000
+);
 ```
 
-## Micro: Benchmark Budge-Aware Algorithm
+## Adult
 
 ```bash
-bash internal/ml/model_selection/scripts/micro_budget_aware_alg.sh
+
+# adult
+CUDA_VISIBLE_DEVICES=-1 python ./internal/ml/model_slicing/baseline.py /hdd1/sams/tensor_log/adult/Ednn_K16_alpha2-5 --device cpu --dataset adult --batch_size 100000 --col_cardinalities_file adult_col_cardinalities  --target_batch 100000
+
+CUDA_VISIBLE_DEVICES="0" python ./internal/ml/model_slicing/baseline.py /hdd1/sams/tensor_log/adult/Ednn_K16_alpha2-5 --device cuda:0 --dataset adult --batch_size 100000 --col_cardinalities_file adult_col_cardinalities  --target_batch 100000
+
+CUDA_VISIBLE_DEVICES=-1 python ./internal/ml/model_slicing/baseline_int.py /hdd1/sams/tensor_log/adult/Ednn_K16_alpha2-5 --device cpu --dataset adult --batch_size 100000 --col_cardinalities_file adult_col_cardinalities  --target_batch 100000
+
+SELECT sams_model_init(
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/adult_col_cardinalities',
+    '/project/tensor_log/adult/Ednn_K16_alpha2-5'
+);
+SELECT sams_inference_shared_write_once(
+    'adult',
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/adult_col_cardinalities',
+    '/project/tensor_log/adult/Ednn_K16_alpha2-5',
+    '',
+    100000
+);
+
+SELECT sams_model_init(
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/adult_col_cardinalities',
+    '/project/tensor_log/adult/Ednn_K16_alpha2-5'
+);
+SELECT sams_inference_shared_write_once_int(
+    'adult',
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/adult_col_cardinalities',
+    '/project/tensor_log/adult/Ednn_K16_alpha2-5',
+    '',
+    640000
+);
 ```
 
-![image-20230724111659545](./documents/imgs/image-20230724111659545.png)
+## CVD
+```bash
+# CVD
+CUDA_VISIBLE_DEVICES=-1 python ./internal/ml/model_slicing/baseline.py /hdd1/sams/tensor_log/cvd/dnn_K16_alpha2-5 --device cpu --dataset cvd --batch_size 100000 --col_cardinalities_file cvd_col_cardinalities  --target_batch 100000
 
-## Micro: Benchmark N, K, U
+CUDA_VISIBLE_DEVICES="0" python ./internal/ml/model_slicing/baseline.py /hdd1/sams/tensor_log/cvd/dnn_K16_alpha2-5 --device cuda:0 --dataset cvd --batch_size 100000 --col_cardinalities_file cvd_col_cardinalities  --target_batch 100000
 
-With ranking the models by ther TFMEM score in the filtering phase, we aim to determine
+CUDA_VISIBLE_DEVICES=-1 python ./internal/ml/model_slicing/baseline_int.py /hdd1/sams/tensor_log/cvd/dnn_K16_alpha2-5 --device cpu --dataset cvd --batch_size 100000 --col_cardinalities_file cvd_col_cardinalities  --target_batch 100000
 
-1. Further examinng more models  (**K**) with each going through less training epoch (**U**) is more easier to find good model?
-   or examine less but each training more epochs?
-2. How many models to explore (**N**) and how many to keep (**K**) ?
+
+SELECT sams_model_init(
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/cvd_col_cardinalities',
+    '/project/tensor_log/cvd/dnn_K16_alpha2-5'
+);
+SELECT sams_inference_shared_write_once(
+    'cvd',
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/cvd_col_cardinalities',
+    '/project/tensor_log/cvd/dnn_K16_alpha2-5',
+    '',
+    100000
+);
+
+SELECT sams_model_init(
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/cvd_col_cardinalities',
+    '/project/tensor_log/cvd/dnn_K16_alpha2-5'
+);
+SELECT sams_inference_shared_write_once_int(
+    'cvd',
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/cvd_col_cardinalities',
+    '/project/tensor_log/cvd/dnn_K16_alpha2-5',
+    '',
+    100000
+);
+```
+
+## Bank
 
 ```bash
-bash internal/ml/model_selection/scripts/micro_nku_tradeoff.sh
+# Bank
+CUDA_VISIBLE_DEVICES=-1 python ./internal/ml/model_slicing/baseline.py /hdd1/sams/tensor_log/bank/dnn_K16_alpha2-3_beta1e-3 --device cpu --dataset bank --batch_size 100000 --col_cardinalities_file bank_col_cardinalities  --target_batch 100000
+
+CUDA_VISIBLE_DEVICES="0" python ./internal/ml/model_slicing/baseline.py /hdd1/sams/tensor_log/bank/dnn_K16_alpha2-3_beta1e-3 --device cuda:0 --dataset bank --batch_size 100000 --col_cardinalities_file bank_col_cardinalities  --target_batch 100000
+
+
+CUDA_VISIBLE_DEVICES=-1 python ./internal/ml/model_slicing/baseline_int.py /hdd1/sams/tensor_log/bank/dnn_K16_alpha2-3_beta1e-3 --device cpu --dataset bank --batch_size 100000 --col_cardinalities_file bank_col_cardinalities  --target_batch 100000
+
+SELECT sams_model_init(
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/bank_col_cardinalities',
+    '/project/tensor_log/bank/dnn_K16_alpha2-3_beta1e-3'
+);
+SELECT sams_inference_shared_write_once(
+    'bank',
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/bank_col_cardinalities',
+    '/project/tensor_log/bank/dnn_K16_alpha2-3_beta1e-3',
+    '',
+    100000
+);
+
+
+SELECT sams_model_init(
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/bank_col_cardinalities',
+    '/project/tensor_log/bank/dnn_K16_alpha2-3_beta1e-3'
+);
+SELECT sams_inference_shared_write_once_int(
+    'bank',
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/bank_col_cardinalities',
+    '/project/tensor_log/bank/dnn_K16_alpha2-3_beta1e-3',
+    '',
+    100000
+);
+
+
 ```
 
-This is the experimental result conducted at the UCI Diabetes datasets.
-Clearly,  expore more models in refinement phase (large **K** ) is more helpful to find the a better model.
-Although increasing **U** can find a better model accurately, it runs more training epochs leading to higher training cost.
+# Micro
 
-![image-20230722202555763](./documents/imgs/image-20230722202555763.png)
-
-Then we fix **U=1** for cost efficiency and determine N/K for higher searching effectiveness.
-Clearly, K/N reaches 100 yields better scheduling result in both image and tabular dataset, thus, we set **N/K=100** in coordinator.
-
-![image-20230724111325368](./documents/imgs/image-20230724111325368.png)
-
-![image-20230722205244718](./documents/imgs/image-20230722205244718.png)
-
-## Micro: Device Placement & Embedding Cache
-
-1. To measure the time usage for filtering phase on vairous hardware, run the following
-
-   ```bash
-   # Without embedding cache at the filtering phase
-   nohup bash internal/ml/model_selection/scripts/latency_phase1_cpu_gpu.sh &
-   # With embedding cache at the filtering phase (faster)
-   nohup bash internal/ml/model_selection/scripts/latency_embedding_cache.sh &
-   # Draw graph
-   python ./internal/ml/model_selection/exps/micro/draw_filtering_latency.py
-   python ./internal/ml/model_selection/exps/micro/draw_filtering_memory_bar.py
-   python ./internal/ml/model_selection/exps/micro/draw_filtering_memory_line.py
-   python ./internal/ml/model_selection/exps/micro/draw_filtering_memory_cache_CPU.py
-   ```
-
-2. Further we measure the end-2-end latency under two CPU, GPU, and Hybrid.
-
-   ```bash
-   nohup bash internal/ml/model_selection/scripts/latency_phase1_cpu_gpu.sh &
-   ```
-
-## Micro: In-DB vs Out-DB filtering phase
+## Profiling
 
 ```bash
-# run out-of db, read data via psycopg2
-bash ./internal/ml/model_selection/scripts/latency_phase1_in_db.sh
-
-# run in-db query, read data via SPI
-select benchmark_filtering_latency_in_db(5000, 'frappe', '/project/TRAILS/internal/ml/model_selection/config.ini');
-
-select benchmark_filtering_latency_in_db(5000, 'uci_diabetes', '/project/TRAILS/internal/ml/model_selection/config.ini');
-
-select benchmark_filtering_latency_in_db(5000, 'criteo', '/project/TRAILS/internal/ml/model_selection/config.ini');
+CUDA_VISIBLE_DEVICES=-1 python ./internal/ml/model_slicing/baseline.py /hdd1/sams/tensor_log/frappe/dnn_K16_alpha4 --device cpu --dataset frappe --batch_size 20000 --col_cardinalities_file frappe_col_cardinalities --target_batch 20000`
 ```
 
-## Micro: On-the-Fly Data transmission, Refinement
+## Optimizations
 
 ```bash
-# start cache service
-python ./internal/cache-service/cache_service.py
-python ./internal/cache-service/trigger_cache_svc.py
-# consume from the cache-svc
 
+# 1. with all opt
+SELECT sams_model_init(
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/tensor_log/frappe/dnn_K16_alpha4'
+);
+SELECT sams_inference_shared_write_once(
+    'frappe',
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/tensor_log/frappe/dnn_K16_alpha4',
+    '',
+    100000
+);
 
+# 2. w/o model cache
+SELECT sams_inference_shared_write_once(
+    'frappe',
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/tensor_log/frappe/dnn_K16_alpha4',
+    '',
+    100000
+);
+
+# 3. w/o shared memory
+SELECT sams_model_init(
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/tensor_log/frappe/dnn_K16_alpha4'
+);
+SELECT sams_inference(
+    'frappe',
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/tensor_log/frappe/dnn_K16_alpha4',
+    '',
+    100000
+);
+
+# w/o SPI this can measure the time usage for not using spi
+CUDA_VISIBLE_DEVICES=-1 python ./internal/ml/model_slicing/baseline.py /hdd1/sams/tensor_log/frappe/dnn_K16_alpha4 --device cpu --dataset frappe --batch_size 100000 --col_cardinalities_file frappe_col_cardinalities --target_batch 100000
 ```
 
-## Reproduce Figure7
+Int dataset
 
 ```bash
-python exps/main_v2/analysis/2.\ cost_draw.py
-python exps/main_v2/analysis/3.\ cost_train_based.py
+
+# 1. with all opt
+SELECT sams_model_init(
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/tensor_log/frappe/dnn_K16_alpha4'
+);
+SELECT sams_inference_shared_write_once_int(
+    'frappe',
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/tensor_log/frappe/dnn_K16_alpha4',
+    '',
+    100000
+);
+
+# 2. w/o model cache
+SELECT sams_inference_shared_write_once_int(
+    'frappe',
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/tensor_log/frappe/dnn_K16_alpha4',
+    '',
+    100000
+);
+
+# 3. w/o shared memory
+SELECT sams_model_init(
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/tensor_log/frappe/dnn_K16_alpha4'
+);
+SELECT sams_inference(
+    'frappe',
+    '{}',
+    '/project/TRAILS/internal/ml/model_selection/config.ini',
+    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/tensor_log/frappe/dnn_K16_alpha4',
+    '',
+    100000
+);
+
+# w/o SPI this can measure the time usage for not using spi
+CUDA_VISIBLE_DEVICES=-1 python ./internal/ml/model_slicing/baseline.py /hdd1/sams/tensor_log/frappe/dnn_K16_alpha4 --device cpu --dataset frappe --batch_size 100000 --col_cardinalities_file frappe_col_cardinalities --target_batch 100000
 ```
 
-![image-20230702035622198](documents/imgs/image-20230702035622198.png)
 
-## Reproduce Figure8
 
-```bash
-# draw figure 8(a)
-python exps/main_v2/analysis/5.draw_IDMS_var_workloads.py
-# draw figure 8(b)
-python exps/main_v2/analysis/6.draw_IDMS_dataloading.py
-```
 
-![image-20230702035639502](documents/imgs/image-20230702035639502.png)
-# Baselines
 
-We compare with Training-Based MS, TabNAS, and training-free MS etc.
 
-For image data, it already generated at the NAS-Bench-Img part, see above.
 
-# Appendix
 
-Here all experiments is on the Frappe dataset.
 
-1. Sensitive Analyiss
 
-   ```bash
-   # Impact of the parameter sign
-   # change the code at evaluator.py, in mini_batch=new_model.generate_all_ones_embedding(32), here is 32 batch size.
-   # then run those:
-   bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_frappe.sh
-   bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_uci.sh
-   bash internal/ml/model_selection/scripts/nas-bench-tabular/score_all_modesl_criteo.sh
 
-   # Impact of the initialization methods
 
-   # Impact of the batch size
-
-   # Impact of the batch size influence
-
-   ```
-
-1. Computational Costs
-
-   ```bash
-   bash ./internal/ml/model_selection/exps/micro/resp/benchmark_cost.sh
-   ```
-
-2. Search Cost, multiple training-free or training-based combinations (warm-up / movel proposal)
-
-   ```bash
-   # get RL, RE, RS + training-based model evaluation
-   bash ./internal/ml/model_selection/scripts/micro_search_strategy.sh
-   # this will read previous file, and run warm-up/move proposal, and draw all together
-   bash ./internal/ml/model_selection/exps/micro/resp/benchmark_search_cost.sh
-   ```
-
-3. How des the K influence the result?
-
-   ```bash
-   python ./internal/ml/model_selection/exps/micro/resp/benchmark_k_fix_time.py
-   ```
-
-4. Nosy in selecting top K models
-
-   ```bash
-   python ./internal/ml/model_selection/exps/micro/resp/benchmark_noisy_influence.py
-   ```
-
-5. Weight-sharing result
-
-   ```bash
-   nohup bash internal/ml/model_selection/scripts/benchmark_weight_sharing.sh &
-   ```
-
-# Run end2end model selection
-
-download the dataset and put it in the `exp_data/data/structure_data`
-
-```
-python main.py --budget=100 --dataset=frappe
-```
-
-Check the log at the `logs_default`
-
-![image-20230421220338391](./documents/imgs/image-20230421220338391.png)
-
-![image-20230421220443231](./documents/imgs/image-20230421220443231.png)
 
