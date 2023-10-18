@@ -340,7 +340,7 @@ class ModelTrainer:
         #     T_max=epoch_num,  # Maximum number of iterations.
         #     eta_min=1e-4)  # Minimum learning rate.
         precision = 'float32'
-        mssgd = MSSGD(lr=args.lr, momentum=0.9, weight_decay=1e-5, dtype=singa_dtype[precision])
+        mssgd = MSSGD(lr=args.lr, momentum=0.9, weight_decay=1e-4, dtype=singa_dtype[precision])
         device_id = 0
         max_epoch = epoch_num
         # model = arch

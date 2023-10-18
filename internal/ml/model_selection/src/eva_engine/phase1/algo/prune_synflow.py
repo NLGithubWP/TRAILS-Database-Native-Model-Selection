@@ -16,6 +16,7 @@ import numpy as np
 import time
 import argparse
 from PIL import Image
+from numpy import linalg as LA
 
 np_dtype = {"float16": np.float16, "float32": np.float32}
 
@@ -368,17 +369,26 @@ class SynFlowEvaluator(Evaluator):
         # signs = linearize(arch)
 
         # 1. Convert params to their abs.
-        synflow_flag = False ### just change the model to the absolute value
+        synflow_flag = True ### just change the model to the absolute value
         tx.copy_from_numpy(x)  # dtype=np.float32
         ty.copy_from_numpy(y)
         # print ("before model forward ...")
         pn_p_g_list, out, loss = model(tx, ty, dist_option, spars, synflow_flag)
+        # print ("---------------------------------------")
+        # print ("before absolute prune_synflow !!!nemb input vector!!! tensor.to_numpy(loss)[0]: ", tensor.to_numpy(loss)[0])
+        # print ("before absolute prune_synflow !!!nemb input vector!!! tensor.to_numpy(loss): ", tensor.to_numpy(loss)) 
         # train_correct += accuracy(tensor.to_numpy(out), y)
         # train_loss += tensor.to_numpy(loss)[0]
         # all params turned to positive
         for pn_p_g_item in pn_p_g_list:
             # print ("absolute value parameter name: \n", pn_p_g_item[0])
-            pn_p_g_item[1] = tensor.abs(pn_p_g_item[1])  # tensor actually ...
+            param_np = tensor.to_numpy(pn_p_g_item[1])
+            # print ("param_np shape: \n", param_np.shape)
+            # print ("param_np sqrt norm: \n", np.sqrt(LA.norm(param_np)/param_np.size))
+            # print ("before abs np.min(tensor.to_numpy(pn_p_g_item[1])): \n", np.min(tensor.to_numpy(pn_p_g_item[1])))
+            pn_p_g_item[1] = tensor.abs(pn_p_g_item[1])  # tensor actually ..
+            # print ("after abs np.min(tensor.to_numpy(pn_p_g_item[1])): \n", np.min(tensor.to_numpy(pn_p_g_item[1])))
+            # print ("after abs pn_p_g_item[1][0]: \n", pn_p_g_item[1][0])
 
         # 2. Compute gradients with input of one dummy example ( 1-vector with dimension [1, c, h, w] )
         # arch.double()
@@ -418,14 +428,22 @@ class SynFlowEvaluator(Evaluator):
         ### step 3: new loss (done)
         # print ("before model forward ...")
         pn_p_g_list, out, loss = model(tx, ty, dist_option, spars, synflow_flag)
+        # print ("prune_synflow !!!nemb input vector!!! synflow step tensor.to_numpy(loss)[0]: ", tensor.to_numpy(loss)[0])
         ### step 4: calculate the multiplication of weights
         score = 0.0
         for pn_p_g_item in pn_p_g_list:
             # print ("calculate weight param * grad parameter name: \n", pn_p_g_item[0])
             if len(pn_p_g_item[1].shape) == 2: # param_value.data is "weight"
                 # print ("pn_p_g_item[1].shape: \n", pn_p_g_item[1].shape)
+                # print ("tensor.to_numpy(pn_p_g_item[1][0]): ", tensor.to_numpy(pn_p_g_item[1][0]))
+                # print ("calculate synflow parameter name: \n", pn_p_g_item[0])
+                # print ("should be positive np.min(tensor.to_numpy(pn_p_g_item[1])): ", np.min(tensor.to_numpy(pn_p_g_item[1])))
+                # print ("weight should be positive tensor.to_numpy(pn_p_g_item[1][0])[0, :10]: ", tensor.to_numpy(pn_p_g_item[1][0])[0, :10])
+                # print ("gradients tensor.to_numpy(pn_p_g_item[2][0])[0, :10]: ", tensor.to_numpy(pn_p_g_item[2][0])[0, :10])
+                # print ()
                 score += np.sum(np.absolute(tensor.to_numpy(pn_p_g_item[1]) * tensor.to_numpy(pn_p_g_item[2])))
         # print ("layer_hidden_list: \n", layer_hidden_list)
+        # print ("prune_synflow !!!one-hot input vector!!! absolute step tensor.to_numpy(loss)[0]: ", tensor.to_numpy(loss)[0])
         print ("score: \n", score)
 
         return score

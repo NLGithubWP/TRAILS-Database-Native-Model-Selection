@@ -39,6 +39,11 @@ DEFAULT_LAYER_CHOICES_10 = [8, 16, 32,
                             384]
 
 
+np_dtype = {"float16": np.float16, "float32": np.float32}
+
+# singa_dtype = {"float16": tensor.float16, "float32": tensor.float32}
+singa_dtype = {"float32": tensor.float32}
+
 class MlpMicroCfg(ModelMicroCfg):
 
     @classmethod
@@ -140,6 +145,9 @@ class SumError(Operator):
     def forward(self, x):
         # self.err = singa.__sub__(x, self.t)
         self.data_x = x
+        # print ("SumError forward x: ", x)
+        # print ("SumError forward x.L2(): ", x.L2())
+        # print ("SumError forward x shape(): ", x.shape())
         # sqr = singa.Square(self.err)
         # loss = singa.SumAll(sqr)
         loss = singa.SumAll(x)
@@ -152,11 +160,13 @@ class SumError(Operator):
     def backward(self, dy=1.0):
         # dx = self.err
         dev = device.get_default_device()
-        dx = tensor.Tensor(self.data_x.shape, dev, singa_dtype['float32'])
-        dx.copy_from_numpy(np.ones(self.data_x.shape))
+        # print ("backward self.data_x.shape(): ", self.data_x.shape())
+        dx = tensor.Tensor(self.data_x.shape(), dev, singa_dtype['float32'])
+        dx.copy_from_numpy(np.ones(self.data_x.shape(), dtype=np.float32))
+        # print ("SumError backward dx data: ", dx.data)
         # dx *= float(2 / self.n)
-        dx *= dy
-        return dx
+        dx.data *= float(dy)
+        return dx.data
 
 def se_loss(x):
     # assert x.shape == t.shape, "input and target shape different: %s, %s" % (
@@ -195,10 +205,20 @@ class SINGADNNModel(model.Model):
             layer_hidden_list.append(layer_size)
         self.relu = layer.ReLU()
         self.linear1 = layer.Linear(layer_hidden_list[0])
+        # print ("linear1.in_features: ", self.linear1.in_features)
+        # print ("linear1.out_features: ", self.linear1.out_features)
         self.linear2 = layer.Linear(layer_hidden_list[1])
+        # print ("linear2.in_features: ", self.linear2.in_features)
+        # print ("linear2.out_features: ", self.linear2.out_features)
         self.linear3 = layer.Linear(layer_hidden_list[2])
+        # print ("linear3.in_features: ", self.linear3.in_features)
+        # print ("linear3.out_features: ", self.linear3.out_features)
         self.linear4 = layer.Linear(layer_hidden_list[3])
+        # print ("linear4.in_features: ", self.linear4.in_features)
+        # print ("linear4.out_features: ", self.linear4.out_features)
         self.linear5 = layer.Linear(noutput)
+        # print ("linear5.in_features: ", self.linear5.in_features)
+        # print ("linear5.out_features: ", self.linear5.out_features)
         self.softmax_cross_entropy = layer.SoftMaxCrossEntropy()
         self.sum_error = SumErrorLayer()
         # for weight-sharing
@@ -209,6 +229,7 @@ class SINGADNNModel(model.Model):
     
     def forward(self, inputs):
         # print ("in space.py forward")
+        # print ("in space.py inputs shape: ", inputs.shape)
         y = self.linear1(inputs)
         y = self.relu(y)
         y = self.linear2(y)
@@ -249,15 +270,19 @@ class SINGADNNModel(model.Model):
     def train_one_batch(self, x, y, dist_option, spars, synflow_flag):
         # print ("space.py in train_one_batch")
         out = self.forward(x)
+        # print ("train_one_batch out shape: ", out.shape)
+        # print ("train_one_batch tensor.to_numpy(out): ", tensor.to_numpy(out))
         # print ("space.py train_one_batch x.shape: \n", x.shape)
         # print ("train_one_batch y.data: \n", y.data)
         # print ("space.py train_one_batch out.shape: \n", out.shape)
         if synflow_flag:
-            # print ("sum_error")
+            # print ("train_one_batch sum_error")
             loss = self.sum_error(out)
+            # print ("sum_error loss data: ", loss.data)
         else:  # normal training
-            # print ("softmax_cross_entropy")
+            # print ("train_one_batch softmax_cross_entropy")
             loss = self.softmax_cross_entropy(out, y)
+            # print ("softmax_cross_entropy loss.data: ", loss.data)
         # print ("train_one_batch loss.data: \n", loss.data)
 
         if dist_option == 'plain':

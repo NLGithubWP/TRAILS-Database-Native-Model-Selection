@@ -39,7 +39,8 @@ if __name__ == "__main__":
             nfield=args.nfield,
             batch_size=args.batch_size)
 
-        arch_id = "256-256-256-256"
+        # arch_id = "256-256-256-256"
+        arch_id = "128-128-128-128"
         print(f"begin to train the {arch_id}")
 
         model = search_space_ins.new_architecture(arch_id)
