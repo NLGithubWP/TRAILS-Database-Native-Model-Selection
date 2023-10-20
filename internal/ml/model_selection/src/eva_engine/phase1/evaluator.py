@@ -183,14 +183,14 @@ class P1Evaluator:
             new_model = self.search_space_ins.new_arch_scratch_with_default_setting(model_encoding, bn=bn)
 
             # mlp have embedding layer, which can be cached, optimization!
-            if self.search_space_ins.name == Config.MLPSP:
-                if self.enable_cache:
-                    new_model.init_embedding(self.model_cache)
-                    if self.model_cache is None:
-                        self.model_cache = new_model.embedding.to(self.device)
-                else:
-                    # init embedding every time created a new model
-                    new_model.init_embedding()
+            # if self.search_space_ins.name == Config.MLPSP:
+            #     if self.enable_cache:
+            #         new_model.init_embedding(self.model_cache)
+            #         if self.model_cache is None:
+            #             self.model_cache = new_model.embedding.to(self.device)
+            #     else:
+            #         # init embedding every time created a new model
+            #         new_model.init_embedding()
 
             self.time_usage["track_io_model_init"].append(time.time() - begin)
 

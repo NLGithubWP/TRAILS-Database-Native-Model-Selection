@@ -44,6 +44,8 @@ WORKDIR /project
 COPY ./internal/ml/model_selection/requirement.txt ./requirement.txt
 RUN pip install -r requirement.txt
 
+RUN pip install https://www.comp.nus.edu.sg/~zhaojing/files/singa-3.1.0-cp38-cp38-manylinux2014_x86_64.whl
+
 # appendix
 USER root
 RUN apt-get update && apt-get install -y \

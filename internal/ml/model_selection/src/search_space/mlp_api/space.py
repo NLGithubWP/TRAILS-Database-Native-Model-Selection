@@ -18,6 +18,17 @@ from torch.utils.data import DataLoader
 from src.query_api.interface import profile_NK_trade_off
 from src.query_api.query_api_mlp import GTMLP
 
+from singa import layer
+from singa import model
+from singa import tensor
+from singa import opt
+from singa import device
+from singa.autograd import Operator
+from singa.layer import Layer
+from singa import singa_wrap as singa
+import argparse
+import numpy as np
+
 # Useful constants
 
 DEFAULT_LAYER_CHOICES_20 = [8, 16, 24, 32,  # 8
@@ -27,6 +38,11 @@ DEFAULT_LAYER_CHOICES_10 = [8, 16, 32,
                             48, 96, 112, 144, 176, 240,
                             384]
 
+
+np_dtype = {"float16": np.float16, "float32": np.float32}
+
+# singa_dtype = {"float16": tensor.float16, "float32": tensor.float32}
+singa_dtype = {"float32": tensor.float32}
 
 class MlpMicroCfg(ModelMicroCfg):
 
@@ -116,6 +132,202 @@ class MLP(nn.Module):
 
     def reset_zero_grads(self):
         self.zero_grad()
+
+#### self-defined loss begin
+
+### from autograd.py
+class SumError(Operator):
+
+    def __init__(self):
+        super(SumError, self).__init__()
+        # self.t = t.data
+
+    def forward(self, x):
+        # self.err = singa.__sub__(x, self.t)
+        self.data_x = x
+        # print ("SumError forward x: ", x)
+        # print ("SumError forward x.L2(): ", x.L2())
+        # print ("SumError forward x shape(): ", x.shape())
+        # sqr = singa.Square(self.err)
+        # loss = singa.SumAll(sqr)
+        loss = singa.SumAll(x)
+        # self.n = 1
+        # for s in x.shape():
+        #     self.n *= s
+        # loss /= self.n
+        return loss
+
+    def backward(self, dy=1.0):
+        # dx = self.err
+        dev = device.get_default_device()
+        # print ("backward self.data_x.shape(): ", self.data_x.shape())
+        dx = tensor.Tensor(self.data_x.shape(), dev, singa_dtype['float32'])
+        dx.copy_from_numpy(np.ones(self.data_x.shape(), dtype=np.float32))
+        # print ("SumError backward dx data: ", dx.data)
+        # dx *= float(2 / self.n)
+        dx.data *= float(dy)
+        return dx.data
+
+def se_loss(x):
+    # assert x.shape == t.shape, "input and target shape different: %s, %s" % (
+    #     x.shape, t.shape)
+    return SumError()(x)[0]
+
+### from layer.py
+class SumErrorLayer(Layer):
+    """
+    Generate a MeanSquareError operator
+    """
+
+    def __init__(self):
+        super(SumErrorLayer, self).__init__()
+
+    def forward(self, x):
+        return se_loss(x)
+
+#### self-defined loss end
+
+class SINGADNNModel(model.Model):
+
+    def __init__(self, nfield: int, nfeat: int, nemb: int,
+                 hidden_layer_list: list, dropout_rate: float,
+                 noutput: int, use_bn: bool = True):
+    # def __init__(self, data_size=10, perceptron_size=100, num_classes=10, layer_hidden_list=[10,10,10,10]):
+        super(SINGADNNModel, self).__init__()
+        # self.num_classes = num_classes
+        self.dimension = 2  # data dimension = 2
+
+        self.mlp_ninput = nfield * nemb
+        self.nfeat = nfeat
+
+        layer_hidden_list = []
+        for index, layer_size in enumerate(hidden_layer_list):
+            layer_hidden_list.append(layer_size)
+        self.relu = layer.ReLU()
+        self.linear1 = layer.Linear(layer_hidden_list[0])
+        # print ("linear1.in_features: ", self.linear1.in_features)
+        # print ("linear1.out_features: ", self.linear1.out_features)
+        self.linear2 = layer.Linear(layer_hidden_list[1])
+        # print ("linear2.in_features: ", self.linear2.in_features)
+        # print ("linear2.out_features: ", self.linear2.out_features)
+        self.linear3 = layer.Linear(layer_hidden_list[2])
+        # print ("linear3.in_features: ", self.linear3.in_features)
+        # print ("linear3.out_features: ", self.linear3.out_features)
+        self.linear4 = layer.Linear(layer_hidden_list[3])
+        # print ("linear4.in_features: ", self.linear4.in_features)
+        # print ("linear4.out_features: ", self.linear4.out_features)
+        self.linear5 = layer.Linear(noutput)
+        # print ("linear5.in_features: ", self.linear5.in_features)
+        # print ("linear5.out_features: ", self.linear5.out_features)
+        self.softmax_cross_entropy = layer.SoftMaxCrossEntropy()
+        self.sum_error = SumErrorLayer()
+        # for weight-sharing
+        self.is_masked_subnet = False
+        self.hidden_layer_list = hidden_layer_list
+        # Initialize subnet mask with ones
+        self.subnet_mask = [np.ones(size) for size in hidden_layer_list]
+    
+    def forward(self, inputs):
+        # print ("in space.py forward")
+        # print ("in space.py inputs shape: ", inputs.shape)
+        y = self.linear1(inputs)
+        y = self.relu(y)
+        y = self.linear2(y)
+        y = self.relu(y)
+        y = self.linear3(y)
+        y = self.relu(y)
+        y = self.linear4(y)
+        y = self.relu(y)
+        y = self.linear5(y)
+        return y
+   
+    def generate_all_ones_embedding(self):
+        """
+        Only for the MLP
+        Returns:
+        """
+        # batch_data = torch.ones(1, self.mlp_ninput).double()  # embedding
+        batch_data = torch.ones(1, self.nfeat).double()  # one-hot
+        # print ("batch_data shape: ", batch_data.shape)
+        return batch_data
+
+    def sample_subnet(self, arch_id: str, device: str):
+        # arch_id e.g., '128-128-128-128'
+        sizes = list(map(int, arch_id.split('-')))
+        self.is_masked_subnet = True
+        # randomly mask neurons in the layers.
+
+        for idx, size in enumerate(sizes):
+            # Create a mask of ones and zeros with the required length
+            mask = np.concatenate([
+                np.ones(size),
+                np.zeros(self.hidden_layer_list[idx] - size)],
+                dim=0)
+            # Shuffle the mask to randomize which neurons are active
+            mask = mask[np.random.permutation(mask.size(0))]
+            self.subnet_mask[idx] = mask
+
+    def train_one_batch(self, x, y, dist_option, spars, synflow_flag):
+        # print ("space.py in train_one_batch")
+        out = self.forward(x)
+        # print ("train_one_batch out shape: ", out.shape)
+        # print ("train_one_batch tensor.to_numpy(out): ", tensor.to_numpy(out))
+        # print ("space.py train_one_batch x.shape: \n", x.shape)
+        # print ("train_one_batch y.data: \n", y.data)
+        # print ("space.py train_one_batch out.shape: \n", out.shape)
+        if synflow_flag:
+            # print ("train_one_batch sum_error")
+            loss = self.sum_error(out)
+            # print ("sum_error loss data: ", loss.data)
+        else:  # normal training
+            # print ("train_one_batch softmax_cross_entropy")
+            loss = self.softmax_cross_entropy(out, y)
+            # print ("softmax_cross_entropy loss.data: ", loss.data)
+        # print ("train_one_batch loss.data: \n", loss.data)
+
+        if dist_option == 'plain':
+            # print ("before pn_p_g_list = self.optimizer(loss)")
+            pn_p_g_list = self.optimizer(loss)
+            # print ("after pn_p_g_list = self.optimizer(loss)")
+        elif dist_option == 'half':
+            self.optimizer.backward_and_update_half(loss)
+        elif dist_option == 'partialUpdate':
+            self.optimizer.backward_and_partial_update(loss)
+        elif dist_option == 'sparseTopK':
+            self.optimizer.backward_and_sparse_update(loss,
+                                                      topK=True,
+                                                      spars=spars)
+        elif dist_option == 'sparseThreshold':
+            self.optimizer.backward_and_sparse_update(loss,
+                                                      topK=False,
+                                                      spars=spars)
+        # print ("len(pn_p_g_list): \n", len(pn_p_g_list))
+        # print ("len(pn_p_g_list[0]): \n", len(pn_p_g_list[0]))
+        # print ("pn_p_g_list[0][0]: \n", pn_p_g_list[0][0])
+        # print ("pn_p_g_list[0][1].data: \n", pn_p_g_list[0][1].data)
+        # print ("pn_p_g_list[0][2].data: \n", pn_p_g_list[0][2].data)
+        return pn_p_g_list, out, loss
+        # return pn_p_g_list[0], pn_p_g_list[1], pn_p_g_list[2], out, loss
+
+    def set_optimizer(self, optimizer):
+        self.optimizer = optimizer
+
+
+def create_model(pretrained=False, **kwargs):
+    """Constructs a CNN model.
+
+    Args:
+        pretrained (bool): If True, returns a pre-trained model.
+    
+    Returns:
+        The created CNN model.
+    """
+    model = SINGADNNModel(**kwargs)
+
+    return model
+
+
+__all__ = ['SINGADNNModel', 'create_model']
 
 
 class DNNModel(torch.nn.Module):
@@ -248,7 +460,8 @@ class MlpSpace(SpaceWrapper):
     def new_arch_scratch(cls, arch_macro: ModelMacroCfg, arch_micro: ModelMicroCfg, bn: bool = True):
         assert isinstance(arch_micro, MlpMicroCfg)
         assert isinstance(arch_macro, MlpMacroCfg)
-        mlp = DNNModel(
+        # mlp = DNNModel(
+        mlp = SINGADNNModel(
             nfield=arch_macro.nfield,
             nfeat=arch_macro.nfeat,
             nemb=arch_macro.nemb,
@@ -272,7 +485,10 @@ class MlpSpace(SpaceWrapper):
         """
         arch_micro = MlpSpace.deserialize_model_encoding(arch_id)
         assert isinstance(arch_micro, MlpMicroCfg)
-        mlp = DNNModel(
+        # print ("src/search_space/mlp_api/space.py new_architecture")
+        # print ("src/search_space/mlp_api/space.py arch_micro:\n", arch_micro)
+        # mlp = DNNModel(
+        mlp = SINGADNNModel(
             nfield=self.model_cfg.nfield,
             nfeat=self.model_cfg.nfeat,
             nemb=self.model_cfg.nemb,
@@ -284,7 +500,8 @@ class MlpSpace(SpaceWrapper):
     def new_architecture_with_micro_cfg(self, arch_micro: ModelMicroCfg):
         assert isinstance(arch_micro, MlpMicroCfg)
         assert isinstance(self.model_cfg, MlpMacroCfg)
-        mlp = DNNModel(
+        # mlp = DNNModel(
+        mlp = SINGADNNModel(
             nfield=self.model_cfg.nfield,
             nfeat=self.model_cfg.nfeat,
             nemb=self.model_cfg.nemb,
@@ -317,7 +534,8 @@ class MlpSpace(SpaceWrapper):
             # .reshape(target.shape[0], self.model_cfg.num_labels).
 
             # pick the largest net to train
-            super_net = DNNModel(
+            # super_net = DNNModel(
+            super_net = SINGADNNModel(
                 nfield=args.nfield,
                 nfeat=args.nfeat,
                 nemb=args.nemb,
@@ -336,7 +554,8 @@ class MlpSpace(SpaceWrapper):
 
             # re-init hte net
             del super_net
-            super_net = DNNModel(
+            # super_net = DNNModel(
+            super_net = SINGADNNModel(
                 nfield=args.nfield,
                 nfeat=args.nfeat,
                 nemb=args.nemb,
@@ -370,7 +589,8 @@ class MlpSpace(SpaceWrapper):
             # those are from the pre-calculator
             _train_time_per_epoch = gtmlp.get_train_one_epoch_time(device)
         else:
-            super_net = DNNModel(
+            # super_net = DNNModel(
+            super_net = SINGADNNModel(
                 nfield=args.nfield,
                 nfeat=args.nfeat,
                 nemb=args.nemb,
@@ -418,7 +638,8 @@ class MlpSpace(SpaceWrapper):
             # .reshape(target.shape[0], self.model_cfg.num_labels).
 
             # pick the largest net to train
-            super_net = DNNModel(
+            # super_net = DNNModel(
+            super_net = SINGADNNModel(
                 nfield=args.nfield,
                 nfeat=args.nfeat,
                 nemb=args.nemb,
@@ -438,7 +659,8 @@ class MlpSpace(SpaceWrapper):
 
             # re-init hte net
             del super_net
-            super_net = DNNModel(
+            # super_net = DNNModel(
+            super_net = SINGADNNModel(
                 nfield=args.nfield,
                 nfeat=args.nfeat,
                 nemb=args.nemb,
@@ -466,7 +688,8 @@ class MlpSpace(SpaceWrapper):
             # those are from the pre-calculator
             _train_time_per_epoch = gtmlp.get_train_one_epoch_time(device)
         else:
-            super_net = DNNModel(
+            # super_net = DNNModel(
+            super_net = SINGADNNModel(
                 nfield=args.nfield,
                 nfeat=args.nfeat,
                 nemb=args.nemb,
