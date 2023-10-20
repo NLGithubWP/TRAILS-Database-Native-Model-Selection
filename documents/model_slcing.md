@@ -39,14 +39,14 @@ python3 ./internal/ml/model_slicing/save_satistics.py --dataset bank --data_dir 
 # in server
 ssh panda17
 
-# goes to /home/xingnaili/firmest_docker/TRAILS
+# goes to /home/user/firmest_docker/TRAILS
 git submodule update --recursive --remote
 
 # run container
 docker run -d --name trails \
   --network="host" \
   -v $(pwd)/TRAILS:/project/TRAILS \
-  -v /hdd1/xingnaili/exp_data/:/project/exp_data \
+  -v /hdd1/user/exp_data/:/project/exp_data \
   -v /hdd1/sams/tensor_log/:/project/tensor_log \
   -v /hdd1/sams/data/:/project/data_all \
   trails

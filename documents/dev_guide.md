@@ -32,7 +32,7 @@ docker build -t trails .
 docker run -d --name trails \
   --network="host" \
   -v $(pwd)/TRAILS:/project/TRAILS \
-  -v /hdd1/xingnaili/exp_data/:/project/exp_data \
+  -v /hdd1/user/exp_data/:/project/exp_data \
   trails
 
 docker exec -it trails bash 
