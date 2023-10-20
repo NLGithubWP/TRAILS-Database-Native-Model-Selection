@@ -121,6 +121,9 @@ CALL model_selection_sp(
   	ARRAY['col1', 'col2', 'col3', 'label'], 
     10, 
     32, 
-  '/project/TRAILS/internal/ml/model_selection/config.ini');
+  '/home/postgres/TRAILS-Database-Native-Model-Selection/internal/ml/model_selection/config.ini');
 ```
 
+# Example Result
+
+![image-20231020174945226](documents/image-20231020174945226.png)
