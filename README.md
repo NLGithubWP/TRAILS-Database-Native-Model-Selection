@@ -84,11 +84,11 @@ END; $$;
 # Try compile the UDF
 DROP EXTENSION IF EXISTS pg_extension;
 CREATE EXTENSION pg_extension;
-# If the above faile, open another terminal and repeat the step 1 and 4 of "Start PostgreSQL Instance"
-# Then run hose 
+# If the above fail, open another terminal goes to the docker via docker exec -it trails-singa bash 
+# Then run those 
 rm /home/postgres/.pgrx/14.9/pgrx-install/share/extension/pg_extension--0.1.0.sql
 vi /home/postgres/.pgrx/14.9/pgrx-install/share/extension/pg_extension--0.1.0.sql
-# copy the following to the /home/postgres/.pgrx/14.9/pgrx-install/share/extension/pg_extension--0.1.0.sql
+# Copy the following to the /home/postgres/.pgrx/14.9/pgrx-install/share/extension/pg_extension--0.1.0.sql
 -- src/lib.rs:66
 -- pg_extension::filtering_phase
 CREATE  FUNCTION "filtering_phase"(
