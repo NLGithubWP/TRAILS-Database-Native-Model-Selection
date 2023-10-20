@@ -202,8 +202,8 @@ Each process is part of the PostgreSQL database system and helps it to run effic
 
 ```bash
 conda activate firmest38
-export PYTHON_SYS_EXECUTABLE=/Users/kevin/opt/anaconda3/envs/firmest38/bin/python
-export DYLD_LIBRARY_PATH=/Users/kevin/opt/anaconda3/envs/firmest38/lib/:$DYLD_LIBRARY_PATH
+export PYTHON_SYS_EXECUTABLE=/Users/user/opt/anaconda3/envs/firmest38/bin/python
+export DYLD_LIBRARY_PATH=/Users/user/opt/anaconda3/envs/firmest38/lib/:$DYLD_LIBRARY_PATH
 cargo run --features python
 ```
 
