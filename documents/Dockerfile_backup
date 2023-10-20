@@ -46,7 +46,7 @@ USER postgres
 
 # Set environment variables for Rust and Python
 ENV PATH="/root/.cargo/bin:${PATH}"
-ENV PYTHONPATH="${PYTHONPATH}:/project/TRAILS/internal/ml/model_selection"
+ENV PYTHONPATH="${PYTHONPATH}:/project/indices/internal/ml/model_selection"
 
 # Set environment variables for PostgreSQL
 ENV PGDATA /var/lib/postgresql/data

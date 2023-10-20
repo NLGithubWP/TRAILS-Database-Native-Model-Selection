@@ -6,7 +6,7 @@
 
 ```bash
 chmod -R 777 internal/pg_extension
-chmod -R 777 TRAILS
+chmod -R 777 indices
 ```
 
 # PSQL CMD
@@ -27,15 +27,15 @@ psql -U postgres
 # Build and run the container
 
 ```bash
-docker build -t trails .
+docker build -t indices .
 
-docker run -d --name trails \
+docker run -d --name indices \
   --network="host" \
-  -v $(pwd)/TRAILS:/project/TRAILS \
+  -v $(pwd)/indices:/project/indices \
   -v /hdd1/user/exp_data/:/project/exp_data \
-  trails
+  indices
 
-docker exec -it trails bash 
+docker exec -it indices bash 
 ```
 
 # This is in docker image already
@@ -55,9 +55,9 @@ cargo pgrx run
 ## Load data into database.
 
 ```bash
-bash /project/TRAILS/internal/ml/model_selection/scripts/database/load_data_to_db.sh /project/exp_data/data/structure_data/frappe frappe
-bash /project/TRAILS/internal/ml/model_selection/scripts/database/load_data_to_db.sh /project/exp_data/data/structure_data/uci_diabetes uci_diabetes
-bash /project/TRAILS/internal/ml/model_selection/scripts/database/load_data_to_db.sh /project/exp_data/data/structure_data/criteo_full criteo
+bash /project/indices/internal/ml/model_selection/scripts/database/load_data_to_db.sh /project/exp_data/data/structure_data/frappe frappe
+bash /project/indices/internal/ml/model_selection/scripts/database/load_data_to_db.sh /project/exp_data/data/structure_data/uci_diabetes uci_diabetes
+bash /project/indices/internal/ml/model_selection/scripts/database/load_data_to_db.sh /project/exp_data/data/structure_data/criteo_full criteo
 ```
 
 ## 1. Compile
@@ -96,25 +96,25 @@ CREATE EXTENSION pg_extension;
 SELECT *  FROM pg_proc  WHERE proname = 'model_selection_workloads';
 
 # micro
-select benchmark_filtering_phase_latency(4, '/project/TRAILS/internal/ml/model_selection/config.ini');
+select benchmark_filtering_phase_latency(4, '/project/indices/internal/ml/model_selection/config.ini');
 
-select benchmark_filtering_latency_in_db(5000, 'frappe', '/project/TRAILS/internal/ml/model_selection/config.ini');
+select benchmark_filtering_latency_in_db(5000, 'frappe', '/project/indices/internal/ml/model_selection/config.ini');
 
-select benchmark_filtering_latency_in_db(5000, 'uci_diabetes', '/project/TRAILS/internal/ml/model_selection/config.ini');
+select benchmark_filtering_latency_in_db(5000, 'uci_diabetes', '/project/indices/internal/ml/model_selection/config.ini');
 
-select benchmark_filtering_latency_in_db(4, 'criteo', '/project/TRAILS/internal/ml/model_selection/config.ini');
+select benchmark_filtering_latency_in_db(4, 'criteo', '/project/indices/internal/ml/model_selection/config.ini');
 
 # Test coordinator
-SELECT coordinator('0.08244', '168.830156', '800', false, '/project/TRAILS/internal/ml/model_selection/config.ini');
+SELECT coordinator('0.08244', '168.830156', '800', false, '/project/indices/internal/ml/model_selection/config.ini');
 
 # this is database name, columns used, time budget, batch size, and config file
-CALL model_selection_sp('dummy', ARRAY['col1', 'col2', 'col3', 'label'], '30', 32, '/project/TRAILS/internal/ml/model_selection/config.ini');
+CALL model_selection_sp('dummy', ARRAY['col1', 'col2', 'col3', 'label'], '30', 32, '/project/indices/internal/ml/model_selection/config.ini');
 
 # end2end model selection
-CALL model_selection_end2end('dummy', ARRAY['col1', 'col2', 'col3', 'label'], '15', '/project/TRAILS/internal/ml/model_selection/config.ini');
+CALL model_selection_end2end('dummy', ARRAY['col1', 'col2', 'col3', 'label'], '15', '/project/indices/internal/ml/model_selection/config.ini');
 
 # filtering & refinement with workloads
-CALL model_selection_workloads('dummy', ARRAY['col1', 'col2', 'col3', 'label'], 300, 3, '/project/TRAILS/internal/ml/model_selection/config.ini');
+CALL model_selection_workloads('dummy', ARRAY['col1', 'col2', 'col3', 'label'], 300, 3, '/project/indices/internal/ml/model_selection/config.ini');
 
 response = requests.post(args.refinement_url, json=data).json()
 

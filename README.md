@@ -9,17 +9,17 @@
 ```bash
 # Create virtual env
 conda config --set ssl_verify false
-conda create -n "trails" python=3.8.10
-conda activate trails
+conda create -n "indices" python=3.8.10
+conda activate indices
 pip install -r requirement.txt
-cd TRAILS
+cd INDICES
 ```
 
 # Envs
 ```bash
 unset PYTHONPATH
-export PYTHONPATH=$PYTHONPATH:/project/TRAILS/internal/ml/
-export PYTHONPATH=$PYTHONPATH:/project/TRAILS/internal/ml/model_slicing
+export PYTHONPATH=$PYTHONPATH:/project/INDICES/internal/ml/
+export PYTHONPATH=$PYTHONPATH:/project/INDICES/internal/ml/model_slicing
 echo $PYTHONPATH
 ```
 
@@ -55,20 +55,20 @@ python3 ./internal/ml/model_slicing/save_satistics.py --dataset bank --data_dir 
 # in server
 ssh server17
 
-# goes to /home/user/firmest_docker/TRAILS
+# goes to /home/user/firmest_docker/INDICES
 git submodule update --recursive --remote
 
 # run container
-docker run -d --name trails \
+docker run -d --name indices \
   --network="host" \
-  -v $(pwd)/TRAILS:/project/TRAILS \
+  -v $(pwd)/INDICES:/project/INDICES \
   -v /hdd1/user/exp_data/:/project/exp_data \
   -v /hdd1/sams/tensor_log/:/project/tensor_log \
   -v /hdd1/sams/data/:/project/data_all \
-  trails
+  indices
 
 # Enter the docker container.
-docker exec -it trails bash
+docker exec -it indices bash
 ```
 
 # Run in database
@@ -91,9 +91,9 @@ psql -h localhost -p 28814 -U postgres
 
 
 # frappe
-bash /project/TRAILS/internal/ml/model_selection/scripts/database/load_data_to_db.sh /project/data_all/frappe frappe
+bash /project/INDICES/internal/ml/model_selection/scripts/database/load_data_to_db.sh /project/data_all/frappe frappe
 # frappe, only feature ids
-bash /project/TRAILS/internal/ml/model_selection/scripts/database/load_data_to_db_int.sh /project/data_all/frappe frappe
+bash /project/INDICES/internal/ml/model_selection/scripts/database/load_data_to_db_int.sh /project/data_all/frappe frappe
 
 
 # adult
@@ -107,15 +107,15 @@ WHERE table_name = 'adult_int_train';
 
 
 # cvd
-bash /project/TRAILS/internal/ml/model_selection/scripts/database/load_data_to_db.sh /project/data_all/cvd cvd
+bash /project/INDICES/internal/ml/model_selection/scripts/database/load_data_to_db.sh /project/data_all/cvd cvd
 # cvd, only feature ids
-bash /project/TRAILS/internal/ml/model_selection/scripts/database/load_data_to_db_int.sh /project/data_all/cvd cvd
+bash /project/INDICES/internal/ml/model_selection/scripts/database/load_data_to_db_int.sh /project/data_all/cvd cvd
 
 
 # bank
-bash /project/TRAILS/internal/ml/model_selection/scripts/database/load_data_to_db.sh /project/data_all/bank bank
+bash /project/INDICES/internal/ml/model_selection/scripts/database/load_data_to_db.sh /project/data_all/bank bank
 # bank, only feature ids
-bash /project/TRAILS/internal/ml/model_selection/scripts/database/load_data_to_db_int.sh /project/data_all/bank bank
+bash /project/INDICES/internal/ml/model_selection/scripts/database/load_data_to_db_int.sh /project/data_all/bank bank
 ```
 
 Verify data is in the DB
@@ -231,8 +231,8 @@ SELECT col2, count(*) FROM frappe_train group by col2 order by count(*) desc;
 SELECT sams_inference(
     'frappe',
     '{"1":266, "2":1244}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/frappe_col_cardinalities',
     '/project/tensor_log/frappe/dnn_K16_alpha4',
     'WHERE col1=''266:1'' and col2=''1244:1''',
     32
@@ -242,8 +242,8 @@ SELECT sams_inference(
 SELECT sams_inference(
     'frappe',
     '{"2":977}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/frappe_col_cardinalities',
     '/project/tensor_log/frappe/dnn_K16_alpha4',
     'WHERE col2=''977:1''',
     10000
@@ -253,8 +253,8 @@ SELECT sams_inference(
 SELECT sams_inference(
     'frappe',
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/frappe_col_cardinalities',
     '/project/tensor_log/frappe/dnn_K16_alpha4',
     '',
     8000
@@ -264,8 +264,8 @@ SELECT sams_inference(
 EXPLAIN (ANALYZE, BUFFERS) SELECT sams_inference(
     'frappe',
     '{"2":977}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/frappe_col_cardinalities',
     '/project/tensor_log/frappe/dnn_K16_alpha4',
     'WHERE col2=''977:1''',
     8000
@@ -288,8 +288,8 @@ DISCARD ALL;
 SELECT sams_inference(
     'adult',
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/adult_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/adult_col_cardinalities',
     '/project/tensor_log/adult/Ednn_K16_alpha2-5',
     '',
     10000
@@ -299,15 +299,15 @@ SELECT sams_inference(
 # exps
 SELECT sams_model_init(
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/adult_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/adult_col_cardinalities',
     '/project/tensor_log/adult/Ednn_K16_alpha2-5',
 );
 SELECT sams_inference(
     'adult',
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/adult_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/adult_col_cardinalities',
     '/project/tensor_log/adult/Ednn_K16_alpha2-5',
     '',
     10000
@@ -316,15 +316,15 @@ SELECT sams_inference(
 
 SELECT sams_model_init(
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/adult_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/adult_col_cardinalities',
     '/project/tensor_log/adult/Ednn_K16_alpha2-5'
 );
 SELECT sams_inference_shared_write_once(
     'adult',
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/adult_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/adult_col_cardinalities',
     '/project/tensor_log/adult/Ednn_K16_alpha2-5',
     '',
     100000
@@ -346,8 +346,8 @@ FROM adult_int_train;
 SELECT sams_inference(
     'frappe',
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/frappe_col_cardinalities',
     '/project/tensor_log/frappe/dnn_K16_alpha4',
     '',
     10000
@@ -356,8 +356,8 @@ SELECT sams_inference(
 SELECT sams_inference(
     'frappe',
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/frappe_col_cardinalities',
     '/project/tensor_log/frappe/dnn_K16_alpha4',
     '',
     20000
@@ -366,15 +366,15 @@ SELECT sams_inference(
 
 SELECT sams_model_init(
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/frappe_col_cardinalities',
     '/project/tensor_log/frappe/dnn_K16_alpha4'
 );
 SELECT sams_inference(
     'frappe',
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/frappe_col_cardinalities',
     '/project/tensor_log/frappe/dnn_K16_alpha4',
     '',
     10000
@@ -384,15 +384,15 @@ SELECT sams_inference(
 
 SELECT sams_model_init(
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/frappe_col_cardinalities',
     '/project/tensor_log/frappe/dnn_K16_alpha4'
 );
 SELECT sams_inference_shared_write_once(
     'frappe',
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/frappe_col_cardinalities',
     '/project/tensor_log/frappe/dnn_K16_alpha4',
     '',
     100000
@@ -402,8 +402,8 @@ SELECT sams_inference_shared_write_once(
 SELECT sams_inference_shared(
     'frappe',
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/frappe_col_cardinalities',
     '/project/tensor_log/frappe/dnn_K16_alpha4',
     '',
     40000
@@ -414,8 +414,8 @@ SELECT sams_inference_shared(
 SELECT sams_inference(
     'frappe',
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/frappe_col_cardinalities',
     '/project/tensor_log/frappe/dnn_K16_alpha4',
     '',
     80000
@@ -425,8 +425,8 @@ SELECT sams_inference(
 SELECT sams_inference(
     'frappe',
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/frappe_col_cardinalities',
     '/project/tensor_log/frappe/dnn_K16_alpha4',
     '',
     160000
@@ -449,8 +449,8 @@ FROM frappe_int_train;
 SELECT sams_inference(
     'cvd',
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/cvd_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/cvd_col_cardinalities',
     '/project/tensor_log/cvd/dnn_K16_alpha2-5',
     '',
     10000
@@ -459,15 +459,15 @@ SELECT sams_inference(
 # exps
 SELECT sams_model_init(
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/cvd_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/cvd_col_cardinalities',
     '/project/tensor_log/cvd/dnn_K16_alpha2-5',
 );
 SELECT sams_inference(
     'cvd',
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/cvd_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/cvd_col_cardinalities',
     '/project/tensor_log/cvd/dnn_K16_alpha2-5',
     '',
     10000
@@ -476,15 +476,15 @@ SELECT sams_inference(
 
 SELECT sams_model_init(
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/cvd_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/cvd_col_cardinalities',
     '/project/tensor_log/cvd/dnn_K16_alpha2-5'
 );
 SELECT sams_inference_shared_write_once(
     'cvd',
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/cvd_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/cvd_col_cardinalities',
     '/project/tensor_log/cvd/dnn_K16_alpha2-5',
     '',
     100000
@@ -508,8 +508,8 @@ FROM cvd_int_train;
 SELECT sams_inference(
     'bank',
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/bank_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/bank_col_cardinalities',
     '/project/tensor_log/bank/dnn_K16_alpha2-3_beta1e-3',
     '',
     10000
@@ -519,15 +519,15 @@ SELECT sams_inference(
 # exps
 SELECT sams_model_init(
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/bank_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/bank_col_cardinalities',
     '/project/tensor_log/bank/dnn_K16_alpha2-3_beta1e-3',
 );
 SELECT sams_inference(
     'bank',
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/bank_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/bank_col_cardinalities',
     '/project/tensor_log/bank/dnn_K16_alpha2-3_beta1e-3',
     '',
     10000
@@ -536,15 +536,15 @@ SELECT sams_inference(
 
 SELECT sams_model_init(
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/bank_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/bank_col_cardinalities',
     '/project/tensor_log/bank/dnn_K16_alpha2-3_beta1e-3'
 );
 SELECT sams_inference_shared_write_once(
     'bank',
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/bank_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/bank_col_cardinalities',
     '/project/tensor_log/bank/dnn_K16_alpha2-3_beta1e-3',
     '',
     100000
@@ -579,15 +579,15 @@ CUDA_VISIBLE_DEVICES=-1 python ./internal/ml/model_slicing/baseline_int.py /hdd1
 
 SELECT sams_model_init(
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/frappe_col_cardinalities',
     '/project/tensor_log/frappe/dnn_K16_alpha4'
 );
 SELECT sams_inference_shared_write_once(
     'frappe',
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/frappe_col_cardinalities',
     '/project/tensor_log/frappe/dnn_K16_alpha4',
     '',
     100000
@@ -596,15 +596,15 @@ SELECT sams_inference_shared_write_once(
 # read int data
 SELECT sams_model_init(
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/frappe_col_cardinalities',
     '/project/tensor_log/frappe/dnn_K16_alpha4'
 );
 SELECT sams_inference_shared_write_once_int(
     'frappe',
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/frappe_col_cardinalities',
     '/project/tensor_log/frappe/dnn_K16_alpha4',
     '',
     100000
@@ -624,15 +624,15 @@ CUDA_VISIBLE_DEVICES=-1 python ./internal/ml/model_slicing/baseline_int.py /hdd1
 
 SELECT sams_model_init(
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/adult_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/adult_col_cardinalities',
     '/project/tensor_log/adult/Ednn_K16_alpha2-5'
 );
 SELECT sams_inference_shared_write_once(
     'adult',
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/adult_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/adult_col_cardinalities',
     '/project/tensor_log/adult/Ednn_K16_alpha2-5',
     '',
     100000
@@ -640,15 +640,15 @@ SELECT sams_inference_shared_write_once(
 
 SELECT sams_model_init(
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/adult_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/adult_col_cardinalities',
     '/project/tensor_log/adult/Ednn_K16_alpha2-5'
 );
 SELECT sams_inference_shared_write_once_int(
     'adult',
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/adult_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/adult_col_cardinalities',
     '/project/tensor_log/adult/Ednn_K16_alpha2-5',
     '',
     640000
@@ -667,15 +667,15 @@ CUDA_VISIBLE_DEVICES=-1 python ./internal/ml/model_slicing/baseline_int.py /hdd1
 
 SELECT sams_model_init(
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/cvd_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/cvd_col_cardinalities',
     '/project/tensor_log/cvd/dnn_K16_alpha2-5'
 );
 SELECT sams_inference_shared_write_once(
     'cvd',
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/cvd_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/cvd_col_cardinalities',
     '/project/tensor_log/cvd/dnn_K16_alpha2-5',
     '',
     100000
@@ -683,15 +683,15 @@ SELECT sams_inference_shared_write_once(
 
 SELECT sams_model_init(
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/cvd_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/cvd_col_cardinalities',
     '/project/tensor_log/cvd/dnn_K16_alpha2-5'
 );
 SELECT sams_inference_shared_write_once_int(
     'cvd',
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/cvd_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/cvd_col_cardinalities',
     '/project/tensor_log/cvd/dnn_K16_alpha2-5',
     '',
     100000
@@ -711,15 +711,15 @@ CUDA_VISIBLE_DEVICES=-1 python ./internal/ml/model_slicing/baseline_int.py /hdd1
 
 SELECT sams_model_init(
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/bank_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/bank_col_cardinalities',
     '/project/tensor_log/bank/dnn_K16_alpha2-3_beta1e-3'
 );
 SELECT sams_inference_shared_write_once(
     'bank',
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/bank_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/bank_col_cardinalities',
     '/project/tensor_log/bank/dnn_K16_alpha2-3_beta1e-3',
     '',
     100000
@@ -728,15 +728,15 @@ SELECT sams_inference_shared_write_once(
 
 SELECT sams_model_init(
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/bank_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/bank_col_cardinalities',
     '/project/tensor_log/bank/dnn_K16_alpha2-3_beta1e-3'
 );
 SELECT sams_inference_shared_write_once_int(
     'bank',
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/bank_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/bank_col_cardinalities',
     '/project/tensor_log/bank/dnn_K16_alpha2-3_beta1e-3',
     '',
     100000
@@ -760,15 +760,15 @@ CUDA_VISIBLE_DEVICES=-1 python ./internal/ml/model_slicing/baseline.py /hdd1/sam
 # 1. with all opt
 SELECT sams_model_init(
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/frappe_col_cardinalities',
     '/project/tensor_log/frappe/dnn_K16_alpha4'
 );
 SELECT sams_inference_shared_write_once(
     'frappe',
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/frappe_col_cardinalities',
     '/project/tensor_log/frappe/dnn_K16_alpha4',
     '',
     100000
@@ -778,8 +778,8 @@ SELECT sams_inference_shared_write_once(
 SELECT sams_inference_shared_write_once(
     'frappe',
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/frappe_col_cardinalities',
     '/project/tensor_log/frappe/dnn_K16_alpha4',
     '',
     100000
@@ -788,15 +788,15 @@ SELECT sams_inference_shared_write_once(
 # 3. w/o shared memory
 SELECT sams_model_init(
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/frappe_col_cardinalities',
     '/project/tensor_log/frappe/dnn_K16_alpha4'
 );
 SELECT sams_inference(
     'frappe',
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/frappe_col_cardinalities',
     '/project/tensor_log/frappe/dnn_K16_alpha4',
     '',
     100000
@@ -813,15 +813,15 @@ Int dataset
 # 1. with all opt
 SELECT sams_model_init(
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/frappe_col_cardinalities',
     '/project/tensor_log/frappe/dnn_K16_alpha4'
 );
 SELECT sams_inference_shared_write_once_int(
     'frappe',
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/frappe_col_cardinalities',
     '/project/tensor_log/frappe/dnn_K16_alpha4',
     '',
     100000
@@ -831,8 +831,8 @@ SELECT sams_inference_shared_write_once_int(
 SELECT sams_inference_shared_write_once_int(
     'frappe',
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/frappe_col_cardinalities',
     '/project/tensor_log/frappe/dnn_K16_alpha4',
     '',
     100000
@@ -841,15 +841,15 @@ SELECT sams_inference_shared_write_once_int(
 # 3. w/o shared memory
 SELECT sams_model_init(
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/frappe_col_cardinalities',
     '/project/tensor_log/frappe/dnn_K16_alpha4'
 );
 SELECT sams_inference(
     'frappe',
     '{}',
-    '/project/TRAILS/internal/ml/model_selection/config.ini',
-    '/project/TRAILS/frappe_col_cardinalities',
+    '/project/INDICES/internal/ml/model_selection/config.ini',
+    '/project/INDICES/frappe_col_cardinalities',
     '/project/tensor_log/frappe/dnn_K16_alpha4',
     '',
     100000
