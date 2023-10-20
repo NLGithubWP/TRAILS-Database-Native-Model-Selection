@@ -37,7 +37,7 @@ python3 ./internal/ml/model_slicing/save_satistics.py --dataset bank --data_dir 
 
 ```bash
 # in server
-ssh panda17
+ssh server17
 
 # goes to /home/user/firmest_docker/TRAILS
 git submodule update --recursive --remote
