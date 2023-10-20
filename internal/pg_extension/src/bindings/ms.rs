@@ -30,7 +30,7 @@ pub fn coordinator(
 pub fn filtering_phase(
     task: &String
 ) -> serde_json::Value {
-    run_python_function(&PY_MODULE, task, "filtering_phase")
+    run_python_function(&PY_MODULE, task, "filtering_phase_dataLoader")
 }
 
 
