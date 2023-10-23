@@ -35,7 +35,7 @@ git clone https://github.com/NLGithubWP/TRAILS-Database-Native-Model-Selection.g
 cd TRAILS-Database-Native-Model-Selection/internal/pg_extension
 cargo pgrx run
 # 4. Load data into RDBMS
-# quite the databse with \q or exit. then execute the followign script
+# quite the database with \q or exit. then execute the followign script
 bash /project/TRAILS-Database-Native-Model-Selection/internal/ml/model_selection/scripts/database/load_data_to_db.sh /project/exp_data/data/structure_data/frappe frappe
 
 ```
@@ -44,13 +44,13 @@ bash /project/TRAILS-Database-Native-Model-Selection/internal/ml/model_selection
 ## Register Stored Procedure
 
 ```bash
-# then execute those
+# Connect database again
 cd TRAILS-Database-Native-Model-Selection/internal/pg_extension
 cargo pgrx run
 ```
 
 ```sql
--- then execute those
+-- Then execute those
 CREATE OR REPLACE
 PROCEDURE model_selection_sp(
     dataset TEXT,               --dataset name
