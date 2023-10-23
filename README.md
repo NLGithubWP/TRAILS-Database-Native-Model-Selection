@@ -43,7 +43,14 @@ bash /project/TRAILS-Database-Native-Model-Selection/internal/ml/model_selection
 
 ## Register Stored Procedure
 
+```bash
+# then execute those
+cd TRAILS-Database-Native-Model-Selection/internal/pg_extension
+cargo pgrx run
+```
+
 ```sql
+-- then execute those
 CREATE OR REPLACE
 PROCEDURE model_selection_sp(
     dataset TEXT,               --dataset name
