@@ -31,11 +31,12 @@ docker exec -it trails-singa bash
 # 2. Clone the code
 cd ~
 git clone https://github.com/NLGithubWP/TRAILS-Database-Native-Model-Selection.git
-# 3. Load data into RDBMS
-bash /project/TRAILS-Database-Native-Model-Selection/internal/ml/model_selection/scripts/database/load_data_to_db.sh /project/exp_data/data/structure_data/frappe frappe
-# 4. Run database server
+# 3. Run database server
 cd TRAILS-Database-Native-Model-Selection/internal/pg_extension
 cargo pgrx run
+# 4. Load data into RDBMS
+# quite the databse with \q or exit. then execute the followign script
+bash /project/TRAILS-Database-Native-Model-Selection/internal/ml/model_selection/scripts/database/load_data_to_db.sh /project/exp_data/data/structure_data/frappe frappe
 
 ```
 
