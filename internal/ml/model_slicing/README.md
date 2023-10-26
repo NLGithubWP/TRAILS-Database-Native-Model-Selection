@@ -23,7 +23,13 @@ source init_env
 
 This is a example shell script to start a training process
 
-we train a `sparsemax_vertical_sams` with `armnet` base model. and set the number of experts to 16. the `data_dir `specify the data directory and `exp` specify where the experiment details and best model is saved. `train_dir` specify the name of the directory of the experiment data.
+we train a `sparsemax_vertical_sams` with `armnet` base model. and set the number of experts to 16. 
+
+the `data_dir `specify the data directory 
+
+the  `exp` specify where the experiment details and best model is saved. 
+
+`train_dir` specify the name of the directory of the experiment data.
 
 ```shell
 $ python3 main.py \
@@ -94,4 +100,4 @@ the `scripts/exp` includes all our own method's (Model Slicing) experiment comma
 the `scripts/expert_exp` includes the experiment about the effect of number of experts. We choose two base model (afn and dnn) to conduct experiments on two datasets (adult and frappe). Thus, there are four directories, `afn_adult` `afn_frappe` `dnn_adult` and `dnn_frappe`
 
 
-the `scripts/imp_exp` includes the ablation study's experiment command. we only choose `dnn` as base model and conduct experiment on two dataset `adult` and `frappe`. there are four commands in each shell scripts, which corresponds to four situations respectively ( w/o sparsity , w/o importance , w/o both,  w/ both)
+the `scripts/imp_exp` includes the ablation study's experiment commands. we only choose `dnn` as base model and conduct experiments on two dataset `adult` and `frappe`. there are four commands in each shell script, which correspond to four situations respectively ( w/o sparsity , w/o importance , w/o both,  w/ both)

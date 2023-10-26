@@ -1,6 +1,12 @@
 # Powering In-Database Dynamic Model Slicing for Structured Data Analytics
 
-![image-20231016122508415](documents/image-20231016122508415.png)
+![image-20231016122508415](documents/motivation.png)
+
+# System Overview
+
+![image](documents/system.png)
+
+
 
 # Config Environments
 

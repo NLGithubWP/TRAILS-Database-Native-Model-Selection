@@ -8,9 +8,9 @@
     --nhead 4 --nhid 16\
     --hid_layer_len 32 --sql_nemb 5\
     --dropout 0.1   \
-    --K 16 --alpha 2.5 --max_filter_col 13\
+    --K 16 --alpha 2 --max_filter_col 13\
     --epoch 50 --batch_size 1024 --lr 0.005 \
-    --seed 3407 --beta 0.005\
+   --seed 3407 --beta 0.01 --gamma 0.02\
     --train_dir armnet_K16_alpha2-5_beta5e-3  --report_freq 5
 
 
