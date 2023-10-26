@@ -1,5 +1,5 @@
-
 # SAMS: SQL Aware Model Slicing System
+
 ![image-20230708](./doc/model.png)
 
 # Config Environments
@@ -20,35 +20,78 @@ source init_env
 ```
 
 # Run one job
-```python
-# Run on CPU
-python main.py --device cpu --log_folder sams_logs --K 4 --moe_num_layers 4 --moe_hid_layer_len 10 --num_layers 4 --hid_layer_len 10 --data_nemb 10 --sql_nemb 10 --dropout 0.0 --alpha 1.7 --max_filter_col 4 --nfeat 369 --nfield 43 --epoch 3 --batch_size 128 --lr 0.002 --iter_per_epoch 10 --report_freq 30 --data_dir "./third_party/data/" --dataset uci_diabetes --num_labels 1
-# Run on GPU
-python main.py --device cuda:0 --log_folder sams_logs --K 4 --moe_num_layers 4 --moe_hid_layer_len 10 --num_layers 4 --hid_layer_len 10 --data_nemb 10 --sql_nemb 10 --dropout 0.0 --alpha 1.7 --max_filter_col 4 --nfeat 369 --nfield 43 --epoch 100 --batch_size 1024 --lr 0.002 --iter_per_epoch 200 --report_freq 30 --data_dir "./third_party/data/" --dataset uci_diabetes --num_labels 1
+
+This is a example shell script to start a training process
+
+we train a `sparsemax_vertical_sams` with `armnet` base model. and set the number of experts to 16. the `data_dir `specify the data directory and `exp` specify where the experiment details and best model is saved. `train_dir` specify the name of the directory of the experiment data.
+
+```shell
+$ python3 main.py \
+    --device cuda:0 --net sparsemax_vertical_sams --expert armnet\
+    --data_dir /hdd1/sams/data/ --exp /hdd1/sams/tensor_log \
+    --dataset bank --nfeat 80 --nfield 16 \
+    --moe_hid_layer_len 32 --data_nemb 10\
+    --nhead 4 --nhid 16\
+    --hid_layer_len 32 --sql_nemb 5\
+    --dropout 0.1   \
+    --K 16 --alpha 2 --max_filter_col 13\
+    --epoch 50 --batch_size 1024 --lr 0.005 \
+    --seed 3407 --beta 0.01 --gamma 0.02\
+    --train_dir armnet_K16_alpha2  --report_freq 5
+
 ```
+
 ## Command Line Arguments
 
--  `--device` : Specifies the device to run on. Default is `"cpu"` .
--  `--log_folder` : The name of the folder to store logs. Default is `"sams_logs"` .
--  `--log_name` : The name of the log file. Default is `"run_log"` .
--  `--K` : The number of duplication layers of each MOE layer. Default is `4` .
--  `--moe_num_layers` : The number of hidden MOE layers of MOENet. Default is `4` .
--  `--moe_hid_layer_len` : Hidden layer length in MoeLayer. Default is `10` .
--  `--num_layers` : The number of hidden layers of hyperNet. Default is `4` .
--  `--hid_layer_len` : Hidden layer length in hyerNet. Default is `10` .
--  `--data_nemb` : Embedding size. Default is `10` .
--  `--sql_nemb` : SQL embedding size. Default is `10` .
--  `--dropout` : Dropout rate. Default is `0.0` .
--  `--alpha` : The entmax alpha to control sparsity, Default is `1.7` .
--  `--max_filter_col` : The number of columns to choose in select...where... Default is `4` .
--  `--nfeat` : The number of features. Default is `369` .
--  `--nfield` : The number of fields. Default is `43` .
--  `--epoch` : The number of maximum epochs. Default is `3` .
--  `--batch_size` : Batch size. Default is `128` .
--  `--lr` : Learning rate. Default is `0.002` .
--  `--iter_per_epoch` : Iterations per epoch. Default is `10` .
--  `--report_freq` : Report frequency. Default is `30` .
--  `--data_dir` : Path of data and result parent folder. Default is `"./third_party/data/"` .
--  `--dataset` : The dataset to use. Default is `'uci_diabetes'` .
--  `--num_labels` : Number of labels. Default is `1` .
+For `data_set_config(parser)` Function:
 
+- `--data_dir`: Path of the data and result parent folder. Default is `"./third_party/data/"`.
+- `--dataset`: Specifies the dataset to use. Default is `"adult"`.
+- `--workload`: Workload name according to different sample strategies. Default is `"random_100"`.
+
+For `tensorboard_config(parser)` Function:
+
+- `--exp`: The directory to store training Tensorboard logs. Default is `"./tensor_log_baseline"`.
+- `--train_dir`: The name of this train process.
+- `--seed`: The random seed value. Default is `1998`.
+
+For `parse_arguments()` Function:
+
+- `--device`: Specifies the device to run on. Default is `"cpu"`.
+- `--log_folder`: The name of the folder to store logs. Default is `"sams_logs"`.
+- `--log_name`: The name of the log file. Default is `"run_log"`.
+
+For `arch_args(parser)` Function:
+
+- `--net`: Specifies the type of network to use. Default is `"sparsemax_vertical_sams"`. Choices include: 'dnn', 'afn', 'cin', 'armnet', 'nfm', 'sparsemax_vertical_sams', 'meanMoE', 'sparseMoE'.
+- `--K`: The number of duplication layers of each MOE layer. Default is 16.
+- `--C`: The number of chosen experts when training the Sparse MoE network. Default is `1`.
+- `--noise`: Whether to add noise when training the Sparse MoE network. Default is `True`.
+- `--moe_num_layers`: The number of hidden MOE layers of MOENet. Default is `2`.
+- `--moe_hid_layer_len`: Hidden layer length in the MoeLayer. Default is `10`.
+- `--hyper_num_layers`: The number of hidden layers of the hyperNet. Default is `2`.
+- `--hid_layer_len`: Hidden layer length in the hyperNet. Default is `10`.
+- `--output_size`: Output size for binary classification tasks. Default is `1`.
+- `--data_nemb`: Data embedding size. Default is `10`.
+- `--sql_nemb`: SQL embedding size. Default is `10`.
+- `--dropout`: Dropout rate. Default is `0.0`.
+- `--nhead`: The number of attention heads in ARMNet. Default is `4`.
+- `--nhid`: The number of hidden size of a specific module in the model, such as the attention layer in ARMNet or AFN layer in AFN. Default is `4`.
+- `--expert`: Specifies which expert to choose (e.g., dnn/afn/cin/armnet).
+
+# Experiment Reproduction
+
+We save all experiment scripts under the `scripts` directory.
+
+the `scripts/baseline` includes all baseline methods' corresponding experiment shell command, 
+
+it includes 5 single base models (afn, armnet,cin, dnn, nfm), and 2 MoE based enhancement methods (sparseMoe and meanMoE)
+
+
+the `scripts/exp` includes all our own method's (Model Slicing) experiment command, it includes 5 base models (afn, armnet,cin, dnn, nfm).
+
+
+the `scripts/expert_exp` includes the experiment about the effect of number of experts. We choose two base model (afn and dnn) to conduct experiments on two datasets (adult and frappe). Thus, there are four directories, `afn_adult` `afn_frappe` `dnn_adult` and `dnn_frappe`
+
+
+the `scripts/imp_exp` includes the ablation study's experiment command. we only choose `dnn` as base model and conduct experiment on two dataset `adult` and `frappe`. there are four commands in each shell scripts, which corresponds to four situations respectively ( w/o sparsity , w/o importance , w/o both,  w/ both)

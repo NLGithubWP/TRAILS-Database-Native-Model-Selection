@@ -2,8 +2,6 @@
 
 ![image-20231016122508415](documents/image-20231016122508415.png)
 
-
-
 # Config Environments
 
 ```bash
@@ -16,6 +14,7 @@ cd INDICES
 ```
 
 # Envs
+
 ```bash
 unset PYTHONPATH
 export PYTHONPATH=$PYTHONPATH:/project/INDICES/internal/ml/
@@ -48,6 +47,12 @@ python3 ./internal/ml/model_slicing/save_satistics.py --dataset cvd --data_dir /
 # bank
 python3 ./internal/ml/model_slicing/save_satistics.py --dataset bank --data_dir /hdd1/sams/data/ --nfeat 80 --nfield 16 --max_filter_col 16 --train_dir ./
 ```
+
+# Training Deep Learning Model Offline.
+
+Please check the `README.md` file under `internal/ml/model_slicing` directory.
+
+The trained model will be saved on disk, and will be invoked through UDF in in-database prediction task.
 
 # Run docker
 
@@ -656,6 +661,7 @@ SELECT sams_inference_shared_write_once_int(
 ```
 
 ## CVD
+
 ```bash
 # CVD
 CUDA_VISIBLE_DEVICES=-1 python ./internal/ml/model_slicing/baseline.py /hdd1/sams/tensor_log/cvd/dnn_K16_alpha2-5 --device cpu --dataset cvd --batch_size 100000 --col_cardinalities_file cvd_col_cardinalities  --target_batch 100000
@@ -858,16 +864,3 @@ SELECT sams_inference(
 # w/o SPI this can measure the time usage for not using spi
 CUDA_VISIBLE_DEVICES=-1 python ./internal/ml/model_slicing/baseline.py /hdd1/sams/tensor_log/frappe/dnn_K16_alpha4 --device cpu --dataset frappe --batch_size 100000 --col_cardinalities_file frappe_col_cardinalities --target_batch 100000
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-

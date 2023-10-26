@@ -20,32 +20,43 @@ def seed_everything(seed: int):
 
 def arch_args(parser):
     # Model Select
-    parser.add_argument('--net', default = "sams", type=str, 
-                        help="select the model to test")
+    parser.add_argument('--net', default = "sparsemax_vertical_sams", type=str, 
+                        choices=['dnn', 'afn', 'cin', 'armnet', 'nfm', 'sparsemax_vertical_sams', 'meanMoE', 'sparseMoE'], help='The type of network to use')
+
+    # for 'sparsemax_vertical_sams', 'meanMoE', 'sparseMoE'
+    # we need to specify the expert
+    parser.add_argument('--expert', default="dnn",
+                        type = str, 
+                        choices=['dnn', 'afn', 'cin', 'armnet', 'nfm'],
+                        help = 'which expert to choose, dnn/afn/cin/armnet')
+
     # MOE-NET
     parser.add_argument('--K', default=4, type=int,
-                        help='# duplication layer of each MOElayer')
+                        help='# experts')
+    
+    # For Sparse MoE 
     parser.add_argument('--C', default=1, type=int,
-                        help= '# chosen experts')
+                        help= '# chosen experts when training Sparse MoE network')
     parser.add_argument('--noise', default=True, type=bool, dest='noise_gating',
-                        help= 'whether adding noise when training MoE network')
+                        help= 'whether adding noise when training Sparse MoE network')
+    
     parser.add_argument('--moe_num_layers', default=2,
-                        type=int, help='# hidden MOElayers of MOENet')
+                        type=int, help='# hidden layers')
     parser.add_argument('--moe_hid_layer_len', default=10,
-                        type=int, help='hidden layer length in MoeLayer')
+                        type=int, help='hidden layer size')
 
     # hyperNet
     parser.add_argument('--hyper_num_layers', default=2, type=int,
                         help='# hidden layers of hyperNet')
     parser.add_argument('--hid_layer_len', default=10,
-                        type=int, help='hidden layer length in hyerNet')
+                        type=int, help='hidden layer size in hyperNet')
     parser.add_argument('--output_size', default=1,
-                        type = int, help='Binary Classification Task')
+                        type = int, help='binary Classification Task')
     # embedding layer
     parser.add_argument('--data_nemb', type=int,
-                        default=10, help='embedding size 10')
+                        default=10, help='data embedding size')
     parser.add_argument('--sql_nemb', type=int, default=10,
-                        help='embedding size 10')
+                        help='SQL embedding size')
 
     # other setting
     parser.add_argument('--dropout', default=0.0,
@@ -57,42 +68,45 @@ def arch_args(parser):
     parser.add_argument('--nhid', default = 4,
                         type = int, help = 'number of hidden size of specific module in model \
                             such as attention layer in armnet, afn layer in AFN')
-    # for expert choosing
-    parser.add_argument('--expert', default="dnn",
-                        type = str, help = 'which expert to choose, dnn/afn/cin/armnet')
+
 def trainner_args(parser):
 
-    parser.add_argument('--alpha', default=1.5, type=float,
+    parser.add_argument('--alpha', default=2.0, type=float,
                         help='entmax alpha to control sparsity')
 
+    # coefficient of importance regularization
     parser.add_argument('--beta', default=0.01, type=float,
-                        help='coefficient for auxiliary loss')
+                        help='coefficient for importance regularization')
     
-    parser.add_argument('--gamma', default=0.0, type=float,
-                        help="sparse for auxiliary loss")
+    # coefficient of sparsity regularization
+    parser.add_argument('--gamma', default=0.02, type=float,
+                        help="coefficient of sparsity regularization")
     
     parser.add_argument('--max_filter_col', type=int, default=4,
                         help='the number of columns to choose in select...where...')
 
-    # MLP model config
+    # data config
     parser.add_argument('--nfeat', type=int, default=369,
                         help='the number of features, '
                              'frappe: 5500, '
-                             'uci_diabetes: 369,'
-                             'criteo: 2100000')
+                             'adult:140,'
+                             'cvd:110,'
+                             'bank:80')
+    
     parser.add_argument('--nfield', type=int, default=43,
                         help='the number of fields, '
                              'frappe: 10, '
-                             'uci_diabetes: 43,'
-                             'criteo: 39')
+                             'adult: 13,'
+                             'cvd:11,'
+                             'bank:16,')
 
     parser.add_argument('--epoch', type=int, default=3,
                         help='number of maximum epochs, '
-                             'frappe: 20, uci_diabetes: 40, criteo: 10'
+                             'frappe: 100, adult:50, cvd:50, bank:50'
                         )
 
     parser.add_argument('--batch_size', type=int,
-                        default=128, help='batch size')
+                        default=1024, help='batch size')
     parser.add_argument('--lr', type=float, default=0.002,
                         help="learning reate")
 
@@ -110,13 +124,13 @@ def data_set_config(parser):
     parser.add_argument('--data_dir', type=str, default="./third_party/data/",
                         help='path of data and result parent folder')
     # define search space,
-    parser.add_argument('--dataset', type=str, default='uci_diabetes',
-                        help='cifar10, cifar100, ImageNet16-120, '
+    parser.add_argument('--dataset', type=str, default='adult',
+                        help='bank,'
                              'frappe, '
-                             'criteo, '
-                             'uci_diabetes')
+                             'adult, '
+                             'cvd')
 
-    parser.add_argument('--workload', type=str, default='random',
+    parser.add_argument('--workload', type=str, default='random_100',
                         help='workload name according to different sample strategy')
     
     parser.add_argument('--num_labels', type=int, default=1, help='[2, 2, 2]')
@@ -126,6 +140,7 @@ def tensorboard_config(parser:argparse.ArgumentParser):
     parser.add_argument('--exp', type=str, default = './tensor_log_baseline', help="the directory to store training tensorboard log")
     parser.add_argument('--train_dir', type=str, required=True, help="the name of this train process")
     parser.add_argument('--seed', type = int, default=1998)
+
 def parse_arguments():
     parser = argparse.ArgumentParser(description='system')
     parser.add_argument('--device', type=str, default="cpu")
