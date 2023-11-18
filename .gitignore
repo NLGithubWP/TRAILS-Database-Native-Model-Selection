@@ -20,4 +20,4 @@ a_compute_cost/
 /internal/ml/model_selection/exp_result_sever_filtering_cache/
 /internal/ml/model_selection/exp_result_sever_wo_cache/
 
-/internal/ml/third_party
+/internal/ml/third_party/*
