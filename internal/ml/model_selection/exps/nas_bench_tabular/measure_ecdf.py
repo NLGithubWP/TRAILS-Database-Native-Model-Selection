@@ -66,6 +66,9 @@ def draw_edcf():
                     valid_auc.append(metrics["valid_auc"])
                     break
 
+        print("Train Standard Deviation:", np.std(train_auc), "mean = ", np.mean(train_auc))
+        print("Valid Standard Deviation:", np.std(valid_auc), "mean = ", np.mean(valid_auc))
+
         # calculate and plot ECDF for train_auc
         sorted_train_auc = np.sort(train_auc)
         y_train = np.arange(1, len(sorted_train_auc) + 1) / len(sorted_train_auc)
@@ -115,7 +118,7 @@ elif dataset_used == "criteo":
 else:
     print("err")
 
-epoch_sampled = {"frappe": 19, "uci_diabetes": 0, "criteo": 9}
+epoch_sampled = {"frappe": 13, "uci_diabetes": 0, "criteo": 9}
 draw_edcf()
 
 """
