@@ -151,27 +151,36 @@ if __name__ == '__main__':
         ('xgboost', xgboost_model)
     ])
 
-    xgb_pipeline.fit(X_train, y_train)
-    y_pred_xgb = xgb_pipeline.predict(X_test)
-    mse_xgb = mean_squared_error(y_test, y_pred_xgb)
-    r2_xgb = r2_score(y_test, y_pred_xgb)
-    rmse_xgb = np.sqrt(mse_xgb)
+    from sklearn.model_selection import RandomizedSearchCV
+    from scipy.stats import uniform, randint, loguniform
 
-    print(f'XGBoost Mean Squared Error: {mse_xgb}, R-squared: {r2_xgb}, rmse_xgb: {rmse_xgb}')
+    # Define the parameter distributions
+    param_distributions = {
+        'learning_rate': loguniform(0.001, 1),
+        'reg_lambda': loguniform(1e-10, 1),
+        'reg_alpha': loguniform(1e-10, 1),
+        'n_estimators': randint(1, 1000),
+        'gamma': loguniform(0.1, 1),
+        'colsample_bylevel': uniform(0.1, 0.9),
+        'colsample_bynode': uniform(0.1, 0.9),
+        'colsample_bytree': uniform(0.5, 0.5),
+        'max_depth': randint(1, 20),
+        'max_delta_step': randint(0, 10),
+        'min_child_weight': loguniform(0.1, 20),
+        'subsample': uniform(0.01, 0.99),
+    }
 
-    import catboost as cb
+    # Set up the RandomizedSearchCV object
+    random_search = RandomizedSearchCV(
+        estimator=xgboost_model,
+        param_distributions=param_distributions,
+        n_iter=100,  # Number of parameter settings sampled
+        scoring='neg_mean_squared_error',  # Or another relevant scoring method
+        cv=5,  # Cross-validation strategy
+        random_state=seed,
+        verbose=2,
+        n_jobs=-1
+    )
 
-    # catboost_model
-    catboost_model = cb.CatBoostRegressor(random_seed=seed, verbose=0)
-    cb_pipeline = Pipeline([
-        ('preprocessor', preprocessor),
-        ('catboost', catboost_model)
-    ])
-
-    cb_pipeline.fit(X_train, y_train)
-    y_pred_cb = cb_pipeline.predict(X_test)
-    mse_cb = mean_squared_error(y_test, y_pred_cb)
-    r2_cb = r2_score(y_test, y_pred_cb)
-    rmse_cgb = np.sqrt(mse_cb)
-
-    print(f'CatBoost Mean Squared Error: {mse_cb}, R-squared: {r2_cb}, rmse_cgb: {rmse_cgb}')
+    # Run the random search and fit the model
+    random_search.fit(X_train, y_train)

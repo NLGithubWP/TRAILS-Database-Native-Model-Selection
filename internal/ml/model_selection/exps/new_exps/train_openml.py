@@ -42,13 +42,10 @@ def get_data(
     if numerical_cols.shape[0] + categorical_cols.shape[0] != X.shape[1]:
         print("Errored: Not all columns are detected")
         exit(0)
-
-    # if task_id in [3, 31, 3945, 14965]:
-    #     encoder = OneHotEncoder()
-    #     X = encoder.fit_transform(X)
-
     if isinstance(y[1], bool):
         y = y.astype('bool')
+
+    print("All labels", set(y.tolist()))
 
     X_train, X_test, y_train, y_test = train_test_split(
         X,
@@ -63,19 +60,19 @@ def get_data(
 
 
 # dilbert
-task_id = 168909
+# task_id = 168909
 
 # credit
 # task_id = 31
 
-# kc1
-# task_id = 3917
-
 # blood , "512-256-256-512" 30 iteration, 68.640
 # task_id = 10101
 
-# bank
-# task_id = 14965, 70.9250094399
+# bank , 70.9250094399, 8=0.7597084798647749,
+task_id = 14965
+
+# adult, 384-256-256-512, 10, 0.784000601369497
+# task_id = 7592
 
 # christine, 512-384-512-256, 500 iteration, 0.724169741697417,
 # task_id = 168908
@@ -122,11 +119,11 @@ if __name__ == '__main__':
     from sklearn.preprocessing import StandardScaler
     from sklearn.pipeline import Pipeline
 
-    model = "512-384-512-256"
+    model = "512-512-384-256"
     corrected_tuple_value = tuple(int(num) for num in model.split('-'))
     print(corrected_tuple_value)
     mlp = MLPClassifier(hidden_layer_sizes=corrected_tuple_value,
-                        max_iter=500,
+                        max_iter=12,
                         activation='relu',
                         solver='adam',
                         random_state=60)
