@@ -69,7 +69,9 @@ def get_data(
 # task_id = 10101
 
 # bank , 70.9250094399, 8=0.7597084798647749,
-task_id = 14965
+# task_id = 14965
+# model = 1
+# epoch = 1
 
 # adult, 384-256-256-512, 10, 0.784000601369497
 # task_id = 7592
@@ -87,7 +89,9 @@ task_id = 14965
 # task_id = 146821
 
 # australian, "384-256-256-512", 15 iteration, 89.376
-# task_id = 146818
+task_id = 146818
+model = "384-256-256-512"
+epoch = 15
 
 
 seed = 11
@@ -108,9 +112,9 @@ if __name__ == '__main__':
     start_time = time.time()
 
     X_train, X_test, y_train, y_test, resampling_strategy_args, \
-        categorical_indicator, numerical_cols, categorical_cols = get_data(
-            task_id=task_id,
-            seed=seed)
+    categorical_indicator, numerical_cols, categorical_cols = get_data(
+        task_id=task_id,
+        seed=seed)
 
     # Building and training the MLP model
     from sklearn.neural_network import MLPClassifier
@@ -119,11 +123,12 @@ if __name__ == '__main__':
     from sklearn.preprocessing import StandardScaler
     from sklearn.pipeline import Pipeline
 
+    begin = time.time()
     model = "512-512-384-256"
     corrected_tuple_value = tuple(int(num) for num in model.split('-'))
     print(corrected_tuple_value)
     mlp = MLPClassifier(hidden_layer_sizes=corrected_tuple_value,
-                        max_iter=12,
+                        max_iter=epoch,
                         activation='relu',
                         solver='adam',
                         random_state=60)
@@ -160,4 +165,6 @@ if __name__ == '__main__':
     test_balanced_accuracy = \
         sklearn.metrics.balanced_accuracy_score(y_test, y_pred.squeeze())
 
-    print(f'Accuracy: {test_balanced_accuracy}')
+    end = time.time()
+
+    print(f'Accuracy: {test_balanced_accuracy}, Time Usage = {end-begin}')
