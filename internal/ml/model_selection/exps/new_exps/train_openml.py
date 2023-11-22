@@ -60,7 +60,9 @@ def get_data(
 
 
 # dilbert
-# task_id = 168909
+task_id = 168909
+model = "512-512-512-256"
+epoch = 100
 
 # credit
 # task_id = 31
@@ -78,21 +80,29 @@ def get_data(
 
 # christine, 512-384-512-256, 500 iteration, 0.724169741697417,
 # task_id = 168908
+# model = "512-384-512-256"
+# epoch = 500
 
 # sylvine, 384-256-128-256, 500 iteration, 94.046
 # task_id = 168912
+# model = "512-256-512-256"
+# epoch = 500
 
 # fabert, 256-384-512-512 500 iteration, 64.651
 # task_id = 168910
+# model = "256-384-512-512"
+# epoch = 20
 
 # car 384-256-256-128, 500 iteration, 100.000
 # task_id = 146821
+# model = "384-256-256-128"
+# epoch = 500
 
 # australian, "384-256-256-512", 15 iteration, 89.376
-task_id = 146818
-model = "384-256-256-512"
-epoch = 15
-
+# task_id = 146818
+# model = "384-256-256-512"
+# epoch = 10
+# 21.6
 
 seed = 11
 
@@ -124,7 +134,6 @@ if __name__ == '__main__':
     from sklearn.pipeline import Pipeline
 
     begin = time.time()
-    model = "512-512-384-256"
     corrected_tuple_value = tuple(int(num) for num in model.split('-'))
     print(corrected_tuple_value)
     mlp = MLPClassifier(hidden_layer_sizes=corrected_tuple_value,
