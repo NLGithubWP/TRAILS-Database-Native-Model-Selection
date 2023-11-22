@@ -66,8 +66,8 @@ def draw_edcf():
                     valid_auc.append(metrics["valid_auc"])
                     break
 
-        print("Train Standard Deviation:", np.std(train_auc), "mean = ", np.mean(train_auc))
-        print("Valid Standard Deviation:", np.std(valid_auc), "mean = ", np.mean(valid_auc))
+        print("Train Standard Deviation:", np.std(train_auc), "mean = ", np.mean(train_auc), "max =", max(train_auc), "min =", min(train_auc))
+        print("Valid Standard Deviation:", np.std(valid_auc), "mean = ", np.mean(valid_auc), "max =", max(valid_auc), "min =", min(valid_auc))
 
         # calculate and plot ECDF for train_auc
         sorted_train_auc = np.sort(train_auc)
