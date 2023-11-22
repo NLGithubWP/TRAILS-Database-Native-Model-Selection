@@ -59,16 +59,23 @@ def get_data(
     return X_train, X_test, y_train, y_test, resampling_strategy_args, categorical_indicator, numerical_cols, categorical_cols
 
 
+# jasmine
+task_id = 168911
+model = "512-384-384-512"
+epoch = 300
+
 # dilbert
-task_id = 168909
-model = "512-512-512-256"
-epoch = 100
+# task_id = 168909
+# model = "512-512-512-256"
+# epoch = 100
 
 # credit
 # task_id = 31
 
 # blood , "512-256-256-512" 30 iteration, 68.640
 # task_id = 10101
+# model = "512-256-256-512"
+# epoch = 30
 
 # bank , 70.9250094399, 8=0.7597084798647749,
 # task_id = 14965
