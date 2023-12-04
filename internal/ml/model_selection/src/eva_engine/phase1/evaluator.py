@@ -385,7 +385,12 @@ class P1Evaluator:
                     else:
                         return self.cached_mini_batch, self.cached_mini_batch_target, 0, 0
             else:
-                raise NotImplementedError
+                # here is to test the expressflow
+                # todo: debut, this is to debut, mannuly tune it
+                y_tensor = torch.rand(1)
+                dimensions = 2000
+                data_tensor = {'id': torch.rand([1, dimensions]), 'value': torch.rand([1, dimensions]), 'y': y_tensor}
+                return data_tensor, y_tensor, 0, 0
 
     def connect_to_db(self):
         try:
