@@ -11,10 +11,6 @@ panda 16
 docker pull polardb/polardb_pg_local_instance
 
 
-  --network="host" \
-  -v $(pwd)/TRAILS:/project/TRAILS \
-  -v /hdd1/xingnaili/exp_data/:/project/exp_data \
-
 # run contrainer
 docker run -d --rm --name polardb_instance \
   --network="host" \
