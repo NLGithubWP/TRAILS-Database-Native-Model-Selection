@@ -54,5 +54,17 @@ CREATE TABLE iris (
 
 ```sql
 select * from iris limit 10; 
+
+CREATE OR REPLACE FUNCTION get_iris_data()
+RETURNS SETOF iris AS $$
+BEGIN
+    RETURN QUERY SELECT * FROM iris;
+END;
+$$ LANGUAGE plpgsql;
+
+
+SELECT * FROM get_iris_data();
+
+SELECT * FROM get_iris_data() limit 10;
 ```
 
